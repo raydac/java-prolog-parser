@@ -1,0 +1,55 @@
+/*
+ * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ *
+ * This library is free software; you can redistribute it and/or modify
+ * it under the terms of version 2.1 of the GNU Lesser General Public
+ * License as published by the Free Software Foundation.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+ * Boston, MA 02111-1307  USA
+ */
+package com.igormaznitsa.prologparser.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import com.igormaznitsa.prologparser.PrologParser;
+import com.igormaznitsa.prologparser.operators.OperatorType;
+
+/**
+ * The annotation being used to define a prolog operator. It allows to define an operator in the shortest way.
+ * 
+ * @author Igor Maznitsa (http://www.igormaznitsa.com)
+ * @version 1.00
+ * @see PrologParser
+ */
+@Target(value = ElementType.TYPE)
+@Retention(value = RetentionPolicy.CLASS)
+public @interface PrologOperator {
+	/**
+	 * The operator priority (0..1200)
+	 * @return the priority as integer
+	 */
+	int Priority();
+
+	/**
+	 * The operator type
+	 * @return the operator type
+	 */
+	OperatorType Type();
+
+	/**
+	 * The operator name
+	 * @return the operator name as a String
+	 */
+	String Name();
+}
