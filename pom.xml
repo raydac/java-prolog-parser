@@ -1,64 +1,98 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.igormaznitsa</groupId>
-  <artifactId>prologparser</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<groupId>com.igormaznitsa</groupId>
+	<artifactId>prologparser</artifactId>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
 
-  <name>Java Prolog Parser</name>
-  <description>It is a handwritten prolog parser, it allows to parse prolog sources written in style of the Edinburgh Prolog</description>
-  <url>http://www.igormaznitsa.com</url>
+	<name>Java Prolog Parser</name>
+	<description>It is a hand-written prolog parser, it allows to parse prolog sources written in Edinburgh Prolog style</description>
+	<url>http://java-prolog-parser.googlecode.com/</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
-  <inceptionYear>2011</inceptionYear>
-  <developers>
-  	<developer>
-  		<id>raydac</id>
-  		<name>Igor Maznitsa</name>
-  		<email>igor.maznitsa@igormaznitsa.com</email>
-  		<url>http://www.igormaznitsa.com</url>
-  		<timezone>UTC+4</timezone>
-  		<roles>
-  			<role>Designer</role>
-  			<role>Programmer</role>
-  		</roles>
-  	</developer>
-  </developers>
-  <organization>
-  	<name>Igor Maznitsa</name>
-  	<url>http://www.igormaznitsa.com</url>
-  </organization>
-  <build>
-  	<plugins>
-  	</plugins>
-  	<pluginManagement>
-  		<plugins>
-  		</plugins>
-  	</pluginManagement>
-  	<testResources>
-  	</testResources>
-  </build>
-  <dependencies>
-    <dependency>
-    	<groupId>junit</groupId>
-    	<artifactId>junit</artifactId>
-    	<version>4.8.2</version>
-    	<type>jar</type>
-    	<scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>org.mockito</groupId>
-    	<artifactId>mockito-all</artifactId>
-    	<version>1.8.5</version>
-    	<type>jar</type>
-    	<scope>test</scope>
-    </dependency>
-  </dependencies>
-  <modules>
-  </modules>
+	<issueManagement>
+		<system>code.google.com</system>
+		<url>http://code.google.com/p/java-prolog-parser/issues/list</url>
+	</issueManagement>
+	<inceptionYear>2011</inceptionYear>
+	<developers>
+		<developer>
+			<id>raydac</id>
+			<name>Igor Maznitsa</name>
+			<email>igor.maznitsa@igormaznitsa.com</email>
+			<url>http://www.igormaznitsa.com</url>
+			<timezone>+4</timezone>
+			<roles>
+				<role>Owner</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
+	<scm>
+		<connection>https://java-prolog-parser.googlecode.com/hg/</connection>
+		<developerConnection>https://java-prolog-parser.googlecode.com/hg/</developerConnection>
+		<tag>HEAD</tag>
+		<url>http://java-prolog-parser.googlecode.com/</url>
+	</scm>
+	<organization>
+		<name>Igor Maznitsa</name>
+		<url>http://www.igormaznitsa.com</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>GNU LGPL v3</name>
+			<url>http://www.gnu.org/licenses/lgpl.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<build>
+		<directory>target</directory>
+		<outputDirectory>target/classes</outputDirectory>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.8.5</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<modules>
+	</modules>
 </project>
