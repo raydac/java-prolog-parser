@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -69,6 +69,7 @@ public class PrologCharDataSource {
 	 * @param string
 	 *            A string object which will be used as the source for the
 	 *            reader, must not be null
+	 * @since 1.00
 	 */
 	public PrologCharDataSource(final String string) {
 		this(new StringReader(string));
@@ -80,6 +81,7 @@ public class PrologCharDataSource {
 	 * @param inStream
 	 *            an input stream object which will be used as the source for
 	 *            the reader, must not be null
+	 * @since 1.00
 	 */
 	public PrologCharDataSource(final InputStream inStream) {
 		this(new InputStreamReader(inStream));
@@ -90,6 +92,7 @@ public class PrologCharDataSource {
 	 * 
 	 * @param channel
 	 *            the channel to be used as the data source, must not be null
+	 * @since 1.00
 	 */
 	public PrologCharDataSource(final ReadableByteChannel channel) {
 		this(Channels.newInputStream(channel));
@@ -102,6 +105,7 @@ public class PrologCharDataSource {
 	 * 
 	 * @param reader
 	 *            a java reader object, must not be null
+	 * @since 1.00
 	 */
 	public PrologCharDataSource(final Reader reader) {
 		if (reader == null)
@@ -121,6 +125,7 @@ public class PrologCharDataSource {
 	 * @throws IOException
 	 *             it will be thrown if there is any transport error during the
 	 *             operation
+	 * @since 1.00
 	 */
 	public synchronized int read() throws IOException {
 		int ch;
@@ -153,6 +158,7 @@ public class PrologCharDataSource {
 	 *            an etalon string must not be null
 	 * @param buffer
 	 *            a string buffer object, must not be null
+	 * @since 1.00
 	 */
 	public synchronized void calculateDifferenceAndPushTheResultBack(
 			final String etalon, final StringBuilder buffer) {
@@ -181,15 +187,18 @@ public class PrologCharDataSource {
 	 * Get the previous line number, the first line is 1
 	 * 
 	 * @return the previous line number
+	 * @since 1.00
 	 */
 	public int getPrevLineNumber() {
 		return lineNumPrev;
 	}
 
 	/**
-	 * Get the previous value of the next char string position indicator, the first char is 1
+	 * Get the previous value of the next char string position indicator, the
+	 * first char is 1
 	 * 
 	 * @return the previous value of the next char string position
+	 * @since 1.00
 	 */
 	public int getPreviousNextCharStringPosition() {
 		return strPosPrev;
@@ -197,7 +206,9 @@ public class PrologCharDataSource {
 
 	/**
 	 * Get current line number, the first line is 1
+	 * 
 	 * @return the line number as integer
+	 * @since 1.00
 	 */
 	public int getLineNumber() {
 		return lineNum;
@@ -205,7 +216,9 @@ public class PrologCharDataSource {
 
 	/**
 	 * Get current next char string position, the first char is 1
+	 * 
 	 * @return the next char string position as integer
+	 * @since 1.00
 	 */
 	public int getNextCharStringPosition() {
 		return strPos;
@@ -217,6 +230,7 @@ public class PrologCharDataSource {
 	 * 
 	 * @param ch
 	 *            the char to be placed into the inside buffer
+	 * @since 1.00
 	 */
 	public synchronized void pushCharBack(final char ch) {
 		insideCharBuffer.addLast(ch);
@@ -239,6 +253,7 @@ public class PrologCharDataSource {
 	 * 
 	 * @throws IOException
 	 *             it will be thrown if there is any error during the operation
+	 * @since 1.00
 	 */
 	public synchronized void close() throws IOException {
 		inReader.close();

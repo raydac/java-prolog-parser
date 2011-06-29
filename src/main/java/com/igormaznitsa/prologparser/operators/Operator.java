@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -36,10 +36,14 @@ public final class Operator extends AbstractPrologTerm {
 
 	/**
 	 * The constant describes the maximum priority for a prolog operator.
+	 * 
+	 * @since 1.00
 	 */
 	public static final int PRIORITY_MAX = 0;
 	/**
 	 * The constant describes the minimum priority for a prolog operator.
+	 * 
+	 * @since 1.00
 	 */
 	public static final int PRIORITY_MIN = 1200;
 	/**
@@ -56,29 +60,32 @@ public final class Operator extends AbstractPrologTerm {
 	private final int precalculatedHashCode;
 
 	/**
-	 * This auxiliary function allows to generate a lot of similar operators from
-	 * a string array
+	 * This auxiliary function allows to generate a lot of similar operators
+	 * from a string array
 	 * 
 	 * @param priority
 	 *            the priority for all generated operators 0..1200
 	 * @param type
 	 *            the type for all generated operators, must not be null
 	 * @param names
-	 *            a string array contains names for new operators, must not
-	 *            be null
+	 *            a string array contains names for new operators, must not be
+	 *            null
 	 * @return an array of new Operator objects which were generated for the
-	 *         arguments and they have the same type and priority but different names.
+	 *         arguments and they have the same type and priority but different
+	 *         names.
 	 * @see OperatorType
+	 * @since 1.00
 	 */
 	public static Operator[] makeOperators(final int priority,
 			final OperatorType type, final String[] names) {
-		if (priority<PRIORITY_MAX || priority>PRIORITY_MIN) 
-			throw new IllegalArgumentException("Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
+		if (priority < PRIORITY_MAX || priority > PRIORITY_MIN)
+			throw new IllegalArgumentException(
+					"Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
 		if (type == null)
 			throw new NullPointerException("Type is null");
 		if (names == null)
 			throw new NullPointerException("Names array is null");
-		
+
 		final Operator[] result = new Operator[names.length];
 		for (int li = 0; li < names.length; li++) {
 			result[li] = new Operator(priority, type, names[li]);
@@ -99,6 +106,7 @@ public final class Operator extends AbstractPrologTerm {
 	 *             will be thrown if there is some incompatible value at
 	 *             arguments
 	 * @see OperatorType
+	 * @since 1.00
 	 */
 	public Operator(final int priority, final OperatorType type,
 			final String name) {
@@ -110,20 +118,21 @@ public final class Operator extends AbstractPrologTerm {
 
 		if (type == null)
 			throw new NullPointerException("Type is null");
-		
+
 		if (name.isEmpty())
 			throw new IllegalArgumentException("Empty operator name");
-		
+
 		if (Character.isSpaceChar(name.charAt(0)))
-			throw new IllegalArgumentException("Space char as the first one at name");
-		
+			throw new IllegalArgumentException(
+					"Space char as the first one at name");
+
 		if (Character.isUpperCase(name.charAt(0)))
-			throw new IllegalArgumentException("Capital char as the first one at name");
-		
-		if (name.charAt(0)=='_')
+			throw new IllegalArgumentException(
+					"Capital char as the first one at name");
+
+		if (name.charAt(0) == '_')
 			throw new IllegalArgumentException("'_' as the first char");
-				
-		
+
 		opType = type;
 		opPriority = priority;
 
@@ -143,6 +152,7 @@ public final class Operator extends AbstractPrologTerm {
 	 * Get the type of the operator
 	 * 
 	 * @return the operator type
+	 * @since 1.00
 	 */
 	public OperatorType getOperatorType() {
 		return opType;
@@ -157,11 +167,13 @@ public final class Operator extends AbstractPrologTerm {
 	}
 
 	/**
-	 * Check that the operator is compatible with a prolog structure and can be the functor for the structure.
+	 * Check that the operator is compatible with a prolog structure and can be
+	 * the functor for the structure.
 	 * 
 	 * @param struct
 	 *            the structure to be checked, must not be null
 	 * @return true if the operator is compatible with the structure else false
+	 * @since 1.00
 	 */
 	public boolean compatibleWith(final PrologStructure struct) {
 		boolean result = false;
@@ -302,12 +314,14 @@ public final class Operator extends AbstractPrologTerm {
 
 		return result;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString(){
-		return "op("+getPriority()+','+getOperatorType().toString().toLowerCase()+",\'"+getText()+"\').";
+	public String toString() {
+		return "op(" + getPriority() + ','
+				+ getOperatorType().toString().toLowerCase() + ",\'"
+				+ getText() + "\').";
 	}
 }

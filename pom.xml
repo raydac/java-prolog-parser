@@ -4,7 +4,7 @@
 
 	<groupId>com.igormaznitsa</groupId>
 	<artifactId>prologparser</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Java Prolog Parser</name>

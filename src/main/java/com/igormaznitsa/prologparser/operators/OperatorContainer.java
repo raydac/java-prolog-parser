@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -21,7 +21,8 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 
 /**
- * The class being used by the prolog parser to save operators with the same names but with different types.
+ * The class being used by the prolog parser to save operators with the same
+ * names but with different types.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
@@ -51,6 +52,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	 * 
 	 * @param operator
 	 *            an operator as the ground for the container
+	 * @since 1.00
 	 */
 	public OperatorContainer(final Operator operator) {
 		super(operator.getText());
@@ -63,15 +65,18 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	 * @param operator
 	 *            an operator to be added into the container, must not be null
 	 * @return true if the operator has been added, else false
-	 * @throws IllegalArgumentException if the operator has different name than the container
+	 * @throws IllegalArgumentException
+	 *             if the operator has different name than the container
+	 * @since 1.00
 	 */
 	public boolean addOperator(final Operator operator) {
-		if (operator == null) 
+		if (operator == null)
 			throw new NullPointerException("Operator must not be null");
-		
+
 		if (!getText().equals(operator.getText()))
-			throw new IllegalArgumentException("Wrong operator name for the container");
-		
+			throw new IllegalArgumentException(
+					"Wrong operator name for the container");
+
 		switch (operator.getOperatorType()) {
 		case FX:
 		case FY:
@@ -106,46 +111,54 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	}
 
 	/**
-	 * Remove all operators from the container, but pay your attention that the container will not lost its name and you will not be able to add operators with other names.
+	 * Remove all operators from the container, but pay your attention that the
+	 * container will not lost its name and you will not be able to add
+	 * operators with other names.
+	 * 
+	 * @since 1.00
 	 */
-	public void removeAll(){
+	public void removeAll() {
 		opFZ = null;
 		opZF = null;
 		opZFZ = null;
 		numberAtContainer = 0;
 	}
-	
+
 	/**
 	 * Remove an operator from the container
-	 * @param op the operator to be removed, must not be null
-	 * @return true if the operator has been found and removed from the container, else false
+	 * 
+	 * @param op
+	 *            the operator to be removed, must not be null
+	 * @return true if the operator has been found and removed from the
+	 *         container, else false
+	 * @since 1.00
 	 */
 	public boolean remove(final Operator op) {
-		if (op == null) 
+		if (op == null)
 			throw new NullPointerException("Operator is null");
-		
+
 		if (!getText().equals(op.getText()))
-			throw new IllegalArgumentException("Wrong operator name for the container");
-			
+			throw new IllegalArgumentException(
+					"Wrong operator name for the container");
+
 		boolean result = false;
-		if (opFZ!=null && opFZ.equals(op)){
+		if (opFZ != null && opFZ.equals(op)) {
 			opFZ = null;
 			numberAtContainer--;
 			result = true;
-		}else
-		if (opZF!=null && opZF.equals(op)){
+		} else if (opZF != null && opZF.equals(op)) {
 			opZF = null;
 			numberAtContainer--;
 			result = true;
 		}
-		if (opZFZ!=null && opZFZ.equals(op)){
+		if (opZFZ != null && opZFZ.equals(op)) {
 			opZFZ = null;
 			numberAtContainer--;
 			result = true;
 		}
 		return result;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -158,15 +171,18 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	 * Return the current number of saved operators within the container
 	 * 
 	 * @return the operator number as integer
+	 * @since 1.00
 	 */
 	public int size() {
 		return numberAtContainer;
 	}
 
 	/**
-	 * Get an operator from the container if the operator is the only saved operator within the container.
+	 * Get an operator from the container if the operator is the only saved
+	 * operator within the container.
 	 * 
 	 * @return an operator if it is only saved operator, else null
+	 * @since 1.00
 	 */
 	public Operator getOperatorIfSingle() {
 		if (numberAtContainer == 1) {
@@ -183,7 +199,8 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	}
 
 	/**
-	 * Get an operator from the container which can be used for a situation, as situation I mean the left right arguments existence.
+	 * Get an operator from the container which can be used for a situation, as
+	 * situation I mean the left right arguments existence.
 	 * 
 	 * @param leftPresented
 	 *            true if there is the left argument in the situation, false if
@@ -192,6 +209,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	 *            false if thee is the right argument in the situation, false if
 	 *            there is not any right one
 	 * @return the found operator or null if there is not anyone found
+	 * @since 1.00
 	 */
 	public Operator findCompatibleOperator(final boolean leftPresented,
 			final boolean rightPresented) {
@@ -225,9 +243,10 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	 * @param type
 	 *            the operator type
 	 * @return the found operator or null
+	 * @since 1.00
 	 */
 	public Operator getOperatorForType(final OperatorType type) {
-		if (type == null) 
+		if (type == null)
 			throw new NullPointerException("The type is null");
 		Operator result = null;
 		switch (type) {
@@ -261,11 +280,14 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	}
 
 	/**
-	 * Find a similar type operator. As the similar type I mean the case of argument position (ZF, FZ, ZFZ). If you find for XF and there is YF then you will get YF.
+	 * Find a similar type operator. As the similar type I mean the case of
+	 * argument position (ZF, FZ, ZFZ). If you find for XF and there is YF then
+	 * you will get YF.
 	 * 
 	 * @param type
 	 *            the type for search
 	 * @return the found operator or null
+	 * @since 1.00
 	 */
 	public Operator getOperatorForSimilarType(final OperatorType type) {
 		switch (type) {
@@ -290,6 +312,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	 * @param type
 	 *            the operator type to be removed
 	 * @return true if the operator was found and removed, else false
+	 * @since 1.00
 	 */
 	public boolean removeOperatorForType(final OperatorType type) {
 		if (type == null)
@@ -331,25 +354,26 @@ public final class OperatorContainer extends AbstractPrologTerm {
 	public int getPriority() {
 		return 0;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString(){
+	public String toString() {
 		final StringBuilder result = new StringBuilder();
 		result.append("OperatorContainer [");
-		
+
 		boolean added = false;
-		final Operator [] ops = new Operator[]{opFZ, opZF, opZFZ};
-		for(final Operator op : ops) {
-			if (op!=null){
-				if (added) result.append(' ');
+		final Operator[] ops = new Operator[] { opFZ, opZF, opZFZ };
+		for (final Operator op : ops) {
+			if (op != null) {
+				if (added)
+					result.append(' ');
 				result.append(op.toString());
 				added = true;
 			}
 		}
-		
+
 		return result.append(']').toString();
 	}
 }

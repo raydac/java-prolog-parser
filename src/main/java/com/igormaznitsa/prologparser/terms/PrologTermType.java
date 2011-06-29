@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -21,7 +21,8 @@ import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
 
 /**
- * The enumeration contains all prolog term types being used by the prolog parser
+ * The enumeration contains all prolog term types being used by the prolog
+ * parser
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
@@ -29,32 +30,45 @@ import com.igormaznitsa.prologparser.annotations.PrologOperators;
 public enum PrologTermType {
 	/**
 	 * The constant describes a prolog atom
+	 * 
 	 * @see PrologAtom
+	 * @since 1.00
 	 */
-	ATOM, 
+	ATOM,
 	/**
 	 * The constant describes a prolog structure
+	 * 
 	 * @see PrologStructure
+	 * @since 1.00
 	 */
 	STRUCT,
 	/**
 	 * The constant describes a prolog variable
+	 * 
 	 * @see PrologVariable
+	 * @since 1.00
 	 */
-	VAR, 
+	VAR,
 	/**
 	 * The constant describes a prolog operator
+	 * 
 	 * @see PrologOperator
+	 * @since 1.00
 	 */
-	OPERATOR, 
+	OPERATOR,
 	/**
-	 * The constant describes an operator container, it is an auxiliary object to save similar named operators on the intermediate processing level
+	 * The constant describes an operator container, it is an auxiliary object
+	 * to save similar named operators on the intermediate processing level
+	 * 
 	 * @see PrologOperators
+	 * @since 1.00
 	 */
-	OPERATORS, 
+	OPERATORS,
 	/**
 	 * The constant describes a prolog list
+	 * 
 	 * @see PrologList
+	 * @since 1.00
 	 */
 	LIST
 }

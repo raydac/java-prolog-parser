@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -18,7 +18,9 @@
 package com.igormaznitsa.prologparser.terms;
 
 /**
- * The class describes an immutable integer numeric atom, it is like a prolog atom but being used to save a Java long value.
+ * The class describes an immutable integer numeric atom, it is like a prolog
+ * atom but being used to save a Java long value.
+ * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
  */
@@ -29,8 +31,12 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	private final long value;
 
 	/**
-	 * A Constructor. It allows to create new instance based on a text long numeric representation.
-	 * @param text the text represents a long value, must not be null
+	 * A Constructor. It allows to create new instance based on a text long
+	 * numeric representation.
+	 * 
+	 * @param text
+	 *            the text represents a long value, must not be null
+	 * @since 1.00
 	 */
 	public PrologIntegerNumber(final String text) {
 		super();
@@ -40,8 +46,12 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	}
 
 	/**
-	 * A Constructor. It allows to create new instance based on a Java long value.
-	 * @param value the long value being used to create new instance
+	 * A Constructor. It allows to create new instance based on a Java long
+	 * value.
+	 * 
+	 * @param value
+	 *            the long value being used to create new instance
+	 * @since 1.00
 	 */
 	public PrologIntegerNumber(final long value) {
 		super();
@@ -60,7 +70,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString(){
+	public String toString() {
 		return Long.toString(value);
 	}
 
@@ -68,16 +78,18 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getText(){
+	public String getText() {
 		return toString();
 	}
-	
+
 	/**
 	 * Get the immutable value saved by the instance
+	 * 
 	 * @return the value as long
+	 * @since 1.00
 	 */
-	public long getValue(){
+	public long getValue() {
 		return value;
 	}
-	
+
 }

@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -18,7 +18,10 @@
 package com.igormaznitsa.prologparser.terms;
 
 /**
- * The class describes a float numeric atom for the prolog parser. It looks like the prolog atom but contains a Java double value and doesnt save the text value which was used during the constructor call.
+ * The class describes a float numeric atom for the prolog parser. It looks like
+ * the prolog atom but contains a Java double value and doesnt save the text
+ * value which was used during the constructor call.
+ * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
  */
@@ -30,9 +33,14 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 	private final double value;
 
 	/**
-	 * A Constructor. It allows to create new instance based on the text representation.
-	 * @param text the text compatibles with Java double type. Must not be null.
-	 * @throws NumberFormatException will be thrown if the text can't be parsed as a Double value.
+	 * A Constructor. It allows to create new instance based on the text
+	 * representation.
+	 * 
+	 * @param text
+	 *            the text compatibles with Java double type. Must not be null.
+	 * @throws NumberFormatException
+	 *             will be thrown if the text can't be parsed as a Double value.
+	 * @since 1.00
 	 */
 	public PrologFloatNumber(final String text) {
 		super();
@@ -41,7 +49,10 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 
 	/**
 	 * A Constructor. It allows to create new instance based on a double value.
-	 * @param value the double value being used for new instance.
+	 * 
+	 * @param value
+	 *            the double value being used for new instance.
+	 * @since 1.00
 	 */
 	public PrologFloatNumber(final double value) {
 		super();
@@ -58,17 +69,19 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 
 	/**
 	 * Get the double value saved by the object.
+	 * 
 	 * @return the double value
+	 * @since 1.00
 	 */
-	public double getValue(){
+	public double getValue() {
 		return value;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString(){
+	public String toString() {
 		return Double.toString(value);
 	}
 }

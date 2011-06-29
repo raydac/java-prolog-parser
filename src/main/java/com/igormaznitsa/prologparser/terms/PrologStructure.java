@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -25,37 +25,48 @@ import com.igormaznitsa.prologparser.operators.Operator;
  * The class describes a prolog structure.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public class PrologStructure extends AbstractPrologTerm {
 	/**
 	 * An auxiliary constant contains an empty prolog term array
+	 * 
+	 * @since 1.00
 	 */
 	public static final AbstractPrologTerm[] EMPTY_TERM_ARRAY = new AbstractPrologTerm[0];
-	
+
 	/**
-	 * An auxiliary constant contains an empty atom, as empty I mean that the atom contains the empty string
+	 * An auxiliary constant contains an empty atom, as empty I mean that the
+	 * atom contains the empty string
+	 * 
+	 * @since 1.00
 	 */
 	public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
 
 	/**
 	 * The functor of the structure
+	 * 
+	 * @since 1.00
 	 */
 	protected final AbstractPrologTerm functor;
+
 	/**
 	 * The array contains structure elements
+	 * 
+	 * @since 1.00
 	 */
 	protected final AbstractPrologTerm[] elements;
 
 	/**
-	 * The variable save any Java object, it is not being used by the prolog parser but allows a user to link some data to the structure, the default value is null
-	 */
-	protected Object linkedObject;
-
-	/**
-	 * A Constructor. It allows to create a structure for a functor and a term array
-	 * @param functor the functor for the new structure, must not be null
-	 * @param elements the elements of the new structure, must not be null and must not contain null (!)
+	 * A Constructor. It allows to create a structure for a functor and a term
+	 * array
+	 * 
+	 * @param functor
+	 *            the functor for the new structure, must not be null
+	 * @param elements
+	 *            the elements of the new structure, must not be null and must
+	 *            not contain null (!)
+	 * @since 1.00
 	 */
 	public PrologStructure(final AbstractPrologTerm functor,
 			final AbstractPrologTerm[] elements) {
@@ -73,7 +84,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
 		this.functor = functor;
 		this.elements = elements.clone();
-		
+
 		for (int li = 0; li < this.elements.length; li++) {
 			if (this.elements[li] == null) {
 				throw new NullPointerException(
@@ -84,25 +95,39 @@ public class PrologStructure extends AbstractPrologTerm {
 	}
 
 	/**
-	 * A Constructor. It allows to create a zero (I mean a zero arity one) structure with a prolog atom as the functor.
-	 * @param text the text to create the functor, must not be null
+	 * A Constructor. It allows to create a zero (I mean a zero arity one)
+	 * structure with a prolog atom as the functor.
+	 * 
+	 * @param text
+	 *            the text to create the functor, must not be null
+	 * @since 1.00
 	 */
 	public PrologStructure(final String text) {
 		this(new PrologAtom(text), 0);
 	}
 
 	/**
-	 * A Constructor. It allows to create a zero (I mean a zero arity one) structure with a prolog term as a functor
-	 * @param functor a prolog term to be used as the functor, must not be null
+	 * A Constructor. It allows to create a zero (I mean a zero arity one)
+	 * structure with a prolog term as a functor
+	 * 
+	 * @param functor
+	 *            a prolog term to be used as the functor, must not be null
+	 * @since 1.00
 	 */
 	public PrologStructure(final AbstractPrologTerm functor) {
 		this(functor, 0);
 	}
 
 	/**
-	 * A Constructor. It allows to create a prolog structure for a functor and needed arity (it will use EMPTY_ATOM as each element)
-	 * @param functor a prolog term to be used as the structure functor, it must not be null.
-	 * @param arity the arity of the new structure, must not be less than zero.
+	 * A Constructor. It allows to create a prolog structure for a functor and
+	 * needed arity (it will use EMPTY_ATOM as each element)
+	 * 
+	 * @param functor
+	 *            a prolog term to be used as the structure functor, it must not
+	 *            be null.
+	 * @param arity
+	 *            the arity of the new structure, must not be less than zero.
+	 * @since 1.00
 	 */
 	protected PrologStructure(final AbstractPrologTerm functor, final int arity) {
 		super(functor.getText());
@@ -127,6 +152,9 @@ public class PrologStructure extends AbstractPrologTerm {
 		Arrays.fill(elements, EMPTY_ATOM);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public PrologTermType getType() {
 		return PrologTermType.STRUCT;
@@ -134,7 +162,9 @@ public class PrologStructure extends AbstractPrologTerm {
 
 	/**
 	 * Get the arity of the structure
+	 * 
 	 * @return the arity as integer
+	 * @since 1.00
 	 */
 	public int getArity() {
 		return elements.length;
@@ -142,8 +172,12 @@ public class PrologStructure extends AbstractPrologTerm {
 
 	/**
 	 * Get a structure element for an index
-	 * @param index the index of the element, the first element is 0
-	 * @return the structure element at the needed position, it can't be null (!)
+	 * 
+	 * @param index
+	 *            the index of the element, the first element is 0
+	 * @return the structure element at the needed position, it can't be null
+	 *         (!)
+	 * @since 1.00
 	 */
 	public AbstractPrologTerm getElement(final int index) {
 		return elements[index];
@@ -151,8 +185,12 @@ public class PrologStructure extends AbstractPrologTerm {
 
 	/**
 	 * Set a structure element at a position by a prolog term
-	 * @param index the position of the element, the first is 0
-	 * @param term the term to be set into the position, must not be null
+	 * 
+	 * @param index
+	 *            the position of the element, the first is 0
+	 * @param term
+	 *            the term to be set into the position, must not be null
+	 * @since 1.00
 	 */
 	public void setElement(final int index, final AbstractPrologTerm term) {
 		if (index < 0 || index >= getArity())
@@ -165,12 +203,17 @@ public class PrologStructure extends AbstractPrologTerm {
 
 	/**
 	 * Get the functor of the structure
+	 * 
 	 * @return the functor
+	 * @since 1.00
 	 */
 	public AbstractPrologTerm getFunctor() {
 		return functor;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getPriority() {
 		if (functor.getType() == PrologTermType.OPERATOR) {
@@ -178,22 +221,6 @@ public class PrologStructure extends AbstractPrologTerm {
 		} else {
 			return 0;
 		}
-	}
-
-	/**
-	 * Set the linked object for the structure
-	 * @param obj the new linked object, it can be null
-	 */
-	public void setLinkedObject(final Object obj) {
-		this.linkedObject = obj;
-	}
-
-	/**
-	 * Get the linked object for the structure
-	 * @return the linked object, it can be null
-	 */
-	public Object getLinkedObject() {
-		return this.linkedObject;
 	}
 
 	/**

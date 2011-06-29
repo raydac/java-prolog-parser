@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -26,7 +26,7 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
  * will be notified about new structure creation
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.0
+ * @version 1.00
  */
 public interface ParserContext {
 	/**
@@ -37,6 +37,7 @@ public interface ParserContext {
 	 *            the string which should be checked to be as the start as an
 	 *            operator name (or whole operator name too)
 	 * @return true is there is an operator starts with the string, else false
+	 * @since 1.00
 	 */
 	boolean hasOperatorStartsWith(String operatorNameStartSubstring);
 
@@ -46,6 +47,7 @@ public interface ParserContext {
 	 * @param operatorName
 	 *            a string to be used as whole operator name
 	 * @return an operator container if there is one for the name, else null
+	 * @since 1.00
 	 */
 	OperatorContainer findOperatorForName(String operatorName);
 
@@ -57,6 +59,7 @@ public interface ParserContext {
 	 * @param predicateName
 	 *            a string contains the predicate name
 	 * @return true if there is such predicate, else false
+	 * @since 1.00
 	 */
 	boolean hasZeroArityPredicate(String predicateName);
 
@@ -64,7 +67,9 @@ public interface ParserContext {
 	 * It will be called by parser every time as it has created a structure and
 	 * the context can postprocess it
 	 * 
-	 * @param structure the structure just created by the parser
+	 * @param structure
+	 *            the structure just created by the parser
+	 * @since 1.00
 	 */
 	void processNewStructure(PrologStructure structure);
 }

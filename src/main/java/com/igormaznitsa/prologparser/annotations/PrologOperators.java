@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -23,7 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The annotation allows to collect many prolog operator annotations. It is just a container.
+ * The annotation allows to collect many prolog operator annotations. It is just
+ * a container.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
@@ -34,7 +35,9 @@ import java.lang.annotation.Target;
 public @interface PrologOperators {
 	/**
 	 * Array of operators, must not be empty.
+	 * 
 	 * @return an array of operators saved by the annotation
+	 * @since 1.00
 	 */
 	PrologOperator[] Operators();
 }

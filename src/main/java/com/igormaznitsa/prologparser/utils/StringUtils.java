@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -26,21 +26,25 @@ package com.igormaznitsa.prologparser.utils;
 public final class StringUtils {
 
 	/**
-	 * It is a parameterized class allows to make a container saves a mutable value (I mean that the value can be changed).
-	 * The class is not a thread safe one.
+	 * It is a parameterized class allows to make a container saves a mutable
+	 * value (I mean that the value can be changed). The class is not a thread
+	 * safe one.
 	 * 
 	 * @author Igor Maznitsa (http://www.igormaznitsa.com)
 	 * @version 1.00
-	 * @param <T> the class of a carried object
+	 * @param <T>
+	 *            the class of a carried object
 	 */
 	public final static class Mutable<T> {
 		/**
-		 * The variable contains the value carried by the container 
+		 * The variable contains the value carried by the container
 		 */
 		private T value;
 
 		/**
 		 * A Constructor. It allows to create a container with null.
+		 * 
+		 * @since 1.0
 		 */
 		public Mutable() {
 			value = null;
@@ -48,7 +52,10 @@ public final class StringUtils {
 
 		/**
 		 * A Constructor. It allows to create a container for a defined value.
-		 * @param initValue the init value for the new container, it can be null.
+		 * 
+		 * @param initValue
+		 *            the init value for the new container, it can be null.
+		 * @since 1.00
 		 */
 		public Mutable(final T initValue) {
 			value = initValue;
@@ -56,7 +63,10 @@ public final class StringUtils {
 
 		/**
 		 * Set new carried value.
-		 * @param newValue the new value for the container, it can be null.
+		 * 
+		 * @param newValue
+		 *            the new value for the container, it can be null.
+		 * @since 1.00
 		 */
 		public void set(final T newValue) {
 			value = newValue;
@@ -64,7 +74,9 @@ public final class StringUtils {
 
 		/**
 		 * Get the current carried value.
+		 * 
 		 * @return the current value, it can be null.
+		 * @since 1.00
 		 */
 		public T get() {
 			return value;
@@ -72,20 +84,29 @@ public final class StringUtils {
 	}
 
 	/**
-	 * The constructor. It is a private one to disable making of class instances.
+	 * The constructor. It is a private one to disable making of class
+	 * instances.
 	 */
 	private StringUtils() {
 	}
 
 	/**
-	 * The function can convert a string value describes a special escape char into its code.
-	 * To understand that the string has been decoded successfully you can if the result has non-null value and the function has returned true.
-	 * If the function has returned false and the result contains the null value then there is error in data format.
-	 * If the function has returned false but the result contains not-null data, it signals that there is not enough information.
+	 * The function can convert a string value describes a special escape char
+	 * into its code. To understand that the string has been decoded
+	 * successfully you can if the result has non-null value and the function
+	 * has returned true. If the function has returned false and the result
+	 * contains the null value then there is error in data format. If the
+	 * function has returned false but the result contains not-null data, it
+	 * signals that there is not enough information.
 	 * 
-	 * @param afterString the string to be decoded
-	 * @param result the container which will contain the result after the execution or null
-	 * @return true if the string has been decoded successfully, false if it can't be decoded or there is not enough information to decode
+	 * @param afterString
+	 *            the string to be decoded
+	 * @param result
+	 *            the container which will contain the result after the
+	 *            execution or null
+	 * @return true if the string has been decoded successfully, false if it
+	 *         can't be decoded or there is not enough information to decode
+	 * @since 1.00
 	 */
 	public static boolean unescapeCharacter(final String afterString,
 			final Mutable<Character> result) {
@@ -194,9 +215,13 @@ public final class StringUtils {
 	}
 
 	/**
-	 * The function allows to escape a string and replace special chars by special escape sequences.
-	 * @param str the string to be escaped, must not be null
+	 * The function allows to escape a string and replace special chars by
+	 * special escape sequences.
+	 * 
+	 * @param str
+	 *            the string to be escaped, must not be null
 	 * @return an escaped string.
+	 * @since 1.00
 	 */
 	public static String escapeString(final String str) {
 		final StringBuilder result = new StringBuilder(str.length() * 3 / 2);

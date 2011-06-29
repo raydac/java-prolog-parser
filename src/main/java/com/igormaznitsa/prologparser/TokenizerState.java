@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -27,30 +27,44 @@ package com.igormaznitsa.prologparser;
 public enum TokenizerState {
 	/**
 	 * It shows that the parser is looking for the next token
+	 * 
+	 * @since 1.00
 	 */
 	LOOKFOR,
 	/**
 	 * It shows that the parser in the atom reading state
+	 * 
+	 * @since 1.00
 	 */
 	ATOM,
 	/**
 	 * It shows that the parser in the string reading state
+	 * 
+	 * @since 1.00
 	 */
 	STRING,
 	/**
 	 * It shows that the parser in the operator reading state
+	 * 
+	 * @since 1.00
 	 */
 	OPERATOR,
 	/**
 	 * It shows that the parser in the variable reading state
+	 * 
+	 * @since 1.00
 	 */
 	VARIABLE,
 	/**
 	 * It shows that the parser in the integer number reading state
+	 * 
+	 * @since 1.00
 	 */
 	INTEGER,
 	/**
 	 * It shows that the parser in the float number reading state
+	 * 
+	 * @since 1.00
 	 */
 	FLOAT;
 }

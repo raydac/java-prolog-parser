@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -18,20 +18,36 @@
 package com.igormaznitsa.prologparser.terms;
 
 /**
- * The abstract class describes an abstract prolog term for the prolog parser. All data types being used by the prolog parser are successors of the class.
+ * The abstract class describes an abstract prolog term for the prolog parser.
+ * All data types being used by the prolog parser are successors of the class.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public abstract class AbstractPrologTerm {
+
+	/**
+	 * The variable save any Java object, it is not being used by the prolog
+	 * parser but allows a user to link some data to the structure, the default
+	 * value is null
+	 * 
+	 * @since 1.01
+	 */
+	protected Object linkedObject;
+
 	/**
 	 * The variable contains the text for the term
+	 * 
+	 * @since 1.00
 	 */
 	protected final String text;
 
 	/**
 	 * The constructor allows to make new instance based on a text value.
-	 * @param text the text representing the term
+	 * 
+	 * @param text
+	 *            the text representing the term
+	 * @since 1.00
 	 */
 	public AbstractPrologTerm(final String text) {
 		if (text == null) {
@@ -42,7 +58,9 @@ public abstract class AbstractPrologTerm {
 
 	/**
 	 * Get the text representation of the term
+	 * 
 	 * @return the text as String
+	 * @since 1.00
 	 */
 	public String getText() {
 		return this.text;
@@ -50,7 +68,9 @@ public abstract class AbstractPrologTerm {
 
 	/**
 	 * Get the priority of the term
+	 * 
 	 * @return the priority as integer
+	 * @since 1.00
 	 */
 	public int getPriority() {
 		return 0;
@@ -58,7 +78,9 @@ public abstract class AbstractPrologTerm {
 
 	/**
 	 * Get a text prolog like representation for the term.
+	 * 
 	 * @return the text representation as a String
+	 * @since 1.00
 	 */
 	@Override
 	public String toString() {
@@ -66,8 +88,31 @@ public abstract class AbstractPrologTerm {
 	}
 
 	/**
+	 * Set the linked object for the term
+	 * 
+	 * @param obj
+	 *            the new linked object, it can be null
+	 * @since 1.01
+	 */
+	public void setLinkedObject(final Object obj) {
+		this.linkedObject = obj;
+	}
+
+	/**
+	 * Get the linked object for the term
+	 * 
+	 * @return the linked object, it can be null
+	 * @since 1.01
+	 */
+	public Object getLinkedObject() {
+		return this.linkedObject;
+	}
+
+	/**
 	 * Get the term type
+	 * 
 	 * @return the term type
+	 * @since 1.00
 	 */
 	public abstract PrologTermType getType();
 }

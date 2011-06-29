@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -34,6 +34,7 @@ public final class PrologAtom extends AbstractPrologTerm {
 	 * 
 	 * @param text
 	 *            the text to be used for new instance, must not be null
+	 * @since 1.00
 	 */
 	public PrologAtom(final String text) {
 		super(text);

@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -26,7 +26,8 @@ import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.operators.OperatorType;
 
 /**
- * The annotation being used to define a prolog operator. It allows to define an operator in the shortest way.
+ * The annotation being used to define a prolog operator. It allows to define an
+ * operator in the shortest way.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
@@ -37,19 +38,25 @@ import com.igormaznitsa.prologparser.operators.OperatorType;
 public @interface PrologOperator {
 	/**
 	 * The operator priority (0..1200)
+	 * 
 	 * @return the priority as integer
+	 * @since 1.00
 	 */
 	int Priority();
 
 	/**
 	 * The operator type
+	 * 
 	 * @return the operator type
+	 * @since 1.00
 	 */
 	OperatorType Type();
 
 	/**
 	 * The operator name
+	 * 
 	 * @return the operator name as a String
+	 * @since 1.00
 	 */
 	String Name();
 }

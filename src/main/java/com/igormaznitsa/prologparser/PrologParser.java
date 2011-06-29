@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -39,7 +39,8 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 
 /**
- * The class is a hand-written prolog parser allows to parse incoming char stream and make prolog structures.
+ * The class is a hand-written prolog parser allows to parse incoming char
+ * stream and make prolog structures.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
@@ -94,40 +95,58 @@ import com.igormaznitsa.prologparser.terms.PrologVariable;
 public final class PrologParser {
 	/**
 	 * The Static map contains all system operators are being used by the parser
+	 * 
+	 * @since 1.00
 	 */
 	static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
 	/**
 	 * The set contains all possible prefixes of system operators to expedite
 	 * parsing
+	 * 
+	 * @since 1.00
 	 */
 	static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>();
 
 	/**
 	 * Inside link to the system ',' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_COMMA;
 	/**
 	 * Inside link to the system '(' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_LEFTBRACKET;
 	/**
 	 * Inside link to the system ')' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_RIGHTBRACKET;
 	/**
 	 * Inside link to the system '[' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
 	/**
 	 * Inside link to the system ']' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
 	/**
 	 * Inside link to the system '.' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_DOT;
 	/**
 	 * Inside link to the '|' operator
+	 * 
+	 * @since 1.00
 	 */
 	static OperatorContainer OPERATOR_VERTICALBAR;
 
@@ -143,9 +162,10 @@ public final class PrologParser {
 	}
 
 	/**
-	 * It allows to get the system operator map, of course as a unmodifable map
+	 * It allows to get the system operator map, of course as a unmodifiable map
 	 * 
-	 * @return the system operator map wrapped as an unmodifable one
+	 * @return the system operator map wrapped as an unmodifiable one
+	 * @see 1.00
 	 */
 	public static Map<String, OperatorContainer> getSystemOperators() {
 		return Collections.unmodifiableMap(SYSTEM_OPERATORS);
@@ -539,7 +559,8 @@ public final class PrologParser {
 	 *            be true
 	 * @param endOperators
 	 *            the map contains OperatorContainer objects to be checked that
-	 *            it contains the operator, it can be null then the function will return false
+	 *            it contains the operator, it can be null then the function
+	 *            will return false
 	 * @return true if the array contains the operator else false
 	 */
 	private boolean isEndOperator(final AbstractPrologTerm operator,
@@ -550,7 +571,7 @@ public final class PrologParser {
 
 		if (endOperators == null)
 			return false;
-		
+
 		if (operator.getType() == PrologTermType.OPERATORS) {
 			return endOperators.containsKey(operator.getText());
 		}
@@ -582,6 +603,7 @@ public final class PrologParser {
 	 * Get the current parser context
 	 * 
 	 * @return the current context, it can be null
+	 * @since 1.00
 	 */
 	public ParserContext getContext() {
 		return context;
@@ -591,6 +613,7 @@ public final class PrologParser {
 	 * Get last used reader
 	 * 
 	 * @return the last used reader, it can be null
+	 * @since 1.00
 	 */
 	public PrologCharDataSource getReader() {
 		return prologReader;
@@ -601,6 +624,7 @@ public final class PrologParser {
 	 * 
 	 * @param context
 	 *            the context for the parser, it can be null
+	 * @since 1.00
 	 */
 	public PrologParser(final ParserContext context) {
 		variableSet = new HashMap<String, PrologVariable>();
@@ -609,10 +633,15 @@ public final class PrologParser {
 
 	/**
 	 * Make a string based reader and read the first sentence from it
-	 * @param str the string to be a stream for a reader, must not be null
+	 * 
+	 * @param str
+	 *            the string to be a stream for a reader, must not be null
 	 * @return the first prolog sentence from the string
-	 * @throws IOException it will be thrown for any transport level problem
-	 * @throws PrologParserException it will be thrown for wrong prolog syntax
+	 * @throws IOException
+	 *             it will be thrown for any transport level problem
+	 * @throws PrologParserException
+	 *             it will be thrown for wrong prolog syntax
+	 * @since 1.00
 	 */
 	public synchronized AbstractPrologTerm nextSentence(final String str)
 			throws IOException, PrologParserException {
@@ -620,11 +649,20 @@ public final class PrologParser {
 	}
 
 	/**
-	 * Read next sentence from a reader, the reader will become the current reader for the parser  
-	 * @param reader the reader to be used as the data source for the parser, it must not be null and it will become as the current reader for the parser
-	 * @return the first prolog sentence met in the data stream from the reader, if there is not any more sentences then it will return null
-	 * @throws PrologParserException it will be thrown if there is any prolog syntax error
-	 * @throws IOException it will be thrown if there is any transport error
+	 * Read next sentence from a reader, the reader will become the current
+	 * reader for the parser
+	 * 
+	 * @param reader
+	 *            the reader to be used as the data source for the parser, it
+	 *            must not be null and it will become as the current reader for
+	 *            the parser
+	 * @return the first prolog sentence met in the data stream from the reader,
+	 *         if there is not any more sentences then it will return null
+	 * @throws PrologParserException
+	 *             it will be thrown if there is any prolog syntax error
+	 * @throws IOException
+	 *             it will be thrown if there is any transport error
+	 * @since 1.00
 	 */
 	public synchronized AbstractPrologTerm nextSentence(
 			final PrologCharDataSource reader) throws PrologParserException,
@@ -637,9 +675,14 @@ public final class PrologParser {
 
 	/**
 	 * Read the next sentence from the current reader
-	 * @return the first sentence met in the data stream from the reader, if there is not any data, then it will return null
-	 * @throws PrologParserException it will be thrown if there is any prolog syntax error
-	 * @throws IOException it will be thrown if there is any transport error
+	 * 
+	 * @return the first sentence met in the data stream from the reader, if
+	 *         there is not any data, then it will return null
+	 * @throws PrologParserException
+	 *             it will be thrown if there is any prolog syntax error
+	 * @throws IOException
+	 *             it will be thrown if there is any transport error
+	 * @since 1.00
 	 */
 	public synchronized AbstractPrologTerm nextSentence()
 			throws PrologParserException, IOException {
@@ -675,16 +718,17 @@ public final class PrologParser {
 	 * @return the read structure or null if the stream end was reached
 	 * @throws IOException
 	 *             it will be thrown if there will be any transport error
-	 * @throws PrologParserException it will be thrown if there is an prolog syntax error
+	 * @throws PrologParserException
+	 *             it will be thrown if there is an prolog syntax error
 	 */
-	private PrologStructure readStruct(final AbstractPrologTerm functor) throws PrologParserException,
-			IOException {
+	private PrologStructure readStruct(final AbstractPrologTerm functor)
+			throws PrologParserException, IOException {
 		final ArrayList<AbstractPrologTerm> listOfAtoms = new ArrayList<AbstractPrologTerm>();
 
 		while (true) {
 			final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
-			final TokenizerResult nextAtom = tokenizer.nextToken(prologReader ,
+			final TokenizerResult nextAtom = tokenizer.nextToken(prologReader,
 					context);
 			final String nextText = nextAtom.getResult().getText();
 
@@ -722,10 +766,11 @@ public final class PrologParser {
 	 * @return the read list or null if the stream end was reached
 	 * @throws IOException
 	 *             it will be thrown if there is any transport error
-	 * @throws PrologParserException it will be thrown if there is a prolog syntax error
+	 * @throws PrologParserException
+	 *             it will be thrown if there is a prolog syntax error
 	 */
-	private AbstractPrologTerm readList()
-			throws PrologParserException, IOException {
+	private AbstractPrologTerm readList() throws PrologParserException,
+			IOException {
 		PrologList leftPart = new PrologList();
 		PrologList leftPartFirst = leftPart;
 		AbstractPrologTerm rightPart = null;
@@ -737,7 +782,8 @@ public final class PrologParser {
 		while (doRead) {
 			final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-			TokenizerResult nextAtom = tokenizer.nextToken(prologReader, context);
+			TokenizerResult nextAtom = tokenizer.nextToken(prologReader,
+					context);
 
 			final String text = nextAtom.getResult().getText();
 			if (OPERATOR_RIGHTSQUAREBRACKET.getText().equals(text)) {
@@ -814,9 +860,14 @@ public final class PrologParser {
 
 	/**
 	 * Inside function to throw PrologParserException if an object is null
-	 * @param obj the object to be asserted
-	 * @param message the message to be wrapped by an exception if the object is null
-	 * @throws PrologParserException it will be thrown if the object is null
+	 * 
+	 * @param obj
+	 *            the object to be asserted
+	 * @param message
+	 *            the message to be wrapped by an exception if the object is
+	 *            null
+	 * @throws PrologParserException
+	 *             it will be thrown if the object is null
 	 */
 	private void checkForNull(final Object obj, final String message)
 			throws PrologParserException {
@@ -831,14 +882,14 @@ public final class PrologParser {
 	 * Inside function to read a block from the reader
 	 * 
 	 * @param endOperators
-	 *            the map contains end operators which will bound the
-	 *            block
+	 *            the map contains end operators which will bound the block
 	 * @return a read block as Term or null if the end of the stream has been
 	 *         reached
 	 * @throws IOException
 	 *             it will be thrown if there is any transport error
 	 */
-	private AbstractPrologTerm readBlock(final Map<String, OperatorContainer> endOperators)
+	private AbstractPrologTerm readBlock(
+			final Map<String, OperatorContainer> endOperators)
 			throws PrologParserException, IOException {
 		// the variable will contain last processed tree item contains either
 		// atom or operator
@@ -846,8 +897,8 @@ public final class PrologParser {
 
 		while (true) {
 			// read next atom from tokenizer
-			TokenizerResult readAtomContainer = tokenizer.nextToken(prologReader,
-					context);
+			TokenizerResult readAtomContainer = tokenizer.nextToken(
+					prologReader, context);
 			boolean atBrakes = false;
 
 			if (readAtomContainer == null) {
@@ -940,14 +991,16 @@ public final class PrologParser {
 							readAtom = readBlock(OPERATORS_SUBBLOCK);
 							readAtomPriority = 0;
 							final AbstractPrologTerm closingAtom = tokenizer
-									.nextToken(prologReader, context).getResult();
+									.nextToken(prologReader, context)
+									.getResult();
 							if (closingAtom == null
 									|| !closingAtom.getText().equals(
 											OPERATOR_RIGHTBRACKET.getText())) {
 								throw new PrologParserException(
 										"Non-closed brakes",
 										prologReader.getLineNumber(),
-										prologReader.getNextCharStringPosition());
+										prologReader
+												.getNextCharStringPosition());
 							}
 						} else {
 							readAtomPriority = readOperator.getPriority();
@@ -957,8 +1010,8 @@ public final class PrologParser {
 					}
 				}
 			} else {
-				final TokenizerResult nextToken = tokenizer.nextToken(prologReader,
-						context);
+				final TokenizerResult nextToken = tokenizer.nextToken(
+						prologReader, context);
 				if (nextToken != null
 						&& nextToken.getResult().getText()
 								.equals(OPERATOR_LEFTBRACKET.getText())) {
@@ -1100,8 +1153,11 @@ public final class PrologParser {
 	}
 
 	/**
-	 * Inside auxiliary function to generate a map contains OperatorContainer objects
-	 * @param containers operator containers to be added into the result map
+	 * Inside auxiliary function to generate a map contains OperatorContainer
+	 * objects
+	 * 
+	 * @param containers
+	 *            operator containers to be added into the result map
 	 * @return the map contains all operator containers
 	 */
 	private static Map<String, OperatorContainer> makeMapFromOperatorContainers(
@@ -1114,7 +1170,8 @@ public final class PrologParser {
 	}
 
 	/**
-	 * Inside auxiliary function to initialize inside system operators table from annotations
+	 * Inside auxiliary function to initialize inside system operators table
+	 * from annotations
 	 */
 	private static void initSystemOperatorsFromClassAnnotations() {
 		SYSTEM_OPERATORS.clear();

@@ -2,7 +2,7 @@
  * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
- * it under the terms of version 2.1 of the GNU Lesser General Public
+ * it under the terms of version 3 of the GNU Lesser General Public
  * License as published by the Free Software Foundation.
  *
  * This library is distributed in the hope that it will be useful,
@@ -40,28 +40,40 @@ final class PrologTokenizer {
 	/**
 	 * The variable contains the last pushed term. The term has been read
 	 * already but the reader pushed it back to reread it lately
+	 * 
+	 * @since 1.00
 	 */
 	TokenizerResult lastPushedTerm;
 	/**
 	 * The variable contains the previous value of the read token line number
+	 * 
+	 * @since 1.00
 	 */
 	int prevReadTokenLineNum;
 	/**
 	 * The variable contains the previous value of the read token string
 	 * position
+	 * 
+	 * @since 1.00
 	 */
 	int prevReadTokenStrPos;
 	/**
 	 * The variable contains the last value of the read token line number
+	 * 
+	 * @since 1.00
 	 */
 	int lastReadTokenLineNum;
 	/**
 	 * The variable contains the last value of the read token string position
+	 * 
+	 * @since 1.00
 	 */
 	int lastReadTokenStrPos;
 
 	/**
 	 * The constructor
+	 * 
+	 * @since 1.00
 	 */
 	PrologTokenizer() {
 		super();
@@ -73,6 +85,7 @@ final class PrologTokenizer {
 	 * @param object
 	 *            the object to be pushed back into buffer, null will clear the
 	 *            buffer
+	 * @since 1.00
 	 */
 	void pushTermBack(final TokenizerResult object) {
 		if (lastPushedTerm != null) {
@@ -94,6 +107,7 @@ final class PrologTokenizer {
 	 *         any more token in the stream
 	 * @throws IOException
 	 *             it will be throws if there is any transport problem
+	 * @since 1.00
 	 */
 	TokenizerResult peekToken(final PrologCharDataSource reader,
 			final ParserContext parserContext) throws PrologParserException,
@@ -112,6 +126,7 @@ final class PrologTokenizer {
 	 * Get the string position of the last read token
 	 * 
 	 * @return the string position for the last read token as integer
+	 * @since 1.00
 	 */
 	int getLastTokenStrPos() {
 		return lastPushedTerm == null ? lastReadTokenStrPos
@@ -122,6 +137,7 @@ final class PrologTokenizer {
 	 * Get the line number for the last read token
 	 * 
 	 * @return the line number for the last read token as integer
+	 * @since 1.00
 	 */
 	int getLastTokenLineNum() {
 		return lastPushedTerm == null ? lastReadTokenLineNum
@@ -134,6 +150,7 @@ final class PrologTokenizer {
 	 * @param reader
 	 *            the reader which position must be fixed within inside
 	 *            variables, must not be null
+	 * @since 1.00
 	 */
 	void fixPosition(final PrologCharDataSource reader) {
 		prevReadTokenLineNum = lastReadTokenLineNum;
@@ -150,6 +167,7 @@ final class PrologTokenizer {
 	 * @throws IOException
 	 *             it will be thrown if there is any transport problem during
 	 *             the operation
+	 * @since 1.00
 	 */
 	void skipUntilNextString(final PrologCharDataSource reader)
 			throws IOException {
@@ -175,6 +193,7 @@ final class PrologTokenizer {
 	 * @throws IOException
 	 *             it will be thrown if there is any transport error during the
 	 *             operation
+	 * @since 1.00
 	 */
 	TokenizerResult nextToken(final PrologCharDataSource reader,
 			final ParserContext parserContext) throws PrologParserException,
@@ -337,8 +356,9 @@ final class PrologTokenizer {
 							strbuffer.append(chr);
 						} else {
 							reader.pushCharBack(chr);
-							return new TokenizerResult(makeTermFromString(
-									strbuffer.toString(), TokenizerState.FLOAT),
+							return new TokenizerResult(
+									makeTermFromString(strbuffer.toString(),
+											TokenizerState.FLOAT),
 									TokenizerState.FLOAT);
 						}
 					} else if (chr == 'e' || chr == 'E') {
@@ -361,7 +381,8 @@ final class PrologTokenizer {
 							return new TokenizerResult(makeTermFromString(
 									strbuffer.substring(0,
 											strbuffer.length() - 1),
-									TokenizerState.INTEGER), TokenizerState.INTEGER);
+									TokenizerState.INTEGER),
+									TokenizerState.INTEGER);
 						} else {
 							// it is float
 							return new TokenizerResult(makeTermFromString(
@@ -507,6 +528,7 @@ final class PrologTokenizer {
 	 *            term reading
 	 * @return a Term object as the result, not-null value will be returned
 	 *         anyway
+	 * @since 1.00
 	 */
 	AbstractPrologTerm makeTermFromString(final String string,
 			final TokenizerState state) {
@@ -548,6 +570,7 @@ final class PrologTokenizer {
 	 * @param parserContext
 	 *            a prolog context, must not be null
 	 * @return true if there is any operator starts with the string, else false
+	 * @since 1.00
 	 */
 	static boolean hasOperatorStartsWith(
 			final String operatorNameStartSubstring,
@@ -578,6 +601,7 @@ final class PrologTokenizer {
 	 * @param parserContext
 	 *            a prolog context, it can be null
 	 * @return an OperatorContainer if the operator is presented, else null
+	 * @since 1.00
 	 */
 	static OperatorContainer findOperatorForName(final String operatorName,
 			final ParserContext parserContext) {

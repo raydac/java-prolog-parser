@@ -396,25 +396,6 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 	}
 
 	@Test
-	public void testSetLinkedObject() {
-		final PrologStructure structure = new PrologStructure(new PrologAtom(
-				"test"));
-		assertNull(structure.getLinkedObject());
-		final Map<String, String> testObject = new HashMap<String, String>();
-		structure.setLinkedObject(testObject);
-		assertSame(testObject, structure.getLinkedObject());
-	}
-
-	@Test
-	public void testGetLinkedObject() {
-		final PrologStructure structure = new PrologStructure(new PrologAtom(
-				"test"));
-		assertNull(structure.getLinkedObject());
-		structure.setLinkedObject(this);
-		assertSame(this, structure.getLinkedObject());
-	}
-
-	@Test
 	public void testGetText() {
 		assertEquals("test", new PrologStructure("test").getText());
 		assertEquals("test",
