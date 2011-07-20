@@ -230,18 +230,21 @@ final class PrologTokenizer {
 				case LOOKFOR:
 					return null;
 				case FLOAT:
-					if (str.charAt(str.length() - 1) == '.') {
-						// non ended float then it integer + '.'
+				case INTEGER:
+				case ATOM:
+					if (state == TokenizerState.FLOAT && str.charAt(str.length() - 1) == '.') {
+						// non-ended float then it is an integer number ened by the '.' operator
 						reader.pushCharBack('.');
 						// it is Integer
 						return new TokenizerResult(makeTermFromString(
 								str.substring(0, str.length() - 1),
 								TokenizerState.INTEGER), TokenizerState.ATOM);
+					} else 
+					{
+						// it is just integer number or an atom
+						return new TokenizerResult(makeTermFromString(str, state),
+								state);
 					}
-				case INTEGER:
-				case ATOM:
-					return new TokenizerResult(makeTermFromString(str, state),
-							state);
 				case VARIABLE:
 					if (str.equals("_")) {
 						return new TokenizerResult(new PrologVariable(), state);

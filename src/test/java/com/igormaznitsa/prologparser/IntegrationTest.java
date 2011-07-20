@@ -2,6 +2,7 @@ package com.igormaznitsa.prologparser;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.nio.channels.Channels;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -181,7 +182,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 		AbstractPrologTerm atom = parser.nextSentence(atomToBeChecked+'.');
 		assertEquals(PrologTermType.ATOM, atom.getType());
 		assertEquals(PrologIntegerNumber.class, atom.getClass());
-		assertEquals(expectedNumber, ((PrologIntegerNumber) atom).getValue());
+		assertEquals(expectedNumber, ((PrologIntegerNumber) atom).getValue().longValue());
 		assertEquals(Long.toString(expectedNumber), atom.getText());
 	}
 	
@@ -194,8 +195,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 		checkIntegerWithoutPPE("-97",-97);
 		checkIntegerWithoutPPE(Long.toString(Long.MAX_VALUE),Long.MAX_VALUE);
 		
-		// because we use minus as an operator, the min value will be not Long.MIN_VALUE but Long.MIN_VALUE+1 
-		checkIntegerWithoutPPE(Long.toString(Long.MIN_VALUE+1),Long.MIN_VALUE+1);
+		checkIntegerWithoutPPE(Long.toString(Long.MIN_VALUE),Long.MIN_VALUE);
 		
 		final AbstractPrologTerm val = parser.nextSentence("'298723987'.");
 		assertEquals(PrologTermType.ATOM, val.getType());
@@ -207,25 +207,19 @@ public class IntegrationTest extends AbstractPrologParserTest {
 		AbstractPrologTerm atom = parser.nextSentence(atomToBeChecked+'.');
 		assertEquals(PrologTermType.ATOM, atom.getType());
 		assertEquals(PrologFloatNumber.class, atom.getClass());
-		assertEquals(expectedNumber, ((PrologFloatNumber) atom).getValue(),0d);
-		assertEquals(Double.toString(expectedNumber), atom.getText());
+		assertEquals(expectedNumber, ((PrologFloatNumber) atom).getValue().doubleValue(),0d);
+		assertEquals(BigDecimal.valueOf(expectedNumber).toEngineeringString(), atom.getText());
 	}
 	
 	@Test
 	public void testParseFloat() throws Exception {
-		checkFloatWithoutPPE(Double.toString(Math.PI), Math.PI);
+		checkFloatWithoutPPE(new BigDecimal(Math.PI,PrologFloatNumber.MATH_CONTEXT).toEngineeringString(), Math.PI);
 		checkFloatWithoutPPE("-0.0035", -0.0035d);
 		checkFloatWithoutPPE("100.2", 100.2d);
-		checkFloatWithoutPPE("2.0E+3", 2.0e+3d);
-
-		checkFloatWithoutPPE(Double.toString(Double.MIN_NORMAL), Double.MIN_NORMAL);
-		checkFloatWithoutPPE(Double.toString(Double.MIN_VALUE), Double.MIN_VALUE);
-		checkFloatWithoutPPE(Double.toString(Double.MIN_EXPONENT), Double.MIN_EXPONENT);
-		checkFloatWithoutPPE(Double.toString(Double.MAX_VALUE), Double.MAX_VALUE);
-		checkFloatWithoutPPE(Double.toString(Double.MAX_EXPONENT), Double.MAX_EXPONENT);
+		checkFloatWithoutPPE("2000.0", 2.0e+3d);
 
 		final AbstractPrologTerm val = parser
-				.nextSentence("298723987493287423423.00002342342300043324234324E+723864873268472323.");
+				.nextSentence("298723987493287423423.00002342342300043324234324E+75.");
 		assertEquals(PrologTermType.ATOM, val.getType());
 		assertEquals(PrologFloatNumber.class, val.getClass());
 	}
@@ -287,8 +281,8 @@ public class IntegrationTest extends AbstractPrologParserTest {
 		assertEquals(PrologTermType.ATOM, struct.getElement(1).getType());
 		assertEquals("may", struct.getElement(1).getText());
 		assertEquals(PrologTermType.ATOM, struct.getElement(2).getType());
-		assertEquals(2001,
-				((PrologIntegerNumber) struct.getElement(2)).getValue());
+		assertEquals(2001L,
+				((PrologIntegerNumber) struct.getElement(2)).getValue().longValue());
 	}
 
 	@Test
@@ -296,7 +290,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 		PrologList list = (PrologList) parser.nextSentence("[].");
 		assertEquals(PrologTermType.LIST, list.getType());
 		assertEquals(PrologList.class, list.getClass());
-		assertTrue(((PrologList) list).isNullList());
+		assertTrue((list).isNullList());
 
 		list = (PrologList) parser.nextSentence("[1,2,3,4,5].");
 		assertFalse(list.isNullList());
@@ -469,8 +463,8 @@ public class IntegrationTest extends AbstractPrologParserTest {
 							&& operatorstructure.getFunctor().getText()
 									.equals("op")) {
 						final Operator newoperator = new Operator(
-								(int) ((PrologIntegerNumber) operatorstructure
-										.getElement(0)).getValue(),
+								((PrologIntegerNumber) operatorstructure
+										.getElement(0)).getValue().intValue(),
 								OperatorType.getForName(operatorstructure
 										.getElement(1).getText()),
 								operatorstructure.getElement(2).getText());

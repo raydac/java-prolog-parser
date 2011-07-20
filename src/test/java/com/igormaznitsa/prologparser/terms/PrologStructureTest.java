@@ -3,11 +3,9 @@ package com.igormaznitsa.prologparser.terms;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -68,13 +66,12 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 										systemOperators.get("-")
 												.getOperatorForType(
 														OperatorType.FX),
-										new AbstractPrologTerm[] { new PrologIntegerNumber(
-												10L) }),
+										new AbstractPrologTerm[] { new PrologIntegerNumber("10") }),
 								new PrologStructure(systemOperators.get("+")
 										.getOperatorForType(OperatorType.YFX),
 										new AbstractPrologTerm[] {
-												new PrologIntegerNumber(1L),
-												new PrologIntegerNumber(2L) }) })
+												new PrologIntegerNumber("1"),
+												new PrologIntegerNumber("2") }) })
 						.toString());
 
 		assertEquals(
@@ -86,7 +83,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 								systemOperators.get("-").getOperatorForType(
 										OperatorType.FX),
 								new AbstractPrologTerm[] { new PrologIntegerNumber(
-										10L) }) }).toString());
+										"10") }) }).toString());
 
 		assertEquals(
 				"\\ (\\+ 10)",
@@ -97,7 +94,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 								systemOperators.get("\\+").getOperatorForType(
 										OperatorType.FY),
 								new AbstractPrologTerm[] { new PrologIntegerNumber(
-										10L) }) }).toString());
+										"10") }) }).toString());
 		assertEquals(
 				"(10 .) .",
 				new PrologStructure(
@@ -107,7 +104,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 								systemOperators.get(".").getOperatorForType(
 										OperatorType.XF),
 								new AbstractPrologTerm[] { new PrologIntegerNumber(
-										10L) }) }).toString());
+										"10") }) }).toString());
 
 		final Operator operatorYF = new Operator(800, OperatorType.YF, "!");
 		final Operator operatorYF2 = new Operator(1000, OperatorType.YF, "!!");
@@ -119,7 +116,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 						new AbstractPrologTerm[] { new PrologStructure(
 								operatorYF2,
 								new AbstractPrologTerm[] { new PrologIntegerNumber(
-										10L) }) }).toString());
+										"10") }) }).toString());
 
 		final Operator operatorXFX = new Operator(800, OperatorType.XFX, "$");
 		final Operator operatorXFX2 = new Operator(1000, OperatorType.XFX, "$$");
@@ -128,12 +125,12 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 				new PrologStructure(operatorXFX, new AbstractPrologTerm[] {
 						new PrologStructure(operatorXFX2,
 								new AbstractPrologTerm[] {
-										new PrologIntegerNumber(10L),
-										new PrologIntegerNumber(20L) }),
+										new PrologIntegerNumber("10"),
+										new PrologIntegerNumber("20") }),
 						new PrologStructure(operatorXFX,
 								new AbstractPrologTerm[] {
-										new PrologIntegerNumber(5L),
-										new PrologIntegerNumber(30L) }) })
+										new PrologIntegerNumber("5"),
+										new PrologIntegerNumber("30") }) })
 						.toString());
 
 		final Operator operatorXFY = new Operator(800, OperatorType.XFY, "$");
@@ -143,12 +140,12 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 				new PrologStructure(operatorXFY2, new AbstractPrologTerm[] {
 						new PrologStructure(operatorXFY,
 								new AbstractPrologTerm[] {
-										new PrologIntegerNumber(10L),
-										new PrologIntegerNumber(20L) }),
+										new PrologIntegerNumber("10"),
+										new PrologIntegerNumber("20") }),
 						new PrologStructure(operatorXFY,
 								new AbstractPrologTerm[] {
-										new PrologIntegerNumber(5L),
-										new PrologIntegerNumber(30L) }) })
+										new PrologIntegerNumber("5"),
+										new PrologIntegerNumber("30") }) })
 						.toString());
 	}
 
@@ -292,7 +289,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 		}
 
 		try {
-			new PrologStructure(new PrologIntegerNumber(5), 10);
+			new PrologStructure(new PrologIntegerNumber("5"), 10);
 			fail("Must throw IAE for variable as integer");
 		} catch (IllegalArgumentException ex) {
 		}

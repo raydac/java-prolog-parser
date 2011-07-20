@@ -67,5 +67,10 @@ public class PrologParserExceptionTest extends AbstractPrologParserTest {
 			assertTrue(ex.containsRightPositionData());
 		}
 	}
+	
+	@Test
+	public void testToString() {
+		assertEquals("Hello World[1:10]",new PrologParserException("Hello World", 1, 10).toString());
+	}
 
 }

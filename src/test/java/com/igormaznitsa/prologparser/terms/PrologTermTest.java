@@ -18,34 +18,35 @@ public class PrologTermTest extends AbstractPrologParserTest {
 	public void beforeTest() {
 		Mockito.reset(mock);
 	}
-	
+
 	@Test
 	public void testToString() throws Exception {
 
 		assertEquals("\'Hello\\nWorld\'",
 				new PrologAtom("Hello\nWorld").toString());
 		assertEquals("-9823742321",
-				new PrologIntegerNumber(-9823742321L).toString());
-		assertEquals("23232", new PrologIntegerNumber(23232L).toString());
-		assertEquals("0", new PrologIntegerNumber(0L).toString());
-		assertEquals("0", new PrologIntegerNumber(-0L).toString());
-		assertEquals("-1002.0", new PrologFloatNumber(-1002d).toString());
-		assertEquals("9823423.0", new PrologFloatNumber(9823423d).toString());
-		assertEquals("0.0", new PrologFloatNumber(0d).toString());
-		assertEquals("-0.0", new PrologFloatNumber(-0.0d).toString());
+				new PrologIntegerNumber("-9823742321").toString());
+		assertEquals("23232", new PrologIntegerNumber("23232").toString());
+		assertEquals("0", new PrologIntegerNumber("0").toString());
+		assertEquals("0", new PrologIntegerNumber("0").toString());
+		assertEquals("-1002.0", new PrologFloatNumber("-1002").toString());
+		assertEquals("9823423.0", new PrologFloatNumber("9823423").toString());
+		assertEquals("0.0", new PrologFloatNumber("0").toString());
+		assertEquals("0.0", new PrologFloatNumber("-0.0").toString());
 
 		assertEquals("X", new PrologVariable("X").toString());
 		assertEquals("_", new PrologVariable().toString());
 
 		assertEquals("\'test\'(\'first\', 100, -1000.0)", new PrologStructure(
 				new PrologAtom("test"), new AbstractPrologTerm[] {
-						new PrologAtom("first"), new PrologIntegerNumber(100),
+						new PrologAtom("first"),
+						new PrologIntegerNumber("100"),
 						new PrologFloatNumber(-1000d) }).toString());
 
 		assertEquals(new PrologList().toString(), "[]");
 
 		final PrologList list = new PrologList(new PrologAtom("head"));
-		list.addAsNewListToEndOfListChain(new PrologIntegerNumber(1006))
+		list.addAsNewListToEndOfListChain(new PrologIntegerNumber("1006"))
 				.addAsNewListToEndOfListChain(new PrologVariable("Var"));
 		assertEquals("['head', 1006, Var]", list.toString());
 
@@ -68,26 +69,26 @@ public class PrologTermTest extends AbstractPrologParserTest {
 		list5.setTail(new PrologList(new PrologVariable("B")));
 		assertEquals("[A, B]", list5.toString());
 	}
-	
+
 	@Test
 	public void testOperatorToString() throws Exception {
 		AbstractPrologTerm term = parser.nextSentence("a+b*c.");
-		assertEquals("'a' + 'b' * 'c'",term.toString());
+		assertEquals("'a' + 'b' * 'c'", term.toString());
 
 		term = parser.nextSentence("X is a+b.");
-		assertEquals("X is 'a' + 'b'",term.toString());
+		assertEquals("X is 'a' + 'b'", term.toString());
 
 		term = parser.nextSentence("hello:-world.");
-		assertEquals("'hello' :- 'world'",term.toString());
+		assertEquals("'hello' :- 'world'", term.toString());
 
 		term = parser.nextSentence(":-hello(world).");
-		assertEquals(":- 'hello'('world')",term.toString());
+		assertEquals(":- 'hello'('world')", term.toString());
 
 		term = parser.nextSentence("[1,2,3,4,5]=[1,2,3,4|[5]].");
-		assertEquals("[1, 2, 3, 4, 5] = [1, 2, 3, 4, 5]",term.toString());
+		assertEquals("[1, 2, 3, 4, 5] = [1, 2, 3, 4, 5]", term.toString());
 
 		term = parser.nextSentence("[1,2,3,4,5]\\==[1,2,3,4|X].");
-		assertEquals("[1, 2, 3, 4, 5] \\== [1, 2, 3, 4|X]",term.toString());
+		assertEquals("[1, 2, 3, 4, 5] \\== [1, 2, 3, 4|X]", term.toString());
 	}
 
 }

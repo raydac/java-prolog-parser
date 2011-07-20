@@ -342,7 +342,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
 			}
 			break;
 		default:
-			return false;
+			throw new Error("Unsupported type detected, it's a conceptual error!");
 		}
 		return result;
 	}

@@ -67,7 +67,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 			fail("Must throw IAE for wrong operator name");
 		} catch (IllegalArgumentException ex) {
 		}
-
+		
 		assertEquals(1, container.size());
 		assertTrue(container.addOperator(operatorXFX));
 		assertEquals(2, container.size());
@@ -75,6 +75,8 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 		assertEquals(3, container.size());
 
 		assertFalse(container.addOperator(operatorXFX));
+		assertFalse(container.addOperator(operatorFX));
+		assertFalse(container.addOperator(operatorYF));
 
 		assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
 		assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
@@ -124,6 +126,13 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 		assertEquals(2, container.size());
 		assertNull(container.getOperatorForSimilarType(OperatorType.FX));
 
+
+		try {
+			container.remove(null);
+			fail("Must throw NPE for null");
+		} catch (NullPointerException ex) {
+		}
+		
 		try {
 			container.remove(otheroperatorXFX);
 			fail("Must throw IAE for operator wrong name");
@@ -173,6 +182,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 		assertNull(container.getOperatorIfSingle());
 		container.removeAll();
 		assertNull(container.getOperatorIfSingle());
+		
+		container.addOperator(operatorYF);
+		assertEquals(operatorYF,container.getOperatorIfSingle());
 	}
 
 	@Test
@@ -221,6 +233,11 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
 		final OperatorContainer container = new OperatorContainer(operatorFX);
 
+		try {
+			container.getOperatorForType(null);
+			fail("Must throw NPE for null");
+		}catch(NullPointerException ex){}
+		
 		assertNull(container.getOperatorForType(OperatorType.XFX));
 		assertNull(container.getOperatorForType(OperatorType.YF));
 
@@ -270,7 +287,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 		container.addOperator(operatorYF);
 
 		try {
-			container.remove(null);
+			container.removeOperatorForType(null);
 			fail("Must throw NPE for null argument");
 		} catch (NullPointerException ex) {
 		}

@@ -43,7 +43,7 @@ public class TokenizerResultTest {
 
 	@Test
 	public void testGetResult() {
-		final PrologIntegerNumber testAtom = new PrologIntegerNumber(322323423);
+		final PrologIntegerNumber testAtom = new PrologIntegerNumber("322323423");
 		final TokenizerResult result = new TokenizerResult(testAtom,
 				TokenizerState.LOOKFOR);
 		assertSame(testAtom, result.getResult());
@@ -52,7 +52,7 @@ public class TokenizerResultTest {
 
 	@Test
 	public void testGetTermType() {
-		final PrologIntegerNumber testAtom = new PrologIntegerNumber(322323423);
+		final PrologIntegerNumber testAtom = new PrologIntegerNumber("322323423");
 		final TokenizerResult result = new TokenizerResult(testAtom,
 				TokenizerState.LOOKFOR);
 		assertSame(testAtom, result.getResult());

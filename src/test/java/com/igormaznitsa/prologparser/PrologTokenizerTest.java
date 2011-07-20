@@ -134,7 +134,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 		result = tokenizer.nextToken(reader, mockContext);
 		assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
 		assertEquals(PrologTermType.ATOM, result.getResult().getType());
-		assertEquals(Double.toString(111.2e+4d), result.getResult().getText());
+		assertEquals("1.112E+6", result.getResult().getText());
 
 		result = tokenizer.nextToken(reader, mockContext);
 		assertEquals(TokenizerState.STRING, result.getTokenizerState());
@@ -179,11 +179,11 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 		assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
 		result = tokenizer.nextToken(reader, mockContext);
 		assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-		assertEquals(Long.MAX_VALUE,((PrologIntegerNumber)result.getResult()).getValue());
+		assertEquals(Long.MAX_VALUE,((PrologIntegerNumber)result.getResult()).getValue().longValue());
 
 		result = tokenizer.nextToken(reader, mockContext);
 		assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-		assertEquals("Negative intger will be splitted to two parts - minus and positive number part",Long.MAX_VALUE,((PrologIntegerNumber)result.getResult()).getValue());
+		assertEquals("Negative intger will be splitted to two parts - minus and positive number part",Long.MAX_VALUE,((PrologIntegerNumber)result.getResult()).getValue().longValue());
 		try {
 			tokenizer.nextToken(new PrologCharDataSource("    \n    \'unclosed string"), null);
 		}catch(PrologParserException ex){

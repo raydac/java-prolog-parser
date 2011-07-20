@@ -3,6 +3,7 @@ package com.igormaznitsa.prologparser.operators;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
@@ -181,6 +182,21 @@ public class OperatorTest extends AbstractPrologParserTest {
 		assertTrue(opXFY.compatibleWith(two));
 		assertTrue(opYF.compatibleWith(two));
 		assertTrue(opXF.compatibleWith(two));
+		
+		final PrologStructure nullElementStructure = Mockito.mock(PrologStructure.class);
+		Mockito.when(nullElementStructure.getArity()).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(1).thenReturn(1);
+		
+		assertFalse(opFX.compatibleWith(nullElementStructure));
+		assertFalse(opFY.compatibleWith(nullElementStructure));
+
+		assertFalse(opYFX.compatibleWith(nullElementStructure));
+		assertFalse(opXFX.compatibleWith(nullElementStructure));
+		assertFalse(opXFY.compatibleWith(nullElementStructure));
+		assertFalse(opXF.compatibleWith(nullElementStructure));
+		assertFalse(opXF.compatibleWith(nullElementStructure));
+
+		assertFalse(opXF.compatibleWith(nullElementStructure));
+		assertFalse(opXF.compatibleWith(nullElementStructure));
 	}
 
 	@Test

@@ -17,44 +17,54 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
+import java.math.BigInteger;
+
 /**
  * The class describes an immutable integer numeric atom, it is like a prolog
- * atom but being used to save a Java long value.
+ * atom but being used to save a Java BigInteger value.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	/**
 	 * The variable contains immutable numeric value for the instance.
+	 * @since 1.01
 	 */
-	private final long value;
+	private final BigInteger value;
 
 	/**
-	 * A Constructor. It allows to create new instance based on a text long
-	 * numeric representation.
+	 * A Constructor. It allows to create new instance based on a text 
+	 * numeric representation compatibles with BigInteger object.
 	 * 
 	 * @param text
-	 *            the text represents a long value, must not be null
+	 *            the text represents a BigInteger value, must not be null
 	 * @since 1.00
 	 */
 	public PrologIntegerNumber(final String text) {
-		super();
-		if (text == null)
-			throw new NullPointerException("Text is null");
-		this.value = Long.parseLong(text);
+		this(new BigInteger(text));
 	}
 
 	/**
-	 * A Constructor. It allows to create new instance based on a Java long
+	 * AConstructor. It allows to create new instances based on a Java long numeric 
 	 * value.
-	 * 
 	 * @param value
-	 *            the long value being used to create new instance
 	 * @since 1.00
 	 */
 	public PrologIntegerNumber(final long value) {
+		this(BigInteger.valueOf(value));
+	}
+	
+	/**
+	 * A Constructor. It allows to create new instance based on a Java BigInteger value.
+	 * 
+	 * @param value the value to be saved in the new instance, must not be null
+	 * @since 1.01
+	 */
+	public PrologIntegerNumber(final BigInteger value) {
 		super();
+		if (value == null)
+			throw new NullPointerException("Value is null");
 		this.value = value;
 	}
 
@@ -63,7 +73,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	 */
 	@Override
 	public AbstractPrologNumericTerm neg() {
-		return new PrologIntegerNumber(0 - value);
+		return new PrologIntegerNumber(value.negate());
 	}
 
 	/**
@@ -71,7 +81,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	 */
 	@Override
 	public String toString() {
-		return Long.toString(value);
+		return value.toString();
 	}
 
 	/**
@@ -85,10 +95,10 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 	/**
 	 * Get the immutable value saved by the instance
 	 * 
-	 * @return the value as long
-	 * @since 1.00
+	 * @return the value as BigInteger
+	 * @since 1.01
 	 */
-	public long getValue() {
+	public BigInteger getValue() {
 		return value;
 	}
 

@@ -208,7 +208,7 @@ public final class Operator extends AbstractPrologTerm {
 				}
 					break;
 				default:
-					throw new Error("Unsupported type");
+					throw new Error("Unsupported type detected");
 				}
 				break;
 			case 2:
@@ -268,7 +268,7 @@ public final class Operator extends AbstractPrologTerm {
 				}
 					break;
 				default:
-					throw new Error("Unknown type");
+					throw new Error("Unsupported type detected");
 
 				}
 

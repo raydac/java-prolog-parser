@@ -17,34 +17,43 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 /**
  * The class describes a float numeric atom for the prolog parser. It looks like
- * the prolog atom but contains a Java double value and doesnt save the text
- * value which was used during the constructor call.
+ * the prolog atom but contains a Java BigDecimal value and doesn't save the text
+ * value which was used to create the atom.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 
 	/**
-	 * The variable contains the immutable double value.
+	 * The math context to be used for float numbers
+	 * @since 1.01
 	 */
-	private final double value;
+	public static final MathContext MATH_CONTEXT = MathContext.DECIMAL64;
+	
+	/**
+	 * The variable contains the immutable BigDecimal value.
+	 * @since 1.01
+	 */
+	private final BigDecimal value;
 
 	/**
 	 * A Constructor. It allows to create new instance based on the text
 	 * representation.
 	 * 
 	 * @param text
-	 *            the text compatibles with Java double type. Must not be null.
+	 *            the text compatibles with Java BigDecimal type. Must not be null.
 	 * @throws NumberFormatException
-	 *             will be thrown if the text can't be parsed as a Double value.
+	 *             will be thrown if the text can't be parsed as a BigDeclmal value.
 	 * @since 1.00
 	 */
 	public PrologFloatNumber(final String text) {
-		super();
-		value = Double.parseDouble(text);
+		this(new BigDecimal(text,MATH_CONTEXT));
 	}
 
 	/**
@@ -55,25 +64,35 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 	 * @since 1.00
 	 */
 	public PrologFloatNumber(final double value) {
-		super();
-		this.value = value;
+		this(BigDecimal.valueOf(value));
 	}
 
+	/**
+	 * A Constructor. It allows to create new instance based on a BigDecimal value.
+	 * @param value the BigDecimal value to be represented by the instance, must not be null
+	 */
+	public PrologFloatNumber(final BigDecimal value) {
+		super();
+		if (value == null)
+			throw new NullPointerException("Value is null");
+		this.value = value;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public AbstractPrologNumericTerm neg() {
-		return new PrologFloatNumber(0 - value);
+		return new PrologFloatNumber(value.negate());
 	}
 
 	/**
-	 * Get the double value saved by the object.
+	 * Get the BigDecimal value saved by the object.
 	 * 
-	 * @return the double value
-	 * @since 1.00
+	 * @return the BigDecimal value saved by the object
+	 * @since 1.01
 	 */
-	public double getValue() {
+	public BigDecimal getValue() {
 		return value;
 	}
 
@@ -82,6 +101,7 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 	 */
 	@Override
 	public String toString() {
-		return Double.toString(value);
+		final String result = value.toEngineeringString();
+		return result.indexOf('.')<0 ? result+".0" : result;
 	}
 }
