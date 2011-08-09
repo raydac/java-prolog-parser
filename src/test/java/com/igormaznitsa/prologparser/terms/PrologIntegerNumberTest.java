@@ -66,6 +66,39 @@ public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 	}
 	
 	@Test
+	public void testPrologIntegerNumberStringIntInt() {
+		try {
+			new PrologIntegerNumber((String)null,0,0);
+			fail("Must throw NPE for null text");
+		}catch(NullPointerException ex) {
+		}
+		
+		final AbstractPrologTerm term = new PrologIntegerNumber("123", 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
+	}
+
+	@Test
+	public void testPrologIntegerNumberLongIntInt() {
+		final AbstractPrologTerm term = new PrologIntegerNumber(123L, 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
+	}
+
+	@Test
+	public void testPrologIntegerNumberBigIntegerIntInt() {
+		try {
+			new PrologIntegerNumber((BigInteger)null,0,0);
+			fail("Must throw NPE for null number");
+		}catch(NullPointerException ex) {
+		}
+		
+		final AbstractPrologTerm term = new PrologIntegerNumber(BigInteger.ONE, 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
+	}
+	
+	@Test
 	public void testGetValue() {
 		assertEquals(9998837672L, new PrologIntegerNumber(9998837672L).getValue().longValue());
 		assertEquals(-88878233243L, new PrologIntegerNumber("-88878233243").getValue().longValue());

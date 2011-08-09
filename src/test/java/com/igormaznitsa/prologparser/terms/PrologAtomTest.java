@@ -28,13 +28,26 @@ public class PrologAtomTest extends AbstractPrologParserTest {
 	}
 
 	@Test
-	public void testPrologAtom() {
-		new PrologAtom("Hello");
+	public void testPrologAtomString() {
 		try {
 			new PrologAtom(null);
 			fail("Null name must throw NPE");
 		} catch (NullPointerException ex) {
 		}
-	}
 
+		new PrologAtom("Hello");
+	}
+	
+	@Test
+	public void testPrologAtomStringIntInt() {
+		try {
+			new PrologAtom(null,0,0);
+			fail("Must throw NPE for null name");
+		}catch(NullPointerException ex) {
+		}
+		
+		final AbstractPrologTerm term = new PrologAtom("test", 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
+	}
 }

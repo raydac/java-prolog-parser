@@ -27,10 +27,10 @@ public class ParserContextTest extends AbstractPrologParserTest {
 	@Test
 	public void testHasOperatorStartsWith() throws Exception {
 		final ParserContext mockContext = Mockito.mock(ParserContext.class);
-		Mockito.stub(mockContext.hasOperatorStartsWith(Mockito.anyString())).toAnswer(new Answer<Boolean>(){
+		Mockito.stub(mockContext.hasOperatorStartsWith(Mockito.any(PrologParser.class), Mockito.anyString())).toAnswer(new Answer<Boolean>(){
 			@Override
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				return "operator".startsWith((String)invocation.getArguments()[0]);
+				return "operator".startsWith((String)invocation.getArguments()[1]);
 			}
 		});
 		
@@ -42,24 +42,24 @@ public class ParserContextTest extends AbstractPrologParserTest {
 			fail("Must throw PPE");
 		}catch(PrologParserException ex){}
 		
-		Mockito.verify(mockContext).hasOperatorStartsWith("a");
-		Mockito.verify(mockContext).hasOperatorStartsWith("o");
-		Mockito.verify(mockContext).hasOperatorStartsWith("op");
-		Mockito.verify(mockContext).hasOperatorStartsWith("ope");
-		Mockito.verify(mockContext).hasOperatorStartsWith("oper");
-		Mockito.verify(mockContext).hasOperatorStartsWith("opera");
-		Mockito.verify(mockContext).hasOperatorStartsWith("operato");
-		Mockito.verify(mockContext).hasOperatorStartsWith("operator");
-		Mockito.verify(mockContext).hasOperatorStartsWith("b");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"a");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"o");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"op");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"ope");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"oper");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"opera");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"operato");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"operator");
+		Mockito.verify(mockContext).hasOperatorStartsWith(parser,"b");
 	}
 
 	@Test
 	public void testFindOperatorForName() throws Exception {
 		final ParserContext mockContext = Mockito.mock(ParserContext.class);
-		Mockito.stub(mockContext.findOperatorForName(Mockito.anyString())).toAnswer(new Answer<OperatorContainer>(){
+		Mockito.stub(mockContext.findOperatorForName(Mockito.any(PrologParser.class),Mockito.anyString())).toAnswer(new Answer<OperatorContainer>(){
 			@Override
 			public OperatorContainer answer(InvocationOnMock invocation) throws Throwable {
-				if ("operator".startsWith((String)invocation.getArguments()[0])){
+				if ("operator".startsWith((String)invocation.getArguments()[1])){
 					return new OperatorContainer(new Operator(1000,OperatorType.XFX,"operator"));
 				}else{
 					return null;
@@ -67,10 +67,10 @@ public class ParserContextTest extends AbstractPrologParserTest {
 			}
 		});
 		
-		Mockito.stub(mockContext.hasOperatorStartsWith(Mockito.anyString())).toAnswer(new Answer<Boolean>(){
+		Mockito.stub(mockContext.hasOperatorStartsWith(Mockito.any(PrologParser.class),Mockito.anyString())).toAnswer(new Answer<Boolean>(){
 			@Override
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				return "operator".startsWith((String)invocation.getArguments()[0]);
+				return "operator".startsWith((String)invocation.getArguments()[1]);
 			}
 		});
 		
@@ -81,18 +81,18 @@ public class ParserContextTest extends AbstractPrologParserTest {
 			fail("Must throw PPE");
 		}catch(PrologParserException ex){}
 		
-		Mockito.verify(mockContext).findOperatorForName("operator");
+		Mockito.verify(mockContext).findOperatorForName(parser,"operator");
 		
 	}
 
 	@Test
 	public void testHasZeroArityPredicate() throws Exception {
 		final ParserContext mockContext = Mockito.mock(ParserContext.class);
-		Mockito.stub(mockContext.hasZeroArityPredicate(Mockito.anyString())).toAnswer(new Answer<Boolean>(){
+		Mockito.stub(mockContext.hasZeroArityPredicate(Mockito.any(PrologParser.class),Mockito.anyString())).toAnswer(new Answer<Boolean>(){
 
 			@Override
 			public Boolean answer(InvocationOnMock invocation) throws Throwable {
-				return "foo".equals(invocation.getArguments()[0]);
+				return "foo".equals(invocation.getArguments()[1]);
 			}
 			
 		});
@@ -106,7 +106,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
 		assertEquals("foo",term.getText());
 		assertNull(parser.nextSentence());
 		
-		Mockito.verify(mockContext).hasZeroArityPredicate("foo");
+		Mockito.verify(mockContext).hasZeroArityPredicate(parser,"foo");
 	}
 
 	@Test
@@ -115,22 +115,22 @@ public class ParserContextTest extends AbstractPrologParserTest {
 		final ParserContext stubContext = new ParserContext() {
 			
 			@Override
-			public void processNewStructure(final PrologStructure structure) {
+			public void processNewStructure(final PrologParser source, final PrologStructure structure) {
 				detectedStructures.put(structure.getFunctor().getText(), structure);
 			}
 			
 			@Override
-			public boolean hasZeroArityPredicate(String predicateName) {
+			public boolean hasZeroArityPredicate(final PrologParser source, String predicateName) {
 				return "foo".equals(predicateName);
 			}
 			
 			@Override
-			public boolean hasOperatorStartsWith(String operatorNameStartSubstring) {
+			public boolean hasOperatorStartsWith(final PrologParser source, String operatorNameStartSubstring) {
 				return false;
 			}
 			
 			@Override
-			public OperatorContainer findOperatorForName(String operatorName) {
+			public OperatorContainer findOperatorForName(final PrologParser source, String operatorName) {
 				return null;
 			}
 		};

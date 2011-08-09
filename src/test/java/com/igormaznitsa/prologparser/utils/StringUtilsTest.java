@@ -23,28 +23,28 @@ public class StringUtilsTest extends AbstractPrologParserTest{
 		assertNull(container.get());
 		
 		assertTrue(StringUtils.unescapeCharacter("a", container));
-		assertEquals(new Character((char)7),container.get());
+		assertEquals(Character.valueOf((char)7),container.get());
 		
 		assertTrue(StringUtils.unescapeCharacter("b", container));
-		assertEquals(new Character((char)8),container.get());
+		assertEquals(Character.valueOf((char)8),container.get());
 		
 		assertTrue(StringUtils.unescapeCharacter("e", container));
-		assertEquals(new Character((char)27),container.get());
+		assertEquals(Character.valueOf((char) 27),container.get());
 		
 		assertTrue(StringUtils.unescapeCharacter("r", container));
-		assertEquals(new Character('\r'),container.get());
+		assertEquals(Character.valueOf('\r'),container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("n", container));
-		assertEquals(new Character('\n'),container.get());
+		assertEquals(Character.valueOf('\n'),container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("\\", container));
-		assertEquals(new Character('\\'),container.get());
+		assertEquals(Character.valueOf('\\'),container.get());
 		
 		assertTrue(StringUtils.unescapeCharacter("\'", container));
-		assertEquals(new Character('\''),container.get());
+		assertEquals(Character.valueOf('\''),container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("t", container));
-		assertEquals(new Character('\t'),container.get());
+		assertEquals(Character.valueOf('\t'),container.get());
 
 		assertFalse(StringUtils.unescapeCharacter("z", container));
 		assertNull(container.get());
@@ -53,10 +53,10 @@ public class StringUtilsTest extends AbstractPrologParserTest{
 		assertNull(container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("s", container));
-		assertEquals(new Character(' '),container.get());
+		assertEquals(Character.valueOf(' '),container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("v", container));
-		assertEquals(new Character((char)11),container.get());
+		assertEquals(Character.valueOf((char)11),container.get());
 		
 		assertFalse(StringUtils.unescapeCharacter("xm", container));
 		assertNull(container.get());
@@ -65,7 +65,7 @@ public class StringUtilsTest extends AbstractPrologParserTest{
 		assertNull(container.get());
 	
 		assertTrue(StringUtils.unescapeCharacter("x20", container));
-		assertEquals(new Character((char)32),container.get());
+		assertEquals(Character.valueOf((char)32),container.get());
 
 		assertFalse(StringUtils.unescapeCharacter("x2023", container));
 		assertNull(container.get());
@@ -77,13 +77,13 @@ public class StringUtilsTest extends AbstractPrologParserTest{
 		assertNull(container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("uFF00", container));
-		assertEquals(new Character((char)0xFF00),container.get());
+		assertEquals(Character.valueOf((char)0xFF00),container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("uFF0a", container));
-		assertEquals(new Character((char)0xFF0A),container.get());
+		assertEquals(Character.valueOf((char)0xFF0A),container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("ufF0A", container));
-		assertEquals(new Character((char)0xFF0A),container.get());
+		assertEquals(Character.valueOf((char)0xFF0A),container.get());
 
 		assertFalse(StringUtils.unescapeCharacter("ufF0AC2", container));
 		assertNull(container.get());
@@ -92,7 +92,7 @@ public class StringUtilsTest extends AbstractPrologParserTest{
 		assertNull(container.get());
 
 		assertTrue(StringUtils.unescapeCharacter("ubbbb", container));
-		assertEquals(new Character((char)0xBBBB),container.get());
+		assertEquals(Character.valueOf((char)0xBBBB),container.get());
 
 		assertFalse(StringUtils.unescapeCharacter("Ubbbb", container));
 		assertNull(container.get());

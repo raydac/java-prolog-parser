@@ -14,6 +14,10 @@ public class AbstractPrologTermTest extends AbstractPrologParserTest {
 			super(text);
 		}
 		
+		public StubAbstractPrologTermTest(final String text, final int strPos, final int lineNum) {
+			super(text,strPos, lineNum);
+		}
+		
 		@Override
 		public PrologTermType getType() {
 			throw new UnsupportedOperationException("It's a stub");
@@ -22,15 +26,64 @@ public class AbstractPrologTermTest extends AbstractPrologParserTest {
 	}
 	
 	@Test
-	public void testAbstractPrologTerm() {
+	public void testAbstractPrologTermString() {
 		try {
 			new StubAbstractPrologTermTest(null);
 			fail("Must throw NPE for null text");
 		}catch(NullPointerException ex){}
-		
-		assertEquals("test",new StubAbstractPrologTermTest("test").text);
+
+		final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
+		assertEquals(-1, test.getStrPosition());
+		assertEquals(-1, test.getLineNumber());
 	}
 
+	@Test
+	public void testAbstractPrologTermStringIntInt() {
+		try {
+			new StubAbstractPrologTermTest(null, 1, 2);
+			fail("Must throw NPE for null text");
+		} catch(NullPointerException ex) {
+		}
+		
+		final AbstractPrologTerm test = new StubAbstractPrologTermTest("test", 1, 2);
+		assertEquals(1, test.getStrPosition());
+		assertEquals(2, test.getLineNumber());
+	}
+	
+	@Test
+	public void testSetStrPosition() {
+		final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
+		test.setStrPosition(101);
+		assertEquals(101,test.getStrPosition());
+		test.setStrPosition(0);
+		assertEquals(-1,test.getStrPosition());
+		test.setStrPosition(-10);
+		assertEquals(-1,test.getStrPosition());
+	}
+
+	@Test
+	public void testGetStrPosition() {
+		final AbstractPrologTerm test = new StubAbstractPrologTermTest("test",101,202);
+		assertEquals(101,test.getStrPosition());
+	}
+	
+	@Test
+	public void testGetLineNumber() {
+		final AbstractPrologTerm test = new StubAbstractPrologTermTest("test",101,202);
+		assertEquals(202,test.getLineNumber());
+	}
+	
+	@Test
+	public void testSetLineNumber() {
+		final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
+		test.setLineNumber(101);
+		assertEquals(101,test.getLineNumber());
+		test.setLineNumber(0);
+		assertEquals(-1,test.getLineNumber());
+		test.setStrPosition(-10);
+		assertEquals(-1,test.getLineNumber());
+	}
+	
 	@Test
 	public void testGetText() {
 		assertEquals("Test text",new StubAbstractPrologTermTest("Test text").getText());

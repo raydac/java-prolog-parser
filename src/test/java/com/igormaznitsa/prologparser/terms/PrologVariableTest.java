@@ -24,6 +24,14 @@ public class PrologVariableTest extends AbstractPrologParserTest {
 	}
 
 	@Test
+	public void testPrologVariableIntInt() {
+		final PrologVariable var = new PrologVariable(1,2);
+		assertTrue(var.isAnonymous());
+		assertEquals(1, var.getStrPosition());
+		assertEquals(2, var.getLineNumber());
+	}
+	
+	@Test
 	public void testPrologVariableString() {
 		try {
 			new PrologVariable(null);
@@ -67,6 +75,40 @@ public class PrologVariableTest extends AbstractPrologParserTest {
 	}
 
 	@Test
+	public void testPrologVariableStringIntInt() {
+		try {
+			new PrologVariable(null, 1 , 2);
+			fail("The null argument must throw NPE");
+		} catch (NullPointerException ex) {
+		}
+
+		try {
+			new PrologVariable("", 1 ,2);
+			fail("Must throw IAE for wrong prolog variable name");
+		} catch (IllegalArgumentException ex) {
+		}
+
+		try {
+			new PrologVariable("привет", 1, 2);
+			fail("Must throw IAE for wrong prolog variable name");
+		} catch (IllegalArgumentException ex) {
+		}
+
+		try {
+			new PrologVariable("abc", 1, 2);
+			fail("Must throw IAE for wrong prolog variable name");
+		} catch (IllegalArgumentException ex) {
+		}
+
+		PrologVariable var = new PrologVariable("X",1,2);
+		
+		assertEquals(1, var.getStrPosition());
+		assertEquals(2, var.getLineNumber());
+	}
+
+	
+	
+	@Test
 	public void testIsAnonymous() {
 		PrologVariable var = new PrologVariable();
 		assertTrue(var.isAnonymous());
@@ -98,6 +140,40 @@ public class PrologVariableTest extends AbstractPrologParserTest {
 				new PrologVariable("__________test").toString());
 		assertEquals("Abc", new PrologVariable("Abc").toString());
 		assertEquals("Привет", new PrologVariable("Привет").toString());
+	}
+
+	@Test
+	public void testGetLinkedVariable()
+	{
+		final PrologVariable var = new PrologVariable("Hello");
+		final PrologVariable var2 = new PrologVariable("Hello");
+		assertNull(var.getLinkedObject());
+		var.setLinkedVariable(var2);
+		assertSame(var2,var.getLinkedVariable());
+	}
+
+	@Test
+	public void testSetLinkedVariable()
+	{
+		try {
+			new PrologVariable().setLinkedVariable(new PrologVariable("Test"));
+			fail("Must not accept linked variable for anonimous variables");
+		}catch(UnsupportedOperationException ex) {
+		}
+		
+		try {
+			new PrologVariable("Test").setLinkedVariable(new PrologVariable("Test2"));
+			fail("Must not support linked variable with different name");
+		}catch(IllegalArgumentException ex) {
+		}
+		
+		final PrologVariable var = new PrologVariable("Hello");
+		final PrologVariable var2 = new PrologVariable("Hello");
+		assertNull(var.getLinkedObject());
+		var.setLinkedVariable(var2);
+		assertSame(var2,var.getLinkedVariable());
+		var.setLinkedVariable(null);
+		assertNull(var.getLinkedObject());
 	}
 
 }

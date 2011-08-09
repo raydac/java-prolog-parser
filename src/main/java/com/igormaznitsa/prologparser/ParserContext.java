@@ -26,50 +26,51 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
  * will be notified about new structure creation
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public interface ParserContext {
 	/**
 	 * Check that there is any operator in the context which starts with a
 	 * string (or even whole name equals a string)
-	 * 
+	 * @param source the calling prolog parser
 	 * @param operatorNameStartSubstring
 	 *            the string which should be checked to be as the start as an
 	 *            operator name (or whole operator name too)
 	 * @return true is there is an operator starts with the string, else false
-	 * @since 1.00
+	 * @since 1.01
 	 */
-	boolean hasOperatorStartsWith(String operatorNameStartSubstring);
+	boolean hasOperatorStartsWith(PrologParser source, String operatorNameStartSubstring);
 
 	/**
 	 * Find an operator container in the context which name equals a string
 	 * 
+	 * @param source the calling prolog parser
 	 * @param operatorName
 	 *            a string to be used as whole operator name
 	 * @return an operator container if there is one for the name, else null
-	 * @since 1.00
+	 * @since 1.01
 	 */
-	OperatorContainer findOperatorForName(String operatorName);
+	OperatorContainer findOperatorForName(PrologParser source, String operatorName);
 
 	/**
 	 * The method is being called when a parser wants to check that there is a
 	 * zero-arity predicate for a name, if there is one then the parser will
 	 * create a zero-arity structure for it instead just an atom
-	 * 
+	 * @param source the calling prolog parser
 	 * @param predicateName
 	 *            a string contains the predicate name
 	 * @return true if there is such predicate, else false
-	 * @since 1.00
+	 * @since 1.01
 	 */
-	boolean hasZeroArityPredicate(String predicateName);
+	boolean hasZeroArityPredicate(PrologParser source, String predicateName);
 
 	/**
 	 * It will be called by parser every time as it has created a structure and
 	 * the context can postprocess it
-	 * 
+	 * @param source the calling prolog parser
 	 * @param structure
 	 *            the structure just created by the parser
-	 * @since 1.00
+	 * @since 1.01
 	 */
-	void processNewStructure(PrologStructure structure);
+	void processNewStructure(PrologParser source, PrologStructure structure);
 }

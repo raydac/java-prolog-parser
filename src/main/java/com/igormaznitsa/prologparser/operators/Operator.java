@@ -27,7 +27,7 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * The class describes a prolog operator for the prolog parser.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  * 
  * @see PrologOperator
  * @see PrologOperators
@@ -323,5 +323,27 @@ public final class Operator extends AbstractPrologTerm {
 		return "op(" + getPriority() + ','
 				+ getOperatorType().toString().toLowerCase() + ",\'"
 				+ getText() + "\').";
+	}
+
+	/**
+	 * The method is overridden to disable change of the string position for operator because it is a singleton.
+	 * @param value the value doesn't make sense
+	 * @throws UnsupportedOperationException will be thrown in any case of call
+	 * @since 1.01 
+	 */
+	@Override
+	public void setStrPosition(final int value) {
+		throw new UnsupportedOperationException("It is unsupported for operator");
+	}
+	
+	/**
+	 * The method is overridden to disable change of the line number for operator because it is a singleton.
+	 * @param value the value doesn't make sense
+	 * @throws UnsupportedOperationException will be thrown in any case of call
+	 * @since 1.01 
+	 */
+	@Override
+	public void setLineNumber(final int value) {
+		throw new UnsupportedOperationException("It is unsupported for operator");
 	}
 }

@@ -19,26 +19,28 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
 	private final PrologTokenizer tokenizer = new PrologTokenizer();
 	private final ParserContext mockContext = Mockito.mock(ParserContext.class);
-
+	private final PrologParser mockPrologParser = Mockito.mock(PrologParser.class);
+	
 	@Before
 	public void onSetUp() {
 		Mockito.reset(mockContext);
+		Mockito.when(mockPrologParser.getContext()).thenReturn(mockContext);
 	}
 
 	@Test
 	public void testPushTermBack() throws Exception {
 		assertNull(tokenizer.lastPushedTerm);
 		final TokenizerResult tokenizerResult = new TokenizerResult(
-				new PrologAtom("test"), TokenizerState.ATOM);
+				new PrologAtom("test"), TokenizerState.ATOM, 1, 2);
 		tokenizer.pushTermBack(tokenizerResult);
 		assertSame(tokenizerResult, tokenizer.nextToken(
-				Mockito.mock(PrologCharDataSource.class), mockContext));
+				Mockito.mock(PrologCharDataSource.class), mockPrologParser));
 	}
 
 	@Test
 	public void testPeekToken() throws Exception {
 		try {
-			tokenizer.peekToken(null, mockContext);
+			tokenizer.peekToken(null, mockPrologParser);
 			fail("Must throw NPE for null reader");
 		}catch(NullPointerException ex){}
 		
@@ -61,11 +63,11 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 	public void testGetLastTokenStrPos() throws Exception {
 		final PrologCharDataSource reader = new PrologCharDataSource(
 				"aaa%it's a comment string nd we must skip it until the next string char \n     123 \'hello\'");
-		assertNotNull(tokenizer.nextToken(reader, mockContext));
+		assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
 		assertEquals(1, tokenizer.getLastTokenStrPos());
-		assertNotNull(tokenizer.nextToken(reader, mockContext));
+		assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
 		assertEquals(6, tokenizer.getLastTokenStrPos());
-		assertNotNull(tokenizer.nextToken(reader, mockContext));
+		assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
 		assertEquals(10, tokenizer.getLastTokenStrPos());
 	}
 
@@ -73,11 +75,11 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 	public void testGetLastTokenLineNum() throws Exception {
 		final PrologCharDataSource reader = new PrologCharDataSource(
 				"212\n%it's a comment string nd we must skip it until the next string char \n     123\n\'hello\'");
-		assertNotNull(tokenizer.nextToken(reader, mockContext));
+		assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
 		assertEquals(1, tokenizer.getLastTokenLineNum());
-		assertNotNull(tokenizer.nextToken(reader, mockContext));
+		assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
 		assertEquals(3, tokenizer.getLastTokenLineNum());
-		assertNotNull(tokenizer.nextToken(reader, mockContext));
+		assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
 		assertEquals(4, tokenizer.getLastTokenLineNum());
 	}
 
@@ -104,7 +106,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 			tokenizer.skipUntilNextString(reader);
 			assertEquals(2, reader.getLineNumber());
 			assertEquals(1, reader.getNextCharStringPosition());
-			final TokenizerResult result = tokenizer.nextToken(reader, mockContext);
+			final TokenizerResult result = tokenizer.nextToken(reader, mockPrologParser);
 			assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
 			assertEquals("123", result.getResult().getText());
 		}
@@ -113,7 +115,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 	public void testNextToken() throws Exception {
 
 		try {
-			tokenizer.nextToken(null, mockContext);
+			tokenizer.nextToken(null, mockPrologParser);
 			fail("Must throw NPE for null reader");
 		} catch (NullPointerException ex) {
 		}
@@ -121,67 +123,67 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 		PrologCharDataSource reader = new PrologCharDataSource(
 				"     123 222.34 \n111.2e+4 \'string\' \n:- Variable _var _ :--");
 
-		TokenizerResult result = tokenizer.nextToken(reader, mockContext);
+		TokenizerResult result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
 		assertEquals(PrologTermType.ATOM, result.getResult().getType());
 		assertEquals("123", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
 		assertEquals(PrologTermType.ATOM, result.getResult().getType());
 		assertEquals("222.34", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
 		assertEquals(PrologTermType.ATOM, result.getResult().getType());
 		assertEquals("1.112E+6", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.STRING, result.getTokenizerState());
 		assertEquals(PrologTermType.ATOM, result.getResult().getType());
 		assertEquals("string", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
 		assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
 		assertEquals(":-", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.VARIABLE, result.getTokenizerState());
 		assertEquals(PrologTermType.VAR, result.getResult().getType());
 		assertEquals("Variable", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.VARIABLE, result.getTokenizerState());
 		assertEquals(PrologTermType.VAR, result.getResult().getType());
 		assertEquals("_var", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.VARIABLE, result.getTokenizerState());
 		assertEquals(PrologTermType.VAR, result.getResult().getType());
 		assertEquals("_", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
 		assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
 		assertEquals(":-", result.getResult().getText());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
 		assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
 		assertEquals("-", result.getResult().getText());
 
-		assertNull(tokenizer.nextToken(reader, mockContext));
+		assertNull(tokenizer.nextToken(reader, mockPrologParser));
 
 		reader = new PrologCharDataSource(Long.toString(Long.MIN_VALUE+1)+' '+Long.toString(Long.MAX_VALUE));
 		
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
 		assertEquals(Long.MAX_VALUE,((PrologIntegerNumber)result.getResult()).getValue().longValue());
 
-		result = tokenizer.nextToken(reader, mockContext);
+		result = tokenizer.nextToken(reader, mockPrologParser);
 		assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
 		assertEquals("Negative intger will be splitted to two parts - minus and positive number part",Long.MAX_VALUE,((PrologIntegerNumber)result.getResult()).getValue().longValue());
 		try {
@@ -262,23 +264,23 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 	@Test
 	public void testHasOperatorStartsWith() {
 		try {
-			PrologTokenizer.hasOperatorStartsWith(null, mockContext);
+			PrologTokenizer.hasOperatorStartsWith(null, mockPrologParser);
 			fail("Must throw NPE for null string");
 		}catch(NullPointerException ex){}
 
 		assertFalse("Should support null as context",PrologTokenizer.hasOperatorStartsWith("<------------------------------------------------------->", null));
 	
-		Mockito.when(mockContext.hasOperatorStartsWith("start_with")).thenReturn(true);
+		Mockito.when(mockContext.hasOperatorStartsWith(Mockito.any(PrologParser.class), Mockito.eq("start_with"))).thenReturn(true);
 
-		assertTrue(PrologTokenizer.hasOperatorStartsWith(":",mockContext));
-		assertFalse(PrologTokenizer.hasOperatorStartsWith("sstart_with",mockContext));
-		assertTrue(PrologTokenizer.hasOperatorStartsWith("start_with", mockContext));
+		assertTrue(PrologTokenizer.hasOperatorStartsWith(":",mockPrologParser));
+		assertFalse(PrologTokenizer.hasOperatorStartsWith("sstart_with",mockPrologParser));
+		assertTrue(PrologTokenizer.hasOperatorStartsWith("start_with", mockPrologParser));
 	}
 
 	@Test
 	public void testFindOperatorForName() {
 		try {
-			PrologTokenizer.findOperatorForName(null, mockContext);
+			PrologTokenizer.findOperatorForName(null, mockPrologParser);
 			fail("Must throw NPE for null string");
 		}catch(NullPointerException ex){}
 
@@ -286,14 +288,14 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 	
 		final OperatorContainer operatorContainer = new OperatorContainer(new Operator(1000,OperatorType.FX,"some_operator"));
 		
-		Mockito.when(mockContext.findOperatorForName("some_operator")).thenReturn(operatorContainer);
+		Mockito.when(mockContext.findOperatorForName(Mockito.any(PrologParser.class),Mockito.eq("some_operator"))).thenReturn(operatorContainer);
 
-		final OperatorContainer systemOne = PrologTokenizer.findOperatorForName(":-", mockContext);
+		final OperatorContainer systemOne = PrologTokenizer.findOperatorForName(":-", mockPrologParser);
 		assertNotNull("Must be found at system operator list",systemOne);
 		assertEquals(":-",systemOne.getText());
 		
-		assertNull(PrologTokenizer.findOperatorForName("%%%%%%%<unsupported_operator>%%%%%%", mockContext));
-		assertSame(PrologTokenizer.findOperatorForName("some_operator", mockContext), operatorContainer);
+		assertNull(PrologTokenizer.findOperatorForName("%%%%%%%<unsupported_operator>%%%%%%", mockPrologParser));
+		assertSame(PrologTokenizer.findOperatorForName("some_operator", mockPrologParser), operatorContainer);
 	}
 
 }

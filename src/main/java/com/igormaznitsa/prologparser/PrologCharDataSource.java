@@ -30,36 +30,43 @@ import java.util.Deque;
 /**
  * The class is the main char data source for a prolog parser, the class adapts
  * different standard Java input stream classes to be used by a prolog parser.
+ * The class is not thread safe so it must not be simultaneously used from different threads.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public class PrologCharDataSource {
 
 	/**
 	 * The text reader which is being used by the reader to read incoming text
 	 * data
+	 * @since 1.00
 	 */
 	private final Reader inReader;
 	/**
 	 * Inside char stack to save back-pushed data
+	 * @since 1.00
 	 */
 	private final Deque<Character> insideCharBuffer = new ArrayDeque<Character>(
 			32);
 	/**
 	 * The variable contains the previous value of the string position indicator
+	 * @since 1.00
 	 */
 	private int strPosPrev;
 	/**
 	 * The variable contains the previous position of the line number indicator
+	 * @since 1.00
 	 */
 	private int lineNumPrev;
 	/**
 	 * The variable contains current value of the string position indicator
+	 * @since 1.00
 	 */
 	private int strPos;
 	/**
 	 * The variable contains current value of the line number indicator
+	 * @since 1.00
 	 */
 	private int lineNum;
 
@@ -127,25 +134,25 @@ public class PrologCharDataSource {
 	 *             operation
 	 * @since 1.00
 	 */
-	public synchronized int read() throws IOException {
-		int ch;
-		if (insideCharBuffer.isEmpty()) {
-			ch = inReader.read();
-		} else {
-			ch = insideCharBuffer.removeLast();
-		}
-
-		strPosPrev = strPos;
-		lineNumPrev = lineNum;
-		if (ch == '\n') {
-			strPos = 1;
-			lineNum++;
-		} else {
-			if (ch >= 0) {
-				strPos++;
+	public int read() throws IOException {
+			int ch;
+			if (insideCharBuffer.isEmpty()) {
+				ch = inReader.read();
+			} else {
+				ch = insideCharBuffer.removeLast();
 			}
-		}
-		return ch;
+
+			strPosPrev = strPos;
+			lineNumPrev = lineNum;
+			if (ch == '\n') {
+				strPos = 1;
+				lineNum++;
+			} else {
+				if (ch >= 0) {
+					strPos++;
+				}
+			}
+			return ch;
 	}
 
 	/**
@@ -160,12 +167,15 @@ public class PrologCharDataSource {
 	 *            a string buffer object, must not be null
 	 * @since 1.00
 	 */
-	public synchronized void calculateDifferenceAndPushTheResultBack(
+	public void calculateDifferenceAndPushTheResultBack(
 			final String etalon, final StringBuilder buffer) {
 		int chars = buffer.length() - etalon.length();
 		int pos = buffer.length() - 1;
+		
+		final Deque<Character> insideCharBuffer = this.insideCharBuffer;
+		
 		while (chars > 0) {
-			char ch = buffer.charAt(pos--);
+			final char ch = buffer.charAt(pos--);
 			insideCharBuffer.addLast(ch);
 			chars--;
 			strPos--;
@@ -232,7 +242,7 @@ public class PrologCharDataSource {
 	 *            the char to be placed into the inside buffer
 	 * @since 1.00
 	 */
-	public synchronized void pushCharBack(final char ch) {
+	public void pushCharBack(final char ch) {
 		insideCharBuffer.addLast(ch);
 		if (ch == '\n') {
 			strPos = 1;
@@ -255,7 +265,7 @@ public class PrologCharDataSource {
 	 *             it will be thrown if there is any error during the operation
 	 * @since 1.00
 	 */
-	public synchronized void close() throws IOException {
+	public void close() throws IOException {
 		inReader.close();
 	}
 }

@@ -78,7 +78,7 @@ public class OperatorTest extends AbstractPrologParserTest {
 	}
 
 	@Test
-	public void testOperator() {
+	public void testOperatorIntOperatorTypeString() {
 		try {
 			new Operator(-1, OperatorType.FX, "<>");
 			fail("Must throw IAE for negative priority");
@@ -226,6 +226,28 @@ public class OperatorTest extends AbstractPrologParserTest {
 	public void testGetText() {
 		assertEquals("<>", new Operator(121, OperatorType.FX, "<>").getText());
 		assertEquals("><", new Operator(121, OperatorType.XFX, "><").getText());
+	}
+
+	@Test
+	public void testSetStrPosition()
+	{
+		final Operator opFX = new Operator(100, OperatorType.FX, "><");
+		try {
+			opFX.setStrPosition(10);
+			fail("Must throw UOE because the operation restricted");
+		}catch(UnsupportedOperationException ex) {
+		}
+	}
+
+	@Test
+	public void testSetLineNumber()
+	{
+		final Operator opFX = new Operator(100, OperatorType.FX, "><");
+		try {
+			opFX.setLineNumber(12);
+			fail("Must throw UOE because the operation restricted");
+		}catch(UnsupportedOperationException ex) {
+		}
 	}
 
 }

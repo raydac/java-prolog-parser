@@ -22,18 +22,29 @@ package com.igormaznitsa.prologparser.terms;
  * by the prolog parser.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  * @see PrologIntegerNumber
  * @see PrologFloatNumber
  */
 public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
 	/**
-	 * The constructor.
+	 * A Constructor.
+	 * @since 1.00
 	 */
 	public AbstractPrologNumericTerm() {
 		super("");
 	}
 
+	/**
+	 * A Constructor allows to set both the string first char position and the line number
+	 * @param strPosition the first term char string position
+	 * @param lineNumber the first term char line number
+	 * @since 1.01
+	 */
+	public AbstractPrologNumericTerm(final int strPosition, final int lineNumber) {
+		super("", strPosition, lineNumber);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -44,6 +55,7 @@ public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
 
 	/**
 	 * It will return a text representation for the numeric.
+	 * @since 1.00
 	 */
 	@Override
 	public String getText() {

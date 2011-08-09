@@ -25,19 +25,33 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * state during that operation and the parsed term.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public final class TokenizerResult {
 	/**
 	 * The variable contains the tokenizer state during the reading of the term
+	 * @since 1.00
 	 */
 	private final TokenizerState parserState;
 
 	/**
 	 * The variable contains the result term
+	 * @since 1.00
 	 */
 	private final AbstractPrologTerm resultTerm;
 
+	/**
+	 * The variable contains the string position where the first result char is presented
+	 * @since 1.01
+	 */
+	private final int stringPosition;
+	
+	/**
+	 * The variable contains the line number where the first result char is presented
+	 * @since 1.01
+	 */
+	private final int lineNumber;
+	
 	/**
 	 * The constructor.
 	 * 
@@ -46,16 +60,20 @@ public final class TokenizerResult {
 	 * @param parserState
 	 *            the tokenizer state to be saved in the object, must not be
 	 *            null.
-	 * @since 1.00
+	 * @param stringPosition the first result char string position
+	 * @param lineNumber the first result char line number
+	 * @since 1.01
 	 */
 	public TokenizerResult(final AbstractPrologTerm term,
-			final TokenizerState parserState) {
+			final TokenizerState parserState, final int stringPosition, final int lineNumber) {
 		if (term == null)
 			throw new NullPointerException("Term is null");
 
 		if (parserState == null)
 			throw new NullPointerException("Parser state is null");
 
+		this.stringPosition = stringPosition;
+		this.lineNumber = lineNumber;
 		this.resultTerm = term;
 		this.parserState = parserState;
 	}
@@ -88,5 +106,23 @@ public final class TokenizerResult {
 	 */
 	public PrologTermType getTermType() {
 		return resultTerm.getType();
+	}
+	
+	/**
+	 * Get the first result char string position
+	 * @return the first result char position at string
+	 * @since 1.01
+	 */
+	public int getStringPosition() {
+		return stringPosition;
+	}
+	
+	/**
+	 * Get the first result char line number
+	 * @return the first result char line number
+	 * @since 1.01
+	 */
+	public int getLineNumber() {
+		return lineNumber;
 	}
 }

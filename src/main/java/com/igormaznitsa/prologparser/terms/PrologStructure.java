@@ -25,7 +25,7 @@ import com.igormaznitsa.prologparser.operators.Operator;
  * The class describes a prolog structure.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.01
+ * @version 1.02
  */
 public class PrologStructure extends AbstractPrologTerm {
 	/**
@@ -95,6 +95,25 @@ public class PrologStructure extends AbstractPrologTerm {
 	}
 
 	/**
+	 * A Constructor. It allows to create a structure for a functor and a term
+	 * array and set the first term char position in the source stream
+	 * 
+	 * @param functor
+	 *            the functor for the new structure, must not be null
+	 * @param elements
+	 *            the elements of the new structure, must not be null and must
+	 *            not contain null (!)
+	 * @param strPosition
+	 * @param lineNumber
+	 * @since 1.02
+	 */
+	public PrologStructure(final AbstractPrologTerm functor, final AbstractPrologTerm [] elements, final int strPosition, final int lineNumber) {
+		this(functor,elements);
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
+	/**
 	 * A Constructor. It allows to create a zero (I mean a zero arity one)
 	 * structure with a prolog atom as the functor.
 	 * 
@@ -107,6 +126,19 @@ public class PrologStructure extends AbstractPrologTerm {
 	}
 
 	/**
+	 * A Constructor. It allows to create a zero arity structure and set the first term char position in the source stream 
+	 * @param text the text to create the functor, must not be null
+	 * @param strPosition the first term string position
+	 * @param lineNumber the first term char line number 
+	 * @since 1.02
+	 */
+	public PrologStructure(final String text, final int strPosition, final int lineNumber) {
+		this(text);
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
+	/**
 	 * A Constructor. It allows to create a zero (I mean a zero arity one)
 	 * structure with a prolog term as a functor
 	 * 
@@ -118,6 +150,22 @@ public class PrologStructure extends AbstractPrologTerm {
 		this(functor, 0);
 	}
 
+	/**
+	 * A Constructor. It allows to create a zero (I mean a zero arity one)
+	 * structure with a prolog term as a functor
+	 * 
+	 * @param functor
+	 *            a prolog term to be used as the functor, must not be null
+	 * @param strPosition the first term char string position in the source stream
+	 * @param lineNumber the first term char line number in the source stream
+	 * @since 1.02
+	 */
+	public PrologStructure(final AbstractPrologTerm functor, final int strPosition, final int lineNumber) {
+		this(functor);
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
 	/**
 	 * A Constructor. It allows to create a prolog structure for a functor and
 	 * needed arity (it will use EMPTY_ATOM as each element)
@@ -152,6 +200,25 @@ public class PrologStructure extends AbstractPrologTerm {
 		Arrays.fill(elements, EMPTY_ATOM);
 	}
 
+	/**
+	 * A Constructor. It allows to create a prolog structure for a functor and
+	 * needed arity (it will use EMPTY_ATOM as each element) and set the source stream position
+	 * 
+	 * @param functor
+	 *            a prolog term to be used as the structure functor, it must not
+	 *            be null.
+	 * @param arity
+	 *            the arity of the new structure, must not be less than zero.
+	 * @param strPosition the first term char string position
+	 * @param lineNumber the first term char line number
+	 * @since 1.02
+	 */
+	protected PrologStructure(final AbstractPrologTerm functor, final int arity, final int strPosition, final int lineNumber) {
+		this(functor, arity);
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

@@ -33,7 +33,7 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
  * prolog parser.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.02
  */
 final class PrologTokenizer {
 
@@ -100,21 +100,21 @@ final class PrologTokenizer {
 	 * 
 	 * @param reader
 	 *            the reader to read char data, must not be null
-	 * @param parserContext
-	 *            the parser context to be used for the operation, it can be
+	 * @param parser
+	 *            the parser reading the stream, it can be
 	 *            null
 	 * @return a read token as a ProlTokenizerResult, or null if there is not
 	 *         any more token in the stream
 	 * @throws IOException
 	 *             it will be throws if there is any transport problem
-	 * @since 1.00
+	 * @since 1.02
 	 */
 	TokenizerResult peekToken(final PrologCharDataSource reader,
-			final ParserContext parserContext) throws PrologParserException,
+			final PrologParser parser) throws PrologParserException,
 			IOException {
 		TokenizerResult result = null;
 		if (lastPushedTerm == null) {
-			result = nextToken(reader, parserContext);
+			result = nextToken(reader, parser);
 			pushTermBack(result);
 		} else {
 			result = lastPushedTerm;
@@ -185,18 +185,18 @@ final class PrologTokenizer {
 	 * @param reader
 	 *            the reader to be used as the char data source, must not be
 	 *            null
-	 * @param parserContext
-	 *            the parser context to be used for operator recognizing, it can
+	 * @param parser
+	 *            the prolog parser calling reading the stream, it can
 	 *            be null
 	 * @return the next token found at the stream as a ProlTokenizerResult
 	 *         object or null if the end of the stream has been reached
 	 * @throws IOException
 	 *             it will be thrown if there is any transport error during the
 	 *             operation
-	 * @since 1.00
+	 * @since 1.02
 	 */
 	TokenizerResult nextToken(final PrologCharDataSource reader,
-			final ParserContext parserContext) throws PrologParserException,
+			final PrologParser parser) throws PrologParserException,
 			IOException {
 
 		if (reader == null)
@@ -238,19 +238,19 @@ final class PrologTokenizer {
 						// it is Integer
 						return new TokenizerResult(makeTermFromString(
 								str.substring(0, str.length() - 1),
-								TokenizerState.INTEGER), TokenizerState.ATOM);
+								TokenizerState.INTEGER), TokenizerState.ATOM, getLastTokenStrPos(), getLastTokenLineNum());
 					} else 
 					{
 						// it is just integer number or an atom
 						return new TokenizerResult(makeTermFromString(str, state),
-								state);
+								state, getLastTokenStrPos(), getLastTokenLineNum());
 					}
 				case VARIABLE:
 					if (str.equals("_")) {
-						return new TokenizerResult(new PrologVariable(), state);
+						return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
 					} else {
 						return new TokenizerResult(new PrologVariable(str),
-								state);
+								state, getLastTokenStrPos(), getLastTokenLineNum());
 					}
 
 				case STRING:
@@ -259,11 +259,11 @@ final class PrologTokenizer {
 				case OPERATOR:
 					if (lastFoundFullOperator == null) {
 						return new TokenizerResult(makeTermFromString(str,
-								state), state);
+								state), state, getLastTokenStrPos(), getLastTokenLineNum());
 					} else {
 						reader.calculateDifferenceAndPushTheResultBack(
 								lastFoundFullOperator.getText(), strbuffer);
-						return new TokenizerResult(lastFoundFullOperator, state);
+						return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
 					}
 				default:
 					throw new Error("Unknown reader state");
@@ -303,9 +303,9 @@ final class PrologTokenizer {
 					} else {
 						letterOrDigitOnly = Character.isLetterOrDigit(chr);
 						String operator = Character.toString(chr);
-						if (hasOperatorStartsWith(operator, parserContext)) {
+						if (hasOperatorStartsWith(operator, parser)) {
 							lastFoundFullOperator = findOperatorForName(
-									operator, parserContext);
+									operator, parser);
 							state = TokenizerState.OPERATOR;
 						} else {
 							if (Character.isDigit(chr)) {
@@ -323,14 +323,14 @@ final class PrologTokenizer {
 				} else if (Character.isWhitespace(chr)
 						|| Character.isISOControl(chr)) {
 					return new TokenizerResult(makeTermFromString(
-							strbuffer.toString(), state), state);
+							strbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
 				} else if (chr == '\''
 						|| (letterOrDigitOnly != Character.isLetterOrDigit(chr))
 						|| findOperatorForName(Character.toString(chr),
-								parserContext) != null) {
+								parser) != null) {
 					reader.pushCharBack(chr);
 					return new TokenizerResult(makeTermFromString(
-							strbuffer.toString(), state), state);
+							strbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
 				} else {
 					strbuffer.append(chr);
 				}
@@ -346,7 +346,7 @@ final class PrologTokenizer {
 						reader.pushCharBack(chr);
 						return new TokenizerResult(makeTermFromString(
 								strbuffer.toString(), state),
-								TokenizerState.INTEGER);
+								TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
 					}
 				}
 				break;
@@ -362,7 +362,7 @@ final class PrologTokenizer {
 							return new TokenizerResult(
 									makeTermFromString(strbuffer.toString(),
 											TokenizerState.FLOAT),
-									TokenizerState.FLOAT);
+									TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
 						}
 					} else if (chr == 'e' || chr == 'E') {
 						if (strbuffer.indexOf("e") < 0) {
@@ -372,7 +372,7 @@ final class PrologTokenizer {
 							return new TokenizerResult(makeTermFromString(
 									strbuffer.substring(0,
 											strbuffer.length() - 1),
-									TokenizerState.FLOAT), TokenizerState.FLOAT);
+									TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
 						}
 					} else {
 
@@ -385,11 +385,11 @@ final class PrologTokenizer {
 									strbuffer.substring(0,
 											strbuffer.length() - 1),
 									TokenizerState.INTEGER),
-									TokenizerState.INTEGER);
+									TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
 						} else {
 							// it is float
 							return new TokenizerResult(makeTermFromString(
-									strbuffer.toString(), state), state);
+									strbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
 						}
 					}
 				}
@@ -400,43 +400,43 @@ final class PrologTokenizer {
 					reader.pushCharBack(chr);
 
 					if (lastFoundFullOperator != null) {
-						return new TokenizerResult(lastFoundFullOperator, state);
+						return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
 					} else {
 						return new TokenizerResult(makeTermFromString(
-								strbuffer.toString(), state), state);
+								strbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
 					}
 				} else {
 					final OperatorContainer prevoperators = lastFoundFullOperator;
 					strbuffer.append(chr);
 					final String operator = strbuffer.toString();
 					lastFoundFullOperator = findOperatorForName(operator,
-							parserContext);
+							parser);
 					if (prevoperators != null) {
 						if (lastFoundFullOperator == null) {
-							if (!hasOperatorStartsWith(operator, parserContext)) {
+							if (!hasOperatorStartsWith(operator, parser)) {
 								if (letterOrDigitOnly) {
 									state = TokenizerState.ATOM;
 								} else {
 									reader.calculateDifferenceAndPushTheResultBack(
 											prevoperators.getText(), strbuffer);
 									return new TokenizerResult(prevoperators,
-											state);
+											state, getLastTokenStrPos(), getLastTokenLineNum());
 								}
 							} else {
 								lastFoundFullOperator = prevoperators;
 							}
 
 						} else {
-							if (!hasOperatorStartsWith(operator, parserContext)) {
+							if (!hasOperatorStartsWith(operator, parser)) {
 								reader.calculateDifferenceAndPushTheResultBack(
 										prevoperators.getText(), strbuffer);
-								return new TokenizerResult(prevoperators, state);
+								return new TokenizerResult(prevoperators, state, getLastTokenStrPos(), getLastTokenLineNum());
 							}
 						}
 					} else {
-						if (!hasOperatorStartsWith(operator, parserContext)) {
+						if (!hasOperatorStartsWith(operator, parser)) {
 							if (hasOperatorStartsWith(Character.toString(chr),
-									parserContext)) {
+									parser)) {
 								// next char can be the start char of an
 								// operator so we need get back it into the
 								// buffer
@@ -486,7 +486,7 @@ final class PrologTokenizer {
 					switch (chr) {
 					case '\'':
 						return new TokenizerResult(makeTermFromString(
-								strbuffer.toString(), state), state);
+								strbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
 					case '\\':
 						specialchar = true;
 						specialCharBuffer.setLength(0);
@@ -501,16 +501,16 @@ final class PrologTokenizer {
 				if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
 					final String name = strbuffer.toString();
 					if (name.equals("_")) {
-						return new TokenizerResult(new PrologVariable(), state);
+						return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
 					}
-					return new TokenizerResult(new PrologVariable(name), state);
+					return new TokenizerResult(new PrologVariable(name), state, getLastTokenStrPos(), getLastTokenLineNum());
 				} else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
 					reader.pushCharBack(chr);
 					final String name = strbuffer.toString();
 					if (name.equals("_")) {
-						return new TokenizerResult(new PrologVariable(), state);
+						return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
 					}
-					return new TokenizerResult(new PrologVariable(name), state);
+					return new TokenizerResult(new PrologVariable(name), state, getLastTokenStrPos(), getLastTokenLineNum());
 				} else {
 					strbuffer.append(chr);
 				}
@@ -570,14 +570,13 @@ final class PrologTokenizer {
 	 * @param operatorNameStartSubstring
 	 *            the start substring to be checked as the operator start name,
 	 *            must not be null
-	 * @param parserContext
-	 *            a prolog context, must not be null
+	 * @param parser  a prolog parser which context will be used, it can be null
 	 * @return true if there is any operator starts with the string, else false
-	 * @since 1.00
+	 * @since 1.02
 	 */
 	static boolean hasOperatorStartsWith(
 			final String operatorNameStartSubstring,
-			final ParserContext parserContext) {
+			final PrologParser parser) {
 
 		if (operatorNameStartSubstring == null)
 			throw new NullPointerException("Substing is null");
@@ -588,11 +587,13 @@ final class PrologTokenizer {
 			return true;
 
 		// check only context
-		if (parserContext != null)
-			return parserContext
-					.hasOperatorStartsWith(operatorNameStartSubstring);
-		else
-			return false;
+		boolean result = false;
+		if (parser != null) {
+			final ParserContext ctx = parser.getContext();
+			if (ctx!=null)
+				result = ctx.hasOperatorStartsWith(parser,operatorNameStartSubstring);
+		}
+		return result;
 	}
 
 	/**
@@ -601,21 +602,24 @@ final class PrologTokenizer {
 	 * 
 	 * @param operatorName
 	 *            an operator name to be used for search, must not be null
-	 * @param parserContext
-	 *            a prolog context, it can be null
+	 * @param parser a prolog parser which context will be used, it can be null
 	 * @return an OperatorContainer if the operator is presented, else null
-	 * @since 1.00
+	 * @since 1.02
 	 */
 	static OperatorContainer findOperatorForName(final String operatorName,
-			final ParserContext parserContext) {
+			final PrologParser parser) {
 		if (operatorName == null)
 			throw new NullPointerException("Operator name is null");
 
 		OperatorContainer result = null;
 		result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
 
-		if (result == null && parserContext != null)
-			result = parserContext.findOperatorForName(operatorName);
+		if (result == null && parser != null) {
+			final ParserContext ctx = parser.getContext();
+			if (ctx!=null) {
+				result = ctx.findOperatorForName(parser, operatorName);
+			}
+		}
 
 		return result;
 	}

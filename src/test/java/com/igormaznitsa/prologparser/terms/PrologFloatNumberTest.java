@@ -85,17 +85,49 @@ public class PrologFloatNumberTest extends AbstractPrologParserTest {
 	
 	@Test
 	public void testPrologFloatNumberBigDecimal() {
-		final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
-		final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
-		
 		try {
 			new PrologFloatNumber((BigDecimal)null);
 			fail("Must throw NPE on null value");
 		} catch (NullPointerException ex) {
 		}
 
+		final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
+		final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
+		
 		assertEquals(test1, new PrologFloatNumber(test1).getValue());
 		assertEquals(test2, new PrologFloatNumber(test2).getValue());
+	}
+	
+	@Test
+	public void testPrologFloatNumberStringIntInt() {
+		try {
+			new PrologFloatNumber((String)null,0,0);
+			fail("Must throw NPE for null text");
+		}catch(NullPointerException ex) {
+		}
+		
+		final AbstractPrologTerm term = new PrologFloatNumber("123.0", 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
+	}
+
+	@Test
+	public void testPrologFloatNumberDoubleIntInt() {
+		final AbstractPrologTerm term = new PrologFloatNumber(123.0d, 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
+	}
+
+	@Test
+	public void testPrologFloatNumberBigDecimalIntInt() {
+		try {
+			new PrologFloatNumber((BigDecimal)null, 1, 2);
+		}catch(NullPointerException ex) {
+		}
+
+		final AbstractPrologTerm term = new PrologFloatNumber(BigDecimal.ONE, 1, 2);
+		assertEquals(1,term.getStrPosition());
+		assertEquals(2,term.getLineNumber());
 	}
 
 }

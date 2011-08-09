@@ -97,7 +97,8 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 		try {
 			reader.read();
 			fail("Must throw IOE for closed stream");
-		}catch(IOException ex){}
+		}catch(IOException ex){
+                }
 	}
 
 	@Test

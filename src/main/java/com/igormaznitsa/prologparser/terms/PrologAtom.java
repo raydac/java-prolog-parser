@@ -25,12 +25,12 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
  * (0).
  * 
  * @author Igor Maznitsa
- * @version 1.00
+ * @version 1.01
  */
 public final class PrologAtom extends AbstractPrologTerm {
 
 	/**
-	 * The constructor allows to make an instance based on a text part.
+	 * A Constructor allows to make an instance based on a text part.
 	 * 
 	 * @param text
 	 *            the text to be used for new instance, must not be null
@@ -40,6 +40,17 @@ public final class PrologAtom extends AbstractPrologTerm {
 		super(text);
 	}
 
+	/**
+	 * A Constructor allows to make an instance based on a text part and set the position values for the text at the source stream
+	 * @param text the text to be used for new instance, must not be null
+	 * @param strPos the first term char string position 
+	 * @param lineNumber the first term char line number
+	 * @since 1.01
+	 */
+	public PrologAtom(final String text, final int strPos, final int lineNumber) {
+		super(text, strPos, lineNumber);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

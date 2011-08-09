@@ -21,7 +21,7 @@ package com.igormaznitsa.prologparser.terms;
  * The class describes a prolog list being used by the prolog parser.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public final class PrologList extends PrologStructure {
 	/**
@@ -43,8 +43,20 @@ public final class PrologList extends PrologStructure {
 	}
 
 	/**
+	 * A Constructor. It allows to create an empty list and set its first char position in the source stream.
+	 * @param strPosition the first term char string position
+	 * @param lineNumber the first term char line number
+	 * @since 1.01
+	 */
+	public PrologList(final int strPosition, final int lineNumber) {
+		this();
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
+	/**
 	 * A Constructor. It allows to create a prolog list chain from an array
-	 * contains prolog term objects.
+	 * containing prolog term objects.
 	 * 
 	 * @param array
 	 *            an array contains prolog term objects, the array must not be
@@ -66,6 +78,19 @@ public final class PrologList extends PrologStructure {
 	}
 
 	/**
+	 * A Constructor. It allows to create a prolog list chain from an array containing prolog term objects and set the first list char position in the source stream.
+	 * @param array an array contains prolog term objects, the array must not be null and it must not contains null elements.
+	 * @param strPos the first term char string position in the source stream
+	 * @param lineNumber the first term char line number in the source stream
+	 * @since 1.01
+	 */
+	public PrologList(final AbstractPrologTerm[] array, final int strPos, final int lineNumber) {
+		this(array);
+		setStrPosition(strPos);
+		setLineNumber(lineNumber);
+	}
+	
+	/**
 	 * A Constructor. It allows to create a list and set the argument as the
 	 * list head element.
 	 * 
@@ -79,6 +104,19 @@ public final class PrologList extends PrologStructure {
 		setTail(new PrologList());
 	}
 
+	/**
+	 * A Constructor. It allows to create a list with the term as the list head and set the first term char position in the source stream
+	 * @param head a term to be used as the list head. Must not be null.
+	 * @param strPosition the first term char string position
+	 * @param lineNumber the first term char line number
+	 * @since 1.01
+	 */
+	public PrologList(final AbstractPrologTerm head, final int strPosition, final int lineNumber) {
+		this(head);
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
 	/**
 	 * A Constructor. It allows to create a list and set the head and the tail.
 	 * 
@@ -95,6 +133,23 @@ public final class PrologList extends PrologStructure {
 		setTail(tail);
 	}
 
+	/**
+	 * A Constructor. It allows to create a list and set the head and the tail and set the first term char position in the source stream.
+	 * 
+	 * @param head
+	 *            a term to be used as the head for the list. Must not be null.
+	 * @param tail
+	 *            a term to be used as the tail for the list. Must not be null.
+	 * @param strPosition the first term char string position
+	 * @param lineNumber the first term char line number
+	 * @since 1.01
+	 */
+	public PrologList(final AbstractPrologTerm head, final AbstractPrologTerm tail, final int strPosition, final int lineNumber) {
+		this(head, tail);
+		setStrPosition(strPosition);
+		setLineNumber(lineNumber);
+	}
+	
 	/**
 	 * Check that the list instance is the null list.
 	 * 
@@ -301,8 +356,7 @@ public final class PrologList extends PrologStructure {
 					if (notfirst) {
 						builder.append('|');
 					}
-					if (list != null)
-						builder.append(list.toString());
+					builder.append(list.toString());
 					break;
 				}
 				notfirst = true;

@@ -25,7 +25,7 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * names but with different types.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
+ * @version 1.01
  */
 public final class OperatorContainer extends AbstractPrologTerm {
 
@@ -376,4 +376,27 @@ public final class OperatorContainer extends AbstractPrologTerm {
 
 		return result.append(']').toString();
 	}
+	
+	/**
+	 * The method is overridden to disable change of the string position for operator container because it is a singleton.
+	 * @param value the value doesn't make sense
+	 * @throws UnsupportedOperationException will be thrown in any case of call
+	 * @since 1.01 
+	 */
+	@Override
+	public void setStrPosition(final int value) {
+		throw new UnsupportedOperationException("It is unsupported for an operator container");
+	}
+	
+	/**
+	 * The method is overridden to disable change of the line number for operator container because it is a singleton.
+	 * @param value the value doesn't make sense
+	 * @throws UnsupportedOperationException will be thrown in any case of call
+	 * @since 1.01 
+	 */
+	@Override
+	public void setLineNumber(final int value) {
+		throw new UnsupportedOperationException("It is unsupported for an operator container");
+	}
+	
 }
