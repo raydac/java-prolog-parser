@@ -27,49 +27,49 @@ package com.igormaznitsa.prologparser.terms;
  * @see PrologFloatNumber
  */
 public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
-	/**
-	 * A Constructor.
-	 * @since 1.00
-	 */
-	public AbstractPrologNumericTerm() {
-		super("");
-	}
 
-	/**
-	 * A Constructor allows to set both the string first char position and the line number
-	 * @param strPosition the first term char string position
-	 * @param lineNumber the first term char line number
-	 * @since 1.01
-	 */
-	public AbstractPrologNumericTerm(final int strPosition, final int lineNumber) {
-		super("", strPosition, lineNumber);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public final PrologTermType getType() {
-		return PrologTermType.ATOM;
-	}
+    /**
+     * A Constructor.
+     * @since 1.00
+     */
+    public AbstractPrologNumericTerm() {
+        super("");
+    }
 
-	/**
-	 * It will return a text representation for the numeric.
-	 * @since 1.00
-	 */
-	@Override
-	public String getText() {
-		return toString();
-	}
+    /**
+     * A Constructor allows to set both the string first char position and the line number
+     * @param strPosition the first term char string position
+     * @param lineNumber the first term char line number
+     * @since 1.01
+     */
+    public AbstractPrologNumericTerm(final int strPosition, final int lineNumber) {
+        super("", strPosition, lineNumber);
+    }
 
-	/**
-	 * The method allows to get the negative value of the number saved by an
-	 * instance as new numeric term instance
-	 * 
-	 * @return new numeric term instance contains the negative representation of
-	 *         the value
-	 * @since 1.00
-	 */
-	public abstract AbstractPrologNumericTerm neg();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final PrologTermType getType() {
+        return PrologTermType.ATOM;
+    }
 
+    /**
+     * It will return a text representation for the numeric.
+     * @since 1.00
+     */
+    @Override
+    public String getText() {
+        return toString();
+    }
+
+    /**
+     * The method allows to get the negative value of the number saved by an
+     * instance as new numeric term instance
+     * 
+     * @return new numeric term instance contains the negative representation of
+     *         the value
+     * @since 1.00
+     */
+    public abstract AbstractPrologNumericTerm neg();
 }

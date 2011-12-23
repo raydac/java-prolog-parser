@@ -28,47 +28,48 @@ import com.igormaznitsa.prologparser.annotations.PrologOperators;
  * @version 1.00
  */
 public enum PrologTermType {
-	/**
-	 * The constant describes a prolog atom
-	 * 
-	 * @see PrologAtom
-	 * @since 1.00
-	 */
-	ATOM,
-	/**
-	 * The constant describes a prolog structure
-	 * 
-	 * @see PrologStructure
-	 * @since 1.00
-	 */
-	STRUCT,
-	/**
-	 * The constant describes a prolog variable
-	 * 
-	 * @see PrologVariable
-	 * @since 1.00
-	 */
-	VAR,
-	/**
-	 * The constant describes a prolog operator
-	 * 
-	 * @see PrologOperator
-	 * @since 1.00
-	 */
-	OPERATOR,
-	/**
-	 * The constant describes an operator container, it is an auxiliary object
-	 * to save similar named operators on the intermediate processing level
-	 * 
-	 * @see PrologOperators
-	 * @since 1.00
-	 */
-	OPERATORS,
-	/**
-	 * The constant describes a prolog list
-	 * 
-	 * @see PrologList
-	 * @since 1.00
-	 */
-	LIST
+
+    /**
+     * The constant describes a prolog atom
+     * 
+     * @see PrologAtom
+     * @since 1.00
+     */
+    ATOM,
+    /**
+     * The constant describes a prolog structure
+     * 
+     * @see PrologStructure
+     * @since 1.00
+     */
+    STRUCT,
+    /**
+     * The constant describes a prolog variable
+     * 
+     * @see PrologVariable
+     * @since 1.00
+     */
+    VAR,
+    /**
+     * The constant describes a prolog operator
+     * 
+     * @see PrologOperator
+     * @since 1.00
+     */
+    OPERATOR,
+    /**
+     * The constant describes an operator container, it is an auxiliary object
+     * to save similar named operators on the intermediate processing level
+     * 
+     * @see PrologOperators
+     * @since 1.00
+     */
+    OPERATORS,
+    /**
+     * The constant describes a prolog list
+     * 
+     * @see PrologList
+     * @since 1.00
+     */
+    LIST
 }

@@ -37,235 +37,237 @@ import java.util.Deque;
  */
 public class PrologCharDataSource {
 
-	/**
-	 * The text reader which is being used by the reader to read incoming text
-	 * data
-	 * @since 1.00
-	 */
-	private final Reader inReader;
-	/**
-	 * Inside char stack to save back-pushed data
-	 * @since 1.00
-	 */
-	private final Deque<Character> insideCharBuffer = new ArrayDeque<Character>(
-			32);
-	/**
-	 * The variable contains the previous value of the string position indicator
-	 * @since 1.00
-	 */
-	private int strPosPrev;
-	/**
-	 * The variable contains the previous position of the line number indicator
-	 * @since 1.00
-	 */
-	private int lineNumPrev;
-	/**
-	 * The variable contains current value of the string position indicator
-	 * @since 1.00
-	 */
-	private int strPos;
-	/**
-	 * The variable contains current value of the line number indicator
-	 * @since 1.00
-	 */
-	private int lineNum;
+    /**
+     * The text reader which is being used by the reader to read incoming text
+     * data
+     * @since 1.00
+     */
+    private final Reader inReader;
+    /**
+     * Inside char stack to save back-pushed data
+     * @since 1.00
+     */
+    private final Deque<Character> insideCharBuffer = new ArrayDeque<Character>(
+            32);
+    /**
+     * The variable contains the previous value of the string position indicator
+     * @since 1.00
+     */
+    private int strPosPrev;
+    /**
+     * The variable contains the previous position of the line number indicator
+     * @since 1.00
+     */
+    private int lineNumPrev;
+    /**
+     * The variable contains current value of the string position indicator
+     * @since 1.00
+     */
+    private int strPos;
+    /**
+     * The variable contains current value of the line number indicator
+     * @since 1.00
+     */
+    private int lineNum;
 
-	/**
-	 * A constructor. To make a reader based on a String object.
-	 * 
-	 * @param string
-	 *            A string object which will be used as the source for the
-	 *            reader, must not be null
-	 * @since 1.00
-	 */
-	public PrologCharDataSource(final String string) {
-		this(new StringReader(string));
-	}
+    /**
+     * A constructor. To make a reader based on a String object.
+     * 
+     * @param string
+     *            A string object which will be used as the source for the
+     *            reader, must not be null
+     * @since 1.00
+     */
+    public PrologCharDataSource(final String string) {
+        this(new StringReader(string));
+    }
 
-	/**
-	 * A constructor. To make a reader based on an input stream.
-	 * 
-	 * @param inStream
-	 *            an input stream object which will be used as the source for
-	 *            the reader, must not be null
-	 * @since 1.00
-	 */
-	public PrologCharDataSource(final InputStream inStream) {
-		this(new InputStreamReader(inStream));
-	}
+    /**
+     * A constructor. To make a reader based on an input stream.
+     * 
+     * @param inStream
+     *            an input stream object which will be used as the source for
+     *            the reader, must not be null
+     * @since 1.00
+     */
+    public PrologCharDataSource(final InputStream inStream) {
+        this(new InputStreamReader(inStream));
+    }
 
-	/**
-	 * A constructor. To make a reader based on a channel
-	 * 
-	 * @param channel
-	 *            the channel to be used as the data source, must not be null
-	 * @since 1.00
-	 */
-	public PrologCharDataSource(final ReadableByteChannel channel) {
-		this(Channels.newInputStream(channel));
-		if (channel == null)
-			throw new NullPointerException("Channel is null");
-	}
+    /**
+     * A constructor. To make a reader based on a channel
+     * 
+     * @param channel
+     *            the channel to be used as the data source, must not be null
+     * @since 1.00
+     */
+    public PrologCharDataSource(final ReadableByteChannel channel) {
+        this(Channels.newInputStream(channel));
+        if (channel == null) {
+            throw new NullPointerException("Channel is null");
+        }
+    }
 
-	/**
-	 * A constructor. To make a reader based on a java reader object.
-	 * 
-	 * @param reader
-	 *            a java reader object, must not be null
-	 * @since 1.00
-	 */
-	public PrologCharDataSource(final Reader reader) {
-		if (reader == null)
-			throw new NullPointerException("Reader is null");
+    /**
+     * A constructor. To make a reader based on a java reader object.
+     * 
+     * @param reader
+     *            a java reader object, must not be null
+     * @since 1.00
+     */
+    public PrologCharDataSource(final Reader reader) {
+        if (reader == null) {
+            throw new NullPointerException("Reader is null");
+        }
 
-		inReader = reader;
-		strPos = 1;
-		lineNum = 1;
-		strPosPrev = strPos;
-		lineNumPrev = lineNum;
-	}
+        inReader = reader;
+        strPos = 1;
+        lineNum = 1;
+        strPosPrev = strPos;
+        lineNumPrev = lineNum;
+    }
 
-	/**
-	 * Read next char code from the reader
-	 * 
-	 * @return the next char code or -1 if the stream end has been reached
-	 * @throws IOException
-	 *             it will be thrown if there is any transport error during the
-	 *             operation
-	 * @since 1.00
-	 */
-	public int read() throws IOException {
-			int ch;
-			if (insideCharBuffer.isEmpty()) {
-				ch = inReader.read();
-			} else {
-				ch = insideCharBuffer.removeLast();
-			}
+    /**
+     * Read next char code from the reader
+     * 
+     * @return the next char code or -1 if the stream end has been reached
+     * @throws IOException
+     *             it will be thrown if there is any transport error during the
+     *             operation
+     * @since 1.00
+     */
+    public int read() throws IOException {
+        int ch;
+        if (insideCharBuffer.isEmpty()) {
+            ch = inReader.read();
+        } else {
+            ch = insideCharBuffer.removeLast();
+        }
 
-			strPosPrev = strPos;
-			lineNumPrev = lineNum;
-			if (ch == '\n') {
-				strPos = 1;
-				lineNum++;
-			} else {
-				if (ch >= 0) {
-					strPos++;
-				}
-			}
-			return ch;
-	}
+        strPosPrev = strPos;
+        lineNumPrev = lineNum;
+        if (ch == '\n') {
+            strPos = 1;
+            lineNum++;
+        } else {
+            if (ch >= 0) {
+                strPos++;
+            }
+        }
+        return ch;
+    }
 
-	/**
-	 * Push back the difference between an etalon string and a string buffer
-	 * content. For instance if there are 'test' as the etalon and a string
-	 * buffer containing 'testhello' then part 'hello' will be pushed back into
-	 * inside buffer to be used in next read operations.
-	 * 
-	 * @param etalon
-	 *            an etalon string must not be null
-	 * @param buffer
-	 *            a string buffer object, must not be null
-	 * @since 1.00
-	 */
-	public void calculateDifferenceAndPushTheResultBack(
-			final String etalon, final StringBuilder buffer) {
-		int chars = buffer.length() - etalon.length();
-		int pos = buffer.length() - 1;
-		
-		final Deque<Character> insideCharBuffer = this.insideCharBuffer;
-		
-		while (chars > 0) {
-			final char ch = buffer.charAt(pos--);
-			insideCharBuffer.addLast(ch);
-			chars--;
-			strPos--;
-			if (strPos < 1) {
-				strPos = 1;
-			}
-			strPosPrev = strPos;
-			if (ch == '\n') {
-				lineNum--;
-				if (lineNum < 1) {
-					lineNum = 1;
-				}
-				lineNumPrev = lineNum;
-			}
-		}
-	}
+    /**
+     * Push back the difference between an etalon string and a string buffer
+     * content. For instance if there are 'test' as the etalon and a string
+     * buffer containing 'testhello' then part 'hello' will be pushed back into
+     * inside buffer to be used in next read operations.
+     * 
+     * @param etalon
+     *            an etalon string must not be null
+     * @param buffer
+     *            a string buffer object, must not be null
+     * @since 1.00
+     */
+    public void calculateDifferenceAndPushTheResultBack(
+            final String etalon, final StringBuilder buffer) {
+        int chars = buffer.length() - etalon.length();
+        int pos = buffer.length() - 1;
 
-	/**
-	 * Get the previous line number, the first line is 1
-	 * 
-	 * @return the previous line number
-	 * @since 1.00
-	 */
-	public int getPrevLineNumber() {
-		return lineNumPrev;
-	}
+        final Deque<Character> insideCharBuffer = this.insideCharBuffer;
 
-	/**
-	 * Get the previous value of the next char string position indicator, the
-	 * first char is 1
-	 * 
-	 * @return the previous value of the next char string position
-	 * @since 1.00
-	 */
-	public int getPreviousNextCharStringPosition() {
-		return strPosPrev;
-	}
+        while (chars > 0) {
+            final char ch = buffer.charAt(pos--);
+            insideCharBuffer.addLast(ch);
+            chars--;
+            strPos--;
+            if (strPos < 1) {
+                strPos = 1;
+            }
+            strPosPrev = strPos;
+            if (ch == '\n') {
+                lineNum--;
+                if (lineNum < 1) {
+                    lineNum = 1;
+                }
+                lineNumPrev = lineNum;
+            }
+        }
+    }
 
-	/**
-	 * Get current line number, the first line is 1
-	 * 
-	 * @return the line number as integer
-	 * @since 1.00
-	 */
-	public int getLineNumber() {
-		return lineNum;
-	}
+    /**
+     * Get the previous line number, the first line is 1
+     * 
+     * @return the previous line number
+     * @since 1.00
+     */
+    public int getPrevLineNumber() {
+        return lineNumPrev;
+    }
 
-	/**
-	 * Get current next char string position, the first char is 1
-	 * 
-	 * @return the next char string position as integer
-	 * @since 1.00
-	 */
-	public int getNextCharStringPosition() {
-		return strPos;
-	}
+    /**
+     * Get the previous value of the next char string position indicator, the
+     * first char is 1
+     * 
+     * @return the previous value of the next char string position
+     * @since 1.00
+     */
+    public int getPreviousNextCharStringPosition() {
+        return strPosPrev;
+    }
 
-	/**
-	 * Push a char back into the inside buffer to be read into the next read
-	 * operation
-	 * 
-	 * @param ch
-	 *            the char to be placed into the inside buffer
-	 * @since 1.00
-	 */
-	public void pushCharBack(final char ch) {
-		insideCharBuffer.addLast(ch);
-		if (ch == '\n') {
-			strPos = 1;
-			lineNum--;
-			if (lineNum <= 0) {
-				lineNum = 1;
-			}
-		} else {
-			strPos--;
-			if (strPos <= 0) {
-				strPos = 1;
-			}
-		}
-	}
+    /**
+     * Get current line number, the first line is 1
+     * 
+     * @return the line number as integer
+     * @since 1.00
+     */
+    public int getLineNumber() {
+        return lineNum;
+    }
 
-	/**
-	 * Close the current reader
-	 * 
-	 * @throws IOException
-	 *             it will be thrown if there is any error during the operation
-	 * @since 1.00
-	 */
-	public void close() throws IOException {
-		inReader.close();
-	}
+    /**
+     * Get current next char string position, the first char is 1
+     * 
+     * @return the next char string position as integer
+     * @since 1.00
+     */
+    public int getNextCharStringPosition() {
+        return strPos;
+    }
+
+    /**
+     * Push a char back into the inside buffer to be read into the next read
+     * operation
+     * 
+     * @param ch
+     *            the char to be placed into the inside buffer
+     * @since 1.00
+     */
+    public void pushCharBack(final char ch) {
+        insideCharBuffer.addLast(ch);
+        if (ch == '\n') {
+            strPos = 1;
+            lineNum--;
+            if (lineNum <= 0) {
+                lineNum = 1;
+            }
+        } else {
+            strPos--;
+            if (strPos <= 0) {
+                strPos = 1;
+            }
+        }
+    }
+
+    /**
+     * Close the current reader
+     * 
+     * @throws IOException
+     *             it will be thrown if there is any error during the operation
+     * @since 1.00
+     */
+    public void close() throws IOException {
+        inReader.close();
+    }
 }

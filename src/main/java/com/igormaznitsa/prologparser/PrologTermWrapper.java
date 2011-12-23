@@ -32,36 +32,36 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * @see Operator
  * @see OperatorContainer
  */
-class PrologTermWrapper extends AbstractPrologTerm{
-	
-	private final AbstractPrologTerm wrappedTerm;
-	
-	public PrologTermWrapper(final AbstractPrologTerm wrappedTerm) {
-		super("wrapper["+wrappedTerm.getText()+']');
-		this.wrappedTerm = wrappedTerm;
-	}
+class PrologTermWrapper extends AbstractPrologTerm {
 
-	public AbstractPrologTerm getWrappedTerm() {
-		return this.wrappedTerm;
-	}
-	
-	@Override
-	public PrologTermType getType() {
-		return wrappedTerm.getType();
-	}
+    private final AbstractPrologTerm wrappedTerm;
 
-	@Override
-	public String getText() {
-		return wrappedTerm.getText();
-	}
+    public PrologTermWrapper(final AbstractPrologTerm wrappedTerm) {
+        super("wrapper[" + wrappedTerm.getText() + ']');
+        this.wrappedTerm = wrappedTerm;
+    }
 
-	@Override
-	public int getPriority() {
-		return wrappedTerm.getPriority();
-	}
+    public AbstractPrologTerm getWrappedTerm() {
+        return this.wrappedTerm;
+    }
 
-	@Override
-	public String toString() {
-		return wrappedTerm.toString();
-	}
+    @Override
+    public PrologTermType getType() {
+        return wrappedTerm.getType();
+    }
+
+    @Override
+    public String getText() {
+        return wrappedTerm.getText();
+    }
+
+    @Override
+    public int getPriority() {
+        return wrappedTerm.getPriority();
+    }
+
+    @Override
+    public String toString() {
+        return wrappedTerm.toString();
+    }
 }

@@ -29,51 +29,49 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
  */
 public final class PrologAtom extends AbstractPrologTerm {
 
-	/**
-	 * A Constructor allows to make an instance based on a text part.
-	 * 
-	 * @param text
-	 *            the text to be used for new instance, must not be null
-	 * @since 1.00
-	 */
-	public PrologAtom(final String text) {
-		super(text);
-	}
+    /**
+     * A Constructor allows to make an instance based on a text part.
+     * 
+     * @param text
+     *            the text to be used for new instance, must not be null
+     * @since 1.00
+     */
+    public PrologAtom(final String text) {
+        super(text);
+    }
 
-	/**
-	 * A Constructor allows to make an instance based on a text part and set the position values for the text at the source stream
-	 * @param text the text to be used for new instance, must not be null
-	 * @param strPos the first term char string position 
-	 * @param lineNumber the first term char line number
-	 * @since 1.01
-	 */
-	public PrologAtom(final String text, final int strPos, final int lineNumber) {
-		super(text, strPos, lineNumber);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public PrologTermType getType() {
-		return PrologTermType.ATOM;
-	}
+    /**
+     * A Constructor allows to make an instance based on a text part and set the position values for the text at the source stream
+     * @param text the text to be used for new instance, must not be null
+     * @param strPos the first term char string position 
+     * @param lineNumber the first term char line number
+     * @since 1.01
+     */
+    public PrologAtom(final String text, final int strPos, final int lineNumber) {
+        super(text, strPos, lineNumber);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getPriority() {
-		return 0;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PrologTermType getType() {
+        return PrologTermType.ATOM;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		return new StringBuilder("\'").append(StringUtils.escapeString(text))
-				.append('\'').toString();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getPriority() {
+        return 0;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return new StringBuilder("\'").append(StringUtils.escapeString(text)).append('\'').toString();
+    }
 }

@@ -33,11 +33,12 @@ import java.lang.annotation.Target;
 @Target(value = ElementType.TYPE)
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface PrologOperators {
-	/**
-	 * Array of operators, must not be empty.
-	 * 
-	 * @return an array of operators saved by the annotation
-	 * @since 1.00
-	 */
-	PrologOperator[] Operators();
+
+    /**
+     * Array of operators, must not be empty.
+     * 
+     * @return an array of operators saved by the annotation
+     * @since 1.00
+     */
+    PrologOperator[] Operators();
 }

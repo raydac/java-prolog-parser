@@ -36,27 +36,28 @@ import com.igormaznitsa.prologparser.operators.OperatorType;
 @Target(value = ElementType.TYPE)
 @Retention(value = RetentionPolicy.CLASS)
 public @interface PrologOperator {
-	/**
-	 * The operator priority (0..1200)
-	 * 
-	 * @return the priority as integer
-	 * @since 1.00
-	 */
-	int Priority();
 
-	/**
-	 * The operator type
-	 * 
-	 * @return the operator type
-	 * @since 1.00
-	 */
-	OperatorType Type();
+    /**
+     * The operator priority (0..1200)
+     * 
+     * @return the priority as integer
+     * @since 1.00
+     */
+    int Priority();
 
-	/**
-	 * The operator name
-	 * 
-	 * @return the operator name as a String
-	 * @since 1.00
-	 */
-	String Name();
+    /**
+     * The operator type
+     * 
+     * @return the operator type
+     * @since 1.00
+     */
+    OperatorType Type();
+
+    /**
+     * The operator name
+     * 
+     * @return the operator name as a String
+     * @since 1.00
+     */
+    String Name();
 }

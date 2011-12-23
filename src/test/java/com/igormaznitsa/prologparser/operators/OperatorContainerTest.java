@@ -1,333 +1,330 @@
 package com.igormaznitsa.prologparser.operators;
 
 import static org.junit.Assert.*;
-
 import org.junit.Test;
-
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 
 public class OperatorContainerTest extends AbstractPrologParserTest {
 
-	@Test
-	public void testGetPriority() {
-		assertEquals(new OperatorContainer(new Operator(1000, OperatorType.FX,
-				"<>")).getPriority(), 0);
-	}
+    @Test
+    public void testGetPriority() {
+        assertEquals(new OperatorContainer(new Operator(1000, OperatorType.FX,
+                "<>")).getPriority(), 0);
+    }
 
-	@Test
-	public void testToString() {
-		final Operator operator = new Operator(100, OperatorType.FX, "<>");
-		final OperatorContainer container = new OperatorContainer(operator);
-		container.addOperator(new Operator(300, OperatorType.XFX, "<>"));
-		container.addOperator(new Operator(800, OperatorType.YF, "<>"));
-		assertEquals(
-				"OperatorContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
-				container.toString());
-	}
+    @Test
+    public void testToString() {
+        final Operator operator = new Operator(100, OperatorType.FX, "<>");
+        final OperatorContainer container = new OperatorContainer(operator);
+        container.addOperator(new Operator(300, OperatorType.XFX, "<>"));
+        container.addOperator(new Operator(800, OperatorType.YF, "<>"));
+        assertEquals(
+                "OperatorContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
+                container.toString());
+    }
 
-	@Test
-	public void testGetType() {
-		assertEquals(PrologTermType.OPERATORS, new OperatorContainer(
-				new Operator(1000, OperatorType.FX, "<>")).getType());
-	}
+    @Test
+    public void testGetType() {
+        assertEquals(PrologTermType.OPERATORS, new OperatorContainer(
+                new Operator(1000, OperatorType.FX, "<>")).getType());
+    }
 
-	@Test
-	public void testOperatorContainer() {
-		try {
-			new OperatorContainer(null);
-			fail("Must throw NPE for null argument");
-		} catch (NullPointerException ex) {
-		}
+    @Test
+    public void testOperatorContainer() {
+        try {
+            new OperatorContainer(null);
+            fail("Must throw NPE for null argument");
+        } catch (NullPointerException ex) {
+        }
 
-		final Operator operator = new Operator(100, OperatorType.FX, "<>");
-		final OperatorContainer container = new OperatorContainer(operator);
-		assertEquals(1, container.size());
-		assertSame(operator, container.getOperatorIfSingle());
-	}
+        final Operator operator = new Operator(100, OperatorType.FX, "<>");
+        final OperatorContainer container = new OperatorContainer(operator);
+        assertEquals(1, container.size());
+        assertSame(operator, container.getOperatorIfSingle());
+    }
 
-	@Test
-	public void testAddOperator() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
-		final Operator otheroperatorYF = new Operator(300, OperatorType.YF,
-				"><");
+    @Test
+    public void testAddOperator() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator otheroperatorYF = new Operator(300, OperatorType.YF,
+                "><");
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
+        final OperatorContainer container = new OperatorContainer(operatorFX);
 
-		try {
-			container.addOperator(null);
-			fail("Must throw NPE for null argument");
-		} catch (NullPointerException ex) {
-		}
+        try {
+            container.addOperator(null);
+            fail("Must throw NPE for null argument");
+        } catch (NullPointerException ex) {
+        }
 
-		try {
-			container.addOperator(otheroperatorYF);
-			fail("Must throw IAE for wrong operator name");
-		} catch (IllegalArgumentException ex) {
-		}
-		
-		assertEquals(1, container.size());
-		assertTrue(container.addOperator(operatorXFX));
-		assertEquals(2, container.size());
-		assertTrue(container.addOperator(operatorYF));
-		assertEquals(3, container.size());
+        try {
+            container.addOperator(otheroperatorYF);
+            fail("Must throw IAE for wrong operator name");
+        } catch (IllegalArgumentException ex) {
+        }
 
-		assertFalse(container.addOperator(operatorXFX));
-		assertFalse(container.addOperator(operatorFX));
-		assertFalse(container.addOperator(operatorYF));
+        assertEquals(1, container.size());
+        assertTrue(container.addOperator(operatorXFX));
+        assertEquals(2, container.size());
+        assertTrue(container.addOperator(operatorYF));
+        assertEquals(3, container.size());
 
-		assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
-		assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
-		assertSame(operatorYF, container.getOperatorForType(OperatorType.YF));
-	}
+        assertFalse(container.addOperator(operatorXFX));
+        assertFalse(container.addOperator(operatorFX));
+        assertFalse(container.addOperator(operatorYF));
 
-	@Test
-	public void testRemoveAll() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
+        assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
+        assertSame(operatorYF, container.getOperatorForType(OperatorType.YF));
+    }
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
+    @Test
+    public void testRemoveAll() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-		try {
-			container.addOperator(null);
-			fail("Must throw NPE for null argument");
-		} catch (NullPointerException ex) {
-		}
+        final OperatorContainer container = new OperatorContainer(operatorFX);
 
-		assertTrue(container.addOperator(operatorXFX));
-		assertTrue(container.addOperator(operatorYF));
+        try {
+            container.addOperator(null);
+            fail("Must throw NPE for null argument");
+        } catch (NullPointerException ex) {
+        }
 
-		assertEquals(3, container.size());
-		container.removeAll();
-		assertEquals(0, container.size());
-		assertNull(container.getOperatorForType(OperatorType.FX));
-		assertNull(container.getOperatorForType(OperatorType.XFX));
-		assertNull(container.getOperatorForType(OperatorType.YF));
-	}
+        assertTrue(container.addOperator(operatorXFX));
+        assertTrue(container.addOperator(operatorYF));
 
-	@Test
-	public void testRemove() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
-		final Operator otheroperatorXFX = new Operator(400, OperatorType.XFX,
-				"><");
+        assertEquals(3, container.size());
+        container.removeAll();
+        assertEquals(0, container.size());
+        assertNull(container.getOperatorForType(OperatorType.FX));
+        assertNull(container.getOperatorForType(OperatorType.XFX));
+        assertNull(container.getOperatorForType(OperatorType.YF));
+    }
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
-		container.addOperator(operatorXFX);
-		container.addOperator(operatorYF);
+    @Test
+    public void testRemove() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator otheroperatorXFX = new Operator(400, OperatorType.XFX,
+                "><");
 
-		assertEquals(3, container.size());
+        final OperatorContainer container = new OperatorContainer(operatorFX);
+        container.addOperator(operatorXFX);
+        container.addOperator(operatorYF);
 
-		assertTrue(container.remove(operatorFX));
-		assertEquals(2, container.size());
-		assertNull(container.getOperatorForSimilarType(OperatorType.FX));
+        assertEquals(3, container.size());
+
+        assertTrue(container.remove(operatorFX));
+        assertEquals(2, container.size());
+        assertNull(container.getOperatorForSimilarType(OperatorType.FX));
 
 
-		try {
-			container.remove(null);
-			fail("Must throw NPE for null");
-		} catch (NullPointerException ex) {
-		}
-		
-		try {
-			container.remove(otheroperatorXFX);
-			fail("Must throw IAE for operator wrong name");
-		} catch (IllegalArgumentException ex) {
-		}
+        try {
+            container.remove(null);
+            fail("Must throw NPE for null");
+        } catch (NullPointerException ex) {
+        }
 
-		assertTrue(container.remove(operatorXFX));
-		assertEquals(1, container.size());
-		assertNull(container.getOperatorForSimilarType(OperatorType.XFX));
+        try {
+            container.remove(otheroperatorXFX);
+            fail("Must throw IAE for operator wrong name");
+        } catch (IllegalArgumentException ex) {
+        }
 
-		assertTrue(container.remove(operatorYF));
-		assertEquals(0, container.size());
-		assertNull(container.getOperatorForSimilarType(OperatorType.YF));
-	}
+        assertTrue(container.remove(operatorXFX));
+        assertEquals(1, container.size());
+        assertNull(container.getOperatorForSimilarType(OperatorType.XFX));
 
-	@Test
-	public void testSize() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        assertTrue(container.remove(operatorYF));
+        assertEquals(0, container.size());
+        assertNull(container.getOperatorForSimilarType(OperatorType.YF));
+    }
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
+    @Test
+    public void testSize() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-		assertEquals(1, container.size());
-		container.removeAll();
-		assertEquals(0, container.size());
-		container.addOperator(operatorFX);
-		assertEquals(1, container.size());
-		container.addOperator(operatorXFX);
-		assertEquals(2, container.size());
-		container.addOperator(operatorYF);
-		assertEquals(3, container.size());
-	}
+        final OperatorContainer container = new OperatorContainer(operatorFX);
 
-	@Test
-	public void testGetOperatorIfSingle() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        assertEquals(1, container.size());
+        container.removeAll();
+        assertEquals(0, container.size());
+        container.addOperator(operatorFX);
+        assertEquals(1, container.size());
+        container.addOperator(operatorXFX);
+        assertEquals(2, container.size());
+        container.addOperator(operatorYF);
+        assertEquals(3, container.size());
+    }
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
+    @Test
+    public void testGetOperatorIfSingle() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-		assertSame(operatorFX, container.getOperatorIfSingle());
-		container.addOperator(operatorYF);
-		assertNull(container.getOperatorIfSingle());
-		container.addOperator(operatorXFX);
-		assertNull(container.getOperatorIfSingle());
-		container.removeAll();
-		assertNull(container.getOperatorIfSingle());
-		
-		container.addOperator(operatorYF);
-		assertEquals(operatorYF,container.getOperatorIfSingle());
-	}
+        final OperatorContainer container = new OperatorContainer(operatorFX);
 
-	@Test
-	public void testFindCompatibleOperator() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        assertSame(operatorFX, container.getOperatorIfSingle());
+        container.addOperator(operatorYF);
+        assertNull(container.getOperatorIfSingle());
+        container.addOperator(operatorXFX);
+        assertNull(container.getOperatorIfSingle());
+        container.removeAll();
+        assertNull(container.getOperatorIfSingle());
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
+        container.addOperator(operatorYF);
+        assertEquals(operatorYF, container.getOperatorIfSingle());
+    }
 
-		container.addOperator(operatorXFX);
-		container.addOperator(operatorYF);
+    @Test
+    public void testFindCompatibleOperator() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-		assertSame(operatorFX, container.findCompatibleOperator(false, true));
-		assertSame(operatorXFX, container.findCompatibleOperator(true, true));
-		assertSame(operatorYF, container.findCompatibleOperator(true, false));
-		assertNull(container.findCompatibleOperator(false, false));
+        final OperatorContainer container = new OperatorContainer(operatorFX);
 
-		assertTrue(container.remove(operatorXFX));
+        container.addOperator(operatorXFX);
+        container.addOperator(operatorYF);
 
-		assertSame(operatorFX, container.findCompatibleOperator(false, true));
-		assertSame(operatorFX, container.findCompatibleOperator(true, true));
-		assertSame(operatorYF, container.findCompatibleOperator(true, false));
-		assertNull(container.findCompatibleOperator(false, false));
+        assertSame(operatorFX, container.findCompatibleOperator(false, true));
+        assertSame(operatorXFX, container.findCompatibleOperator(true, true));
+        assertSame(operatorYF, container.findCompatibleOperator(true, false));
+        assertNull(container.findCompatibleOperator(false, false));
 
-		assertTrue(container.remove(operatorFX));
+        assertTrue(container.remove(operatorXFX));
 
-		assertSame(operatorYF, container.findCompatibleOperator(false, true));
-		assertSame(operatorYF, container.findCompatibleOperator(true, true));
-		assertSame(operatorYF, container.findCompatibleOperator(true, false));
-		assertNull(container.findCompatibleOperator(false, false));
+        assertSame(operatorFX, container.findCompatibleOperator(false, true));
+        assertSame(operatorFX, container.findCompatibleOperator(true, true));
+        assertSame(operatorYF, container.findCompatibleOperator(true, false));
+        assertNull(container.findCompatibleOperator(false, false));
 
-		assertTrue(container.remove(operatorYF));
+        assertTrue(container.remove(operatorFX));
 
-		assertNull(container.findCompatibleOperator(false, true));
-		assertNull(container.findCompatibleOperator(true, true));
-		assertNull(container.findCompatibleOperator(true, false));
-		assertNull(container.findCompatibleOperator(false, false));
-	}
+        assertSame(operatorYF, container.findCompatibleOperator(false, true));
+        assertSame(operatorYF, container.findCompatibleOperator(true, true));
+        assertSame(operatorYF, container.findCompatibleOperator(true, false));
+        assertNull(container.findCompatibleOperator(false, false));
 
-	@Test
-	public void testGetOperatorForType() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        assertTrue(container.remove(operatorYF));
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
+        assertNull(container.findCompatibleOperator(false, true));
+        assertNull(container.findCompatibleOperator(true, true));
+        assertNull(container.findCompatibleOperator(true, false));
+        assertNull(container.findCompatibleOperator(false, false));
+    }
 
-		try {
-			container.getOperatorForType(null);
-			fail("Must throw NPE for null");
-		}catch(NullPointerException ex){}
-		
-		assertNull(container.getOperatorForType(OperatorType.XFX));
-		assertNull(container.getOperatorForType(OperatorType.YF));
+    @Test
+    public void testGetOperatorForType() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-		container.addOperator(operatorXFX);
-		container.addOperator(operatorYF);
+        final OperatorContainer container = new OperatorContainer(operatorFX);
 
-		assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
-		assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
-		assertSame(operatorYF, container.getOperatorForType(OperatorType.YF));
-		assertNull(container.getOperatorForType(OperatorType.YFX));
-		assertNull(container.getOperatorForType(OperatorType.XF));
-	}
+        try {
+            container.getOperatorForType(null);
+            fail("Must throw NPE for null");
+        } catch (NullPointerException ex) {
+        }
 
-	@Test
-	public void testGetOperatorForSimilarType() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        assertNull(container.getOperatorForType(OperatorType.XFX));
+        assertNull(container.getOperatorForType(OperatorType.YF));
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
-		container.addOperator(operatorXFX);
-		container.addOperator(operatorYF);
+        container.addOperator(operatorXFX);
+        container.addOperator(operatorYF);
 
-		try {
-			container.getOperatorForSimilarType(null);
-			fail("Must throw NPE for null argument");
-		} catch (NullPointerException ex) {
-		}
+        assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
+        assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
+        assertSame(operatorYF, container.getOperatorForType(OperatorType.YF));
+        assertNull(container.getOperatorForType(OperatorType.YFX));
+        assertNull(container.getOperatorForType(OperatorType.XF));
+    }
 
-		assertSame(operatorFX,
-				container.getOperatorForSimilarType(OperatorType.FY));
-		assertSame(operatorXFX,
-				container.getOperatorForSimilarType(OperatorType.YFX));
-		assertTrue(container.removeOperatorForType(OperatorType.FX));
-		assertNull(container.getOperatorForSimilarType(OperatorType.FY));
+    @Test
+    public void testGetOperatorForSimilarType() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-	}
+        final OperatorContainer container = new OperatorContainer(operatorFX);
+        container.addOperator(operatorXFX);
+        container.addOperator(operatorYF);
 
-	@Test
-	public void testRemoveOperatorForType() {
-		final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-		final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-		final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        try {
+            container.getOperatorForSimilarType(null);
+            fail("Must throw NPE for null argument");
+        } catch (NullPointerException ex) {
+        }
 
-		final OperatorContainer container = new OperatorContainer(operatorFX);
-		container.addOperator(operatorXFX);
-		container.addOperator(operatorYF);
+        assertSame(operatorFX,
+                container.getOperatorForSimilarType(OperatorType.FY));
+        assertSame(operatorXFX,
+                container.getOperatorForSimilarType(OperatorType.YFX));
+        assertTrue(container.removeOperatorForType(OperatorType.FX));
+        assertNull(container.getOperatorForSimilarType(OperatorType.FY));
 
-		try {
-			container.removeOperatorForType(null);
-			fail("Must throw NPE for null argument");
-		} catch (NullPointerException ex) {
-		}
+    }
 
-		assertTrue(container.removeOperatorForType(OperatorType.FX));
-		assertNull(container.getOperatorForType(OperatorType.FX));
-		assertTrue(container.removeOperatorForType(OperatorType.XFX));
-		assertNull(container.getOperatorForType(OperatorType.XFX));
-		assertTrue(container.removeOperatorForType(OperatorType.YF));
-		assertNull(container.getOperatorForType(OperatorType.YF));
-		assertFalse(container.removeOperatorForType(OperatorType.YFX));
-	}
+    @Test
+    public void testRemoveOperatorForType() {
+        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
 
-	@Test
-	public void testGetText() {
-		assertEquals("<>", new OperatorContainer(new Operator(1000,
-				OperatorType.FX, "<>")).getText());
-	}
+        final OperatorContainer container = new OperatorContainer(operatorFX);
+        container.addOperator(operatorXFX);
+        container.addOperator(operatorYF);
 
-	@Test
-	public void testSetStrPosition()
-	{
-		try {
-			final Operator operator = new Operator(100, OperatorType.FX, "<>");
-			final OperatorContainer container = new OperatorContainer(operator);
-			container.setStrPosition(10);
-			fail("Must throw UOE because the operstion restricted");
-		}catch(UnsupportedOperationException ex) {
-		}
-	}
+        try {
+            container.removeOperatorForType(null);
+            fail("Must throw NPE for null argument");
+        } catch (NullPointerException ex) {
+        }
 
-	@Test
-	public void testSetLineNumber()
-	{
-		try {
-			final Operator operator = new Operator(100, OperatorType.FX, "<>");
-			final OperatorContainer container = new OperatorContainer(operator);
-			container.setLineNumber(12);
-			fail("Must throw UOE because the operstion restricted");
-		}catch(UnsupportedOperationException ex) {
-		}
-	}
+        assertTrue(container.removeOperatorForType(OperatorType.FX));
+        assertNull(container.getOperatorForType(OperatorType.FX));
+        assertTrue(container.removeOperatorForType(OperatorType.XFX));
+        assertNull(container.getOperatorForType(OperatorType.XFX));
+        assertTrue(container.removeOperatorForType(OperatorType.YF));
+        assertNull(container.getOperatorForType(OperatorType.YF));
+        assertFalse(container.removeOperatorForType(OperatorType.YFX));
+    }
+
+    @Test
+    public void testGetText() {
+        assertEquals("<>", new OperatorContainer(new Operator(1000,
+                OperatorType.FX, "<>")).getText());
+    }
+
+    @Test
+    public void testSetStrPosition() {
+        try {
+            final Operator operator = new Operator(100, OperatorType.FX, "<>");
+            final OperatorContainer container = new OperatorContainer(operator);
+            container.setStrPosition(10);
+            fail("Must throw UOE because the operstion restricted");
+        } catch (UnsupportedOperationException ex) {
+        }
+    }
+
+    @Test
+    public void testSetLineNumber() {
+        try {
+            final Operator operator = new Operator(100, OperatorType.FX, "<>");
+            final OperatorContainer container = new OperatorContainer(operator);
+            container.setLineNumber(12);
+            fail("Must throw UOE because the operstion restricted");
+        } catch (UnsupportedOperationException ex) {
+        }
+    }
 }

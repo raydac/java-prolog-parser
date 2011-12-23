@@ -25,47 +25,47 @@ package com.igormaznitsa.prologparser.operators;
  * @version 1.00
  */
 public enum OperatorType {
-	XF("xf"), YF("yf"), FX("fx"), FY("fy"), XFX("xfx"), XFY("xfy"), YFX("yfx");
 
-	/**
-	 * The variable contains right prolog text representation of the type
-	 */
-	private final String text;
+    XF("xf"), YF("yf"), FX("fx"), FY("fy"), XFX("xfx"), XFY("xfy"), YFX("yfx");
+    /**
+     * The variable contains right prolog text representation of the type
+     */
+    private final String text;
 
-	/**
-	 * The constructor to create an instance and set the right text
-	 * 
-	 * @param text
-	 *            the right prolog text for the type, must not be null
-	 */
-	private OperatorType(final String text) {
-		this.text = text;
-	}
+    /**
+     * The constructor to create an instance and set the right text
+     * 
+     * @param text
+     *            the right prolog text for the type, must not be null
+     */
+    private OperatorType(final String text) {
+        this.text = text;
+    }
 
-	/**
-	 * Find an operator type for its prolog text representation
-	 * 
-	 * @param str
-	 *            the prolog text representation for the finding type
-	 * @return found type or null if the type has not been found
-	 * @since 1.00
-	 */
-	public static OperatorType getForName(final String str) {
-		for (final OperatorType type : values()) {
-			if (type.text.equals(str)) {
-				return type;
-			}
-		}
-		return null;
-	}
+    /**
+     * Find an operator type for its prolog text representation
+     * 
+     * @param str
+     *            the prolog text representation for the finding type
+     * @return found type or null if the type has not been found
+     * @since 1.00
+     */
+    public static OperatorType getForName(final String str) {
+        for (final OperatorType type : values()) {
+            if (type.text.equals(str)) {
+                return type;
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * Get right prolog text representation
-	 * 
-	 * @return the text as String
-	 * @since 1.00
-	 */
-	public String getText() {
-		return text;
-	}
+    /**
+     * Get right prolog text representation
+     * 
+     * @return the text as String
+     * @since 1.00
+     */
+    public String getText() {
+        return text;
+    }
 }
