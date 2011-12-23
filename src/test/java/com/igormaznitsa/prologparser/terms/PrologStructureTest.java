@@ -81,7 +81,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                 "\\ (\\+ 10)",
                 new PrologStructure(
                 systemOperators.get("\\").getOperatorForType(
-                OperatorType.FY),
+                OperatorType.FX),
                 new AbstractPrologTerm[]{new PrologStructure(
                     systemOperators.get("\\+").getOperatorForType(
                     OperatorType.FY),

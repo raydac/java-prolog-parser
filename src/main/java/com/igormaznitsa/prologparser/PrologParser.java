@@ -34,6 +34,7 @@ import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
@@ -45,7 +46,7 @@ import com.igormaznitsa.prologparser.terms.PrologVariable;
  * The class is thread safe.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.01
+ * @version 1.02
  */
 @PrologOperators(Operators = {
     @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = "("),
@@ -53,46 +54,61 @@ import com.igormaznitsa.prologparser.terms.PrologVariable;
     @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = "["),
     @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = "]"),
     @PrologOperator(Priority = 1200, Type = OperatorType.XF, Name = "."),
-    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "|"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "is"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\="),
-    @PrologOperator(Priority = 1000, Type = OperatorType.XFY, Name = ","),
-    @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
-    @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
+
+    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
+    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
+    
     @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = "?-"),
     @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = ":-"),
-    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
+
+    @PrologOperator(Priority = 1105, Type = OperatorType.XFY, Name = "|"),
+    @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
+
+    @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "*->"),
+    @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
+    
+    @PrologOperator(Priority = 1000, Type = OperatorType.XFY, Name = ","),
+
     @PrologOperator(Priority = 900, Type = OperatorType.FY, Name = "\\+"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=\\="),
+    @PrologOperator(Priority = 900, Type = OperatorType.FY, Name = "not"),
+
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=@="),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\=="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@<"),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\="),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "is"),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>="),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>"),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@=<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>="),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@<"),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">="),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">"),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=\\="),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=="),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "<"),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=:="),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=.."),
-    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "/\\"),
+    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "="),
+    
+    @PrologOperator(Priority = 600, Type = OperatorType.XFY, Name = ":"),
+    
     @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "\\/"),
-    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "+"),
+    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "/\\"),
     @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "-"),
-    @PrologOperator(Priority = 500, Type = OperatorType.FX, Name = "not"),
-    @PrologOperator(Priority = 500, Type = OperatorType.FX, Name = "+"),
+    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "+"),
+    @PrologOperator(Priority = 500, Type = OperatorType.FX, Name = "\\"),
+    @PrologOperator(Priority = 500, Type = OperatorType.FX, Name = "?"),
     @PrologOperator(Priority = 500, Type = OperatorType.FX, Name = "-"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "*"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "/"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "//"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "rem"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "<<"),
+    @PrologOperator(Priority = 500, Type = OperatorType.FX, Name = "+"),
+    
+    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "xor"),
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = ">>"),
+    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "<<"),
+    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "//"),
+    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "/"),
+    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "*"),
+    
     @PrologOperator(Priority = 300, Type = OperatorType.XFX, Name = "mod"),
-    @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\"),
-    @PrologOperator(Priority = 200, Type = OperatorType.XFX, Name = "**"),
+    
     @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^")})
 public class PrologParser {
 
@@ -316,13 +332,16 @@ public class PrologParser {
          * @since 1.00
          */
         private TreeItem makeAsRightBranch(final TreeItem item) {
-            TreeItem currentSubbranch = rightBranch;
+            final TreeItem currentSubbranch = rightBranch;
             setRightBranch(item);
             item.setLeftBranch(currentSubbranch);
-            if (item.getType() == PrologTermType.OPERATOR) {
-                return item.getPriority() == 0 ? this : item;
+            
+            TreeItem result = this;
+            
+            if (item.getType() == PrologTermType.OPERATOR && item.getPriority() != 0) {
+                result = item;
             }
-            return this;
+            return result;
         }
 
         /**
@@ -1190,7 +1209,7 @@ public class PrologParser {
      * @since 1.00
      */
     private static Map<String, OperatorContainer> makeMapFromOperatorContainers(
-            OperatorContainer... containers) {
+            final OperatorContainer... containers) {
         final Map<String, OperatorContainer> result = new HashMap<String, OperatorContainer>();
         for (final OperatorContainer current : containers) {
             result.put(current.getText(), current);
