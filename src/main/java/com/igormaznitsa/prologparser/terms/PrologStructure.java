@@ -20,6 +20,7 @@ package com.igormaznitsa.prologparser.terms;
 import java.util.Arrays;
 
 import com.igormaznitsa.prologparser.operators.Operator;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class describes a prolog structure.
@@ -79,20 +80,12 @@ public class PrologStructure extends AbstractPrologTerm {
             throw new IllegalArgumentException("Number can't be a functor");
         }
 
-        if (elements == null) {
-            throw new NullPointerException("Elements array is null");
-        }
+        checkNotNull("Element array is null", elements);
 
         this.functor = functor;
         this.elements = elements.clone();
 
-        for (int li = 0; li < this.elements.length; li++) {
-            if (this.elements[li] == null) {
-                throw new NullPointerException(
-                        "There is a null element at the " + li
-                        + " index, use EMPTY_ATOM instead null");
-            }
-        }
+        checkArrayForNullElements("There is a null element in the array, use EMPTY_ATOM instead of null", this.elements);
     }
 
     /**
@@ -265,10 +258,7 @@ public class PrologStructure extends AbstractPrologTerm {
         if (index < 0 || index >= getArity()) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        if (term == null) {
-            throw new NullPointerException(
-                    "You can't set null as a structure element");
-        }
+        checkNotNull("Attempt to set null as a structure element", term);
         elements[index] = term;
     }
 

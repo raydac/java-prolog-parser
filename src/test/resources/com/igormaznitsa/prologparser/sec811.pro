@@ -196,8 +196,8 @@ test_close :-
 test_close_errors :-
 	error_test((current_output(Stdout),close(Stdout, notalist)),
                    type_error(list, notalist)),
-        error_test(close('not'/'stream'/'alias'),
-                 domain_error(stream_or_alias, 'not'/'stream'/'alias')), 
+        error_test(close(not/stream/alias),
+                 domain_error(stream_or_alias, not/stream/alias)), 
         error_test(close(fred), existence_error(stream, fred)),
         error_test(close(A), instantiation_error).
 
@@ -256,7 +256,7 @@ test_stream_property :-
 %
 
 test_stream_property_errors :-
-	error_test(stream_property('not'/'stream', Y), domain_error('stream', 'not'/'stream')),
+	error_test(stream_property(not/stream, Y), domain_error(stream,not/stream)),
         error_test(stream_property(S,not_a_stream_property), 
                    domain_error(stream_property, not_a_stream_property)).
  
@@ -283,8 +283,8 @@ test_at_end_of_stream :-
 %
   
 test_at_end_of_stream_errors :-
-		error_test(at_end_of_stream('not'/stream), 
-                 domain_error(stream_or_alias, 'not'/stream)).     
+		error_test(at_end_of_stream(not/stream), 
+                 domain_error(stream_or_alias,not/stream)).     
         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -422,7 +422,7 @@ test_sp :-
 %  in the usual way since it will try to read from Current input
 
 test_eos :-
-     do_catch((end_of_stream('not'/alias);true), B, error_is_not(existence_error,B)),
+     do_catch((end_of_stream(not/alias);true), B, error_is_not(existence_error,B)),
      test_at_end_of_stream,test_at_end_of_stream_errors.
 
 test_eos:-     

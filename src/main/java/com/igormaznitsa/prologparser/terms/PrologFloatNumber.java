@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser.terms;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class describes a float numeric atom for the prolog parser. It looks like
@@ -100,9 +101,7 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      */
     public PrologFloatNumber(final BigDecimal value) {
         super();
-        if (value == null) {
-            throw new NullPointerException("Value is null");
-        }
+        checkNotNull("Value is null", value);
         this.value = value;
     }
 

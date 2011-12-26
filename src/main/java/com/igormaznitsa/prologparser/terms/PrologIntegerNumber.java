@@ -18,6 +18,7 @@
 package com.igormaznitsa.prologparser.terms;
 
 import java.math.BigInteger;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class describes an immutable integer numeric atom, it is like a prolog
@@ -89,9 +90,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      */
     public PrologIntegerNumber(final BigInteger value) {
         super();
-        if (value == null) {
-            throw new NullPointerException("Value is null");
-        }
+        checkNotNull("Value is null", value);
         this.value = value;
     }
 

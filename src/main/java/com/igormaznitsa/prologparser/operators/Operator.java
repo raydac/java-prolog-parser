@@ -22,6 +22,7 @@ import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class describes a prolog operator for the prolog parser.
@@ -82,12 +83,8 @@ public final class Operator extends AbstractPrologTerm {
             throw new IllegalArgumentException(
                     "Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
         }
-        if (type == null) {
-            throw new NullPointerException("Type is null");
-        }
-        if (names == null) {
-            throw new NullPointerException("Names array is null");
-        }
+        checkNotNull("Type is null", type);
+        checkNotNull("Name array is null", names);
 
         final Operator[] result = new Operator[names.length];
         for (int li = 0; li < names.length; li++) {
@@ -119,9 +116,7 @@ public final class Operator extends AbstractPrologTerm {
             throw new IllegalArgumentException("Wrong priority value");
         }
 
-        if (type == null) {
-            throw new NullPointerException("Type is null");
-        }
+        checkNotNull("Type is null", type);
 
         if (name.isEmpty()) {
             throw new IllegalArgumentException("Empty operator name");

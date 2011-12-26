@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class is a container to save information about parsed token, tokenizer
@@ -64,13 +65,8 @@ public final class TokenizerResult {
      */
     public TokenizerResult(final AbstractPrologTerm term,
             final TokenizerState parserState, final int stringPosition, final int lineNumber) {
-        if (term == null) {
-            throw new NullPointerException("Term is null");
-        }
-
-        if (parserState == null) {
-            throw new NullPointerException("Parser state is null");
-        }
+        checkNotNull("The term is null", term);
+        checkNotNull("The Parser state is null", parserState);
 
         this.stringPosition = stringPosition;
         this.lineNumber = lineNumber;

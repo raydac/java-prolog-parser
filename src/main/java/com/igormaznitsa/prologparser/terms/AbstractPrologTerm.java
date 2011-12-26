@@ -17,6 +17,8 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+
 /**
  * The abstract class describes an abstract prolog term for the prolog parser.
  * All data types being used by the prolog parser are successors of the class.
@@ -59,9 +61,7 @@ public abstract class AbstractPrologTerm {
      * @since 1.00
      */
     public AbstractPrologTerm(final String text) {
-        if (text == null) {
-            throw new NullPointerException("Term text must not be null");
-        }
+        checkNotNull("Term text is null", text);
         this.text = text;
         this.strPosition = -1;
         this.lineNumber = -1;

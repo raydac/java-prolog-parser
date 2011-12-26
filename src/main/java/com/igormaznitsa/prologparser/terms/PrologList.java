@@ -16,6 +16,7 @@
  * Boston, MA 02111-1307  USA
  */
 package com.igormaznitsa.prologparser.terms;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class describes a prolog list being used by the prolog parser.
@@ -66,16 +67,12 @@ public final class PrologList extends PrologStructure {
      */
     public PrologList(final AbstractPrologTerm[] array) {
         this();
-        if (array == null) {
-            throw new NullPointerException("Array is null");
-        }
+        checkNotNull("Array is null", array);
 
         PrologList current = this;
 
         for (final AbstractPrologTerm term : array) {
-            if (term == null) {
-                throw new NullPointerException("Array contains a null element");
-            }
+            checkNotNull("Array contains a null element", term);
             current = current.addAsNewListToEndOfListChain(term);
         }
     }
@@ -225,14 +222,10 @@ public final class PrologList extends PrologStructure {
      *         new list will be created and returned
      * @since 1.00
      */
-    public static PrologList setTermAsNewListTail(PrologList list,
+    public static PrologList setTermAsNewListTail(final PrologList list,
             final AbstractPrologTerm term) {
-        if (list == null) {
-            throw new NullPointerException("The list is null");
-        }
-        if (term == null) {
-            throw new NullPointerException("Term is null");
-        }
+        checkNotNull("The list is null", list);
+        checkNotNull("The term is null", term);
 
         PrologList result = list;
 
@@ -260,9 +253,7 @@ public final class PrologList extends PrologStructure {
      */
     public final PrologList addAsNewListToEndOfListChain(
             final AbstractPrologTerm term) {
-        if (term == null) {
-            throw new NullPointerException("Term is null");
-        }
+        checkNotNull("The term is null", term);
 
         if (isNullList()) {
             setHead(term);
@@ -301,13 +292,11 @@ public final class PrologList extends PrologStructure {
      */
     public final void replaceLastElement(
             final AbstractPrologTerm elementToReplace) {
-        if (elementToReplace == null) {
-            throw new NullPointerException("The element is null");
-        }
+        checkNotNull("The element is null", elementToReplace);
 
         PrologList curList = this;
         while (true) {
-            AbstractPrologTerm tail = curList.getTail();
+            final AbstractPrologTerm tail = curList.getTail();
             if (tail.getType() == PrologTermType.LIST) {
                 final PrologList ltail = (PrologList) tail;
                 if (ltail.isNullList()) {

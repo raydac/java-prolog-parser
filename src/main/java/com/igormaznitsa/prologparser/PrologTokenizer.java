@@ -27,6 +27,7 @@ import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.StringUtils;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class implements an intermediate tokenizer between a data stream and a
@@ -199,9 +200,7 @@ final class PrologTokenizer {
             final PrologParser parser) throws PrologParserException,
             IOException {
 
-        if (reader == null) {
-            throw new NullPointerException("Reader is null");
-        }
+        checkNotNull("Reader is null", reader);
 
         if (lastPushedTerm != null) {
             try {
@@ -576,9 +575,7 @@ final class PrologTokenizer {
             final String operatorNameStartSubstring,
             final PrologParser parser) {
 
-        if (operatorNameStartSubstring == null) {
-            throw new NullPointerException("Substing is null");
-        }
+        checkNotNull("The substring is null", operatorNameStartSubstring);
 
         // check for system
         if (PrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
@@ -608,18 +605,19 @@ final class PrologTokenizer {
      */
     static OperatorContainer findOperatorForName(final String operatorName,
             final PrologParser parser) {
-        if (operatorName == null) {
-            throw new NullPointerException("Operator name is null");
-        }
+        checkNotNull("The operator name is null", operatorName);
 
         OperatorContainer result = null;
-        result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
 
         if (result == null && parser != null) {
             final ParserContext ctx = parser.getContext();
             if (ctx != null) {
                 result = ctx.findOperatorForName(parser, operatorName);
             }
+        }
+
+        if (result == null) {
+            result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
         }
 
         return result;

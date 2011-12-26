@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class being used by the prolog parser to save operators with the same
@@ -69,9 +70,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @since 1.00
      */
     public boolean addOperator(final Operator operator) {
-        if (operator == null) {
-            throw new NullPointerException("Operator must not be null");
-        }
+        checkNotNull("Operator must not be null", operator);
 
         if (!getText().equals(operator.getText())) {
             throw new IllegalArgumentException(
@@ -135,9 +134,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @since 1.00
      */
     public boolean remove(final Operator op) {
-        if (op == null) {
-            throw new NullPointerException("Operator is null");
-        }
+        checkNotNull("Operator is null", op);
 
         if (!getText().equals(op.getText())) {
             throw new IllegalArgumentException(
@@ -249,9 +246,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @since 1.00
      */
     public Operator getOperatorForType(final OperatorType type) {
-        if (type == null) {
-            throw new NullPointerException("The type is null");
-        }
+        checkNotNull("Operator type is null", type);
         Operator result = null;
         switch (type) {
             case FY:
@@ -319,9 +314,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @since 1.00
      */
     public boolean removeOperatorForType(final OperatorType type) {
-        if (type == null) {
-            throw new NullPointerException("Type is null");
-        }
+        checkNotNull("Operator type is null", type);
         boolean result = false;
         switch (type) {
             case FX:

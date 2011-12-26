@@ -52,14 +52,14 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                 new PrologStructure(systemOperators.get(":-").getOperatorForType(OperatorType.FX),
                 new AbstractPrologTerm[]{new PrologAtom("hello")}).toString());
         assertEquals(
-                "(- 10) * (1 + 2)",
+                "- 10 * (1 + 2)",
                 new PrologStructure(
                 systemOperators.get("*").getOperatorForType(
                 OperatorType.YFX),
                 new AbstractPrologTerm[]{
                     new PrologStructure(
                     systemOperators.get("-").getOperatorForType(
-                    OperatorType.FX),
+                    OperatorType.FY),
                     new AbstractPrologTerm[]{new PrologIntegerNumber("10")}),
                     new PrologStructure(systemOperators.get("+").getOperatorForType(OperatorType.YFX),
                     new AbstractPrologTerm[]{
@@ -67,13 +67,13 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                         new PrologIntegerNumber("2")})}).toString());
 
         assertEquals(
-                "- (- 10)",
+                "- - 10",
                 new PrologStructure(
                 systemOperators.get("-").getOperatorForType(
-                OperatorType.FX),
+                OperatorType.FY),
                 new AbstractPrologTerm[]{new PrologStructure(
                     systemOperators.get("-").getOperatorForType(
-                    OperatorType.FX),
+                    OperatorType.FY),
                     new AbstractPrologTerm[]{new PrologIntegerNumber(
                         "10")})}).toString());
 
@@ -81,7 +81,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                 "\\ (\\+ 10)",
                 new PrologStructure(
                 systemOperators.get("\\").getOperatorForType(
-                OperatorType.FX),
+                OperatorType.FY),
                 new AbstractPrologTerm[]{new PrologStructure(
                     systemOperators.get("\\+").getOperatorForType(
                     OperatorType.FY),

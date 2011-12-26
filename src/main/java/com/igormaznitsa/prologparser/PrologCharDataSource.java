@@ -26,6 +26,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class is the main char data source for a prolog parser, the class adapts
@@ -103,9 +104,7 @@ public class PrologCharDataSource {
      */
     public PrologCharDataSource(final ReadableByteChannel channel) {
         this(Channels.newInputStream(channel));
-        if (channel == null) {
-            throw new NullPointerException("Channel is null");
-        }
+        checkNotNull("Channel is null", channel);
     }
 
     /**
@@ -116,9 +115,7 @@ public class PrologCharDataSource {
      * @since 1.00
      */
     public PrologCharDataSource(final Reader reader) {
-        if (reader == null) {
-            throw new NullPointerException("Reader is null");
-        }
+        checkNotNull("Reader is null", reader);
 
         inReader = reader;
         strPos = 1;

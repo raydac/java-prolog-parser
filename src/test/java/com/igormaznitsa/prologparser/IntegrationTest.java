@@ -387,7 +387,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Test
-    public void testSimilarOperatorInterpretation () throws Exception {
+    public void testSimilarOperatorInterpretation() throws Exception {
         final Map<String, OperatorContainer> operators = new HashMap<String, OperatorContainer>();
         final Operator firstOperator = new Operator(100, OperatorType.FY, "++++++");
         final Operator secondOperator = new Operator(100, OperatorType.FY, "+++");
@@ -656,15 +656,15 @@ public class IntegrationTest extends AbstractPrologParserTest {
         assertEquals(4, structure.getElement(6).getStrPosition());
         assertEquals(5, structure.getElement(6).getLineNumber());
     }
-    
-//    @Test
-//    public void testSingleOperatorAsAtom() throws Exception {
-//        final PrologStructure structure = (PrologStructure)parser.nextSentence("not/stream.");
-//        assertEquals("/",structure.getFunctor().getText());
-//        assertEquals("It must be an atom",PrologTermType.ATOM,structure.getElement(0).getType());
-//        assertEquals("not",structure.getElement(0).getText());
-//        assertEquals(PrologTermType.ATOM,structure.getElement(1).getType());
-//        assertEquals("stream",structure.getElement(1).getText());
-//        
-//    }
+
+    @Test
+    public void testSingleOperatorAsAtom() throws Exception {
+        final PrologStructure structure = (PrologStructure) parser.nextSentence("not/stream.");
+        assertEquals("/", structure.getFunctor().getText());
+        assertEquals("It must be an atom", PrologTermType.ATOM, structure.getElement(0).getType());
+        assertEquals("not", structure.getElement(0).getText());
+        assertEquals(PrologTermType.ATOM, structure.getElement(1).getType());
+        assertEquals("stream", structure.getElement(1).getText());
+
+    }
 }
