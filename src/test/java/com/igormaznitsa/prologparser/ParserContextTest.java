@@ -59,7 +59,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
             @Override
             public OperatorContainer answer(InvocationOnMock invocation) throws Throwable {
                 if ("operator".startsWith((String) invocation.getArguments()[1])) {
-                    return new OperatorContainer(new Operator(1000, OperatorType.XFX, "operator"));
+                    return new OperatorContainer(Operator.makeOperator(1000, OperatorType.XFX, "operator"));
                 } else {
                     return null;
                 }

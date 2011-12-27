@@ -9,7 +9,7 @@ import com.igormaznitsa.prologparser.operators.OperatorType;
 
 public class PrologTermWrapperTest {
 
-    final Operator testWrapped = new Operator(300, OperatorType.FX, "---");
+    final Operator testWrapped = Operator.makeOperator(300, OperatorType.FX, "---");
 
     @Test
     public void testGetText() {

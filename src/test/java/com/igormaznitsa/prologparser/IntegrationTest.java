@@ -389,9 +389,9 @@ public class IntegrationTest extends AbstractPrologParserTest {
     @Test
     public void testSimilarOperatorInterpretation() throws Exception {
         final Map<String, OperatorContainer> operators = new HashMap<String, OperatorContainer>();
-        final Operator firstOperator = new Operator(100, OperatorType.FY, "++++++");
-        final Operator secondOperator = new Operator(100, OperatorType.FY, "+++");
-        final Operator thirdOperator = new Operator(100, OperatorType.FY, "++");
+        final Operator firstOperator = Operator.makeOperator(100, OperatorType.FY, "++++++");
+        final Operator secondOperator = Operator.makeOperator(100, OperatorType.FY, "+++");
+        final Operator thirdOperator = Operator.makeOperator(100, OperatorType.FY, "++");
 
         operators.put(firstOperator.getText(), new OperatorContainer(firstOperator));
         operators.put(secondOperator.getText(), new OperatorContainer(secondOperator));
@@ -483,7 +483,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
                     final PrologStructure operatorstructure = (PrologStructure) structure.getElement(0);
                     if (operatorstructure.getArity() == 3
                             && operatorstructure.getFunctor().getText().equals("op")) {
-                        final Operator newoperator = new Operator(
+                        final Operator newoperator = Operator.makeOperator(
                                 ((PrologIntegerNumber) operatorstructure.getElement(0)).getValue().intValue(),
                                 OperatorType.getForName(operatorstructure.getElement(1).getText()),
                                 operatorstructure.getElement(2).getText());

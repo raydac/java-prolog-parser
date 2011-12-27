@@ -46,22 +46,15 @@ import com.igormaznitsa.prologparser.utils.AssertionUtils;
  * The class is thread safe.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.02
+ * @version 1.03
  */
 @PrologOperators(Operators = {
-    @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = "("),
-    @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = ")"),
-    @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = "["),
-    @PrologOperator(Priority = 0, Type = OperatorType.XFX, Name = "]"),
-    @PrologOperator(Priority = 1200, Type = OperatorType.XF, Name = "."),
+    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
+    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
 
-    @PrologOperator(Priority = 1199, Type = OperatorType.XFX, Name = ":-"),
-    @PrologOperator(Priority = 1199, Type = OperatorType.XFX, Name = "-->"),
+    @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = "?-"),
+    @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = ":-"),
 
-    @PrologOperator(Priority = 1199, Type = OperatorType.FX, Name = "?-"),
-    @PrologOperator(Priority = 1199, Type = OperatorType.FX, Name = ":-"),
-
-    @PrologOperator(Priority = 1105, Type = OperatorType.XFY, Name = "|"),
     @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
 
     @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
@@ -112,6 +105,14 @@ public class PrologParser {
      * @since 1.00
      */
     static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
+    
+    /**
+     * The Static map contains all system meta-operators for the parser (brackets, dot, vertical bar)
+     * 
+     * @since 1.03
+     */
+    static final Map<String, OperatorContainer> META_SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
+    
     /**
      * The set contains all possible prefixes of system operators to expedite
      * parsing
@@ -165,23 +166,25 @@ public class PrologParser {
     static {
         initSystemOperatorsFromClassAnnotations();
         OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
-        OPERATOR_LEFTBRACKET = SYSTEM_OPERATORS.get("(");
-        OPERATOR_RIGHTBRACKET = SYSTEM_OPERATORS.get(")");
-        OPERATOR_LEFTSQUAREBRACKET = SYSTEM_OPERATORS.get("[");
-        OPERATOR_RIGHTSQUAREBRACKET = SYSTEM_OPERATORS.get("]");
-        OPERATOR_DOT = SYSTEM_OPERATORS.get(".");
-        OPERATOR_VERTICALBAR = SYSTEM_OPERATORS.get("|");
+        OPERATOR_LEFTBRACKET = META_SYSTEM_OPERATORS.get("(");
+        OPERATOR_RIGHTBRACKET = META_SYSTEM_OPERATORS.get(")");
+        OPERATOR_LEFTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("[");
+        OPERATOR_RIGHTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("]");
+        OPERATOR_DOT = META_SYSTEM_OPERATORS.get(".");
+        OPERATOR_VERTICALBAR = META_SYSTEM_OPERATORS.get("|");
     }
 
     /**
-     * It allows to get the system operator map, of course as a unmodifiable map
+     * It allows to get the system operator map (it includes both system operators and meta-operators)
      * 
-     * @return the system operator map wrapped as an unmodifiable one
+     * @return the operator map contains system operators
      * @since 1.00
      * @see OperatorContainer
      */
     public static Map<String, OperatorContainer> getSystemOperators() {
-        return Collections.unmodifiableMap(SYSTEM_OPERATORS);
+        final Map<String,OperatorContainer> result = new HashMap<String,OperatorContainer>(SYSTEM_OPERATORS);
+        result.putAll(META_SYSTEM_OPERATORS);
+        return result;
     }
     /**
      * Inside array of operators which will be used to read a prolog phrase
@@ -1210,20 +1213,47 @@ public class PrologParser {
      * @since 1.00
      */
     private static void initSystemOperatorsFromClassAnnotations() {
+        META_SYSTEM_OPERATORS.clear();
+        
+        OPERATOR_DOT = new OperatorContainer(Operator.METAOPERATOR_DOT);
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_DOT.getText(),OPERATOR_DOT);
+        
+        OPERATOR_LEFTBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_BRACKET);
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_BRACKET.getText(),OPERATOR_LEFTBRACKET);
+        
+        OPERATOR_RIGHTBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_BRACKET);
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_BRACKET.getText(),OPERATOR_RIGHTBRACKET);
+        
+        OPERATOR_LEFTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET);
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText(),OPERATOR_LEFTSQUAREBRACKET);
+        
+        OPERATOR_RIGHTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET);
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText(),OPERATOR_RIGHTSQUAREBRACKET);
+        
+        OPERATOR_VERTICALBAR = new OperatorContainer(Operator.METAOPERATOR_VERTICAL_BAR);
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(),OPERATOR_VERTICALBAR);
+        
         SYSTEM_OPERATORS.clear();
         SYSTEM_OPERATORS_PREFIXES.clear();
 
+        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_DOT.getText());
+        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_BRACKET.getText());
+        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText());
+        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_BRACKET.getText());
+        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText());
+        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_VERTICAL_BAR.getText());
+        
         final PrologOperators operators = PrologParser.class.getAnnotation(PrologOperators.class);
         if (operators != null) {
             final StringBuilder accum = new StringBuilder(10);
             for (final PrologOperator operator : operators.Operators()) {
                 if (SYSTEM_OPERATORS.containsKey(operator.Name())) {
                     final OperatorContainer container = SYSTEM_OPERATORS.get(operator.Name());
-                    container.addOperator(new Operator(operator.Priority(),
+                    container.addOperator(Operator.makeOperator(operator.Priority(),
                             operator.Type(), operator.Name()));
                 } else {
                     final OperatorContainer container = new OperatorContainer(
-                            new Operator(operator.Priority(), operator.Type(),
+                            Operator.makeOperator(operator.Priority(), operator.Type(),
                             operator.Name()));
                     SYSTEM_OPERATORS.put(operator.Name(), container);
                 }

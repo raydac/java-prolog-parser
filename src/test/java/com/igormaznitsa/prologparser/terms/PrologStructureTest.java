@@ -24,7 +24,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         assertEquals(0,
                 new PrologStructure(new PrologAtom("hello")).getPriority());
 
-        final Operator testOperator = new Operator(666, OperatorType.FX, ":::");
+        final Operator testOperator = Operator.makeOperator(666, OperatorType.FX, ":::");
 
         assertEquals(666,
                 new PrologStructure(testOperator,
@@ -98,8 +98,8 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                     new AbstractPrologTerm[]{new PrologIntegerNumber(
                         "10")})}).toString());
 
-        final Operator operatorYF = new Operator(800, OperatorType.YF, "!");
-        final Operator operatorYF2 = new Operator(1000, OperatorType.YF, "!!");
+        final Operator operatorYF = Operator.makeOperator(800, OperatorType.YF, "!");
+        final Operator operatorYF2 = Operator.makeOperator(1000, OperatorType.YF, "!!");
 
         assertEquals(
                 "(10 !!) !",
@@ -110,8 +110,8 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                     new AbstractPrologTerm[]{new PrologIntegerNumber(
                         "10")})}).toString());
 
-        final Operator operatorXFX = new Operator(800, OperatorType.XFX, "$");
-        final Operator operatorXFX2 = new Operator(1000, OperatorType.XFX, "$$");
+        final Operator operatorXFX = Operator.makeOperator(800, OperatorType.XFX, "$");
+        final Operator operatorXFX2 = Operator.makeOperator(1000, OperatorType.XFX, "$$");
 
         assertEquals("(10 $$ 20) $ (5 $ 30)",
                 new PrologStructure(operatorXFX, new AbstractPrologTerm[]{
@@ -124,8 +124,8 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                         new PrologIntegerNumber("5"),
                         new PrologIntegerNumber("30")})}).toString());
 
-        final Operator operatorXFY = new Operator(800, OperatorType.XFY, "$");
-        final Operator operatorXFY2 = new Operator(1000, OperatorType.XFY, "$$");
+        final Operator operatorXFY = Operator.makeOperator(800, OperatorType.XFY, "$");
+        final Operator operatorXFY2 = Operator.makeOperator(1000, OperatorType.XFY, "$$");
 
         assertEquals("10 $ 20 $$ 5 $ 30",
                 new PrologStructure(operatorXFY2, new AbstractPrologTerm[]{
@@ -145,7 +145,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                 new PrologStructure("hello").getType());
         assertEquals(PrologTermType.STRUCT, new PrologStructure(new PrologAtom(
                 "hello")).getType());
-        final Operator testOperator = new Operator(666, OperatorType.FX, ":::");
+        final Operator testOperator = Operator.makeOperator(666, OperatorType.FX, ":::");
         assertEquals(PrologTermType.STRUCT, new PrologStructure(testOperator,
                 new AbstractPrologTerm[]{new PrologAtom("test")}).getType());
     }
@@ -193,7 +193,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         assertSame(functoratom, struct.getFunctor());
         assertEquals(testterms.length, struct.getArity());
 
-        final Operator functoroperator = new Operator(222, OperatorType.XFX,
+        final Operator functoroperator = Operator.makeOperator(222, OperatorType.XFX,
                 ">>>");
         struct = new PrologStructure(functoroperator, testterms);
         assertSame(functoroperator, struct.getFunctor());
@@ -285,7 +285,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testPrologStructureAbstractPrologTerm() {
         final PrologAtom atom = new PrologAtom("atom1");
-        final Operator operator = new Operator(6, OperatorType.FX, "...");
+        final Operator operator = Operator.makeOperator(6, OperatorType.FX, "...");
 
         try {
             new PrologStructure((AbstractPrologTerm) null);
@@ -504,7 +504,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testGetFunctor() {
         final PrologAtom functoratom = new PrologAtom("testfunctor");
-        final Operator functoroperator = new Operator(666, OperatorType.FX,
+        final Operator functoroperator = Operator.makeOperator(666, OperatorType.FX,
                 ":::");
 
         assertEquals(functoratom, new PrologStructure(functoratom).getFunctor());
@@ -519,7 +519,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         assertEquals("test", new PrologStructure("test").getText());
         assertEquals("test",
                 new PrologStructure(new PrologAtom("test"), 5).getText());
-        assertEquals("<<<", new PrologStructure(new Operator(222,
+        assertEquals("<<<", new PrologStructure(Operator.makeOperator(222,
                 OperatorType.FY, "<<<"), 5).getText());
     }
 }

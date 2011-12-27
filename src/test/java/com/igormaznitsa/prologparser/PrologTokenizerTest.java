@@ -290,7 +290,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
         assertNull("Should support null as context", PrologTokenizer.findOperatorForName("<------------------------------------------------------->", null));
 
-        final OperatorContainer operatorContainer = new OperatorContainer(new Operator(1000, OperatorType.FX, "some_operator"));
+        final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX, "some_operator"));
 
         when(mockContext.findOperatorForName(any(PrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 

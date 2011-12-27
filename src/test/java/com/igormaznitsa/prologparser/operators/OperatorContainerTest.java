@@ -9,16 +9,16 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testGetPriority() {
-        assertEquals(new OperatorContainer(new Operator(1000, OperatorType.FX,
+        assertEquals(new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX,
                 "<>")).getPriority(), 0);
     }
 
     @Test
     public void testToString() {
-        final Operator operator = new Operator(100, OperatorType.FX, "<>");
+        final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
         final OperatorContainer container = new OperatorContainer(operator);
-        container.addOperator(new Operator(300, OperatorType.XFX, "<>"));
-        container.addOperator(new Operator(800, OperatorType.YF, "<>"));
+        container.addOperator(Operator.makeOperator(300, OperatorType.XFX, "<>"));
+        container.addOperator(Operator.makeOperator(800, OperatorType.YF, "<>"));
         assertEquals(
                 "OperatorContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
                 container.toString());
@@ -27,7 +27,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     @Test
     public void testGetType() {
         assertEquals(PrologTermType.OPERATORS, new OperatorContainer(
-                new Operator(1000, OperatorType.FX, "<>")).getType());
+                Operator.makeOperator(1000, OperatorType.FX, "<>")).getType());
     }
 
     @Test
@@ -38,7 +38,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
         } catch (NullPointerException ex) {
         }
 
-        final Operator operator = new Operator(100, OperatorType.FX, "<>");
+        final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
         final OperatorContainer container = new OperatorContainer(operator);
         assertEquals(1, container.size());
         assertSame(operator, container.getOperatorIfSingle());
@@ -46,10 +46,10 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testAddOperator() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
-        final Operator otheroperatorYF = new Operator(300, OperatorType.YF,
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+        final Operator otheroperatorYF = Operator.makeOperator(300, OperatorType.YF,
                 "><");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
@@ -83,9 +83,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testRemoveAll() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -108,10 +108,10 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testRemove() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
-        final Operator otheroperatorXFX = new Operator(400, OperatorType.XFX,
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+        final Operator otheroperatorXFX = Operator.makeOperator(400, OperatorType.XFX,
                 "><");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
@@ -148,9 +148,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testSize() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -167,9 +167,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testGetOperatorIfSingle() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -187,9 +187,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testFindCompatibleOperator() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -225,9 +225,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testGetOperatorForType() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -252,9 +252,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testGetOperatorForSimilarType() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
         container.addOperator(operatorXFX);
@@ -277,9 +277,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testRemoveOperatorForType() {
-        final Operator operatorFX = new Operator(100, OperatorType.FX, "<>");
-        final Operator operatorXFX = new Operator(400, OperatorType.XFX, "<>");
-        final Operator operatorYF = new Operator(300, OperatorType.YF, "<>");
+        final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
+        final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
+        final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
 
         final OperatorContainer container = new OperatorContainer(operatorFX);
         container.addOperator(operatorXFX);
@@ -302,14 +302,14 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     @Test
     public void testGetText() {
-        assertEquals("<>", new OperatorContainer(new Operator(1000,
+        assertEquals("<>", new OperatorContainer(Operator.makeOperator(1000,
                 OperatorType.FX, "<>")).getText());
     }
 
     @Test
     public void testSetStrPosition() {
         try {
-            final Operator operator = new Operator(100, OperatorType.FX, "<>");
+            final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
             final OperatorContainer container = new OperatorContainer(operator);
             container.setStrPosition(10);
             fail("Must throw UOE because the operstion restricted");
@@ -320,7 +320,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     @Test
     public void testSetLineNumber() {
         try {
-            final Operator operator = new Operator(100, OperatorType.FX, "<>");
+            final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
             final OperatorContainer container = new OperatorContainer(operator);
             container.setLineNumber(12);
             fail("Must throw UOE because the operstion restricted");

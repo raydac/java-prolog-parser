@@ -609,6 +609,12 @@ final class PrologTokenizer {
 
         OperatorContainer result = null;
 
+        // check metaoperators as the first ones
+        if (operatorName.length() == 1){
+            result = PrologParser.META_SYSTEM_OPERATORS.get(operatorName);
+        }
+        
+        // check user defined operators because a user can replace a system operator
         if (result == null && parser != null) {
             final ParserContext ctx = parser.getContext();
             if (ctx != null) {
@@ -616,6 +622,7 @@ final class PrologTokenizer {
             }
         }
 
+        // check system operators
         if (result == null) {
             result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
         }

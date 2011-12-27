@@ -28,13 +28,43 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * The class describes a prolog operator for the prolog parser.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.01
+ * @version 1.02
  * 
  * @see PrologOperator
  * @see PrologOperators
  */
 public final class Operator extends AbstractPrologTerm {
-
+    /**
+     * Describes the left bracket meta-operator ('(')
+     * @since 1.02
+     */
+    public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.XFX, "("); 
+    /**
+     * Describes the right bracket meta-operator (')')
+     * @since 1.02
+     */
+    public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XFX, ")"); 
+    /**
+     * Describes the left square bracket meta-operator ('[')
+     * @since 1.02
+     */
+    public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XFX, "["); 
+    /**
+     * Describes the right square bracket meta-operator (']')
+     * @since 1.02
+     */
+    public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XFX, "]"); 
+    /**
+     * Describes the dot meta-operator ('.')
+     * @since 1.02
+     */
+    public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, "."); 
+    /**
+     * Describes the vertical bar meta-operator ('|')
+     * @since 1.02
+     */
+    public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(1105, OperatorType.XFY, "|");
+    
     /**
      * The constant describes the maximum priority for a prolog operator.
      * 
@@ -88,13 +118,44 @@ public final class Operator extends AbstractPrologTerm {
 
         final Operator[] result = new Operator[names.length];
         for (int li = 0; li < names.length; li++) {
-            result[li] = new Operator(priority, type, names[li]);
+            result[li] = makeOperator(priority, type, names[li]);
         }
         return result;
     }
 
     /**
-     * The constructor.
+     * This factory method allows to generate new operator with desired parameters, it will generate new instance every time because there is not any inside logic to cache instances(!).
+     * @param priority the operator priority must be in the [1..1200] interval
+     * @param type the operator type, must not be null
+     * @param name the operator name, must not be null or empty
+     * @return the new generated operator instance for arguments
+     * @throws IllegalArgumentException if there is a wrong priority value
+     * @since 1.02
+     */
+    public static Operator makeOperator(final int priority, final OperatorType type, final String name) {
+        if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
+            throw new IllegalArgumentException("Wrong priority value");
+        }
+
+        return new Operator(priority, type, name);
+    }   
+    
+    /**
+     * This inside factory method is used to generate operators without check of their priority 
+     * @param priority the operator priority, it can be any integer value
+     * @param type the operator type, it must not be null
+     * @param name the operator name, it must not be null or empty
+     * @return the new generated operator instance
+     * @since 1.02
+     */
+    static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
+        checkNotNull("Type is null", type);
+        checkNotNull("Name array is null", name);
+        return new Operator(priority, type, name);
+    }
+    
+    /**
+     * The constructor. It has been hidden since 1.02 version because we must avoid direct operator creation (!)
      * 
      * @param priority
      *            the operator priority 0..1200
@@ -107,14 +168,12 @@ public final class Operator extends AbstractPrologTerm {
      *             arguments
      * @see OperatorType
      * @since 1.00
+     * @see Operator#makeOperator(int, com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String) 
+     * @see Operator#makeOperators(int, com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[]) 
      */
-    public Operator(final int priority, final OperatorType type,
+    private Operator(final int priority, final OperatorType type,
             final String name) {
         super(name);
-
-        if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
-            throw new IllegalArgumentException("Wrong priority value");
-        }
 
         checkNotNull("Type is null", type);
 
