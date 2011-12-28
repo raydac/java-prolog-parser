@@ -51,18 +51,12 @@ import com.igormaznitsa.prologparser.utils.AssertionUtils;
 @PrologOperators(Operators = {
     @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
     @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
-
     @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = "?-"),
     @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = ":-"),
-
     @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
-
     @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
-    
     @PrologOperator(Priority = 1000, Type = OperatorType.XFY, Name = ","),
-
     @PrologOperator(Priority = 900, Type = OperatorType.FY, Name = "\\+"),
-
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "="),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\="),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=="),
@@ -79,12 +73,10 @@ import com.igormaznitsa.prologparser.utils.AssertionUtils;
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=<"),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">"),
     @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">="),
-    
     @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "+"),
     @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "-"),
     @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "/\\"),
     @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "\\/"),
-    
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "*"),
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "/"),
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "//"),
@@ -92,7 +84,6 @@ import com.igormaznitsa.prologparser.utils.AssertionUtils;
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = ">>"),
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "rem"),
     @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "mod"),
-    
     @PrologOperator(Priority = 200, Type = OperatorType.XFX, Name = "**"),
     @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
@@ -105,14 +96,12 @@ public class PrologParser {
      * @since 1.00
      */
     static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
-    
     /**
      * The Static map contains all system meta-operators for the parser (brackets, dot, vertical bar)
      * 
      * @since 1.03
      */
     static final Map<String, OperatorContainer> META_SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
-    
     /**
      * The set contains all possible prefixes of system operators to expedite
      * parsing
@@ -182,7 +171,7 @@ public class PrologParser {
      * @see OperatorContainer
      */
     public static Map<String, OperatorContainer> getSystemOperators() {
-        final Map<String,OperatorContainer> result = new HashMap<String,OperatorContainer>(SYSTEM_OPERATORS);
+        final Map<String, OperatorContainer> result = new HashMap<String, OperatorContainer>(SYSTEM_OPERATORS);
         result.putAll(META_SYSTEM_OPERATORS);
         return result;
     }
@@ -332,9 +321,9 @@ public class PrologParser {
             final TreeItem currentSubbranch = rightBranch;
             setRightBranch(item);
             item.setLeftBranch(currentSubbranch);
-            
+
             TreeItem result = this;
-            
+
             if (item.getType() == PrologTermType.OPERATOR && item.getPriority() != 0) {
                 result = item;
             }
@@ -529,7 +518,7 @@ public class PrologParser {
 
                     PrologStructure operatorStruct = null;
                     if (!validate()) {
-                        throw new PrologParserException("Wrong operator ["+wrapper.getText()+']', wrapper.getLineNumber(),
+                        throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(),
                                 wrapper.getStrPosition());
                     }
 
@@ -1214,25 +1203,25 @@ public class PrologParser {
      */
     private static void initSystemOperatorsFromClassAnnotations() {
         META_SYSTEM_OPERATORS.clear();
-        
+
         OPERATOR_DOT = new OperatorContainer(Operator.METAOPERATOR_DOT);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_DOT.getText(),OPERATOR_DOT);
-        
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_DOT.getText(), OPERATOR_DOT);
+
         OPERATOR_LEFTBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_BRACKET.getText(),OPERATOR_LEFTBRACKET);
-        
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_BRACKET.getText(), OPERATOR_LEFTBRACKET);
+
         OPERATOR_RIGHTBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_BRACKET.getText(),OPERATOR_RIGHTBRACKET);
-        
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_BRACKET.getText(), OPERATOR_RIGHTBRACKET);
+
         OPERATOR_LEFTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText(),OPERATOR_LEFTSQUAREBRACKET);
-        
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText(), OPERATOR_LEFTSQUAREBRACKET);
+
         OPERATOR_RIGHTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText(),OPERATOR_RIGHTSQUAREBRACKET);
-        
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText(), OPERATOR_RIGHTSQUAREBRACKET);
+
         OPERATOR_VERTICALBAR = new OperatorContainer(Operator.METAOPERATOR_VERTICAL_BAR);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(),OPERATOR_VERTICALBAR);
-        
+        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(), OPERATOR_VERTICALBAR);
+
         SYSTEM_OPERATORS.clear();
         SYSTEM_OPERATORS_PREFIXES.clear();
 
@@ -1242,7 +1231,7 @@ public class PrologParser {
         SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_BRACKET.getText());
         SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText());
         SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_VERTICAL_BAR.getText());
-        
+
         final PrologOperators operators = PrologParser.class.getAnnotation(PrologOperators.class);
         if (operators != null) {
             final StringBuilder accum = new StringBuilder(10);

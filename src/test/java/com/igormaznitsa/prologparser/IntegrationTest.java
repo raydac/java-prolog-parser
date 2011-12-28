@@ -36,6 +36,43 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 
 public class IntegrationTest extends AbstractPrologParserTest {
 
+        private static class StubContext implements ParserContext {
+
+            private final Map<String,OperatorContainer> operators;
+            
+            public StubContext(final Map<String,OperatorContainer> operators){
+                this.operators = operators;
+            }
+            
+            @Override
+            public boolean hasOperatorStartsWith(final PrologParser source,
+                    final String operatorNameStartSubstring) {
+                for (final String string : operators.keySet()) {
+                    if (string.startsWith(operatorNameStartSubstring)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            @Override
+            public OperatorContainer findOperatorForName(final PrologParser source,
+                    final String operatorName) {
+                return operators.get(operatorName);
+            }
+
+            @Override
+            public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
+                return false;
+            }
+
+            @Override
+            public void processNewStructure(final PrologParser source, final PrologStructure structure) {
+            }
+        };
+
+    
     final ParserContext mock = mock(ParserContext.class);
     final PrologParser parser = new PrologParser(mock);
 
@@ -397,36 +434,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
         operators.put(secondOperator.getText(), new OperatorContainer(secondOperator));
         operators.put(thirdOperator.getText(), new OperatorContainer(thirdOperator));
 
-        final ParserContext contextStub = new ParserContext() {
-
-            @Override
-            public boolean hasOperatorStartsWith(final PrologParser source,
-                    final String operatorNameStartSubstring) {
-                for (final String string : operators.keySet()) {
-                    if (string.startsWith(operatorNameStartSubstring)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            @Override
-            public OperatorContainer findOperatorForName(final PrologParser source,
-                    final String operatorName) {
-                return operators.get(operatorName);
-            }
-
-            @Override
-            public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
-                return false;
-            }
-
-            @Override
-            public void processNewStructure(final PrologParser source, final PrologStructure structure) {
-            }
-        };
-
+        final StubContext contextStub = new StubContext(operators);
         final PrologParser parser = new PrologParser(contextStub);
         final AbstractPrologTerm term = parser.nextSentence("+++++++++++ 3.");
 
@@ -440,35 +448,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     public void testOperatorHierarchy() throws Exception {
         final Map<String, OperatorContainer> operators = new HashMap<String, OperatorContainer>();
 
-        final ParserContext contextStub = new ParserContext() {
-
-            @Override
-            public boolean hasOperatorStartsWith(final PrologParser source,
-                    final String operatorNameStartSubstring) {
-                for (final String string : operators.keySet()) {
-                    if (string.startsWith(operatorNameStartSubstring)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            @Override
-            public OperatorContainer findOperatorForName(final PrologParser source,
-                    final String operatorName) {
-                return operators.get(operatorName);
-            }
-
-            @Override
-            public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
-                return false;
-            }
-
-            @Override
-            public void processNewStructure(final PrologParser source, final PrologStructure structure) {
-            }
-        };
+        final StubContext contextStub = new StubContext(operators);
 
         final PrologParser parser = new PrologParser(contextStub);
 
@@ -665,6 +645,18 @@ public class IntegrationTest extends AbstractPrologParserTest {
         assertEquals("not", structure.getElement(0).getText());
         assertEquals(PrologTermType.ATOM, structure.getElement(1).getType());
         assertEquals("stream", structure.getElement(1).getText());
-
     }
+
+    @Test
+    public void testRecognizingUserOperatorsWhichSimilarMetaOperators() throws Exception {
+        final Map<String,OperatorContainer> operators = new HashMap<String,OperatorContainer>();
+        operators.put("(((", new OperatorContainer(Operator.makeOperator(1, OperatorType.FX, "(((")));
+        operators.put("...", new OperatorContainer(Operator.makeOperator(1200, OperatorType.XF, "...")));
+        final StubContext stubContext = new StubContext(operators);
+        
+        final PrologStructure structure = (PrologStructure) new PrologParser(stubContext).nextSentence("(((hello....");
+        assertEquals("Must be '...' operator","...",structure.getFunctor().getText());
+        assertEquals("Must be '(((' operator","(((",((PrologStructure)structure.getElement(0)).getFunctor().getText());
+        assertEquals("Must be 'hello' atom","hello",((PrologStructure)structure.getElement(0)).getElement(0).getText());
+     }
 }

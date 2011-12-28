@@ -38,22 +38,22 @@ public final class Operator extends AbstractPrologTerm {
      * Describes the left bracket meta-operator ('(')
      * @since 1.02
      */
-    public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.XFX, "("); 
+    public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "("); 
     /**
      * Describes the right bracket meta-operator (')')
      * @since 1.02
      */
-    public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XFX, ")"); 
+    public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")"); 
     /**
      * Describes the left square bracket meta-operator ('[')
      * @since 1.02
      */
-    public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XFX, "["); 
+    public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "["); 
     /**
      * Describes the right square bracket meta-operator (']')
      * @since 1.02
      */
-    public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XFX, "]"); 
+    public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]"); 
     /**
      * Describes the dot meta-operator ('.')
      * @since 1.02

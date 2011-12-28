@@ -301,7 +301,7 @@ final class PrologTokenizer {
                                 state = TokenizerState.VARIABLE;
                             } else {
                                 letterOrDigitOnly = Character.isLetterOrDigit(chr);
-                                String operator = Character.toString(chr);
+                                final String operator = Character.toString(chr);
                                 if (hasOperatorStartsWith(operator, parser)) {
                                     lastFoundFullOperator = findOperatorForName(
                                             operator, parser);
