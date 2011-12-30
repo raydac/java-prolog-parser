@@ -19,7 +19,6 @@ package com.igormaznitsa.prologparser;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
+import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -48,6 +48,7 @@ import com.igormaznitsa.prologparser.utils.AssertionUtils;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.03
  */
+@SuppressWarnings("serial")
 @PrologOperators(Operators = {
     @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
     @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
@@ -114,43 +115,43 @@ public class PrologParser {
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_COMMA;
+    private static OperatorContainer OPERATOR_COMMA;
     /**
      * Inside link to the system '(' operator
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_LEFTBRACKET;
+    private static OperatorContainer OPERATOR_LEFTBRACKET;
     /**
      * Inside link to the system ')' operator
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_RIGHTBRACKET;
+    private static OperatorContainer OPERATOR_RIGHTBRACKET;
     /**
      * Inside link to the system '[' operator
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
+    private static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
     /**
      * Inside link to the system ']' operator
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
+    private static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
     /**
      * Inside link to the system '.' operator
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_DOT;
+    private static OperatorContainer OPERATOR_DOT;
     /**
      * Inside link to the '|' operator
      * 
      * @since 1.00
      */
-    static OperatorContainer OPERATOR_VERTICALBAR;
+    private static OperatorContainer OPERATOR_VERTICALBAR;
 
     static {
         initSystemOperatorsFromClassAnnotations();
@@ -265,7 +266,7 @@ public class PrologParser {
          *            the string position of the read stream
          * @since 1.00
          */
-        private TreeItem(final PrologParser builder,
+        TreeItem(final PrologParser builder,
                 final AbstractPrologTerm term, final boolean insideBrakes,
                 final int lineNum, final int strPos) {
             this.parser = builder;
@@ -490,8 +491,7 @@ public class PrologParser {
                         return (leftBranch != null && leftBranch.getPriority() <= priority)
                                 && (rightBranch != null && rightBranch.getPriority() < priority);
                     default:
-                        throw new Error(
-                                "Unknown operator type, it's a conceptual programming error");
+                        throw new CriticalSoftwareDefectError();
                 }
             } else {
                 return leftBranch == null && rightBranch == null;
@@ -522,23 +522,25 @@ public class PrologParser {
                                 wrapper.getStrPosition());
                     }
 
-                    final AbstractPrologTerm left = leftBranch != null ? leftBranch.convertTreeItemIntoTerm() : null;
-                    final AbstractPrologTerm right = rightBranch != null ? rightBranch.convertTreeItemIntoTerm() : null;
+                    final AbstractPrologTerm left = leftBranch == null ? null: leftBranch.convertTreeItemIntoTerm();
+                    final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
                     if (left == null && right == null) {
                         throw new PrologParserException(
                                 "Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
                     }
 
                     // this code replaces '-'(number) to '-number'
-                    if ("-".equals(wrapper.getText()) && left == null) {
-                        if (right.getType() == PrologTermType.ATOM
-                                && right instanceof AbstractPrologNumericTerm) {
-                            result = ((AbstractPrologNumericTerm) right).neg();
-                            break;
-                        }
+                    if ("-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM
+                            && right instanceof AbstractPrologNumericTerm) {
+                        result = ((AbstractPrologNumericTerm) right).neg();
+                        break;
                     }
 
-                    if (left != null) {
+                    if (left == null) {
+                        operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(),
+                                new AbstractPrologTerm[]{right});
+                    }else
+                    {
                         if (right == null) {
                             operatorStruct = new PrologStructure(
                                     (Operator) wrapper.getWrappedTerm(),
@@ -548,9 +550,6 @@ public class PrologParser {
                                     (Operator) wrapper.getWrappedTerm(), new AbstractPrologTerm[]{
                                         left, right});
                         }
-                    } else {
-                        operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(),
-                                new AbstractPrologTerm[]{right});
                     }
 
                     operatorStruct.setStrPosition(wrapper.getStrPosition());
@@ -861,7 +860,7 @@ public class PrologParser {
                 // all good and we read next block
                 checkForNull(block, "List element not found", nextAtom);
             } else {
-                throw new Error("Nonprocessd state at list definition");
+                throw new CriticalSoftwareDefectError();
             }
 
             if (leftPartFirst.isNullList()) {
@@ -975,12 +974,14 @@ public class PrologParser {
                         boolean leftPresented = false;
 
                         if (currentTreeItem != null) {
-                            if (currentTreeItem.getType() != PrologTermType.OPERATOR) {
-                                leftPresented = true;
-                            } else {
+                            if (currentTreeItem.getType() == PrologTermType.OPERATOR) 
+                            {
                                 if (currentTreeItem.getRightBranch() != null) {
                                     leftPresented = true;
                                 }
+                            }else
+                            {
+                                leftPresented = true;
                             }
                         }
 
@@ -1116,21 +1117,18 @@ public class PrologParser {
                                     currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
                                     break;
                                 default:
-                                    throw new Error("Unknown operator type");
+                                    throw new CriticalSoftwareDefectError();
                             }
                         }
 
                     } else if (currentTreeItem.getPriority() > readAtomPriority) {
                         // new has great priority
-                        if (readAtomTreeItem.getType() != PrologTermType.OPERATOR) {
-                            // it's a ground atom
-                            // so check that the right branch is empty
-                            if (currentTreeItem.getRightBranch() != null) {
-                                throw new PrologParserException(
-                                        "There is not any operator before the atom",
-                                        readAtomContainer.getLineNumber(),
-                                        readAtomContainer.getStringPosition());
-                            }
+                        if (readAtomTreeItem.getType() != PrologTermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
+                            // it's a ground atom and its right branch is not empty
+                            throw new PrologParserException(
+                                    "There is not any operator before the atom",
+                                    readAtomContainer.getLineNumber(),
+                                    readAtomContainer.getStringPosition());
                         }
                         // make it as right
                         currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);

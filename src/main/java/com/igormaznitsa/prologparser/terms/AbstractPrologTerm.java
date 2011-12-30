@@ -26,6 +26,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.02
  */
+@SuppressWarnings("serial")
 public abstract class AbstractPrologTerm {
 
     /**

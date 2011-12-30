@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser;
 
+import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import java.io.IOException;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
@@ -36,6 +37,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.02
  */
+@SuppressWarnings("serial")
 final class PrologTokenizer {
 
     /**
@@ -245,7 +247,7 @@ final class PrologTokenizer {
                                     state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     case VARIABLE:
-                        if (str.equals("_")) {
+                        if ("_".equals(str)) {
                             return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         } else {
                             return new TokenizerResult(new PrologVariable(str),
@@ -265,7 +267,7 @@ final class PrologTokenizer {
                             return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     default:
-                        throw new Error("Unknown reader state");
+                        throw new CriticalSoftwareDefectError();
                 }
             }
 
@@ -398,11 +400,11 @@ final class PrologTokenizer {
                             && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
                         reader.pushCharBack(chr);
 
-                        if (lastFoundFullOperator != null) {
-                            return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
-                        } else {
+                        if (lastFoundFullOperator == null) {
                             return new TokenizerResult(makeTermFromString(
                                     strbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                        } else {
+                            return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     } else {
                         final OperatorContainer prevoperators = lastFoundFullOperator;
@@ -410,29 +412,7 @@ final class PrologTokenizer {
                         final String operator = strbuffer.toString();
                         lastFoundFullOperator = findOperatorForName(operator,
                                 parser);
-                        if (prevoperators != null) {
-                            if (lastFoundFullOperator == null) {
-                                if (!hasOperatorStartsWith(operator, parser)) {
-                                    if (letterOrDigitOnly) {
-                                        state = TokenizerState.ATOM;
-                                    } else {
-                                        reader.calculateDifferenceAndPushTheResultBack(
-                                                prevoperators.getText(), strbuffer);
-                                        return new TokenizerResult(prevoperators,
-                                                state, getLastTokenStrPos(), getLastTokenLineNum());
-                                    }
-                                } else {
-                                    lastFoundFullOperator = prevoperators;
-                                }
-
-                            } else {
-                                if (!hasOperatorStartsWith(operator, parser)) {
-                                    reader.calculateDifferenceAndPushTheResultBack(
-                                            prevoperators.getText(), strbuffer);
-                                    return new TokenizerResult(prevoperators, state, getLastTokenStrPos(), getLastTokenLineNum());
-                                }
-                            }
-                        } else {
+                        if (prevoperators == null) {
                             if (!hasOperatorStartsWith(operator, parser)) {
                                 if (hasOperatorStartsWith(Character.toString(chr),
                                         parser)) {
@@ -443,6 +423,27 @@ final class PrologTokenizer {
                                     reader.pushCharBack(chr);
                                 }
                                 state = TokenizerState.ATOM;
+                            }
+                        } else {
+                            if (lastFoundFullOperator == null) {
+                                if (hasOperatorStartsWith(operator, parser)) {
+                                    lastFoundFullOperator = prevoperators;
+                                } else {
+                                    if (letterOrDigitOnly) {
+                                        state = TokenizerState.ATOM;
+                                    } else {
+                                        reader.calculateDifferenceAndPushTheResultBack(
+                                                prevoperators.getText(), strbuffer);
+                                        return new TokenizerResult(prevoperators,
+                                                state, getLastTokenStrPos(), getLastTokenLineNum());
+                                    }
+                                }
+                            } else {
+                                if (!hasOperatorStartsWith(operator, parser)) {
+                                    reader.calculateDifferenceAndPushTheResultBack(
+                                            prevoperators.getText(), strbuffer);
+                                    return new TokenizerResult(prevoperators, state, getLastTokenStrPos(), getLastTokenLineNum());
+                                }
                             }
                         }
                     }
@@ -497,14 +498,14 @@ final class PrologTokenizer {
                 case VARIABLE:
                     if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
                         final String name = strbuffer.toString();
-                        if (name.equals("_")) {
+                        if ("_".equals(name)) {
                             return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                         return new TokenizerResult(new PrologVariable(name), state, getLastTokenStrPos(), getLastTokenLineNum());
                     } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
                         reader.pushCharBack(chr);
                         final String name = strbuffer.toString();
-                        if (name.equals("_")) {
+                        if ("_".equals(name)) {
                             return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                         return new TokenizerResult(new PrologVariable(name), state, getLastTokenStrPos(), getLastTokenLineNum());
@@ -513,7 +514,7 @@ final class PrologTokenizer {
                     }
                     break;
                 default:
-                    throw new Error("Unexpected state detected");
+                    throw new CriticalSoftwareDefectError();
             }
         }
     }
@@ -610,10 +611,10 @@ final class PrologTokenizer {
         OperatorContainer result = null;
 
         // check metaoperators as the first ones
-        if (operatorName.length() == 1){
+        if (operatorName.length() == 1) {
             result = PrologParser.META_SYSTEM_OPERATORS.get(operatorName);
         }
-        
+
         // check user defined operators because a user can replace a system operator
         if (result == null && parser != null) {
             final ParserContext ctx = parser.getContext();

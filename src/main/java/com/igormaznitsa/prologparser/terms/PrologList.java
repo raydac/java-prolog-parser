@@ -251,7 +251,7 @@ public final class PrologList extends PrologStructure {
      * @return new list or the last list in the chain.
      * @since 1.00
      */
-    public final PrologList addAsNewListToEndOfListChain(
+    public PrologList addAsNewListToEndOfListChain(
             final AbstractPrologTerm term) {
         checkNotNull("The term is null", term);
 
@@ -267,7 +267,7 @@ public final class PrologList extends PrologStructure {
                     current.setTail(new PrologList());
                     return current;
                 } else {
-                    AbstractPrologTerm ltail = current.getTail();
+                    final AbstractPrologTerm ltail = current.getTail();
                     if (ltail.getType() == PrologTermType.LIST) {
                         current = (PrologList) ltail;
                         continue;
@@ -290,7 +290,7 @@ public final class PrologList extends PrologStructure {
      *            chain, must not be null
      * @since 1.00
      */
-    public final void replaceLastElement(
+    public void replaceLastElement(
             final AbstractPrologTerm elementToReplace) {
         checkNotNull("The element is null", elementToReplace);
 
@@ -329,7 +329,7 @@ public final class PrologList extends PrologStructure {
         String result = "[]";
 
         if (!isNullList()) {
-            StringBuilder builder = new StringBuilder("[");
+            final StringBuilder builder = new StringBuilder("[");
 
             boolean notfirst = false;
             AbstractPrologTerm list = this;
@@ -362,7 +362,7 @@ public final class PrologList extends PrologStructure {
             }
 
             builder.append(']');
-            return builder.toString();
+            result = builder.toString();
 
         }
         return result;

@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
+import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
@@ -33,6 +34,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @see PrologOperator
  * @see PrologOperators
  */
+@SuppressWarnings("serial")
 public final class Operator extends AbstractPrologTerm {
     /**
      * Describes the left bracket meta-operator ('(')
@@ -63,7 +65,7 @@ public final class Operator extends AbstractPrologTerm {
      * Describes the vertical bar meta-operator ('|')
      * @since 1.02
      */
-    public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(1105, OperatorType.XFY, "|");
+    public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE-1, OperatorType.XFY, "|");
     
     /**
      * The constant describes the maximum priority for a prolog operator.
@@ -148,7 +150,7 @@ public final class Operator extends AbstractPrologTerm {
      * @return the new generated operator instance
      * @since 1.02
      */
-    static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
+    private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
         checkNotNull("Type is null", type);
         checkNotNull("Name array is null", name);
         return new Operator(priority, type, name);
@@ -269,7 +271,7 @@ public final class Operator extends AbstractPrologTerm {
                         }
                         break;
                         default:
-                            throw new Error("Unsupported type detected");
+                            throw new CriticalSoftwareDefectError();
                     }
                     break;
                 case 2:
@@ -326,8 +328,7 @@ public final class Operator extends AbstractPrologTerm {
                         }
                         break;
                         default:
-                            throw new Error("Unsupported type detected");
-
+                            throw new CriticalSoftwareDefectError();
                     }
 
                     break;

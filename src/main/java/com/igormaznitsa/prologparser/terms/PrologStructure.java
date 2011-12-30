@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import java.util.Arrays;
 
 import com.igormaznitsa.prologparser.operators.Operator;
@@ -28,6 +29,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.02
  */
+@SuppressWarnings("serial")
 public class PrologStructure extends AbstractPrologTerm {
 
     /**
@@ -391,18 +393,15 @@ public class PrologStructure extends AbstractPrologTerm {
                 }
                 break;
                 default:
-                    throw new Error(
-                            "Unsupported operator type detected, it is a programming error.");
+                    throw new CriticalSoftwareDefectError();
             }
 
         } else {
             String functorText = functor.getText();
 
-            if (functorText.equals("!")) {
+            if ("!".equals(functorText) && getArity() == 0) {
                 // special structure detected
-                if (getArity() == 0) {
-                    return functorText;
-                }
+                return functorText;
             }
 
             // just structure

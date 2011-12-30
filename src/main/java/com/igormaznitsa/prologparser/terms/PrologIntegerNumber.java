@@ -29,6 +29,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * 
  * @see BigInteger
  */
+@SuppressWarnings("serial")
 public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 
     /**

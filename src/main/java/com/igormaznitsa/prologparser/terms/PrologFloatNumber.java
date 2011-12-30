@@ -31,6 +31,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * 
  * @see BigDecimal
  */
+@SuppressWarnings("serial")
 public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 
     /**

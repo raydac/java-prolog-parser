@@ -32,6 +32,7 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * @see Operator
  * @see OperatorContainer
  */
+@SuppressWarnings("serial")
 class PrologTermWrapper extends AbstractPrologTerm {
 
     private final AbstractPrologTerm wrappedTerm;

@@ -23,6 +23,7 @@ package com.igormaznitsa.prologparser.terms;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.01
  */
+@SuppressWarnings("serial")
 public final class PrologVariable extends AbstractPrologTerm {
 
     /**

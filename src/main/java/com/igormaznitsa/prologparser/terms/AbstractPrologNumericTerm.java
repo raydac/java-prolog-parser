@@ -26,6 +26,7 @@ package com.igormaznitsa.prologparser.terms;
  * @see PrologIntegerNumber
  * @see PrologFloatNumber
  */
+@SuppressWarnings("serial")
 public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
 
     /**

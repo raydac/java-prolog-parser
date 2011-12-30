@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.operators;
 
+import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
@@ -28,6 +29,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.01
  */
+@SuppressWarnings("serial")
 public final class OperatorContainer extends AbstractPrologTerm {
 
     /**
@@ -104,8 +106,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
                 numberAtContainer++;
                 break;
             default:
-                throw new Error(
-                        "Programming error detected, Unsupported operator type");
+                throw new CriticalSoftwareDefectError();
         }
         return true;
     }
@@ -269,7 +270,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
                 }
                 break;
             default:
-                throw new Error("Unsupported operator type");
+                throw new CriticalSoftwareDefectError();
         }
 
         if (result != null && result.getOperatorType() == type) {
@@ -289,20 +290,25 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @since 1.00
      */
     public Operator getOperatorForSimilarType(final OperatorType type) {
+        Operator result = null;
         switch (type) {
             case FX:
             case FY:
-                return opFZ;
+                result = opFZ;
+                break;
             case XF:
             case YF:
-                return opZF;
+                result = opZF;
+                break;
             case XFX:
             case YFX:
             case XFY:
-                return opZFZ;
+                result = opZFZ;
+                break;
             default:
-                throw new Error("Unsupported type");
+                throw new CriticalSoftwareDefectError();
         }
+        return result;
     }
 
     /**
@@ -340,7 +346,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
                 }
                 break;
             default:
-                throw new Error("Unsupported type detected, it's a conceptual error!");
+                throw new CriticalSoftwareDefectError();
         }
         return result;
     }

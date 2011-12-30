@@ -28,6 +28,7 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.01
  */
+@SuppressWarnings("serial")
 public final class TokenizerResult {
 
     /**

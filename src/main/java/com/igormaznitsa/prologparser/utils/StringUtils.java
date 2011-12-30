@@ -25,8 +25,10 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @version 1.00
  */
-public final class StringUtils {
-
+@SuppressWarnings("serial")
+public enum StringUtils {
+    ;
+        
     /**
      * It is a parameterized class allows to make a container saves a mutable
      * value (I mean that the value can be changed). The class is not a thread
@@ -87,13 +89,6 @@ public final class StringUtils {
     }
 
     /**
-     * The constructor. It is a private one to disable making of class
-     * instances.
-     */
-    private StringUtils() {
-    }
-
-    /**
      * The function can convert a string value describes a special escape char
      * into its code. To understand that the string has been decoded
      * successfully you can if the result has non-null value and the function
@@ -123,47 +118,48 @@ public final class StringUtils {
         final int len = afterString.length();
 
         if (len == 1) {
+            boolean flag = true;
             switch (afterString.charAt(0)) {
                 case 'a':
                     result.set((char) 7);
-                    return true;
+                    break;
                 case 'b':
                     result.set((char) 8);
-                    return true;
+                    break;
                 case 'n':
                     result.set('\n');
-                    return true;
+                    break;
                 case 'r':
                     result.set('\r');
-                    return true;
+                    break;
                 case 'e':
                     result.set((char) 27);
-                    return true;
+                    break;
                 case 't':
                     result.set('\t');
-                    return true;
+                    break;
                 case 's':
                     result.set((char) 32);
-                    return true;
+                    break;
                 case 'v':
                     result.set((char) 11);
-                    return true;
+                    break;
                 case '\\':
                     result.set('\\');
-                    return true;
+                    break;
                 case '\'':
                     result.set('\'');
-                    return true;
-
+                    break;
                 case 'u':
                 case 'x':
                     result.set(null);
-                    return true;
-
+                    break;
                 default:
                     result.set(null);
-                    return false;
+                    flag = false;
+                    break;
             }
+            return flag;
         } else {
             switch (afterString.charAt(0)) {
                 case 'u': {
