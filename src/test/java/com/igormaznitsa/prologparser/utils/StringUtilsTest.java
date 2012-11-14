@@ -1,11 +1,9 @@
 package com.igormaznitsa.prologparser.utils;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.utils.StringUtils.Mutable;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class StringUtilsTest extends AbstractPrologParserTest {
 

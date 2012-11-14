@@ -1,15 +1,13 @@
 package com.igormaznitsa.prologparser.operators;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class OperatorTest extends AbstractPrologParserTest {
 
@@ -226,25 +224,5 @@ public class OperatorTest extends AbstractPrologParserTest {
     public void testGetText() {
         assertEquals("<>", Operator.makeOperator(121, OperatorType.FX, "<>").getText());
         assertEquals("><", Operator.makeOperator(121, OperatorType.XFX, "><").getText());
-    }
-
-    @Test
-    public void testSetStrPosition() {
-        final Operator opFX = Operator.makeOperator(100, OperatorType.FX, "><");
-        try {
-            opFX.setStrPosition(10);
-            fail("Must throw UOE because the operation restricted");
-        } catch (UnsupportedOperationException ex) {
-        }
-    }
-
-    @Test
-    public void testSetLineNumber() {
-        final Operator opFX = Operator.makeOperator(100, OperatorType.FX, "><");
-        try {
-            opFX.setLineNumber(12);
-            fail("Must throw UOE because the operation restricted");
-        } catch (UnsupportedOperationException ex) {
-        }
     }
 }

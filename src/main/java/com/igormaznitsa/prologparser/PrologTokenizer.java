@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -18,65 +18,50 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
-import java.io.IOException;
-
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
-import com.igormaznitsa.prologparser.utils.StringUtils;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import com.igormaznitsa.prologparser.utils.StringUtils;
+import java.io.IOException;
 
 /**
  * The class implements an intermediate tokenizer between a data stream and a
  * prolog parser.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.02
  */
-@SuppressWarnings("serial")
 final class PrologTokenizer {
 
     /**
      * The variable contains the last pushed term. The term has been read
-     * already but the reader pushed it back to reread it lately
-     * 
-     * @since 1.00
+     * already but the reader pushed it back to reread it lately.
      */
     TokenizerResult lastPushedTerm;
     /**
-     * The variable contains the previous value of the read token line number
-     * 
-     * @since 1.00
+     * The variable contains the previous value of the read token line number.
      */
     int prevReadTokenLineNum;
     /**
      * The variable contains the previous value of the read token string
-     * position
-     * 
-     * @since 1.00
+     * position.
      */
     int prevReadTokenStrPos;
     /**
-     * The variable contains the last value of the read token line number
-     * 
-     * @since 1.00
+     * The variable contains the last value of the read token line number.
      */
     int lastReadTokenLineNum;
     /**
-     * The variable contains the last value of the read token string position
-     * 
-     * @since 1.00
+     * The variable contains the last value of the read token string position.
      */
     int lastReadTokenStrPos;
 
     /**
-     * The constructor
-     * 
-     * @since 1.00
+     * The constructor.
      */
     PrologTokenizer() {
         super();
@@ -84,11 +69,9 @@ final class PrologTokenizer {
 
     /**
      * Push a read object back into buffer to read it lately
-     * 
-     * @param object
-     *            the object to be pushed back into buffer, null will clear the
-     *            buffer
-     * @since 1.00
+     *
+     * @param object the object to be pushed back into buffer, null will clear
+     * the buffer.
      */
     void pushTermBack(final TokenizerResult object) {
         if (lastPushedTerm != null) {
@@ -100,22 +83,17 @@ final class PrologTokenizer {
     /**
      * Peek the next token from the incoming stream. The token will be read but
      * after it will be saved into the inside variable to be read in next step.
-     * 
-     * @param reader
-     *            the reader to read char data, must not be null
-     * @param parser
-     *            the parser reading the stream, it can be
-     *            null
+     *
+     * @param reader the reader to read char data, must not be null
+     * @param parser the parser reading the stream, it can be null
      * @return a read token as a ProlTokenizerResult, or null if there is not
-     *         any more token in the stream
-     * @throws IOException
-     *             it will be throws if there is any transport problem
-     * @since 1.02
+     * any more token in the stream
+     * @throws IOException it will be throws if there is any transport problem
      */
     TokenizerResult peekToken(final PrologCharDataSource reader,
             final PrologParser parser) throws PrologParserException,
             IOException {
-        TokenizerResult result = null;
+        TokenizerResult result;
         if (lastPushedTerm == null) {
             result = nextToken(reader, parser);
             pushTermBack(result);
@@ -127,9 +105,8 @@ final class PrologTokenizer {
 
     /**
      * Get the string position of the last read token
-     * 
+     *
      * @return the string position for the last read token as integer
-     * @since 1.00
      */
     int getLastTokenStrPos() {
         return lastPushedTerm == null ? lastReadTokenStrPos
@@ -138,9 +115,8 @@ final class PrologTokenizer {
 
     /**
      * Get the line number for the last read token
-     * 
+     *
      * @return the line number for the last read token as integer
-     * @since 1.00
      */
     int getLastTokenLineNum() {
         return lastPushedTerm == null ? lastReadTokenLineNum
@@ -149,11 +125,9 @@ final class PrologTokenizer {
 
     /**
      * Inside function to fix current read string and line positions.
-     * 
-     * @param reader
-     *            the reader which position must be fixed within inside
-     *            variables, must not be null
-     * @since 1.00
+     *
+     * @param reader the reader which position must be fixed within inside
+     * variables, must not be null
      */
     void fixPosition(final PrologCharDataSource reader) {
         prevReadTokenLineNum = lastReadTokenLineNum;
@@ -164,13 +138,10 @@ final class PrologTokenizer {
 
     /**
      * Skip all characters until the next line detected
-     * 
-     * @param reader
-     *            the source for char data, must not be null
-     * @throws IOException
-     *             it will be thrown if there is any transport problem during
-     *             the operation
-     * @since 1.00
+     *
+     * @param reader the source for char data, must not be null
+     * @throws IOException it will be thrown if there is any transport problem
+     * during the operation
      */
     void skipUntilNextString(final PrologCharDataSource reader)
             throws IOException {
@@ -184,19 +155,15 @@ final class PrologTokenizer {
 
     /**
      * Read the next token from a reader
-     * 
-     * @param reader
-     *            the reader to be used as the char data source, must not be
-     *            null
-     * @param parser
-     *            the prolog parser calling reading the stream, it can
-     *            be null
+     *
+     * @param reader the reader to be used as the char data source, must not be
+     * null
+     * @param parser the prolog parser calling reading the stream, it can be
+     * null
      * @return the next token found at the stream as a ProlTokenizerResult
-     *         object or null if the end of the stream has been reached
-     * @throws IOException
-     *             it will be thrown if there is any transport error during the
-     *             operation
-     * @since 1.02
+     * object or null if the end of the stream has been reached
+     * @throws IOException it will be thrown if there is any transport error
+     * during the operation
      */
     TokenizerResult nextToken(final PrologCharDataSource reader,
             final PrologParser parser) throws PrologParserException,
@@ -521,19 +488,16 @@ final class PrologTokenizer {
 
     /**
      * Inside auxiliary function to make a term from a String
-     * 
-     * @param string
-     *            the source string object, must not be null
-     * @param state
-     *            the state of inside state machine which was set during the
-     *            term reading
+     *
+     * @param string the source string object, must not be null
+     * @param state the state of inside state machine which was set during the
+     * term reading
      * @return a Term object as the result, not-null value will be returned
-     *         anyway
-     * @since 1.00
+     * anyway
      */
     AbstractPrologTerm makeTermFromString(final String string,
             final TokenizerState state) {
-        AbstractPrologTerm result = null;
+        AbstractPrologTerm result;
 
         switch (state) {
             case INTEGER:
@@ -564,13 +528,11 @@ final class PrologTokenizer {
     /**
      * Function allows to check that there is an operator starts with a string,
      * as the first it checks the system operators then call the prolog context.
-     * 
-     * @param operatorNameStartSubstring
-     *            the start substring to be checked as the operator start name,
-     *            must not be null
-     * @param parser  a prolog parser which context will be used, it can be null
+     *
+     * @param operatorNameStartSubstring the start substring to be checked as
+     * the operator start name, must not be null
+     * @param parser a prolog parser which context will be used, it can be null
      * @return true if there is any operator starts with the string, else false
-     * @since 1.02
      */
     static boolean hasOperatorStartsWith(
             final String operatorNameStartSubstring,
@@ -597,12 +559,11 @@ final class PrologTokenizer {
     /**
      * Function to find an operator for its name, as the first it will search
      * among system operators then in the prolog context.
-     * 
-     * @param operatorName
-     *            an operator name to be used for search, must not be null
+     *
+     * @param operatorName an operator name to be used for search, must not be
+     * null
      * @param parser a prolog parser which context will be used, it can be null
      * @return an OperatorContainer if the operator is presented, else null
-     * @since 1.02
      */
     static OperatorContainer findOperatorForName(final String operatorName,
             final PrologParser parser) {

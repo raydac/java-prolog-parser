@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -29,54 +29,43 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * The class describes a prolog operator for the prolog parser.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.02
- * 
  * @see PrologOperator
  * @see PrologOperators
  */
-@SuppressWarnings("serial")
 public final class Operator extends AbstractPrologTerm {
+    private static final long serialVersionUID = -5954317427778538548L;
+    
     /**
      * Describes the left bracket meta-operator ('(')
-     * @since 1.02
      */
     public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "("); 
     /**
      * Describes the right bracket meta-operator (')')
-     * @since 1.02
      */
     public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")"); 
     /**
      * Describes the left square bracket meta-operator ('[')
-     * @since 1.02
      */
     public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "["); 
     /**
      * Describes the right square bracket meta-operator (']')
-     * @since 1.02
      */
     public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]"); 
     /**
      * Describes the dot meta-operator ('.')
-     * @since 1.02
      */
     public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, "."); 
     /**
      * Describes the vertical bar meta-operator ('|')
-     * @since 1.02
      */
     public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE-1, OperatorType.XFY, "|");
     
     /**
      * The constant describes the maximum priority for a prolog operator.
-     * 
-     * @since 1.00
      */
     public static final int PRIORITY_MAX = 0;
     /**
      * The constant describes the minimum priority for a prolog operator.
-     * 
-     * @since 1.00
      */
     public static final int PRIORITY_MIN = 1200;
     /**
@@ -84,11 +73,11 @@ public final class Operator extends AbstractPrologTerm {
      */
     private final OperatorType opType;
     /**
-     * The variable contains the operator priority value
+     * The variable contains the operator priority value.
      */
     private final int opPriority;
     /**
-     * The variable contains the pre-calculated hash code for the operator
+     * The variable contains the pre-calculated hash code for the operator.
      */
     private final int precalculatedHashCode;
 
@@ -107,7 +96,6 @@ public final class Operator extends AbstractPrologTerm {
      *         arguments and they have the same type and priority but different
      *         names.
      * @see OperatorType
-     * @since 1.00
      */
     public static Operator[] makeOperators(final int priority,
             final OperatorType type, final String[] names) {
@@ -132,7 +120,6 @@ public final class Operator extends AbstractPrologTerm {
      * @param name the operator name, must not be null or empty
      * @return the new generated operator instance for arguments
      * @throws IllegalArgumentException if there is a wrong priority value
-     * @since 1.02
      */
     public static Operator makeOperator(final int priority, final OperatorType type, final String name) {
         if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
@@ -148,7 +135,6 @@ public final class Operator extends AbstractPrologTerm {
      * @param type the operator type, it must not be null
      * @param name the operator name, it must not be null or empty
      * @return the new generated operator instance
-     * @since 1.02
      */
     private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
         checkNotNull("Type is null", type);
@@ -169,7 +155,6 @@ public final class Operator extends AbstractPrologTerm {
      *             will be thrown if there is some incompatible value at
      *             arguments
      * @see OperatorType
-     * @since 1.00
      * @see Operator#makeOperator(int, com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String) 
      * @see Operator#makeOperators(int, com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[]) 
      */
@@ -215,7 +200,6 @@ public final class Operator extends AbstractPrologTerm {
      * Get the type of the operator
      * 
      * @return the operator type
-     * @since 1.00
      */
     public OperatorType getOperatorType() {
         return opType;
@@ -236,7 +220,6 @@ public final class Operator extends AbstractPrologTerm {
      * @param struct
      *            the structure to be checked, must not be null
      * @return true if the operator is compatible with the structure else false
-     * @since 1.00
      */
     public boolean compatibleWith(final PrologStructure struct) {
         boolean result = false;
@@ -382,27 +365,5 @@ public final class Operator extends AbstractPrologTerm {
         return "op(" + getPriority() + ','
                 + getOperatorType().toString().toLowerCase() + ",\'"
                 + getText() + "\').";
-    }
-
-    /**
-     * The method is overridden to disable change of the string position for operator because it is a singleton.
-     * @param value the value doesn't make sense
-     * @throws UnsupportedOperationException will be thrown in any case of call
-     * @since 1.01 
-     */
-    @Override
-    public void setStrPosition(final int value) {
-        throw new UnsupportedOperationException("It is unsupported for operator");
-    }
-
-    /**
-     * The method is overridden to disable change of the line number for operator because it is a singleton.
-     * @param value the value doesn't make sense
-     * @throws UnsupportedOperationException will be thrown in any case of call
-     * @since 1.01 
-     */
-    @Override
-    public void setLineNumber(final int value) {
-        throw new UnsupportedOperationException("It is unsupported for operator");
     }
 }

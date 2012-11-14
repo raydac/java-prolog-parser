@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -18,43 +18,33 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
-import java.util.Arrays;
-
 import com.igormaznitsa.prologparser.operators.Operator;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import java.util.Arrays;
 
 /**
  * The class describes a prolog structure.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.02
  */
-@SuppressWarnings("serial")
 public class PrologStructure extends AbstractPrologTerm {
+    private static final long serialVersionUID = 9000641998734217154L;
 
     /**
      * An auxiliary constant contains an empty prolog term array
-     * 
-     * @since 1.00
      */
     public static final AbstractPrologTerm[] EMPTY_TERM_ARRAY = new AbstractPrologTerm[0];
     /**
      * An auxiliary constant contains an empty atom, as empty I mean that the
      * atom contains the empty string
-     * 
-     * @since 1.00
      */
     public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
     /**
      * The functor of the structure
-     * 
-     * @since 1.00
      */
     protected final AbstractPrologTerm functor;
     /**
      * The array contains structure elements
-     * 
-     * @since 1.00
      */
     protected final AbstractPrologTerm[] elements;
 
@@ -67,7 +57,6 @@ public class PrologStructure extends AbstractPrologTerm {
      * @param elements
      *            the elements of the new structure, must not be null and must
      *            not contain null (!)
-     * @since 1.00
      */
     public PrologStructure(final AbstractPrologTerm functor,
             final AbstractPrologTerm[] elements) {
@@ -101,7 +90,6 @@ public class PrologStructure extends AbstractPrologTerm {
      *            not contain null (!)
      * @param strPosition
      * @param lineNumber
-     * @since 1.02
      */
     public PrologStructure(final AbstractPrologTerm functor, final AbstractPrologTerm[] elements, final int strPosition, final int lineNumber) {
         this(functor, elements);
@@ -115,7 +103,6 @@ public class PrologStructure extends AbstractPrologTerm {
      * 
      * @param text
      *            the text to create the functor, must not be null
-     * @since 1.00
      */
     public PrologStructure(final String text) {
         this(new PrologAtom(text), 0);
@@ -126,7 +113,6 @@ public class PrologStructure extends AbstractPrologTerm {
      * @param text the text to create the functor, must not be null
      * @param strPosition the first term string position
      * @param lineNumber the first term char line number 
-     * @since 1.02
      */
     public PrologStructure(final String text, final int strPosition, final int lineNumber) {
         this(text);
@@ -140,7 +126,6 @@ public class PrologStructure extends AbstractPrologTerm {
      * 
      * @param functor
      *            a prolog term to be used as the functor, must not be null
-     * @since 1.00
      */
     public PrologStructure(final AbstractPrologTerm functor) {
         this(functor, 0);
@@ -154,7 +139,6 @@ public class PrologStructure extends AbstractPrologTerm {
      *            a prolog term to be used as the functor, must not be null
      * @param strPosition the first term char string position in the source stream
      * @param lineNumber the first term char line number in the source stream
-     * @since 1.02
      */
     public PrologStructure(final AbstractPrologTerm functor, final int strPosition, final int lineNumber) {
         this(functor);
@@ -171,7 +155,6 @@ public class PrologStructure extends AbstractPrologTerm {
      *            be null.
      * @param arity
      *            the arity of the new structure, must not be less than zero.
-     * @since 1.00
      */
     protected PrologStructure(final AbstractPrologTerm functor, final int arity) {
         super(functor.getText());
@@ -208,7 +191,6 @@ public class PrologStructure extends AbstractPrologTerm {
      *            the arity of the new structure, must not be less than zero.
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.02
      */
     protected PrologStructure(final AbstractPrologTerm functor, final int arity, final int strPosition, final int lineNumber) {
         this(functor, arity);
@@ -228,7 +210,6 @@ public class PrologStructure extends AbstractPrologTerm {
      * Get the arity of the structure
      * 
      * @return the arity as integer
-     * @since 1.00
      */
     public int getArity() {
         return elements.length;
@@ -241,7 +222,6 @@ public class PrologStructure extends AbstractPrologTerm {
      *            the index of the element, the first element is 0
      * @return the structure element at the needed position, it can't be null
      *         (!)
-     * @since 1.00
      */
     public AbstractPrologTerm getElement(final int index) {
         return elements[index];
@@ -254,7 +234,6 @@ public class PrologStructure extends AbstractPrologTerm {
      *            the position of the element, the first is 0
      * @param term
      *            the term to be set into the position, must not be null
-     * @since 1.00
      */
     public void setElement(final int index, final AbstractPrologTerm term) {
         if (index < 0 || index >= getArity()) {
@@ -268,7 +247,6 @@ public class PrologStructure extends AbstractPrologTerm {
      * Get the functor of the structure
      * 
      * @return the functor
-     * @since 1.00
      */
     public AbstractPrologTerm getFunctor() {
         return functor;

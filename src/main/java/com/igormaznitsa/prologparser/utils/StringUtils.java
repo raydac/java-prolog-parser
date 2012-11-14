@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -21,9 +21,8 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
  * The class contains misc auxiliary string functions and classes.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
  */
 @SuppressWarnings("serial")
 public enum StringUtils {
@@ -35,7 +34,6 @@ public enum StringUtils {
      * safe one.
      * 
      * @author Igor Maznitsa (http://www.igormaznitsa.com)
-     * @version 1.00
      * @param <T>
      *            the class of a carried object
      */
@@ -48,8 +46,6 @@ public enum StringUtils {
 
         /**
          * A Constructor. It allows to create a container with null.
-         * 
-         * @since 1.0
          */
         public Mutable() {
             value = null;
@@ -57,10 +53,9 @@ public enum StringUtils {
 
         /**
          * A Constructor. It allows to create a container for a defined value.
-         * 
-         * @param initValue
-         *            the init value for the new container, it can be null.
-         * @since 1.00
+         *
+         * @param initValue the init value for the new container, it can be
+         * null.
          */
         public Mutable(final T initValue) {
             value = initValue;
@@ -68,10 +63,8 @@ public enum StringUtils {
 
         /**
          * Set new carried value.
-         * 
-         * @param newValue
-         *            the new value for the container, it can be null.
-         * @since 1.00
+         *
+         * @param newValue the new value for the container, it can be null.
          */
         public void set(final T newValue) {
             value = newValue;
@@ -79,9 +72,8 @@ public enum StringUtils {
 
         /**
          * Get the current carried value.
-         * 
+         *
          * @return the current value, it can be null.
-         * @since 1.00
          */
         public T get() {
             return value;
@@ -96,15 +88,12 @@ public enum StringUtils {
      * contains the null value then there is error in data format. If the
      * function has returned false but the result contains not-null data, it
      * signals that there is not enough information.
-     * 
-     * @param afterString
-     *            the string to be decoded
-     * @param result
-     *            the container which will contain the result after the
-     *            execution or null
+     *
+     * @param afterString the string to be decoded
+     * @param result the container which will contain the result after the
+     * execution or null
      * @return true if the string has been decoded successfully, false if it
-     *         can't be decoded or there is not enough information to decode
-     * @since 1.00
+     * can't be decoded or there is not enough information to decode
      */
     public static boolean unescapeCharacter(final String afterString,
             final Mutable<Character> result) {
@@ -163,7 +152,7 @@ public enum StringUtils {
         } else {
             switch (afterString.charAt(0)) {
                 case 'u': {
-                    int num = -1;
+                    int num;
                     try {
                         num = Integer.parseInt(afterString.substring(1), 16);
                     } catch (NumberFormatException ex) {
@@ -184,7 +173,7 @@ public enum StringUtils {
                     }
                 }
                 case 'x': {
-                    int num = -1;
+                    int num;
                     try {
                         num = Integer.parseInt(afterString.substring(1), 16);
                     } catch (NumberFormatException ex) {
@@ -215,11 +204,9 @@ public enum StringUtils {
     /**
      * The function allows to escape a string and replace special chars by
      * special escape sequences.
-     * 
-     * @param str
-     *            the string to be escaped, must not be null
+     *
+     * @param str the string to be escaped, must not be null
      * @return an escaped string.
-     * @since 1.00
      */
     public static String escapeString(final String str) {
         final StringBuilder result = new StringBuilder(str.length() * 3 / 2);

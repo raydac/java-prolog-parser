@@ -305,26 +305,4 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
         assertEquals("<>", new OperatorContainer(Operator.makeOperator(1000,
                 OperatorType.FX, "<>")).getText());
     }
-
-    @Test
-    public void testSetStrPosition() {
-        try {
-            final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
-            final OperatorContainer container = new OperatorContainer(operator);
-            container.setStrPosition(10);
-            fail("Must throw UOE because the operstion restricted");
-        } catch (UnsupportedOperationException ex) {
-        }
-    }
-
-    @Test
-    public void testSetLineNumber() {
-        try {
-            final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
-            final OperatorContainer container = new OperatorContainer(operator);
-            container.setLineNumber(12);
-            fail("Must throw UOE because the operstion restricted");
-        } catch (UnsupportedOperationException ex) {
-        }
-    }
 }

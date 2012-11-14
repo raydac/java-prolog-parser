@@ -659,4 +659,12 @@ public class IntegrationTest extends AbstractPrologParserTest {
         assertEquals("Must be '(((' operator","(((",((PrologStructure)structure.getElement(0)).getFunctor().getText());
         assertEquals("Must be 'hello' atom","hello",((PrologStructure)structure.getElement(0)).getElement(0).getText());
      }
+
+    @Test
+    public void testOperatorNameAsFunctor() throws Exception {
+        final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("'mod'(_,_,_,_).");
+        assertEquals("Must be mod","mod",structure.getFunctor().getText());
+        assertFalse("Must not be an operator",structure.getFunctor().getType()==PrologTermType.OPERATOR);
+        assertEquals("Arity must be 4",4,structure.getArity());
+    }
 }

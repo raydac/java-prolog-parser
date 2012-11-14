@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -22,23 +22,18 @@ package com.igormaznitsa.prologparser.exceptions;
  * about a syntax prolog problem and its position in the source.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
  */
-@SuppressWarnings("serial")
 public class PrologParserException extends Exception {
+    private static final long serialVersionUID = -4454323844625857706L;
 
     /**
      * The variable contains the line number of the problem. The first line has
      * the index 1.
-     * 
-     * @since 1.00
      */
     protected final int lineNumber;
     /**
      * The variable contains the string position of the problem. The first char
      * has the index 1.
-     * 
-     * @since 1.00
      */
     protected final int stringPosition;
 
@@ -51,7 +46,6 @@ public class PrologParserException extends Exception {
      *            the line number of the problem.
      * @param stringPos
      *            the string position of the problem.
-     * @since 1.00
      */
     public PrologParserException(final String text, final int lineNumber,
             final int stringPos) {

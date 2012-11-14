@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -20,9 +20,8 @@ package com.igormaznitsa.prologparser.operators;
 /**
  * The enumeration describes prolog operator types being used by the prolog
  * parser.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
  */
 public enum OperatorType {
 
@@ -34,9 +33,8 @@ public enum OperatorType {
 
     /**
      * The constructor to create an instance and set the right text
-     * 
-     * @param text
-     *            the right prolog text for the type, must not be null
+     *
+     * @param text the right prolog text for the type, must not be null
      */
     private OperatorType(final String text) {
         this.text = text;
@@ -44,11 +42,9 @@ public enum OperatorType {
 
     /**
      * Find an operator type for its prolog text representation
-     * 
-     * @param str
-     *            the prolog text representation for the finding type
+     *
+     * @param str the prolog text representation for the finding type
      * @return found type or null if the type has not been found
-     * @since 1.00
      */
     public static OperatorType getForName(final String str) {
         for (final OperatorType type : values()) {
@@ -61,9 +57,8 @@ public enum OperatorType {
 
     /**
      * Get right prolog text representation
-     * 
+     *
      * @return the text as String
-     * @since 1.00
      */
     public String getText() {
         return text;

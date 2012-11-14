@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -17,16 +17,8 @@
  */
 package com.igormaznitsa.prologparser;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
-
-import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
+import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
@@ -39,14 +31,19 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.AssertionUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The class is a hand-written prolog parser allows to parse incoming char
- * stream and make prolog structures.
- * The class is thread safe.
- * 
+ * stream and make prolog structures. The class is thread safe.
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.03
  */
 @SuppressWarnings("serial")
 @PrologOperators(Operators = {
@@ -92,64 +89,46 @@ import com.igormaznitsa.prologparser.utils.AssertionUtils;
 public class PrologParser {
 
     /**
-     * The Static map contains all system operators are being used by the parser
-     * 
-     * @since 1.00
+     * The Static map contains all system operators are being used by the
+     * parser.
      */
     static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
     /**
-     * The Static map contains all system meta-operators for the parser (brackets, dot, vertical bar)
-     * 
-     * @since 1.03
+     * The Static map contains all system meta-operators for the parser
+     * (brackets, dot, vertical bar).
      */
     static final Map<String, OperatorContainer> META_SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
     /**
      * The set contains all possible prefixes of system operators to expedite
-     * parsing
-     * 
-     * @since 1.00
+     * parsing.
      */
     static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>();
     /**
-     * Inside link to the system ',' operator
-     * 
-     * @since 1.00
+     * Inside link to the system ',' operator.
      */
     private static OperatorContainer OPERATOR_COMMA;
     /**
-     * Inside link to the system '(' operator
-     * 
-     * @since 1.00
+     * Inside link to the system '(' operator.
      */
     private static OperatorContainer OPERATOR_LEFTBRACKET;
     /**
-     * Inside link to the system ')' operator
-     * 
-     * @since 1.00
+     * Inside link to the system ')' operator.
      */
     private static OperatorContainer OPERATOR_RIGHTBRACKET;
     /**
-     * Inside link to the system '[' operator
-     * 
-     * @since 1.00
+     * Inside link to the system '[' operator.
      */
     private static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
     /**
-     * Inside link to the system ']' operator
-     * 
-     * @since 1.00
+     * Inside link to the system ']' operator.
      */
     private static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
     /**
-     * Inside link to the system '.' operator
-     * 
-     * @since 1.00
+     * Inside link to the system '.' operator.
      */
     private static OperatorContainer OPERATOR_DOT;
     /**
-     * Inside link to the '|' operator
-     * 
-     * @since 1.00
+     * Inside link to the '|' operator.
      */
     private static OperatorContainer OPERATOR_VERTICALBAR;
 
@@ -165,10 +144,10 @@ public class PrologParser {
     }
 
     /**
-     * It allows to get the system operator map (it includes both system operators and meta-operators)
-     * 
+     * It allows to get the system operator map (it includes both system
+     * operators and meta-operators)
+     *
      * @return the operator map contains system operators
-     * @since 1.00
      * @see OperatorContainer
      */
     public static Map<String, OperatorContainer> getSystemOperators() {
@@ -177,94 +156,77 @@ public class PrologParser {
         return result;
     }
     /**
-     * Inside array of operators which will be used to read a prolog phrase
-     * @since 1.00
+     * Inside array of operators which will be used to read a prolog phrase.
      */
     private static final Map<String, OperatorContainer> OPERATORS_PHRASE = makeMapFromOperatorContainers(OPERATOR_DOT);
     /**
-     * Inside array of operators which will be used inside a prolog list
-     * @since 1.00
+     * Inside array of operators which will be used inside a prolog list.
      */
     private static final Map<String, OperatorContainer> OPERATORS_INSIDE_LIST = makeMapFromOperatorContainers(
             OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
     /**
-     * Inside array of operators which contains the end list operator
-     * @since 1.00
+     * Inside array of operators which contains the end list operator.
      */
     private static final Map<String, OperatorContainer> OPERATORS_END_LIST = makeMapFromOperatorContainers(OPERATOR_RIGHTSQUAREBRACKET);
     /**
-     * Inside array of operators which will be used to read a structure
-     * @since 1.00
+     * Inside array of operators which will be used to read a structure.
      */
     private static final Map<String, OperatorContainer> OPERATORS_INSIDE_STRUCT = makeMapFromOperatorContainers(
             OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
     /**
      * Inside array of operators which will be used to read a sub-block inside
-     * of a block
-     * @since 1.00
+     * of a block.
      */
     private static final Map<String, OperatorContainer> OPERATORS_SUBBLOCK = makeMapFromOperatorContainers(OPERATOR_RIGHTBRACKET);
     /**
-     * The locker allows to avoid problems when the object is called simultaneously from different threads 
-     * @since 1.01
+     * The locker allows to avoid problems when the object is called
+     * simultaneously from different threads.
      */
     private final ReentrantLock multithreadOperationsLocker = new ReentrantLock();
 
     /**
      * Inside auxiliary class represents a tree item
-     * 
+     *
      * @author Igor Maznitsa (http://www.igormaznitsa.com)
-     * @version 1.00
      */
     private static final class TreeItem {
 
         /**
-         * The term saved by the item
-         * @since 1.00
+         * The term saved by the item.
          */
         private final AbstractPrologTerm savedTerm;
         /**
-         * The left branch of the tree item
-         * @since 1.00
+         * The left branch of the tree item.
          */
         private TreeItem leftBranch;
         /**
-         * The right branch of the item
-         * @since 1.00
+         * The right branch of the item.
          */
         private TreeItem rightBranch;
         /**
-         * The link to the owner of the item
-         * @since 1.00
+         * The link to the owner of the item.
          */
         private TreeItem parentItem;
         /**
-         * The term has been placed into brakes
-         * @since 1.00
+         * The term has been placed into brakes.
          */
         private final boolean insideBrakes;
         /**
-         * The link to the owner parser for the item
-         * @since 1.00
+         * The link to the owner parser for the item.
          */
         private final PrologParser parser;
 
         /**
          * The constructor
-         * 
-         * @param builder
-         *            the builder which has the item, must not be null
-         * @param term
-         *            the term has been read from the input stream, must not be
-         *            null
-         * @param insideBrakes
-         *            the flag shows that the term was in the brakes so it has
-         *            the max priority
-         * @param lineNum
-         *            the line number of the line where the term has been found
-         * @param strPos
-         *            the string position of the read stream
-         * @since 1.00
+         *
+         * @param builder the builder which has the item, must not be null
+         * @param term the term has been read from the input stream, must not be
+         * null
+         * @param insideBrakes the flag shows that the term was in the brakes so
+         * it has the max priority
+         * @param lineNum the line number of the line where the term has been
+         * found
+         * @param strPos the string position of the read stream
          */
         TreeItem(final PrologParser builder,
                 final AbstractPrologTerm term, final boolean insideBrakes,
@@ -284,9 +246,8 @@ public class PrologParser {
 
         /**
          * Get the priority of the term.
-         * 
+         *
          * @return the priority value of the term
-         * @since 1.00
          */
         private int getPriority() {
             if (insideBrakes) {
@@ -297,10 +258,8 @@ public class PrologParser {
 
         /**
          * Set the right branch.
-         * 
-         * @param item
-         *            the right branch for the term
-         * @since 1.00
+         *
+         * @param item the right branch for the term
          */
         private void setRightBranch(final TreeItem item) {
             rightBranch = item;
@@ -311,12 +270,10 @@ public class PrologParser {
 
         /**
          * Make another item as the right branch.
-         * 
-         * @param item
-         *            the item which will be used as the right branch
+         *
+         * @param item the item which will be used as the right branch
          * @return the item which will be used as the root, it can be this item
-         *         or the set item (it depends on priorities)
-         * @since 1.00
+         * or the set item (it depends on priorities)
          */
         private TreeItem makeAsRightBranch(final TreeItem item) {
             final TreeItem currentSubbranch = rightBranch;
@@ -333,12 +290,10 @@ public class PrologParser {
 
         /**
          * Make an other item as the left branch.
-         * 
-         * @param item
-         *            the item which will be used as the left branch
+         *
+         * @param item the item which will be used as the left branch
          * @return the item which will be used as the root, it can be this item
-         *         or the set item (it depends on priorities)
-         * @since 1.00
+         * or the set item (it depends on priorities)
          */
         private TreeItem makeAsOwnerWithLeftBranch(final TreeItem item) {
             this.replaceForOwner(item);
@@ -348,9 +303,8 @@ public class PrologParser {
 
         /**
          * Get the right branch of the item.
-         * 
+         *
          * @return the right branch or null if there is not the right one
-         * @since 1.00
          */
         private TreeItem getRightBranch() {
             return rightBranch;
@@ -358,10 +312,8 @@ public class PrologParser {
 
         /**
          * Set the left branch of the item.
-         * 
-         * @param item
-         *            the left branch for the item
-         * @since 1.00
+         *
+         * @param item the left branch for the item
          */
         private void setLeftBranch(final TreeItem item) {
             leftBranch = item;
@@ -372,9 +324,8 @@ public class PrologParser {
 
         /**
          * Get the left branch of the item.
-         * 
+         *
          * @return the left branch of the item or null if there is not left one
-         * @since 1.00
          */
         private TreeItem getLeftBranch() {
             return leftBranch;
@@ -382,10 +333,9 @@ public class PrologParser {
 
         /**
          * Get the type of the saved term in the item.
-         * 
+         *
          * @return the prolog term type of the term which is being saved by the
-         *         item
-         * @since 1.00
+         * item
          */
         private PrologTermType getType() {
             return savedTerm.getType();
@@ -393,10 +343,9 @@ public class PrologParser {
 
         /**
          * Find the tree root of the tree where the item has been presented.
-         * 
+         *
          * @return the root item for the tree where the item is being, if the
-         *         item is the root then it will be returned
-         * @since 1.00
+         * item is the root then it will be returned
          */
         private TreeItem findRoot() {
             if (parentItem == null) {
@@ -408,15 +357,13 @@ public class PrologParser {
         /**
          * Find the first node among the item's owners which has the same or
          * lower priority.
-         * 
-         * @param priority
-         *            the priority for the desired item
+         *
+         * @param priority the priority for the desired item
          * @return found root item which has the equal or less priority than the
-         *         value
-         * @since 1.00
+         * value
          */
         private TreeItem findFirstNodeWithSuchOrLowerPriority(final int priority) {
-            TreeItem result = null;
+            TreeItem result;
             if (getPriority() >= priority || parentItem == null) {
                 result = this;
             } else {
@@ -427,10 +374,8 @@ public class PrologParser {
 
         /**
          * Replace the owner for the item by another item
-         * 
-         * @param newItem
-         *            the item to replace the current owner, it can be null
-         * @since 1.00
+         *
+         * @param newItem the item to replace the current owner, it can be null
          */
         private void replaceForOwner(final TreeItem newItem) {
             if (parentItem == null) {
@@ -447,20 +392,31 @@ public class PrologParser {
 
         /**
          * Get an operator type for the saved term which must be an operator!
-         * 
+         *
          * @return the operator type as a value frome the OperatorType
-         *         enumeration
-         * @since 1.00
+         * enumeration
          */
         private OperatorType getOperatorType() {
             return ((Operator) ((PrologTermWrapper) savedTerm).getWrappedTerm()).getOperatorType();
         }
 
         /**
+         * Get the wrapped term.
+         *
+         * @return the wrapped term.
+         */
+        private AbstractPrologTerm getSavedTerm() {
+            if (getType() == PrologTermType.OPERATOR || getType() == PrologTermType.OPERATORS) {
+                return ((PrologTermWrapper) savedTerm).getWrappedTerm();
+            } else {
+                return savedTerm;
+            }
+        }
+
+        /**
          * Check the validity of the tree item for its saved term
-         * 
+         *
          * @return true if the tree item is valid and false if it's not
-         * @since 1.00
          */
         private boolean validate() {
             if (savedTerm.getType() == PrologTermType.OPERATOR) {
@@ -505,24 +461,27 @@ public class PrologParser {
 
         /**
          * Convert the tree item into a term.
-         * 
+         *
          * @return the tree item represented as a prolog term
-         * @since 1.00
          */
         private AbstractPrologTerm convertTreeItemIntoTerm()
                 throws PrologParserException {
-            AbstractPrologTerm result = null;
+            AbstractPrologTerm result;
+            
+            final ParserContext ctx = parser.context;
+            final boolean ctxNotNull = ctx!=null;
+                    
             switch (savedTerm.getType()) {
                 case OPERATOR:
                     final PrologTermWrapper wrapper = (PrologTermWrapper) savedTerm;
 
-                    PrologStructure operatorStruct = null;
+                    PrologStructure operatorStruct;
                     if (!validate()) {
                         throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(),
                                 wrapper.getStrPosition());
                     }
 
-                    final AbstractPrologTerm left = leftBranch == null ? null: leftBranch.convertTreeItemIntoTerm();
+                    final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm();
                     final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
                     if (left == null && right == null) {
                         throw new PrologParserException(
@@ -539,8 +498,7 @@ public class PrologParser {
                     if (left == null) {
                         operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(),
                                 new AbstractPrologTerm[]{right});
-                    }else
-                    {
+                    } else {
                         if (right == null) {
                             operatorStruct = new PrologStructure(
                                     (Operator) wrapper.getWrappedTerm(),
@@ -555,15 +513,15 @@ public class PrologParser {
                     operatorStruct.setStrPosition(wrapper.getStrPosition());
                     operatorStruct.setLineNumber(wrapper.getLineNumber());
 
-                    if (parser.context != null) {
-                        parser.context.processNewStructure(parser, operatorStruct);
+                    if (ctxNotNull) {
+                        ctx.processNewStructure(parser, operatorStruct);
                     }
 
                     result = operatorStruct;
                     break;
                 case STRUCT:
-                    if (parser.context != null) {
-                        parser.context.processNewStructure(parser, (PrologStructure) savedTerm);
+                    if (ctxNotNull) {
+                        ctx.processNewStructure(parser, (PrologStructure) savedTerm);
                     }
                     result = savedTerm;
                     break;
@@ -577,16 +535,13 @@ public class PrologParser {
 
     /**
      * Check that an operator is presented within an operator map
-     * 
-     * @param operator
-     *            the operator to be examined, it can be null so the result will
-     *            be true
-     * @param endOperators
-     *            the map contains OperatorContainer objects to be checked that
-     *            it contains the operator, it can be null then the function
-     *            will return false
+     *
+     * @param operator the operator to be examined, it can be null so the result
+     * will be true
+     * @param endOperators the map contains OperatorContainer objects to be
+     * checked that it contains the operator, it can be null then the function
+     * will return false
      * @return true if the array contains the operator else false
-     * @since 1.00
      */
     private boolean isEndOperator(final AbstractPrologTerm operator,
             final Map<String, OperatorContainer> endOperators) {
@@ -605,31 +560,26 @@ public class PrologParser {
     }
     /**
      * The map contains variable map which is being used to map variables inside
-     * a tree
-     * @since 1.00
+     * a tree.
      */
     private final Map<String, PrologVariable> variableSet;
     /**
-     * The tokenizer which is being used to tokenize the data stream
-     * @since 1.00
+     * The tokenizer which is being used to tokenize the data stream.
      */
     private final PrologTokenizer tokenizer = new PrologTokenizer();
     /**
-     * The last reader which was used to read a prolog sentence
-     * @since 1.00
+     * The last reader which was used to read a prolog sentence.
      */
     private PrologCharDataSource prologReader;
     /**
-     * The engine context which owns the tree builder
-     * @since 1.00
+     * The engine context which owns the tree builder.
      */
     private final ParserContext context;
 
     /**
      * Get the current parser context
-     * 
-     * @return the current context, it can be null
-     * @since 1.00
+     *
+     * @return the current context, it can be null.
      */
     public ParserContext getContext() {
         return context;
@@ -637,9 +587,8 @@ public class PrologParser {
 
     /**
      * Get last used reader
-     * 
+     *
      * @return the last used reader, it can be null
-     * @since 1.00
      */
     public PrologCharDataSource getReader() {
         return prologReader;
@@ -647,10 +596,8 @@ public class PrologParser {
 
     /**
      * The constructor
-     * 
-     * @param context
-     *            the context for the parser, it can be null
-     * @since 1.00
+     *
+     * @param context the context for the parser, it can be null.
      */
     public PrologParser(final ParserContext context) {
         variableSet = new HashMap<String, PrologVariable>();
@@ -659,15 +606,11 @@ public class PrologParser {
 
     /**
      * Make a string based reader and read the first sentence from it
-     * 
-     * @param str
-     *            the string to be a stream for a reader, must not be null
+     *
+     * @param str the string to be a stream for a reader, must not be null
      * @return the first prolog sentence from the string
-     * @throws IOException
-     *             it will be thrown for any transport level problem
-     * @throws PrologParserException
-     *             it will be thrown for wrong prolog syntax
-     * @since 1.00
+     * @throws IOException it will be thrown for any transport level problem
+     * @throws PrologParserException it will be thrown for wrong prolog syntax
      */
     public AbstractPrologTerm nextSentence(final String str)
             throws IOException, PrologParserException {
@@ -677,18 +620,14 @@ public class PrologParser {
     /**
      * Read next sentence from a reader, the reader will become the current
      * reader for the parser
-     * 
-     * @param reader
-     *            the reader to be used as the data source for the parser, it
-     *            must not be null and it will become as the current reader for
-     *            the parser
+     *
+     * @param reader the reader to be used as the data source for the parser, it
+     * must not be null and it will become as the current reader for the parser
      * @return the first prolog sentence met in the data stream from the reader,
-     *         if there is not any more sentences then it will return null
-     * @throws PrologParserException
-     *             it will be thrown if there is any prolog syntax error
-     * @throws IOException
-     *             it will be thrown if there is any transport error
-     * @since 1.00
+     * if there is not any more sentences then it will return null
+     * @throws PrologParserException it will be thrown if there is any prolog
+     * syntax error
+     * @throws IOException it will be thrown if there is any transport error
      */
     public AbstractPrologTerm nextSentence(
             final PrologCharDataSource reader) throws PrologParserException,
@@ -705,14 +644,12 @@ public class PrologParser {
 
     /**
      * Read the next sentence from the current reader
-     * 
+     *
      * @return the first sentence met in the data stream from the reader, if
-     *         there is not any data, then it will return null
-     * @throws PrologParserException
-     *             it will be thrown if there is any prolog syntax error
-     * @throws IOException
-     *             it will be thrown if there is any transport error
-     * @since 1.00
+     * there is not any data, then it will return null
+     * @throws PrologParserException it will be thrown if there is any prolog
+     * syntax error
+     * @throws IOException it will be thrown if there is any transport error
      */
     public AbstractPrologTerm nextSentence()
             throws PrologParserException, IOException {
@@ -739,15 +676,13 @@ public class PrologParser {
 
     /**
      * Inside method to read a whole prolog structure from the input stream
-     * 
-     * @param functor
-     *            the functor for the read structure, must not be null
+     *
+     * @param functor the functor for the read structure, must not be null
      * @return the read structure or null if the stream end was reached
-     * @throws IOException
-     *             it will be thrown if there will be any transport error
-     * @throws PrologParserException
-     *             it will be thrown if there is an prolog syntax error
-     * @since 1.00
+     * @throws IOException it will be thrown if there will be any transport
+     * error
+     * @throws PrologParserException it will be thrown if there is an prolog
+     * syntax error
      */
     private PrologStructure readStruct(final AbstractPrologTerm functor)
             throws PrologParserException, IOException {
@@ -787,15 +722,13 @@ public class PrologParser {
 
     /**
      * Inside function to read a prolog list from the reader
-     * 
-     * @param openingBracket
-     *            the tokenizer result for the list opening bracket, must not be null
+     *
+     * @param openingBracket the tokenizer result for the list opening bracket,
+     * must not be null
      * @return the read list or null if the stream end was reached
-     * @throws IOException
-     *             it will be thrown if there is any transport error
-     * @throws PrologParserException
-     *             it will be thrown if there is a prolog syntax error
-     * @since 1.00
+     * @throws IOException it will be thrown if there is any transport error
+     * @throws PrologParserException it will be thrown if there is a prolog
+     * syntax error
      */
     private AbstractPrologTerm readList(final TokenizerResult openingBracket) throws PrologParserException,
             IOException {
@@ -886,17 +819,13 @@ public class PrologParser {
 
     /**
      * Inside function to throw PrologParserException if an object is null
-     * 
-     * @param obj
-     *            the object to be asserted
-     * @param message
-     *            the message to be wrapped by an exception if the object is
-     *            null
-     * @param startTerm
-     * 			if the parameter is not null then its first char string parameters will be used to make exception
-     * @throws PrologParserException
-     *             it will be thrown if the object is null
-     * @since 1.00
+     *
+     * @param obj the object to be asserted
+     * @param message the message to be wrapped by an exception if the object is
+     * null
+     * @param startTerm if the parameter is not null then its first char string
+     * parameters will be used to make exception
+     * @throws PrologParserException it will be thrown if the object is null
      */
     private void checkForNull(final Object obj, final String message, final TokenizerResult startTerm)
             throws PrologParserException {
@@ -909,14 +838,12 @@ public class PrologParser {
 
     /**
      * Inside function to read a block from the reader
-     * 
-     * @param endOperators
-     *            the map contains end operators which will bound the block
+     *
+     * @param endOperators the map contains end operators which will bound the
+     * block
      * @return a read block as Term or null if the end of the stream has been
-     *         reached
-     * @throws IOException
-     *             it will be thrown if there is any transport error
-     * @since 1.00
+     * reached
+     * @throws IOException it will be thrown if there is any transport error
      */
     private AbstractPrologTerm readBlock(
             final Map<String, OperatorContainer> endOperators)
@@ -974,13 +901,11 @@ public class PrologParser {
                         boolean leftPresented = false;
 
                         if (currentTreeItem != null) {
-                            if (currentTreeItem.getType() == PrologTermType.OPERATOR) 
-                            {
+                            if (currentTreeItem.getType() == PrologTermType.OPERATOR) {
                                 if (currentTreeItem.getRightBranch() != null) {
                                     leftPresented = true;
                                 }
-                            }else
-                            {
+                            } else {
                                 leftPresented = true;
                             }
                         }
@@ -1091,7 +1016,6 @@ public class PrologParser {
                 // not first
                 if (currentTreeItem.getType() == PrologTermType.OPERATOR) {
                     // it's an operator
-
                     if (currentTreeItem.getPriority() <= readAtomPriority) {
                         // new has low priority
                         // make its as an ascendent
@@ -1157,11 +1081,11 @@ public class PrologParser {
     }
 
     /**
-     * The method allows to close the read char stream being used by the parser and clear inside variables of the parser.
-     * I don't recommend to use the parser after the method call.
-     * 
+     * The method allows to close the read char stream being used by the parser
+     * and clear inside variables of the parser. I don't recommend to use the
+     * parser after the method call.
+     *
      * @throws IOException
-     * @since 1.01
      */
     public void close() throws IOException {
         multithreadOperationsLocker.lock();
@@ -1179,11 +1103,9 @@ public class PrologParser {
     /**
      * Inside auxiliary function to generate a map contains OperatorContainer
      * objects
-     * 
-     * @param containers
-     *            operator containers to be added into the result map
+     *
+     * @param containers operator containers to be added into the result map
      * @return the map contains all operator containers
-     * @since 1.00
      */
     private static Map<String, OperatorContainer> makeMapFromOperatorContainers(
             final OperatorContainer... containers) {
@@ -1196,8 +1118,7 @@ public class PrologParser {
 
     /**
      * Inside auxiliary function to initialize inside system operators table
-     * from annotations
-     * @since 1.00
+     * from annotations.
      */
     private static void initSystemOperatorsFromClassAnnotations() {
         META_SYSTEM_OPERATORS.clear();

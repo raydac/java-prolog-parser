@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -19,53 +19,38 @@ package com.igormaznitsa.prologparser;
 
 /**
  * This enumeration contains all inside states for the prolog tokenizer
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
  * @see PrologTokenizer
  */
 public enum TokenizerState {
 
     /**
-     * It shows that the parser is looking for the next token
-     * 
-     * @since 1.00
+     * It shows that the parser is looking for the next token.
      */
     LOOKFOR,
     /**
-     * It shows that the parser in the atom reading state
-     * 
-     * @since 1.00
+     * It shows that the parser in the atom reading state.
      */
     ATOM,
     /**
-     * It shows that the parser in the string reading state
-     * 
-     * @since 1.00
+     * It shows that the parser in the string reading state.
      */
     STRING,
     /**
-     * It shows that the parser in the operator reading state
-     * 
-     * @since 1.00
+     * It shows that the parser in the operator reading state.
      */
     OPERATOR,
     /**
-     * It shows that the parser in the variable reading state
-     * 
-     * @since 1.00
+     * It shows that the parser in the variable reading state.
      */
     VARIABLE,
     /**
-     * It shows that the parser in the integer number reading state
-     * 
-     * @since 1.00
+     * It shows that the parser in the integer number reading state.
      */
     INTEGER,
     /**
-     * It shows that the parser in the float number reading state
-     * 
-     * @since 1.00
+     * It shows that the parser in the float number reading state.
      */
     FLOAT;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -17,20 +17,18 @@
  */
 package com.igormaznitsa.prologparser.annotations;
 
+import com.igormaznitsa.prologparser.PrologParser;
+import com.igormaznitsa.prologparser.operators.OperatorType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.igormaznitsa.prologparser.PrologParser;
-import com.igormaznitsa.prologparser.operators.OperatorType;
 
 /**
  * The annotation being used to define a prolog operator. It allows to define an
  * operator in the shortest way.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
  * @see PrologParser
  */
 @Target(value = ElementType.TYPE)
@@ -41,7 +39,6 @@ public @interface PrologOperator {
      * The operator priority (0..1200)
      * 
      * @return the priority as integer
-     * @since 1.00
      */
     int Priority();
 
@@ -49,7 +46,6 @@ public @interface PrologOperator {
      * The operator type
      * 
      * @return the operator type
-     * @since 1.00
      */
     OperatorType Type();
 
@@ -57,7 +53,6 @@ public @interface PrologOperator {
      * The operator name
      * 
      * @return the operator name as a String
-     * @since 1.00
      */
     String Name();
 }

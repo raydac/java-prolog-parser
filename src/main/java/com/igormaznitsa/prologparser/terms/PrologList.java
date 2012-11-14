@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -25,18 +25,15 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  * @version 1.01
  */
 public final class PrologList extends PrologStructure {
+    private static final long serialVersionUID = -3781638438477876869L;
 
     /**
      * The functor is used for a structure describing a prolog lisp
-     * 
-     * @since 1.00
      */
     public static final AbstractPrologTerm LIST_FUNCTOR = new PrologAtom(".");
 
     /**
      * A Constructor. It allows to create an empty ([]) list.
-     * 
-     * @since 1.00
      */
     public PrologList() {
         super(LIST_FUNCTOR, 2);
@@ -48,7 +45,6 @@ public final class PrologList extends PrologStructure {
      * A Constructor. It allows to create an empty list and set its first char position in the source stream.
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.01
      */
     public PrologList(final int strPosition, final int lineNumber) {
         this();
@@ -63,7 +59,6 @@ public final class PrologList extends PrologStructure {
      * @param array
      *            an array contains prolog term objects, the array must not be
      *            null and it must not contains null elements.
-     * @since 1.00
      */
     public PrologList(final AbstractPrologTerm[] array) {
         this();
@@ -82,7 +77,6 @@ public final class PrologList extends PrologStructure {
      * @param array an array contains prolog term objects, the array must not be null and it must not contains null elements.
      * @param strPos the first term char string position in the source stream
      * @param lineNumber the first term char line number in the source stream
-     * @since 1.01
      */
     public PrologList(final AbstractPrologTerm[] array, final int strPos, final int lineNumber) {
         this(array);
@@ -96,7 +90,6 @@ public final class PrologList extends PrologStructure {
      * 
      * @param head
      *            a term to be used as the list head. Must not be null;
-     * @since 1.00
      */
     public PrologList(final AbstractPrologTerm head) {
         this();
@@ -109,7 +102,6 @@ public final class PrologList extends PrologStructure {
      * @param head a term to be used as the list head. Must not be null.
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.01
      */
     public PrologList(final AbstractPrologTerm head, final int strPosition, final int lineNumber) {
         this(head);
@@ -124,7 +116,6 @@ public final class PrologList extends PrologStructure {
      *            a term to be used as the head for the list. Must not be null.
      * @param tail
      *            a term to be used as the tail for the list. Must not be null.
-     * @since 1.00
      */
     public PrologList(final AbstractPrologTerm head,
             final AbstractPrologTerm tail) {
@@ -142,7 +133,6 @@ public final class PrologList extends PrologStructure {
      *            a term to be used as the tail for the list. Must not be null.
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.01
      */
     public PrologList(final AbstractPrologTerm head, final AbstractPrologTerm tail, final int strPosition, final int lineNumber) {
         this(head, tail);
@@ -154,7 +144,6 @@ public final class PrologList extends PrologStructure {
      * Check that the list instance is the null list.
      * 
      * @return true if the list is a null list ([]), else false
-     * @since 1.00
      */
     public boolean isNullList() {
         return getHead() == null && getTail() == null;
@@ -165,7 +154,6 @@ public final class PrologList extends PrologStructure {
      * 
      * @return the head of the list, if it is a null list then it will return
      *         null.
-     * @since 1.00
      */
     public AbstractPrologTerm getHead() {
         return getElement(0);
@@ -176,7 +164,6 @@ public final class PrologList extends PrologStructure {
      * 
      * @return the tail of the list, if it is a null list then it will return
      *         null
-     * @since 1.00
      */
     public AbstractPrologTerm getTail() {
         return getElement(1);
@@ -187,7 +174,6 @@ public final class PrologList extends PrologStructure {
      * 
      * @param term
      *            a term to be used as the head for the list, must not be null.
-     * @since 1.00
      */
     public void setHead(final AbstractPrologTerm term) {
         this.setElement(0, term);
@@ -201,7 +187,6 @@ public final class PrologList extends PrologStructure {
      * 
      * @param term
      *            a term to be used as the tail for the list, must not be null.
-     * @since 1.00
      */
     public void setTail(final AbstractPrologTerm term) {
         this.setElement(1, term);
@@ -220,7 +205,6 @@ public final class PrologList extends PrologStructure {
      *            a term to be added as the list tail, must not be null
      * @return if the list is an empty one then the list will be returned else
      *         new list will be created and returned
-     * @since 1.00
      */
     public static PrologList setTermAsNewListTail(final PrologList list,
             final AbstractPrologTerm term) {
@@ -249,7 +233,6 @@ public final class PrologList extends PrologStructure {
      * @param term
      *            a term to be added, must not be null.
      * @return new list or the last list in the chain.
-     * @since 1.00
      */
     public PrologList addAsNewListToEndOfListChain(
             final AbstractPrologTerm term) {
@@ -288,7 +271,6 @@ public final class PrologList extends PrologStructure {
      * @param elementToReplace
      *            a prolog term to replace the tail of the last list in the
      *            chain, must not be null
-     * @since 1.00
      */
     public void replaceLastElement(
             final AbstractPrologTerm elementToReplace) {
@@ -302,8 +284,6 @@ public final class PrologList extends PrologStructure {
                 if (ltail.isNullList()) {
                     curList.setTail(elementToReplace);
                     break;
-                } else {
-                    curList = ltail;
                 }
             } else {
                 curList.setTail(elementToReplace);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -20,28 +20,28 @@ package com.igormaznitsa.prologparser.terms;
 /**
  * The abstract class is the base for all prolog numeric term types being used
  * by the prolog parser.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.01
  * @see PrologIntegerNumber
  * @see PrologFloatNumber
  */
-@SuppressWarnings("serial")
 public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
+
+    private static final long serialVersionUID = -1865562758090770438L;
 
     /**
      * A Constructor.
-     * @since 1.00
      */
     public AbstractPrologNumericTerm() {
         super("");
     }
 
     /**
-     * A Constructor allows to set both the string first char position and the line number
+     * A Constructor allows to set both the string first char position and the
+     * line number
+     *
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.01
      */
     public AbstractPrologNumericTerm(final int strPosition, final int lineNumber) {
         super("", strPosition, lineNumber);
@@ -57,7 +57,6 @@ public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
 
     /**
      * It will return a text representation for the numeric.
-     * @since 1.00
      */
     @Override
     public String getText() {
@@ -67,10 +66,9 @@ public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
     /**
      * The method allows to get the negative value of the number saved by an
      * instance as new numeric term instance
-     * 
+     *
      * @return new numeric term instance contains the negative representation of
-     *         the value
-     * @since 1.00
+     * the value
      */
     public abstract AbstractPrologNumericTerm neg();
 }

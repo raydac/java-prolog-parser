@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -23,29 +23,29 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
  * The class describes the main prolog type called 'atom', in some words it is
  * an immutable text part. A Prolog atom has always the top possible priority
  * (0).
- * 
+ *
  * @author Igor Maznitsa
- * @version 1.01
  */
 public final class PrologAtom extends AbstractPrologTerm {
 
+    private static final long serialVersionUID = -1859006002358498466L;
+
     /**
      * A Constructor allows to make an instance based on a text part.
-     * 
-     * @param text
-     *            the text to be used for new instance, must not be null
-     * @since 1.00
+     *
+     * @param text the text to be used for new instance, must not be null
      */
     public PrologAtom(final String text) {
         super(text);
     }
 
     /**
-     * A Constructor allows to make an instance based on a text part and set the position values for the text at the source stream
+     * A Constructor allows to make an instance based on a text part and set the
+     * position values for the text at the source stream
+     *
      * @param text the text to be used for new instance, must not be null
-     * @param strPos the first term char string position 
+     * @param strPos the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.01
      */
     public PrologAtom(final String text, final int strPos, final int lineNumber) {
         super(text, strPos, lineNumber);

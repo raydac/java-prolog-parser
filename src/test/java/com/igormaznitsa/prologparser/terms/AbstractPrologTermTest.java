@@ -1,12 +1,13 @@
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 
 public class AbstractPrologTermTest extends AbstractPrologParserTest {
 
     private final static class StubAbstractPrologTermTest extends AbstractPrologTerm {
+        private static final long serialVersionUID = 2578516387208704688L;
 
         public StubAbstractPrologTermTest(final String text) {
             super(text);

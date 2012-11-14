@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -17,24 +17,21 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import java.math.BigInteger;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import java.math.BigInteger;
 
 /**
  * The class describes an immutable integer numeric atom, it is like a prolog
  * atom but being used to save a Java BigInteger value.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.02
- * 
  * @see BigInteger
  */
-@SuppressWarnings("serial")
 public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
+    private static final long serialVersionUID = 6955747225309951985L;
 
     /**
      * The variable contains immutable numeric value for the instance.
-     * @since 1.01
      */
     private final BigInteger value;
 
@@ -44,7 +41,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * 
      * @param text
      *            the text represents a BigInteger value, must not be null
-     * @since 1.00
      */
     public PrologIntegerNumber(final String text) {
         this(new BigInteger(text));
@@ -56,7 +52,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * @param strPos the first term char string position
      * @param lineNum the first term char line number
      * @see BigInteger
-     * @since 1.02
      */
     public PrologIntegerNumber(final String text, final int strPos, final int lineNum) {
         this(new BigInteger(text), strPos, lineNum);
@@ -66,7 +61,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to create new instances based on a Java long number. 
      * value.
      * @param value a long value to make new instance.
-     * @since 1.00
      */
     public PrologIntegerNumber(final long value) {
         this(BigInteger.valueOf(value));
@@ -77,7 +71,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * @param value a long value to make new instance.
      * @param strPos the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.02
      */
     public PrologIntegerNumber(final long value, final int strPos, final int lineNumber) {
         this(BigInteger.valueOf(value), strPos, lineNumber);
@@ -87,7 +80,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to create new instance based on a Java BigInteger value.
      * 
      * @param value the value to be saved in the new instance, must not be null
-     * @since 1.01
      */
     public PrologIntegerNumber(final BigInteger value) {
         super();
@@ -100,7 +92,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * @param value the value to be saved into the new instance, must not be null.
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
-     * @since 1.02
      */
     public PrologIntegerNumber(final BigInteger value, final int strPosition, final int lineNumber) {
         this(value);
@@ -136,7 +127,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * Get the immutable value saved by the instance
      * 
      * @return the value as BigInteger
-     * @since 1.01
      */
     public BigInteger getValue() {
         return value;

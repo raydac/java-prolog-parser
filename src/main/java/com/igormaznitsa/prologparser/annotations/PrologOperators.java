@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Igor Maznitsa (http://www.igormaznitsa.com)
+ * Copyright 2011-2012 Igor Maznitsa (http://www.igormaznitsa.com)
  *
  * This library is free software; you can redistribute it and/or modify
  * it under the terms of version 3 of the GNU Lesser General Public
@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
  * a container.
  * 
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @version 1.00
  * @see PrologOperator
  */
 @Target(value = ElementType.TYPE)
@@ -38,7 +37,6 @@ public @interface PrologOperators {
      * Array of operators, must not be empty.
      * 
      * @return an array of operators saved by the annotation
-     * @since 1.00
      */
     PrologOperator[] Operators();
 }
