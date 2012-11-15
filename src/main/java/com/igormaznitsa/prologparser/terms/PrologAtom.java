@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 
 /**
@@ -39,6 +40,14 @@ public final class PrologAtom extends AbstractPrologTerm {
         super(text);
     }
 
+    /**
+     * A Constructor to clone a Prolog term as an atom.
+     * @param term a prolog term, it must not be null.
+     */
+    public PrologAtom(final AbstractPrologTerm term){
+        super(term.getText(), term.getStrPosition(), term.getLineNumber());
+    }
+    
     /**
      * A Constructor allows to make an instance based on a text part and set the
      * position values for the text at the source stream
@@ -72,6 +81,6 @@ public final class PrologAtom extends AbstractPrologTerm {
      */
     @Override
     public String toString() {
-        return new StringBuilder("\'").append(StringUtils.escapeString(text)).append('\'').toString();
+        return new FastStringBuilder("\'").append(StringUtils.escapeString(text)).append('\'').toString();
     }
 }

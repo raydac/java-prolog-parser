@@ -1,25 +1,5 @@
 package com.igormaznitsa.prologparser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.math.BigDecimal;
-import java.nio.channels.Channels;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
-
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -33,6 +13,24 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.StringUtils;
+import java.math.BigDecimal;
+import java.nio.channels.Channels;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
 
 public class IntegrationTest extends AbstractPrologParserTest {
 
@@ -110,7 +108,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Test
-    public void testLinkedVariablesAtSentenceBounds() throws Exception {
+    public void testVariablesAtSentenceBounds() throws Exception {
         PrologStructure structure = (PrologStructure) parser.nextSentence("test(A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C).");
 
         final PrologVariable varA = (PrologVariable) structure.getElement(0);
@@ -125,14 +123,10 @@ public class IntegrationTest extends AbstractPrologParserTest {
         assertEquals("B", varB.getText());
         assertEquals("C", varC.getText());
 
-        assertNull(varA.getLinkedVariable());
-        assertNull(varB.getLinkedVariable());
-        assertNull(varC.getLinkedVariable());
-
         for (int li = 3; li < structure.getArity();) {
-            assertSame(varA, ((PrologVariable) structure.getElement(li++)).getLinkedVariable());
-            assertSame(varB, ((PrologVariable) structure.getElement(li++)).getLinkedVariable());
-            assertSame(varC, ((PrologVariable) structure.getElement(li++)).getLinkedVariable());
+            assertNotSame(varA, ((PrologVariable) structure.getElement(li++)));
+            assertNotSame(varB, ((PrologVariable) structure.getElement(li++)));
+            assertNotSame(varC, ((PrologVariable) structure.getElement(li++)));
         }
     }
 
@@ -661,10 +655,19 @@ public class IntegrationTest extends AbstractPrologParserTest {
      }
 
     @Test
-    public void testOperatorNameAsFunctor() throws Exception {
+    public void testOperatorNameAsAtomicFunctor() throws Exception {
         final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("'mod'(_,_,_,_).");
         assertEquals("Must be mod","mod",structure.getFunctor().getText());
-        assertFalse("Must not be an operator",structure.getFunctor().getType()==PrologTermType.OPERATOR);
+        assertTrue("Must not be an operator",structure.getFunctor().getType()!=PrologTermType.OPERATOR);
         assertEquals("Arity must be 4",4,structure.getArity());
+    }
+
+    @Ignore
+    @Test
+    public void testOperatorNameAsFunctor() throws Exception {
+        final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("mod(_,_).");
+        assertEquals("Must be mod","mod",structure.getFunctor().getText());
+        assertTrue("Must not be an operator",structure.getFunctor().getType()==PrologTermType.OPERATOR);
+        assertEquals("Arity must be 2",2,structure.getArity());
     }
 }

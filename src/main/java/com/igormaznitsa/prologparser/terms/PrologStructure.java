@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.FastStringBuilder;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.operators.Operator;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
@@ -24,12 +25,12 @@ import java.util.Arrays;
 
 /**
  * The class describes a prolog structure.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 public class PrologStructure extends AbstractPrologTerm {
-    private static final long serialVersionUID = 9000641998734217154L;
 
+    private static final long serialVersionUID = 9000641998734217154L;
     /**
      * An auxiliary constant contains an empty prolog term array
      */
@@ -51,12 +52,10 @@ public class PrologStructure extends AbstractPrologTerm {
     /**
      * A Constructor. It allows to create a structure for a functor and a term
      * array
-     * 
-     * @param functor
-     *            the functor for the new structure, must not be null
-     * @param elements
-     *            the elements of the new structure, must not be null and must
-     *            not contain null (!)
+     *
+     * @param functor the functor for the new structure, must not be null
+     * @param elements the elements of the new structure, must not be null and
+     * must not contain null (!)
      */
     public PrologStructure(final AbstractPrologTerm functor,
             final AbstractPrologTerm[] elements) {
@@ -65,13 +64,13 @@ public class PrologStructure extends AbstractPrologTerm {
         if (functor.getType() != PrologTermType.ATOM
                 && functor.getType() != PrologTermType.OPERATOR) {
             throw new IllegalArgumentException(
-                    "Functor must be either atom or operator");
+                    "Functor must be either an atom or an operator");
         }
         if (functor instanceof AbstractPrologNumericTerm) {
             throw new IllegalArgumentException("Number can't be a functor");
         }
 
-        checkNotNull("Element array is null", elements);
+        checkNotNull("The Element array is null", elements);
 
         this.functor = functor;
         this.elements = elements.clone();
@@ -82,12 +81,10 @@ public class PrologStructure extends AbstractPrologTerm {
     /**
      * A Constructor. It allows to create a structure for a functor and a term
      * array and set the first term char position in the source stream
-     * 
-     * @param functor
-     *            the functor for the new structure, must not be null
-     * @param elements
-     *            the elements of the new structure, must not be null and must
-     *            not contain null (!)
+     *
+     * @param functor the functor for the new structure, must not be null
+     * @param elements the elements of the new structure, must not be null and
+     * must not contain null (!)
      * @param strPosition
      * @param lineNumber
      */
@@ -100,19 +97,20 @@ public class PrologStructure extends AbstractPrologTerm {
     /**
      * A Constructor. It allows to create a zero (I mean a zero arity one)
      * structure with a prolog atom as the functor.
-     * 
-     * @param text
-     *            the text to create the functor, must not be null
+     *
+     * @param text the text to create the functor, must not be null
      */
     public PrologStructure(final String text) {
         this(new PrologAtom(text), 0);
     }
 
     /**
-     * A Constructor. It allows to create a zero arity structure and set the first term char position in the source stream 
+     * A Constructor. It allows to create a zero arity structure and set the
+     * first term char position in the source stream
+     *
      * @param text the text to create the functor, must not be null
      * @param strPosition the first term string position
-     * @param lineNumber the first term char line number 
+     * @param lineNumber the first term char line number
      */
     public PrologStructure(final String text, final int strPosition, final int lineNumber) {
         this(text);
@@ -123,9 +121,8 @@ public class PrologStructure extends AbstractPrologTerm {
     /**
      * A Constructor. It allows to create a zero (I mean a zero arity one)
      * structure with a prolog term as a functor
-     * 
-     * @param functor
-     *            a prolog term to be used as the functor, must not be null
+     *
+     * @param functor a prolog term to be used as the functor, must not be null
      */
     public PrologStructure(final AbstractPrologTerm functor) {
         this(functor, 0);
@@ -134,10 +131,10 @@ public class PrologStructure extends AbstractPrologTerm {
     /**
      * A Constructor. It allows to create a zero (I mean a zero arity one)
      * structure with a prolog term as a functor
-     * 
-     * @param functor
-     *            a prolog term to be used as the functor, must not be null
-     * @param strPosition the first term char string position in the source stream
+     *
+     * @param functor a prolog term to be used as the functor, must not be null
+     * @param strPosition the first term char string position in the source
+     * stream
      * @param lineNumber the first term char line number in the source stream
      */
     public PrologStructure(final AbstractPrologTerm functor, final int strPosition, final int lineNumber) {
@@ -149,12 +146,10 @@ public class PrologStructure extends AbstractPrologTerm {
     /**
      * A Constructor. It allows to create a prolog structure for a functor and
      * needed arity (it will use EMPTY_ATOM as each element)
-     * 
-     * @param functor
-     *            a prolog term to be used as the structure functor, it must not
-     *            be null.
-     * @param arity
-     *            the arity of the new structure, must not be less than zero.
+     *
+     * @param functor a prolog term to be used as the structure functor, it must
+     * not be null.
+     * @param arity the arity of the new structure, must not be less than zero.
      */
     protected PrologStructure(final AbstractPrologTerm functor, final int arity) {
         super(functor.getText());
@@ -182,13 +177,12 @@ public class PrologStructure extends AbstractPrologTerm {
 
     /**
      * A Constructor. It allows to create a prolog structure for a functor and
-     * needed arity (it will use EMPTY_ATOM as each element) and set the source stream position
-     * 
-     * @param functor
-     *            a prolog term to be used as the structure functor, it must not
-     *            be null.
-     * @param arity
-     *            the arity of the new structure, must not be less than zero.
+     * needed arity (it will use EMPTY_ATOM as each element) and set the source
+     * stream position
+     *
+     * @param functor a prolog term to be used as the structure functor, it must
+     * not be null.
+     * @param arity the arity of the new structure, must not be less than zero.
      * @param strPosition the first term char string position
      * @param lineNumber the first term char line number
      */
@@ -208,7 +202,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
     /**
      * Get the arity of the structure
-     * 
+     *
      * @return the arity as integer
      */
     public int getArity() {
@@ -217,11 +211,10 @@ public class PrologStructure extends AbstractPrologTerm {
 
     /**
      * Get a structure element for an index
-     * 
-     * @param index
-     *            the index of the element, the first element is 0
+     *
+     * @param index the index of the element, the first element is 0
      * @return the structure element at the needed position, it can't be null
-     *         (!)
+     * (!)
      */
     public AbstractPrologTerm getElement(final int index) {
         return elements[index];
@@ -229,11 +222,9 @@ public class PrologStructure extends AbstractPrologTerm {
 
     /**
      * Set a structure element at a position by a prolog term
-     * 
-     * @param index
-     *            the position of the element, the first is 0
-     * @param term
-     *            the term to be set into the position, must not be null
+     *
+     * @param index the position of the element, the first is 0
+     * @param term the term to be set into the position, must not be null
      */
     public void setElement(final int index, final AbstractPrologTerm term) {
         if (index < 0 || index >= getArity()) {
@@ -245,7 +236,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
     /**
      * Get the functor of the structure
-     * 
+     *
      * @return the functor
      */
     public AbstractPrologTerm getFunctor() {
@@ -265,18 +256,27 @@ public class PrologStructure extends AbstractPrologTerm {
     }
 
     /**
+     * Make a copy of the structure with another term as the functor.
+     * @param newFunctor the new functor for the copy, it must not be null.
+     * @return the new prolog structure with the same arity and terms in the body but with the new functor.
+     */
+    public PrologStructure copyWithAnotherFunctor(final AbstractPrologTerm newFunctor) {
+        return new PrologStructure(newFunctor, elements);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
+        final FastStringBuilder builder = new FastStringBuilder(64);
         if (functor.getType() == PrologTermType.OPERATOR) {
             // an operator based struct
             final Operator operatorFunctor = (Operator) functor;
             final String opName = operatorFunctor.getText();
             final int priority = operatorFunctor.getPriority();
 
-            final String text = getElement(0).toString();
+            final String text1 = getElement(0).toString();
             final String text2 = getArity() > 1 ? getElement(1).toString()
                     : null;
 
@@ -285,9 +285,9 @@ public class PrologStructure extends AbstractPrologTerm {
                     builder.append(opName).append(' ');
 
                     if (getElement(0).getPriority() >= priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
                 }
                 break;
@@ -296,17 +296,17 @@ public class PrologStructure extends AbstractPrologTerm {
                     builder.append(' ');
 
                     if (getElement(0).getPriority() > priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
                 }
                 break;
                 case XF: {
                     if (getElement(0).getPriority() >= priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
 
                     builder.append(' ').append(opName);
@@ -314,9 +314,9 @@ public class PrologStructure extends AbstractPrologTerm {
                 break;
                 case YF: {
                     if (getElement(0).getPriority() > priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
 
                     builder.append(' ').append(opName);
@@ -324,9 +324,9 @@ public class PrologStructure extends AbstractPrologTerm {
                 break;
                 case XFX: {
                     if (getElement(0).getPriority() >= priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
 
                     builder.append(' ').append(opName).append(' ');
@@ -340,9 +340,9 @@ public class PrologStructure extends AbstractPrologTerm {
                 break;
                 case YFX: {
                     if (getElement(0).getPriority() > priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
 
                     builder.append(' ').append(opName).append(' ');
@@ -356,9 +356,9 @@ public class PrologStructure extends AbstractPrologTerm {
                 break;
                 case XFY: {
                     if (getElement(0).getPriority() >= priority) {
-                        builder.append('(').append(text).append(')');
+                        builder.append('(').append(text1).append(')');
                     } else {
-                        builder.append(text);
+                        builder.append(text1);
                     }
 
                     builder.append(' ').append(opName).append(' ');
@@ -393,7 +393,7 @@ public class PrologStructure extends AbstractPrologTerm {
                 } else {
                     next = true;
                 }
-                builder.append(term);
+                builder.append(term.toString());
             }
             builder.append(')');
 

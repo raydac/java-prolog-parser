@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.operators;
 
+import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
@@ -24,42 +25,42 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import java.io.ObjectStreamException;
 
 /**
  * The class describes a prolog operator for the prolog parser.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @see PrologOperator
  * @see PrologOperators
  */
 public final class Operator extends AbstractPrologTerm {
+
     private static final long serialVersionUID = -5954317427778538548L;
-    
     /**
      * Describes the left bracket meta-operator ('(')
      */
-    public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "("); 
+    public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "(");
     /**
      * Describes the right bracket meta-operator (')')
      */
-    public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")"); 
+    public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")");
     /**
      * Describes the left square bracket meta-operator ('[')
      */
-    public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "["); 
+    public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "[");
     /**
      * Describes the right square bracket meta-operator (']')
      */
-    public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]"); 
+    public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]");
     /**
      * Describes the dot meta-operator ('.')
      */
-    public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, "."); 
+    public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, ".");
     /**
      * Describes the vertical bar meta-operator ('|')
      */
-    public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE-1, OperatorType.XFY, "|");
-    
+    public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE - 1, OperatorType.XFY, "|");
     /**
      * The constant describes the maximum priority for a prolog operator.
      */
@@ -84,17 +85,13 @@ public final class Operator extends AbstractPrologTerm {
     /**
      * This auxiliary function allows to generate a lot of similar operators
      * from a string array
-     * 
-     * @param priority
-     *            the priority for all generated operators 0..1200
-     * @param type
-     *            the type for all generated operators, must not be null
-     * @param names
-     *            a string array contains names for new operators, must not be
-     *            null
+     *
+     * @param priority the priority for all generated operators 0..1200
+     * @param type the type for all generated operators, must not be null
+     * @param names a string array contains names for new operators, must not be
+     * null
      * @return an array of new Operator objects which were generated for the
-     *         arguments and they have the same type and priority but different
-     *         names.
+     * arguments and they have the same type and priority but different names.
      * @see OperatorType
      */
     public static Operator[] makeOperators(final int priority,
@@ -114,7 +111,10 @@ public final class Operator extends AbstractPrologTerm {
     }
 
     /**
-     * This factory method allows to generate new operator with desired parameters, it will generate new instance every time because there is not any inside logic to cache instances(!).
+     * This factory method allows to generate new operator with desired
+     * parameters, it will generate new instance every time because there is not
+     * any inside logic to cache instances(!).
+     *
      * @param priority the operator priority must be in the [1..1200] interval
      * @param type the operator type, must not be null
      * @param name the operator name, must not be null or empty
@@ -127,10 +127,12 @@ public final class Operator extends AbstractPrologTerm {
         }
 
         return new Operator(priority, type, name);
-    }   
-    
+    }
+
     /**
-     * This inside factory method is used to generate operators without check of their priority 
+     * This inside factory method is used to generate operators without check of
+     * their priority
+     *
      * @param priority the operator priority, it can be any integer value
      * @param type the operator type, it must not be null
      * @param name the operator name, it must not be null or empty
@@ -141,22 +143,21 @@ public final class Operator extends AbstractPrologTerm {
         checkNotNull("Name array is null", name);
         return new Operator(priority, type, name);
     }
-    
+
     /**
-     * The constructor. It has been hidden since 1.02 version because we must avoid direct operator creation (!)
-     * 
-     * @param priority
-     *            the operator priority 0..1200
-     * @param type
-     *            the operator type, must not be null
-     * @param name
-     *            the operator name, must not be null
-     * @throws java.lang.IllegalArgumentException
-     *             will be thrown if there is some incompatible value at
-     *             arguments
+     * The constructor. It has been hidden since 1.02 version because we must
+     * avoid direct operator creation (!)
+     *
+     * @param priority the operator priority 0..1200
+     * @param type the operator type, must not be null
+     * @param name the operator name, must not be null
+     * @throws java.lang.IllegalArgumentException will be thrown if there is
+     * some incompatible value at arguments
      * @see OperatorType
-     * @see Operator#makeOperator(int, com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String) 
-     * @see Operator#makeOperators(int, com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[]) 
+     * @see Operator#makeOperator(int,
+     * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String)
+     * @see Operator#makeOperators(int,
+     * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[])
      */
     private Operator(final int priority, final OperatorType type,
             final String name) {
@@ -198,7 +199,7 @@ public final class Operator extends AbstractPrologTerm {
 
     /**
      * Get the type of the operator
-     * 
+     *
      * @return the operator type
      */
     public OperatorType getOperatorType() {
@@ -216,9 +217,8 @@ public final class Operator extends AbstractPrologTerm {
     /**
      * Check that the operator is compatible with a prolog structure and can be
      * the functor for the structure.
-     * 
-     * @param struct
-     *            the structure to be checked, must not be null
+     *
+     * @param struct the structure to be checked, must not be null
      * @return true if the operator is compatible with the structure else false
      */
     public boolean compatibleWith(final PrologStructure struct) {
@@ -365,5 +365,16 @@ public final class Operator extends AbstractPrologTerm {
         return "op(" + getPriority() + ','
                 + getOperatorType().toString().toLowerCase() + ",\'"
                 + getText() + "\').";
+    }
+
+    // The method makes all system operators as singletons for serelization, but only system ones!
+    private Object readResolve() throws ObjectStreamException {
+        Object result = this;
+
+        final Operator singletone = PrologParser.findSystemOperatorForNameAndType(text, opType);
+        if (singletone != null) {
+            result = singletone;
+        }
+        return result;
     }
 }

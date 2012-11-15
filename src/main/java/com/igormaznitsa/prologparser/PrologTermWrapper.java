@@ -31,13 +31,13 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * @see Operator
  * @see OperatorContainer
  */
-@SuppressWarnings("serial")
-class PrologTermWrapper extends AbstractPrologTerm {
+final class PrologTermWrapper extends AbstractPrologTerm {
+    private static final long serialVersionUID = 9006607815982718325L;
 
     private final AbstractPrologTerm wrappedTerm;
 
     public PrologTermWrapper(final AbstractPrologTerm wrappedTerm) {
-        super("wrapper[" + wrappedTerm.getText() + ']');
+        super(wrappedTerm.getText());
         this.wrappedTerm = wrappedTerm;
     }
 

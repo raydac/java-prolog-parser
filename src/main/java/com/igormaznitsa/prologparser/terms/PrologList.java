@@ -16,6 +16,7 @@
  * Boston, MA 02111-1307  USA
  */
 package com.igormaznitsa.prologparser.terms;
+import com.igormaznitsa.prologparser.FastStringBuilder;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
@@ -309,7 +310,7 @@ public final class PrologList extends PrologStructure {
         String result = "[]";
 
         if (!isNullList()) {
-            final StringBuilder builder = new StringBuilder("[");
+            final FastStringBuilder builder = new FastStringBuilder("[");
 
             boolean notfirst = false;
             AbstractPrologTerm list = this;

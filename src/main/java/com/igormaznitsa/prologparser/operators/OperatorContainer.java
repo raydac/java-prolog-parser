@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.operators;
 
+import com.igormaznitsa.prologparser.FastStringBuilder;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
@@ -117,6 +118,32 @@ public final class OperatorContainer extends AbstractPrologTerm {
         opZF = null;
         opZFZ = null;
         numberAtContainer = 0;
+    }
+
+    /**
+     * Get an operator for its arity.
+     *
+     * @param arity the arity.
+     * @return the found operator or null otherwise.
+     */
+    public Operator findForArity(final int arity) {
+        Operator result = null;
+        switch (arity) {
+            case 1: {
+                if (opFZ != null) {
+                    result = opFZ;
+                } else {
+                    result = opZF;
+                }
+            }
+            break;
+            case 2: {
+                result = opZFZ;
+            }
+            break;
+
+        }
+        return result;
     }
 
     /**
@@ -345,8 +372,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      */
     @Override
     public String toString() {
-        final StringBuilder result = new StringBuilder();
-        result.append("OperatorContainer [");
+        final FastStringBuilder result = new FastStringBuilder("OperatorContainer [");
 
         boolean added = false;
         final Operator[] ops = new Operator[]{opFZ, opZF, opZFZ};

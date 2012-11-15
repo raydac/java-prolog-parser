@@ -111,7 +111,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
         PrologCharDataSource reader = new PrologCharDataSource(inStream);
 
         try {
-            reader.calculateDifferenceAndPushTheResultBack(null, new StringBuilder("test"));
+            reader.calculateDifferenceAndPushTheResultBack(null, new FastStringBuilder("test"));
             fail("Must throw NPE for null etalon");
         } catch (NullPointerException ex) {
         }
@@ -129,7 +129,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
         assertEquals(-1, reader.read());
         assertEquals(1, reader.getLineNumber());
         assertEquals(11, reader.getNextCharStringPosition());
-        reader.calculateDifferenceAndPushTheResultBack("test", new StringBuilder("testworld"));
+        reader.calculateDifferenceAndPushTheResultBack("test", new FastStringBuilder("testworld"));
         assertEquals(1, reader.getLineNumber());
         assertEquals(6, reader.getNextCharStringPosition());
         for (final char chr : "world".toCharArray()) {
@@ -138,7 +138,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
         assertEquals(-1, reader.read());
 
         assertEquals(1, reader.getLineNumber());
-        reader.calculateDifferenceAndPushTheResultBack("test", new StringBuilder("test\n"));
+        reader.calculateDifferenceAndPushTheResultBack("test", new FastStringBuilder("test\n"));
         assertEquals(1, reader.getLineNumber());
     }
 

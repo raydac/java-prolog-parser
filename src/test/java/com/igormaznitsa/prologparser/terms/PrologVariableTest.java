@@ -139,36 +139,4 @@ public class PrologVariableTest extends AbstractPrologParserTest {
         assertEquals("Abc", new PrologVariable("Abc").toString());
         assertEquals("Привет", new PrologVariable("Привет").toString());
     }
-
-    @Test
-    public void testGetLinkedVariable() {
-        final PrologVariable var = new PrologVariable("Hello");
-        final PrologVariable var2 = new PrologVariable("Hello");
-        assertNull(var.getLinkedObject());
-        var.setLinkedVariable(var2);
-        assertSame(var2, var.getLinkedVariable());
-    }
-
-    @Test
-    public void testSetLinkedVariable() {
-        try {
-            new PrologVariable().setLinkedVariable(new PrologVariable("Test"));
-            fail("Must not accept linked variable for anonimous variables");
-        } catch (UnsupportedOperationException ex) {
-        }
-
-        try {
-            new PrologVariable("Test").setLinkedVariable(new PrologVariable("Test2"));
-            fail("Must not support linked variable with different name");
-        } catch (IllegalArgumentException ex) {
-        }
-
-        final PrologVariable var = new PrologVariable("Hello");
-        final PrologVariable var2 = new PrologVariable("Hello");
-        assertNull(var.getLinkedObject());
-        var.setLinkedVariable(var2);
-        assertSame(var2, var.getLinkedVariable());
-        var.setLinkedVariable(null);
-        assertNull(var.getLinkedObject());
-    }
 }

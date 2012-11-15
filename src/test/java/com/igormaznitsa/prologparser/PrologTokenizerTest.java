@@ -1,10 +1,5 @@
 package com.igormaznitsa.prologparser;
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
-import static org.mockito.Mockito.*;
-
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -14,6 +9,11 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import org.junit.*;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class PrologTokenizerTest extends AbstractPrologParserTest {
 

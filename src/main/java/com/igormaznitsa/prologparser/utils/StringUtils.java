@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser.utils;
 
+import com.igormaznitsa.prologparser.FastStringBuilder;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**
@@ -209,9 +210,11 @@ public enum StringUtils {
      * @return an escaped string.
      */
     public static String escapeString(final String str) {
-        final StringBuilder result = new StringBuilder(str.length() * 3 / 2);
+        final FastStringBuilder result = new FastStringBuilder(str.length() * 3 / 2);
 
-        for (final char chr : str.toCharArray()) {
+        final int strLen = str.length();
+        for(int i=0;i<strLen;i++){
+            final char chr = str.charAt(i);
             switch (chr) {
                 case 7:
                     result.append("\\a");

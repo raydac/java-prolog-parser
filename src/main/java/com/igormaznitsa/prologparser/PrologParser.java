@@ -29,7 +29,6 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.AssertionUtils;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The class is a hand-written prolog parser allows to parse incoming char
@@ -88,21 +86,23 @@ import java.util.concurrent.locks.ReentrantLock;
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
 public class PrologParser {
 
+    private static final int INSIDE_TABLE_CAPACITY = 0xFFF;
+    
     /**
      * The Static map contains all system operators are being used by the
      * parser.
      */
-    static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
+    static final Map<String,OperatorContainer> SYSTEM_OPERATORS = new HashMap<String,OperatorContainer>(INSIDE_TABLE_CAPACITY);
     /**
      * The Static map contains all system meta-operators for the parser
      * (brackets, dot, vertical bar).
      */
-    static final Map<String, OperatorContainer> META_SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>();
+    static final SingleCharOperatorContainerMap META_SYSTEM_OPERATORS = new SingleCharOperatorContainerMap();
     /**
      * The set contains all possible prefixes of system operators to expedite
      * parsing.
      */
-    static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>();
+    static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>(INSIDE_TABLE_CAPACITY);
     /**
      * Inside link to the system ',' operator.
      */
@@ -133,14 +133,16 @@ public class PrologParser {
     private static OperatorContainer OPERATOR_VERTICALBAR;
 
     static {
-        initSystemOperatorsFromClassAnnotations();
-        OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
-        OPERATOR_LEFTBRACKET = META_SYSTEM_OPERATORS.get("(");
-        OPERATOR_RIGHTBRACKET = META_SYSTEM_OPERATORS.get(")");
-        OPERATOR_LEFTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("[");
-        OPERATOR_RIGHTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("]");
-        OPERATOR_DOT = META_SYSTEM_OPERATORS.get(".");
-        OPERATOR_VERTICALBAR = META_SYSTEM_OPERATORS.get("|");
+        synchronized (PrologParser.class) {
+            initSystemOperatorsFromClassAnnotations();
+            OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
+            OPERATOR_LEFTBRACKET = META_SYSTEM_OPERATORS.get("(");
+            OPERATOR_RIGHTBRACKET = META_SYSTEM_OPERATORS.get(")");
+            OPERATOR_LEFTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("[");
+            OPERATOR_RIGHTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("]");
+            OPERATOR_DOT = META_SYSTEM_OPERATORS.get(".");
+            OPERATOR_VERTICALBAR = META_SYSTEM_OPERATORS.get("|");
+        }
     }
 
     /**
@@ -152,7 +154,7 @@ public class PrologParser {
      */
     public static Map<String, OperatorContainer> getSystemOperators() {
         final Map<String, OperatorContainer> result = new HashMap<String, OperatorContainer>(SYSTEM_OPERATORS);
-        result.putAll(META_SYSTEM_OPERATORS);
+        result.putAll(META_SYSTEM_OPERATORS.getMap());
         return result;
     }
     /**
@@ -178,11 +180,6 @@ public class PrologParser {
      * of a block.
      */
     private static final Map<String, OperatorContainer> OPERATORS_SUBBLOCK = makeMapFromOperatorContainers(OPERATOR_RIGHTBRACKET);
-    /**
-     * The locker allows to avoid problems when the object is called
-     * simultaneously from different threads.
-     */
-    private final ReentrantLock multithreadOperationsLocker = new ReentrantLock();
 
     /**
      * Inside auxiliary class represents a tree item
@@ -467,10 +464,10 @@ public class PrologParser {
         private AbstractPrologTerm convertTreeItemIntoTerm()
                 throws PrologParserException {
             AbstractPrologTerm result;
-            
+
             final ParserContext ctx = parser.context;
-            final boolean ctxNotNull = ctx!=null;
-                    
+            final boolean ctxNotNull = ctx != null;
+
             switch (savedTerm.getType()) {
                 case OPERATOR:
                     final PrologTermWrapper wrapper = (PrologTermWrapper) savedTerm;
@@ -559,11 +556,6 @@ public class PrologParser {
         return false;
     }
     /**
-     * The map contains variable map which is being used to map variables inside
-     * a tree.
-     */
-    private final Map<String, PrologVariable> variableSet;
-    /**
      * The tokenizer which is being used to tokenize the data stream.
      */
     private final PrologTokenizer tokenizer = new PrologTokenizer();
@@ -600,7 +592,6 @@ public class PrologParser {
      * @param context the context for the parser, it can be null.
      */
     public PrologParser(final ParserContext context) {
-        variableSet = new HashMap<String, PrologVariable>();
         this.context = context;
     }
 
@@ -633,13 +624,8 @@ public class PrologParser {
             final PrologCharDataSource reader) throws PrologParserException,
             IOException {
         AssertionUtils.checkNotNull("The reader is null", reader);
-        multithreadOperationsLocker.lock();
-        try {
             prologReader = reader;
             return this.nextSentence();
-        } finally {
-            multithreadOperationsLocker.unlock();
-        }
     }
 
     /**
@@ -653,11 +639,8 @@ public class PrologParser {
      */
     public AbstractPrologTerm nextSentence()
             throws PrologParserException, IOException {
-        multithreadOperationsLocker.lock();
-        try {
             AssertionUtils.checkNotNull("The Current prolog reader is null", prologReader);
 
-            variableSet.clear();
             final AbstractPrologTerm result = readBlock(OPERATORS_PHRASE);
             if (result == null) {
                 return null; // end_of_file
@@ -668,10 +651,6 @@ public class PrologParser {
                         this.prologReader.getNextCharStringPosition());
             }
             return result;
-        } finally {
-            multithreadOperationsLocker.unlock();
-            variableSet.clear();
-        }
     }
 
     /**
@@ -956,20 +935,7 @@ public class PrologParser {
                 break;
                 case VAR: {
                     // it's a variable
-                    final PrologVariable var = (PrologVariable) readAtom;
-                    if (!var.isAnonymous()) {
-                        // it's not an anonymous variable so we need to process it
-                        // and cache if it is not at the var table yet
-                        final PrologVariable cachedVar = variableSet.get(var.getText());
-                        if (cachedVar == null) {
-                            // first meet variable
-                            // cache it
-                            variableSet.put(var.getText(), var);
-                        } else {
-                            // set cached variable as linked variable
-                            ((PrologVariable) readAtom).setLinkedVariable(cachedVar);
-                        }
-                    }
+                    // do nothing
                 }
                 break;
                 default: {
@@ -1088,16 +1054,10 @@ public class PrologParser {
      * @throws IOException
      */
     public void close() throws IOException {
-        multithreadOperationsLocker.lock();
-        try {
-            variableSet.clear();
             if (prologReader != null) {
                 prologReader.close();
                 prologReader = null;
             }
-        } finally {
-            multithreadOperationsLocker.unlock();
-        }
     }
 
     /**
@@ -1113,6 +1073,29 @@ public class PrologParser {
         for (final OperatorContainer current : containers) {
             result.put(current.getText(), current);
         }
+        return result;
+    }
+
+    /**
+     * Get a system operator for its name and type. Mainly the method is used
+     * for deserialization.
+     *
+     * @param text the operator name, it must not be null.
+     * @param type the type of the operator, it must not be null.
+     * @return the found operator if it is found, null otherwise
+     */
+    public static Operator findSystemOperatorForNameAndType(final String text, final OperatorType type) {
+        OperatorContainer container = META_SYSTEM_OPERATORS.get(text);
+        if (container == null) {
+            container = SYSTEM_OPERATORS.get(text);
+        }
+
+        Operator result = null;
+
+        if (container != null) {
+            result = container.getOperatorForType(type);
+        }
+
         return result;
     }
 
@@ -1153,7 +1136,7 @@ public class PrologParser {
 
         final PrologOperators operators = PrologParser.class.getAnnotation(PrologOperators.class);
         if (operators != null) {
-            final StringBuilder accum = new StringBuilder(10);
+            final FastStringBuilder accum = new FastStringBuilder(10);
             for (final PrologOperator operator : operators.Operators()) {
                 if (SYSTEM_OPERATORS.containsKey(operator.Name())) {
                     final OperatorContainer container = SYSTEM_OPERATORS.get(operator.Name());

@@ -23,18 +23,12 @@ package com.igormaznitsa.prologparser.terms;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 public final class PrologVariable extends AbstractPrologTerm {
-
     private static final long serialVersionUID = 1058349084517573220L;
     /**
      * The variable contains the flag shows that the variable is an anonymous
      * one
      */
     private final boolean is_anonymous;
-    /**
-     * The variable contains a linked prolog variable, a variable with the same
-     * name in bounds of the same sentence.
-     */
-    private PrologVariable linkedVariable;
 
     /**
      * A Constructor. It allows to create an anonymous variable.
@@ -112,36 +106,5 @@ public final class PrologVariable extends AbstractPrologTerm {
     @Override
     public PrologTermType getType() {
         return PrologTermType.VAR;
-    }
-
-    /**
-     * Get the linked variable, mainly it is a variable with the same name meet
-     * by a parser in the sentence before.
-     *
-     * @return the linked variable a prolog variable or null
-     */
-    public PrologVariable getLinkedVariable() {
-        return linkedVariable;
-    }
-
-    /**
-     * Set the linked variable.
-     *
-     * @param variable the linked variable, it can be null
-     * @throws UnsupportedOperationException will be thrown if the variable is
-     * an anonymous, it is impossible to set a linked variable to an anonymous
-     * one
-     * @throws IllegalArgumentException will be thrown if the linked variable
-     * has a different name with the variable
-     */
-    public void setLinkedVariable(final PrologVariable variable) {
-        if (isAnonymous()) {
-            throw new UnsupportedOperationException("It is impossible to set a linked variable for an anonimous one");
-        }
-
-        if (variable != null && !variable.getText().equals(getText())) {
-            throw new IllegalArgumentException("Linked variable must have the same name");
-        }
-        linkedVariable = variable;
     }
 }
