@@ -127,7 +127,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @return the found operator or null otherwise.
      */
     public Operator findForArity(final int arity) {
-        Operator result = null;
+        Operator result;
         switch (arity) {
             case 1: {
                 if (opFZ != null) {
@@ -141,7 +141,9 @@ public final class OperatorContainer extends AbstractPrologTerm {
                 result = opZFZ;
             }
             break;
-
+            default:
+                result = null;
+                break;
         }
         return result;
     }

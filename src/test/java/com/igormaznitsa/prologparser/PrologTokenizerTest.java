@@ -11,8 +11,6 @@ import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import org.junit.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class PrologTokenizerTest extends AbstractPrologParserTest {
@@ -265,12 +263,6 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
     @Test
     public void testHasOperatorStartsWith() {
-        try {
-            PrologTokenizer.hasOperatorStartsWith(null, mockPrologParser);
-            fail("Must throw NPE for null string");
-        } catch (NullPointerException ex) {
-        }
-
         assertFalse("Should support null as context", PrologTokenizer.hasOperatorStartsWith("<------------------------------------------------------->", null));
 
         when(mockContext.hasOperatorStartsWith(any(PrologParser.class), eq("start_with"))).thenReturn(true);

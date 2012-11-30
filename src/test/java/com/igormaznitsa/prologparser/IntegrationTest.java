@@ -34,43 +34,41 @@ import static org.mockito.Mockito.*;
 
 public class IntegrationTest extends AbstractPrologParserTest {
 
-        private static class StubContext implements ParserContext {
+    private static class StubContext implements ParserContext {
 
-            private final Map<String,OperatorContainer> operators;
-            
-            public StubContext(final Map<String,OperatorContainer> operators){
-                this.operators = operators;
-            }
-            
-            @Override
-            public boolean hasOperatorStartsWith(final PrologParser source,
-                    final String operatorNameStartSubstring) {
-                for (final String string : operators.keySet()) {
-                    if (string.startsWith(operatorNameStartSubstring)) {
-                        return true;
-                    }
+        private final Map<String, OperatorContainer> operators;
+
+        public StubContext(final Map<String, OperatorContainer> operators) {
+            this.operators = operators;
+        }
+
+        @Override
+        public boolean hasOperatorStartsWith(final PrologParser source,
+                final String operatorNameStartSubstring) {
+            for (final String string : operators.keySet()) {
+                if (string.startsWith(operatorNameStartSubstring)) {
+                    return true;
                 }
-
-                return false;
             }
 
-            @Override
-            public OperatorContainer findOperatorForName(final PrologParser source,
-                    final String operatorName) {
-                return operators.get(operatorName);
-            }
+            return false;
+        }
 
-            @Override
-            public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
-                return false;
-            }
+        @Override
+        public OperatorContainer findOperatorForName(final PrologParser source,
+                final String operatorName) {
+            return operators.get(operatorName);
+        }
 
-            @Override
-            public void processNewStructure(final PrologParser source, final PrologStructure structure) {
-            }
-        };
+        @Override
+        public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
+            return false;
+        }
 
-    
+        @Override
+        public void processNewStructure(final PrologParser source, final PrologStructure structure) {
+        }
+    };
     final ParserContext mock = mock(ParserContext.class);
     final PrologParser parser = new PrologParser(mock);
 
@@ -643,31 +641,45 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
     @Test
     public void testRecognizingUserOperatorsWhichSimilarMetaOperators() throws Exception {
-        final Map<String,OperatorContainer> operators = new HashMap<String,OperatorContainer>();
+        final Map<String, OperatorContainer> operators = new HashMap<String, OperatorContainer>();
         operators.put("(((", new OperatorContainer(Operator.makeOperator(1, OperatorType.FX, "(((")));
         operators.put("...", new OperatorContainer(Operator.makeOperator(1200, OperatorType.XF, "...")));
         final StubContext stubContext = new StubContext(operators);
-        
+
         final PrologStructure structure = (PrologStructure) new PrologParser(stubContext).nextSentence("(((hello....");
-        assertEquals("Must be '...' operator","...",structure.getFunctor().getText());
-        assertEquals("Must be '(((' operator","(((",((PrologStructure)structure.getElement(0)).getFunctor().getText());
-        assertEquals("Must be 'hello' atom","hello",((PrologStructure)structure.getElement(0)).getElement(0).getText());
-     }
+        assertEquals("Must be '...' operator", "...", structure.getFunctor().getText());
+        assertEquals("Must be '(((' operator", "(((", ((PrologStructure) structure.getElement(0)).getFunctor().getText());
+        assertEquals("Must be 'hello' atom", "hello", ((PrologStructure) structure.getElement(0)).getElement(0).getText());
+    }
 
     @Test
     public void testOperatorNameAsAtomicFunctor() throws Exception {
         final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("'mod'(_,_,_,_).");
-        assertEquals("Must be mod","mod",structure.getFunctor().getText());
-        assertTrue("Must not be an operator",structure.getFunctor().getType()!=PrologTermType.OPERATOR);
-        assertEquals("Arity must be 4",4,structure.getArity());
+        assertEquals("Must be mod", "mod", structure.getFunctor().getText());
+        assertTrue("Must not be an operator", structure.getFunctor().getType() != PrologTermType.OPERATOR);
+        assertEquals("Arity must be 4", 4, structure.getArity());
     }
 
-    @Ignore
     @Test
-    public void testOperatorNameAsFunctor() throws Exception {
-        final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("mod(_,_).");
-        assertEquals("Must be mod","mod",structure.getFunctor().getText());
-        assertTrue("Must not be an operator",structure.getFunctor().getType()==PrologTermType.OPERATOR);
-        assertEquals("Arity must be 2",2,structure.getArity());
+    public void testOperatorNameAsFunctor_EmptyBrackets() throws Exception {
+        try {
+            new PrologParser(null).nextSentence("+().");
+            fail("Must throw PPE");
+        } catch (PrologParserException ex) {
+            assertEquals("Must be the 2 pos", 2, ex.getStringPosition());
+            assertEquals("Must be the 1 line", 1, ex.getLineNumber());
+        }
     }
+
+    @Test
+    public void testAtomAsFunctor_EmptyBrackets() throws Exception {
+        try {
+            new PrologParser(null).nextSentence("'hello'().");
+            fail("Must throw PPE");
+        } catch (PrologParserException ex) {
+            assertEquals("Must be the 8 pos", 8, ex.getStringPosition());
+            assertEquals("Must be the 1 line", 1, ex.getLineNumber());
+        }
+    }
+
 }

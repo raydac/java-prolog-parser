@@ -24,7 +24,6 @@ public class ParserContextTest extends AbstractPrologParserTest {
     public void testHasOperatorStartsWith() throws Exception {
         final ParserContext mockContext = mock(ParserContext.class);
         stub(mockContext.hasOperatorStartsWith(any(PrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
-
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return "operator".startsWith((String) invocation.getArguments()[1]);
@@ -55,7 +54,6 @@ public class ParserContextTest extends AbstractPrologParserTest {
     public void testFindOperatorForName() throws Exception {
         final ParserContext mockContext = mock(ParserContext.class);
         stub(mockContext.findOperatorForName(any(PrologParser.class), anyString())).toAnswer(new Answer<OperatorContainer>() {
-
             @Override
             public OperatorContainer answer(InvocationOnMock invocation) throws Throwable {
                 if ("operator".startsWith((String) invocation.getArguments()[1])) {
@@ -67,7 +65,6 @@ public class ParserContextTest extends AbstractPrologParserTest {
         });
 
         stub(mockContext.hasOperatorStartsWith(any(PrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
-
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return "operator".startsWith((String) invocation.getArguments()[1]);
@@ -90,7 +87,6 @@ public class ParserContextTest extends AbstractPrologParserTest {
     public void testHasZeroArityPredicate() throws Exception {
         final ParserContext mockContext = mock(ParserContext.class);
         stub(mockContext.hasZeroArityPredicate(any(PrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
-
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return "foo".equals(invocation.getArguments()[1]);
@@ -113,7 +109,6 @@ public class ParserContextTest extends AbstractPrologParserTest {
     public void testProcessNewStructure() throws Exception {
         final Map<String, PrologStructure> detectedStructures = new HashMap<String, PrologStructure>();
         final ParserContext stubContext = new ParserContext() {
-
             @Override
             public void processNewStructure(final PrologParser source, final PrologStructure structure) {
                 detectedStructures.put(structure.getFunctor().getText(), structure);
@@ -136,7 +131,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
         };
 
         final PrologParser parser = new PrologParser(stubContext);
-        final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(). a :- b.");
+        final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(5). a :- b.");
         while (parser.nextSentence(reader) != null);
 
         assertEquals(4, detectedStructures.size());

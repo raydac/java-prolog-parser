@@ -25,8 +25,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 /**
  * The class is the main char data source for a prolog parser, the class adapts
@@ -39,42 +37,6 @@ import java.util.Deque;
 public class PrologCharDataSource {
 
     /**
-     * The Inside buffer to keep chars
-     */
-    private static final class InsideCharBuffer {
-        private int position = 0;
-        private char[] buffer;
-        private int border;
-
-        InsideCharBuffer(final int capacity) {
-            buffer = new char[capacity];
-            border = capacity - 1;
-        }
-
-        private void doubleInsideBuffer() {
-            final int size = buffer.length << 1;
-            final char[] newbuffer = new char[size];
-            border = size - 1;
-            System.arraycopy(buffer, 0, newbuffer, 0, position);
-            buffer = newbuffer;
-        }
-
-        public boolean isEmpty() {
-            return position == 0;
-        }
-
-        public void addLast(final char chr) {
-            if (position == border) {
-                doubleInsideBuffer();
-            }
-            buffer[position++] = chr;
-        }
-
-        public char removeLast() {
-            return buffer[--position];
-        }
-    }
-    /**
      * The text reader which is being used by the reader to read incoming text
      * data
      */
@@ -82,7 +44,7 @@ public class PrologCharDataSource {
     /**
      * Inside char stack to save back-pushed data
      */
-    private final InsideCharBuffer insideCharBuffer = new InsideCharBuffer(16);
+    private final FastStringBuilder insideCharBuffer = new FastStringBuilder(16);
     /**
      * The variable contains the previous value of the string position indicator
      */
@@ -159,7 +121,7 @@ public class PrologCharDataSource {
         if (insideCharBuffer.isEmpty()) {
             ch = inReader.read();
         } else {
-            ch = insideCharBuffer.removeLast();
+            ch = insideCharBuffer.popChar();
         }
 
         strPosPrev = strPos;
@@ -189,25 +151,35 @@ public class PrologCharDataSource {
         int chars = buffer.length() - etalon.length();
         int pos = buffer.length() - 1;
 
-        final InsideCharBuffer charBuffer = this.insideCharBuffer;
+        final FastStringBuilder charBuffer = this.insideCharBuffer;
 
+        int locStrPos = strPos;
+        int locStrPosPrev = strPosPrev;
+        int locLineNum = lineNum;
+        int locLineNumPrev = lineNumPrev;
+        
         while (chars > 0) {
             final char ch = buffer.charAt(pos--);
-            charBuffer.addLast(ch);
+            charBuffer.pushChar(ch);
             chars--;
-            strPos--;
-            if (strPos < 1) {
-                strPos = 1;
+            locStrPos--;
+            if (locStrPos < 1) {
+                locStrPos = 1;
             }
-            strPosPrev = strPos;
+            locStrPosPrev = locStrPos;
             if (ch == '\n') {
-                lineNum--;
-                if (lineNum < 1) {
-                    lineNum = 1;
+                locLineNum--;
+                if (locLineNum < 1) {
+                    locLineNum = 1;
                 }
-                lineNumPrev = lineNum;
+                locLineNumPrev = locLineNum;
             }
         }
+        
+        strPos = locStrPos;
+        strPosPrev = locStrPosPrev;
+        lineNum = locLineNum;
+        lineNumPrev = locLineNumPrev;
     }
 
     /**
@@ -254,7 +226,7 @@ public class PrologCharDataSource {
      * @param ch the char to be placed into the inside buffer
      */
     public void pushCharBack(final char ch) {
-        insideCharBuffer.addLast(ch);
+        insideCharBuffer.pushChar(ch);
         if (ch == '\n') {
             strPos = 1;
             lineNum--;

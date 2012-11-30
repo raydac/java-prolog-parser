@@ -24,7 +24,6 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
-import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
@@ -86,14 +85,13 @@ import java.util.Set;
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
 public class PrologParser {
 
-    private static final int INSIDE_TABLE_CAPACITY = 0xFF;
-    private static final float LOAD_FACTOR = 0.5f;
-    
+    private static final int INSIDE_TABLE_CAPACITY = 0x100;
+    private static final float LOAD_FACTOR = 0.75f;
     /**
      * The Static map contains all system operators are being used by the
      * parser.
      */
-    static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>(INSIDE_TABLE_CAPACITY,LOAD_FACTOR);
+    static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
     /**
      * The Static map contains all system meta-operators for the parser
      * (brackets, dot, vertical bar).
@@ -103,7 +101,7 @@ public class PrologParser {
      * The set contains all possible prefixes of system operators to expedite
      * parsing.
      */
-    static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>(INSIDE_TABLE_CAPACITY,LOAD_FACTOR);
+    static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
     /**
      * Inside link to the system ',' operator.
      */
@@ -322,6 +320,10 @@ public class PrologParser {
         while (true) {
             final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
+            if (block == null) {
+                return null;
+            }
+
             final TokenizerResult nextAtom = tokenizer.nextToken(prologReader,
                     this);
             final String nextText = nextAtom.getResult().getText();
@@ -391,11 +393,9 @@ public class PrologParser {
                 // until the ']' atom
                 checkForNull(block, "There is not any list element", openingBracket);
                 if (leftPartFirst.isNullList()) {
-                    leftPartFirst = PrologList.setTermAsNewListTail(leftPart,
-                            block);
-                    leftPart = leftPartFirst;
+                    leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
                 } else {
-                    leftPart = PrologList.setTermAsNewListTail(leftPart, block);
+                    PrologList.setTermAsNewListTail(leftPart, block);
                 }
 
                 hasSeparator = true;
@@ -568,6 +568,10 @@ public class PrologParser {
                                 // read subblock
                                 atBrakes = true;
                                 readAtom = readBlock(OPERATORS_SUBBLOCK);
+                                if (readAtom == null) {
+                                    throw new PrologParserException("Illegal start of term",
+                                            readAtomContainer.getLineNumber(), readAtomContainer.getStringPosition());
+                                }
                                 readAtom.setStrPosition(readAtomContainer.getStringPosition());
                                 readAtom.setLineNumber(readAtomContainer.getLineNumber());
                                 readAtomPriority = 0;
@@ -596,6 +600,11 @@ public class PrologParser {
                         // it is a structure
                         if (readAtom.getType() == PrologTermType.ATOM) {
                             readAtom = readStruct(readAtom);
+                            if (readAtom == null) {
+                                // we have met the empty brackets, it disallowed by Prolog
+                                throw new PrologParserException("Illegal start of term",
+                                        nextToken.getLineNumber(), nextToken.getStringPosition());
+                            }
                         } else {
                             tokenizer.pushTermBack(nextToken);
                             throw new PrologParserException("You must have an atom as the structure functor",
@@ -677,8 +686,7 @@ public class PrologParser {
                     }
                 } else {
                     // check that it is an operator
-                    if (currentTreeItem != null
-                            && currentTreeItem.getType() != PrologTermType.OPERATOR
+                    if (currentTreeItem.getType() != PrologTermType.OPERATOR
                             && readAtomTreeItem.getType() != PrologTermType.OPERATOR) {
                         throw new PrologParserException(
                                 "There must be an operator between atoms or structures",
@@ -785,7 +793,7 @@ public class PrologParser {
                     SYSTEM_OPERATORS.put(operator.Name(), container);
                 }
 
-                accum.setLength(0);
+                accum.clear();
                 for (char chr : operator.Name().toCharArray()) {
                     accum.append(chr);
                     SYSTEM_OPERATORS_PREFIXES.add(accum.toString());
