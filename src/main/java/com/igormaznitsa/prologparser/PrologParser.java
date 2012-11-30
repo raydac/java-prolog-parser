@@ -324,11 +324,12 @@ public class PrologParser {
                 return null;
             }
 
-            final TokenizerResult nextAtom = tokenizer.nextToken(prologReader,
-                    this);
+            final TokenizerResult nextAtom = tokenizer.nextToken(prologReader,this);
             final String nextText = nextAtom.getResult().getText();
 
-            if (OPERATOR_COMMA.getText().equals(nextText)) {
+            final int firstCharCode = getFirstCharIfItIsSingle(nextText);
+            
+            if ((int)',' == firstCharCode) {
                 // next item
                 if (block == null) {
                     throw new PrologParserException("Empty structure element",
@@ -338,7 +339,7 @@ public class PrologParser {
                     listOfAtoms.add(block);
                 }
                 continue;
-            } else if (OPERATOR_RIGHTBRACKET.getText().equals(nextText)) {
+            } else if ((int)')' == firstCharCode) {
                 // end of the structure
                 if (block != null) {
                     listOfAtoms.add(block);
@@ -382,13 +383,16 @@ public class PrologParser {
                     this);
 
             final String text = nextAtom.getResult().getText();
-            if (OPERATOR_RIGHTSQUAREBRACKET.getText().equals(text)) {
+            
+            final int singleCharCode = getFirstCharIfItIsSingle(text);
+            
+            if ((int)']' == singleCharCode) {
                 // end
                 doRead = false;
                 if (block == null) {
                     continue;
                 }
-            } else if (OPERATOR_VERTICALBAR.getText().equals(text)) {
+            } else if ((int)'|' == singleCharCode) {
                 // we have found the list tail, so we need read it as one block
                 // until the ']' atom
                 checkForNull(block, "There is not any list element", openingBracket);
@@ -420,7 +424,7 @@ public class PrologParser {
                 }
 
                 break;
-            } else if (OPERATOR_COMMA.getText().equals(text)) {
+            } else if ((int)',' == singleCharCode) {
                 // all good and we read next block
                 checkForNull(block, "List element not found", nextAtom);
             } else {
@@ -558,13 +562,14 @@ public class PrologParser {
                         readAtom = readOperator;
                         final String operatorText = readOperator.getText();
                         if (operatorText.length() == 1) {
-                            if (OPERATOR_LEFTSQUAREBRACKET.getText().equals(operatorText)) {
+                            final int firstSignleChar = getFirstCharIfItIsSingle(operatorText);
+                            if ((int)'[' == firstSignleChar) {
                                 // it's a list
                                 readAtom = readList(readAtomContainer);
                                 readAtom.setStrPosition(readAtomContainer.getStringPosition());
                                 readAtom.setLineNumber(readAtomContainer.getLineNumber());
                                 readAtomPriority = 0;
-                            } else if (OPERATOR_LEFTBRACKET.getText().equals(operatorText)) {
+                            } else if ((int)'(' == firstSignleChar) {
                                 // read subblock
                                 atBrakes = true;
                                 readAtom = readBlock(OPERATORS_SUBBLOCK);
@@ -799,6 +804,21 @@ public class PrologParser {
                     SYSTEM_OPERATORS_PREFIXES.add(accum.toString());
                 }
             }
+        }
+    }
+    
+    /**
+     * Get a char code of a sngle char text string.
+     *
+     * @param text a single char text string.
+     * @return if the text contains the single char then its code point will be
+     * returned, 0x1FFFF otherwise
+     */
+    private static int getFirstCharIfItIsSingle(final String text) {
+        if (text == null || text.length() != 1) {
+            return 0x1FFFF;
+        } else {
+            return text.charAt(0);
         }
     }
 }

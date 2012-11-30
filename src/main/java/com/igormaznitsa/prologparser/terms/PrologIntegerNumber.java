@@ -43,7 +43,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      *            the text represents a BigInteger value, must not be null
      */
     public PrologIntegerNumber(final String text) {
-        this(new BigInteger(text));
+        this(new BigInteger(text,10));
     }
 
     /**
@@ -54,7 +54,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * @see BigInteger
      */
     public PrologIntegerNumber(final String text, final int strPos, final int lineNum) {
-        this(new BigInteger(text), strPos, lineNum);
+        this(new BigInteger(text,10), strPos, lineNum);
     }
 
     /**

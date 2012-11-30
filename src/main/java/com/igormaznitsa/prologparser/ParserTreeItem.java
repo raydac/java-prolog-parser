@@ -69,7 +69,7 @@ final class ParserTreeItem {
      */
     ParserTreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
         this.parser = parser;
-        if (term.getType() == PrologTermType.OPERATORS || term.getType() == PrologTermType.OPERATOR) {
+        if (term.getType() == PrologTermType.OPERATOR || term.getType() == PrologTermType.OPERATORS) {
             savedTerm = new PrologTermWrapper(term);
         } else {
             savedTerm = term;
@@ -180,10 +180,16 @@ final class ParserTreeItem {
      * is the root then it will be returned
      */
     ParserTreeItem findRoot() {
-        if (parentItem == null) {
-            return this;
+        ParserTreeItem result = this;
+        while (true) {
+            final ParserTreeItem theParent = result.parentItem;
+            if (theParent == null) {
+                break;
+            } else {
+                result = theParent;
+            }
         }
-        return parentItem.findRoot();
+        return result;
     }
 
     /**
@@ -195,12 +201,17 @@ final class ParserTreeItem {
      * value
      */
     ParserTreeItem findFirstNodeWithSuchOrLowerPriority(final int priority) {
-        ParserTreeItem result;
-        if (getPriority() >= priority || parentItem == null) {
-            result = this;
-        } else {
-            result = parentItem.findFirstNodeWithSuchOrLowerPriority(priority);
+        ParserTreeItem result = this;
+
+        while (true) {
+            final ParserTreeItem itsparent = result.parentItem;
+            if (itsparent == null || result.getPriority() >= priority) {
+                break;
+            } else {
+                result = itsparent;
+            }
         }
+
         return result;
     }
 
@@ -289,7 +300,7 @@ final class ParserTreeItem {
                     throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
                 }
                 // this code replaces '-'(number) to '-number'
-                if ("-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM && right instanceof AbstractPrologNumericTerm) {
+                if (right instanceof AbstractPrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
                     result = ((AbstractPrologNumericTerm) right).neg();
                     break;
                 }
