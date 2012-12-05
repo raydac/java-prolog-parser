@@ -17,6 +17,8 @@
  */
 package com.igormaznitsa.prologparser;
 
+import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.ringbuffer.RingBufferItem;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
@@ -27,27 +29,46 @@ import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-public final class TokenizerResult {
+public final class TokenizerResult implements RingBufferItem {
 
+    private RingBuffer<? extends RingBufferItem> ringBuffer;
+    
     /**
      * The variable contains the tokenizer state during the reading of the term.
      */
-    private final TokenizerState parserState;
+    private TokenizerState parserState;
     /**
      * The variable contains the result term.
      */
-    private final AbstractPrologTerm resultTerm;
+    private AbstractPrologTerm resultTerm;
     /**
      * The variable contains the string position where the first result char is
      * presented.
      */
-    private final int stringPosition;
+    private int stringPosition;
     /**
      * The variable contains the line number where the first result char is
      * presented.
      */
-    private final int lineNumber;
+    private int lineNumber;
 
+    
+    @Override
+    public void setRingBuffer(final RingBuffer<? extends RingBufferItem> owner) {
+        this.ringBuffer = owner;
+    }
+
+    @Override
+    public void dispose() {
+        if (ringBuffer!=null){
+            ringBuffer.dispose(this);
+        }
+    }
+    
+    public TokenizerResult(){
+        
+    }
+    
     /**
      * The constructor.
      *
@@ -59,6 +80,19 @@ public final class TokenizerResult {
      */
     public TokenizerResult(final AbstractPrologTerm term,
             final TokenizerState parserState, final int stringPosition, final int lineNumber) {
+        setData(term, parserState, stringPosition, lineNumber);
+    }
+
+    @Override
+    public void reset() {
+        this.resultTerm = null;
+        this.parserState = null;
+        this.lineNumber = -1;
+        this.stringPosition = -1;
+    }
+    
+    public void setData(final AbstractPrologTerm term,
+            final TokenizerState parserState, final int stringPosition, final int lineNumber){
         checkNotNull("The term is null", term);
         checkNotNull("The Parser state is null", parserState);
 
@@ -67,7 +101,7 @@ public final class TokenizerResult {
         this.resultTerm = term;
         this.parserState = parserState;
     }
-
+    
     /**
      * Get the tokenizer state.
      *

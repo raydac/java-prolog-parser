@@ -8,6 +8,8 @@ import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.ringbuffer.RingBufferItem;
 import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
@@ -18,12 +20,13 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-final class ParserTreeItem {
-
+public final class ParserTreeItem implements RingBufferItem {
+    
+    private RingBuffer<ParserTreeItem> ringBuffer;
     /**
      * The term saved by the item.
      */
-    private final AbstractPrologTerm savedTerm;
+    private AbstractPrologTerm savedTerm;
     /**
      * The left branch of the tree item.
      */
@@ -39,29 +42,26 @@ final class ParserTreeItem {
     /**
      * The term has been placed into brakes.
      */
-    private final boolean insideBrakes;
+    private boolean insideBrakes;
     /**
      * The link to the owner parser for the item.
      */
     private final PrologParser parser;
 
     /**
-     * The constructor
-     *
-     * @param builder the builder which has the item, must not be null
-     * @param term the term has been read from the input stream, must not be
-     * null
-     * @param insideBrakes the flag shows that the term was in the brakes so it
-     * has the max priority
-     * @param lineNum the line number of the line where the term has been found
-     * @param strPos the string position of the read stream
+     * A Constructor.
+     * @param parser  the parser processes the item, it must not be null
      */
+    ParserTreeItem(final PrologParser parser) {
+        this.parser = parser;
+        this.setData(null, false, -1, -1);
+    }
+
     /**
-     * The constructor
+     * A constructor
      *
-     * @param parser the builder which has the item, must not be null
-     * @param term the term has been read from the input stream, must not be
-     * null
+     * @param parser the parser which has the tree item, must not be null
+     * @param term the term has been read from the input stream, must not be null
      * @param insideBrakes the flag shows that the term was in the brakes so it
      * has the max priority
      * @param lineNum the line number of the line where the term has been found
@@ -69,13 +69,38 @@ final class ParserTreeItem {
      */
     ParserTreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
         this.parser = parser;
-        if (term.getType() == PrologTermType.OPERATOR || term.getType() == PrologTermType.OPERATORS) {
-            savedTerm = new PrologTermWrapper(term);
+        setData(term, insideBrakes, lineNum, strPos);
+    }
+
+    @Override
+    public void reset() {
+        this.savedTerm = null;
+        this.insideBrakes = false;
+        this.leftBranch = null;
+        this.rightBranch = null;
+        this.parentItem = null;
+    }
+
+    /**
+     * Inside method to set data to the item.
+     * @param term the term
+     * @param insideBrakes the flag shows that it is into inside brakes
+     * @param lineNum the line number
+     * @param strPos the string position
+     */
+    void setData(final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
+        if (term == null) {
+            this.savedTerm = null;
         } else {
-            savedTerm = term;
+            final PrologTermType termType = term.getType();
+            if (termType == PrologTermType.OPERATOR || termType == PrologTermType.OPERATORS) {
+                savedTerm = new PrologTermWrapper(term);
+            } else {
+                savedTerm = term;
+            }
+            savedTerm.setStrPosition(strPos);
+            savedTerm.setLineNumber(lineNum);
         }
-        savedTerm.setStrPosition(strPos);
-        savedTerm.setLineNumber(lineNum);
         this.insideBrakes = insideBrakes;
     }
 
@@ -283,7 +308,7 @@ final class ParserTreeItem {
      *
      * @return the tree item represented as a prolog term
      */
-    AbstractPrologTerm convertTreeItemIntoTerm() throws PrologParserException {
+    AbstractPrologTerm convertTreeItemIntoTerm(final RingBuffer<ParserTreeItem> cache) throws PrologParserException {
         AbstractPrologTerm result;
         final ParserContext ctx = parser.getContext();
         final boolean ctxNotNull = ctx != null;
@@ -294,8 +319,8 @@ final class ParserTreeItem {
                 if (!validate()) {
                     throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(), wrapper.getStrPosition());
                 }
-                final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm();
-                final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
+                final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm(cache);
+                final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm(cache);
                 if (left == null && right == null) {
                     throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
                 }
@@ -330,6 +355,22 @@ final class ParserTreeItem {
                 result = savedTerm;
                 break;
         }
+
+        dispose();
+
         return result;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void setRingBuffer(final RingBuffer<?> owner) {
+        this.ringBuffer = (RingBuffer<ParserTreeItem>)owner;
+    }
+
+    @Override
+    public void dispose() {
+        if (this.ringBuffer != null) {
+            this.ringBuffer.dispose(this);
+        }
     }
 }

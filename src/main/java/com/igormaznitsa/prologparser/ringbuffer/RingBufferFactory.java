@@ -15,29 +15,18 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307  USA
  */
-package com.igormaznitsa.prologparser.utils;
+package com.igormaznitsa.prologparser.ringbuffer;
 
 /**
- * It is an auxiliary class contains methods to check arguments
- *
- * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
+ * The interface describes a factory to produce items for the RingBuffer
+ * @author Igor Maznitsa (http://www.igormaznitsa.com)
+ * @param <T> the object type produced by the factory.
+ * @see RingBuffer
  */
-public abstract class AssertionUtils {
-
-    private AssertionUtils() {
-    }
-
-    public static void checkNotNull(final String message, final Object obj) {
-        if (obj == null) {
-            throw new NullPointerException(message);
-        }
-    }
-
-    public static void checkArrayForNullElements(final String message, final Object[] array) {
-        for (final Object obj : array) {
-            if (obj == null) {
-                throw new NullPointerException(message);
-            }
-        }
-    }
+public interface RingBufferFactory <T extends RingBufferItem> {
+    /**
+     * To create new item.
+     * @return the new created item.
+     */
+    T makeNew();
 }

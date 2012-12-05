@@ -535,6 +535,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
                     }
                     index++;
                 } catch (PrologParserException ex) {
+                    ex.printStackTrace();
                     fail("Prolog parser exception at " + ex.getLineNumber()
                             + ":" + ex.getStringPosition());
                 }

@@ -20,6 +20,8 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
+import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.ringbuffer.RingBufferFactory;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
@@ -35,16 +37,39 @@ import java.io.IOException;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-final class PrologTokenizer {
+final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
 
+    /**
+     * Inside caching ring buffer to cache tokenizer result items.
+     */
+    private final RingBuffer<TokenizerResult> resultCache = new RingBuffer<TokenizerResult>(this, 32);
+    /**
+     * The set contains flags or letter and digits chars.
+     */
     private static final CharFlagSet mapLettersOrDigits = new CharFlagSet();
+    /**
+     * The set contains flags for digits. 
+     */
     private static final CharFlagSet mapDigits = new CharFlagSet();
+    /**
+     * The set contains flags for white spaces.
+     */
     private static final CharFlagSet mapWhitespace = new CharFlagSet();
+    /**
+     * The set contains flags for iso controls.
+     */
     private static final CharFlagSet mapIsoControl = new CharFlagSet();
+    /**
+     * The set contains flags for spaces and iso controls.
+     */
     private static final CharFlagSet mapWhiteSpaceOrIsoControl = new CharFlagSet();
+    /**
+     * The set contains flags for upper cased letters.
+     */
     private static final CharFlagSet mapUpperCaseLetters = new CharFlagSet();
 
     static {
+        // init char flag sets
         for (int i = 0; i < 0x10000; i++) {
             final char ch = (char) i;
             if (Character.isLetterOrDigit(ch)) {
@@ -96,6 +121,7 @@ final class PrologTokenizer {
      * The variable contains the last value of the read token string position.
      */
     int lastReadTokenStrPos;
+    final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<Character>();
 
     /**
      * The constructor.
@@ -225,7 +251,7 @@ final class PrologTokenizer {
         final FastStringBuilder localstrbuffer = this.strbuffer;
         final FastStringBuilder localspecialCharBuffer = this.specialCharBuffer;
 
-        final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<Character>();
+        specialCharResult.reset();
 
         OperatorContainer lastFoundFullOperator = null;
 
@@ -245,19 +271,19 @@ final class PrologTokenizer {
                             // non-ended float then it is an integer number ened by the '.' operator
                             reader.pushCharBack('.');
                             // it is Integer
-                            return new TokenizerResult(makeTermFromString(
+                            return makeResult(makeTermFromString(
                                     localstrbuffer.toStringExcludeLastChar(),
                                     TokenizerState.INTEGER), TokenizerState.ATOM, getLastTokenStrPos(), getLastTokenLineNum());
                         } else {
                             // it is just integer number or an atom
-                            return new TokenizerResult(makeTermFromString(localstrbuffer.toString(), state),
+                            return makeResult(makeTermFromString(localstrbuffer.toString(), state),
                                     state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     case VARIABLE:
                         if (localstrbuffer.hasSingleChar('_')) {
-                            return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+                            return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         } else {
-                            return new TokenizerResult(new PrologVariable(localstrbuffer.toString()),
+                            return makeResult(new PrologVariable(localstrbuffer.toString()),
                                     state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
 
@@ -266,12 +292,12 @@ final class PrologTokenizer {
                                 lastReadTokenLineNum, lastReadTokenStrPos);
                     case OPERATOR:
                         if (lastFoundFullOperator == null) {
-                            return new TokenizerResult(makeTermFromString(localstrbuffer.toString(),
+                            return makeResult(makeTermFromString(localstrbuffer.toString(),
                                     state), state, getLastTokenStrPos(), getLastTokenLineNum());
                         } else {
                             reader.calculateDifferenceAndPushTheResultBack(
                                     lastFoundFullOperator.getText(), localstrbuffer);
-                            return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                            return makeResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     default:
                         throw new CriticalSoftwareDefectError();
@@ -282,7 +308,7 @@ final class PrologTokenizer {
 
             switch (state) {
                 case LOOKFOR:
-                    if (mapWhiteSpaceOrIsoControl.containChar(chr)) {
+                    if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
                         continue;
                     }
 
@@ -306,17 +332,17 @@ final class PrologTokenizer {
 
                             localstrbuffer.append(chr);
 
-                            if (mapUpperCaseLetters.containChar(chr)) {
+                            if (mapUpperCaseLetters.containsChar(chr)) {
                                 state = TokenizerState.VARIABLE;
                             } else {
-                                letterOrDigitOnly = mapLettersOrDigits.containChar(chr);
+                                letterOrDigitOnly = mapLettersOrDigits.containsChar(chr);
                                 final String operator = Character.toString(chr);
                                 if (hasOperatorStartsWith(operator, parser)) {
                                     lastFoundFullOperator = findOperatorForName(
                                             operator, parser);
                                     state = TokenizerState.OPERATOR;
                                 } else {
-                                    if (mapDigits.containChar(chr)) {
+                                    if (mapDigits.containsChar(chr)) {
                                         state = TokenizerState.INTEGER;
                                     } else {
                                         state = TokenizerState.ATOM;
@@ -328,22 +354,23 @@ final class PrologTokenizer {
                 case ATOM:
                     if (chr == '_') {
                         localstrbuffer.append(chr);
-                    } else if (mapWhiteSpaceOrIsoControl.containChar(chr)) {
-                        return new TokenizerResult(makeTermFromString(
+                    } else if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
+                        return makeResult(makeTermFromString(
                                 localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                     } else if (chr == '\''
-                            || (letterOrDigitOnly != mapLettersOrDigits.containChar(chr))
+                            || (letterOrDigitOnly != mapLettersOrDigits.containsChar(chr))
                             || findOperatorForName(Character.toString(chr),
                             parser) != null) {
                         reader.pushCharBack(chr);
-                        return new TokenizerResult(makeTermFromString(
+
+                        return makeResult(makeTermFromString(
                                 localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                     } else {
                         localstrbuffer.append(chr);
                     }
                     break;
                 case INTEGER:
-                    if (mapDigits.containChar(chr)) {
+                    if (mapDigits.containsChar(chr)) {
                         localstrbuffer.append(chr);
                     } else {
                         if (chr == '.' || chr == 'e' || chr == 'E') {
@@ -351,23 +378,23 @@ final class PrologTokenizer {
                             state = TokenizerState.FLOAT;
                         } else {
                             reader.pushCharBack(chr);
-                            return new TokenizerResult(makeTermFromString(
+
+                            return makeResult(makeTermFromString(
                                     localstrbuffer.toString(), state),
                                     TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     }
                     break;
                 case FLOAT:
-                    if (mapDigits.containChar(chr)) {
+                    if (mapDigits.containsChar(chr)) {
                         localstrbuffer.append(chr);
                     } else {
                         if (chr == '-' || chr == '+') {
-                            if (localstrbuffer.charAt(localstrbuffer.length() - 1) == 'e') {
+                            if (localstrbuffer.isLastChar('e')) {
                                 localstrbuffer.append(chr);
                             } else {
                                 reader.pushCharBack(chr);
-                                return new TokenizerResult(
-                                        makeTermFromString(localstrbuffer.toString(),
+                                return makeResult(makeTermFromString(localstrbuffer.toString(),
                                         TokenizerState.FLOAT),
                                         TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
                             }
@@ -376,10 +403,7 @@ final class PrologTokenizer {
                                 localstrbuffer.append('e');
                             } else {
                                 reader.pushCharBack(chr);
-                                return new TokenizerResult(makeTermFromString(
-                                        localstrbuffer.substring(0,
-                                        localstrbuffer.length() - 1),
-                                        TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
+                                return makeResult(makeTermFromString(localstrbuffer.toStringExcludeLastChar(), TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
                             }
                         } else {
 
@@ -388,43 +412,41 @@ final class PrologTokenizer {
                             if (localstrbuffer.isLastChar('.')) {
                                 // it was an integer
                                 reader.pushCharBack('.');
-                                return new TokenizerResult(makeTermFromString(
+                                return makeResult(makeTermFromString(
                                         localstrbuffer.toStringExcludeLastChar(),
                                         TokenizerState.INTEGER),
                                         TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
                             } else {
                                 // it is float
-                                return new TokenizerResult(makeTermFromString(
+                                return makeResult(makeTermFromString(
                                         localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                             }
                         }
                     }
                     break;
                 case OPERATOR:
-                    if (chr != '_'
-                            && letterOrDigitOnly != mapLettersOrDigits.containChar(chr)) {
+                    if (chr != '_' && letterOrDigitOnly != mapLettersOrDigits.containsChar(chr)) {
                         reader.pushCharBack(chr);
 
                         if (lastFoundFullOperator == null) {
-                            return new TokenizerResult(makeTermFromString(
+                            return makeResult(makeTermFromString(
                                     localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                         } else {
-                            return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                            return makeResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     } else {
-                        final OperatorContainer prevoperators = lastFoundFullOperator;
+                        final OperatorContainer previousleDetectedOperator = lastFoundFullOperator;
                         localstrbuffer.append(chr);
                         final String operator = localstrbuffer.toString();
-                        lastFoundFullOperator = findOperatorForName(operator,
-                                parser);
-                        if (prevoperators == null) {
+                        lastFoundFullOperator = findOperatorForName(operator, parser);
+                        if (previousleDetectedOperator == null) {
                             if (!hasOperatorStartsWith(operator, parser)) {
                                 if (hasOperatorStartsWith(Character.toString(chr),
                                         parser)) {
                                     // next char can be the start char of an
                                     // operator so we need get back it into the
                                     // buffer
-                                    localstrbuffer.setLength(localstrbuffer.length() - 1);
+                                    localstrbuffer.popChar();
                                     reader.pushCharBack(chr);
                                 }
                                 state = TokenizerState.ATOM;
@@ -432,22 +454,22 @@ final class PrologTokenizer {
                         } else {
                             if (lastFoundFullOperator == null) {
                                 if (hasOperatorStartsWith(operator, parser)) {
-                                    lastFoundFullOperator = prevoperators;
+                                    lastFoundFullOperator = previousleDetectedOperator;
                                 } else {
                                     if (letterOrDigitOnly) {
                                         state = TokenizerState.ATOM;
                                     } else {
                                         reader.calculateDifferenceAndPushTheResultBack(
-                                                prevoperators.getText(), localstrbuffer);
-                                        return new TokenizerResult(prevoperators,
+                                                previousleDetectedOperator.getText(), localstrbuffer);
+                                        return makeResult(previousleDetectedOperator,
                                                 state, getLastTokenStrPos(), getLastTokenLineNum());
                                     }
                                 }
                             } else {
                                 if (!hasOperatorStartsWith(operator, parser)) {
                                     reader.calculateDifferenceAndPushTheResultBack(
-                                            prevoperators.getText(), localstrbuffer);
-                                    return new TokenizerResult(prevoperators, state, getLastTokenStrPos(), getLastTokenLineNum());
+                                            previousleDetectedOperator.getText(), localstrbuffer);
+                                    return makeResult(previousleDetectedOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                                 }
                             }
                         }
@@ -455,7 +477,7 @@ final class PrologTokenizer {
                     break;
                 case STRING:
                     if (specialchar) {
-                        if (localspecialCharBuffer.length() == 0 && chr == '\n') {
+                        if (localspecialCharBuffer.isEmpty() && chr == '\n') {
                             // just add the next line code
                             localstrbuffer.append('\n');
                             specialchar = false;
@@ -488,7 +510,7 @@ final class PrologTokenizer {
                     } else {
                         switch (chr) {
                             case '\'':
-                                return new TokenizerResult(makeTermFromString(
+                                return makeResult(makeTermFromString(
                                         localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                             case '\\':
                                 specialchar = true;
@@ -501,17 +523,17 @@ final class PrologTokenizer {
                     }
                     break;
                 case VARIABLE:
-                    if (mapWhiteSpaceOrIsoControl.containChar(chr)) {
+                    if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
                         if (localstrbuffer.hasSingleChar('_')) {
-                            return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+                            return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
-                        return new TokenizerResult(new PrologVariable(localstrbuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
-                    } else if (chr != '_' && !mapLettersOrDigits.containChar(chr)) {
+                        return makeResult(new PrologVariable(localstrbuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+                    } else if (chr != '_' && !mapLettersOrDigits.containsChar(chr)) {
                         reader.pushCharBack(chr);
                         if (localstrbuffer.hasSingleChar('_')) {
-                            return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+                            return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
-                        return new TokenizerResult(new PrologVariable(localstrbuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+                        return makeResult(new PrologVariable(localstrbuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
                     } else {
                         localstrbuffer.append(chr);
                     }
@@ -520,6 +542,20 @@ final class PrologTokenizer {
                     throw new CriticalSoftwareDefectError();
             }
         }
+    }
+
+    /**
+     * The auxiliary method to centralize of result creation.
+     * @param term a term
+     * @param state a tokenizer state
+     * @param strPos a string position
+     * @param lineNum a line number
+     * @return a generated tokenizer result
+     */
+    private TokenizerResult makeResult(final AbstractPrologTerm term, final TokenizerState state, final int strPos, final int lineNum) {
+        final TokenizerResult result = resultCache.get();
+        result.setData(term, state, strPos, lineNum);
+        return result;
     }
 
     /**
@@ -607,20 +643,26 @@ final class PrologTokenizer {
         if (operatorName.length() == 1) {
             result = PrologParser.META_SYSTEM_OPERATORS.get(operatorName);
         }
+        if (result == null) {
+            // check user defined operators because a user can replace a system operator
+            if (parser != null) {
+                final ParserContext ctx = parser.getContext();
+                if (ctx != null) {
+                    result = ctx.findOperatorForName(parser, operatorName);
+                }
+            }
 
-        // check user defined operators because a user can replace a system operator
-        if (result == null && parser != null) {
-            final ParserContext ctx = parser.getContext();
-            if (ctx != null) {
-                result = ctx.findOperatorForName(parser, operatorName);
+            // check system operators
+            if (result == null) {
+                result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
             }
         }
 
-        // check system operators
-        if (result == null) {
-            result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
-        }
-
         return result;
+    }
+
+    @Override
+    public TokenizerResult makeNew() {
+        return new TokenizerResult();
     }
 }

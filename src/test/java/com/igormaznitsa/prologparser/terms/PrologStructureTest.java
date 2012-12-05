@@ -522,4 +522,20 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         assertEquals("<<<", new PrologStructure(Operator.makeOperator(222,
                 OperatorType.FY, "<<<"), 5).getText());
     }
+    
+    @Test
+    public void testCopyWithAnotherFunctor(){
+        final PrologAtom functor = new PrologAtom("hello");
+        final PrologAtom element = new PrologAtom("world");
+        final PrologStructure struct = new PrologStructure(functor, new AbstractPrologTerm[]{element},10,20);
+        
+        final PrologAtom newFunctor = new PrologAtom("haha",3,4);
+        final PrologStructure copy = struct.copyWithAnotherFunctor(newFunctor);
+        
+        assertEquals("Must be the new functor", newFunctor, copy.getFunctor());
+        assertEquals("Must be arity 1", 1, copy.getArity());
+        assertEquals("Must be the old element", element, copy.getElement(0));
+        assertEquals("Must be -1 as string position", -1, copy.getStrPosition());
+        assertEquals("Must be -1 as line number", -1, copy.getLineNumber());
+    }
 }

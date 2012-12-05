@@ -79,6 +79,10 @@ public enum StringUtils {
         public T get() {
             return value;
         }
+        
+        public void reset(){
+            value = null; 
+        }
     }
 
     /**

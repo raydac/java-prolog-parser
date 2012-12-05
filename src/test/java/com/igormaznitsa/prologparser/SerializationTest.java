@@ -1,7 +1,6 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.PrologStructure;
-import com.igormaznitsa.prologparser.terms.PrologVariable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;

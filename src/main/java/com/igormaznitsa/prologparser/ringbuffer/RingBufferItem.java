@@ -15,29 +15,25 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307  USA
  */
-package com.igormaznitsa.prologparser.utils;
+package com.igormaznitsa.prologparser.ringbuffer;
 
 /**
- * It is an auxiliary class contains methods to check arguments
- *
- * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
+ * The interface describes an item to be saved in a ring buffer.
+ * @author Igor Maznitsa (http://www.igormaznitsa.com)
+ * @see RingBuffer
  */
-public abstract class AssertionUtils {
-
-    private AssertionUtils() {
-    }
-
-    public static void checkNotNull(final String message, final Object obj) {
-        if (obj == null) {
-            throw new NullPointerException(message);
-        }
-    }
-
-    public static void checkArrayForNullElements(final String message, final Object[] array) {
-        for (final Object obj : array) {
-            if (obj == null) {
-                throw new NullPointerException(message);
-            }
-        }
-    }
+public interface RingBufferItem {
+    /**
+     * Set the ring buffer owns the item.
+     * @param ringBuffer the ring buffer, it must not be null.
+     */
+    void setRingBuffer(RingBuffer<? extends RingBufferItem> ringBuffer);
+    /**
+     * Reset data in the item.
+     */
+    void reset();
+    /**
+     * Dispose the item.
+     */
+    void dispose();
 }

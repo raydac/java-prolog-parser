@@ -53,7 +53,7 @@ public final class CharFlagSet {
      * @param chr a char to be checked.
      * @return true if the char is presented in the set, false otherwise.
      */
-    public boolean containChar(final char chr){
+    public boolean containsChar(final char chr){
         final int code = (int) chr;
         final int address = code >>> 5;
         final int pos = code & 0x1F;

@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
+import com.igormaznitsa.prologparser.ringbuffer.RingBufferFactory;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 

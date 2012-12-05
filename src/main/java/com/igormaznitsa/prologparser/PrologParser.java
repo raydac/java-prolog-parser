@@ -24,6 +24,8 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.ringbuffer.RingBufferFactory;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
@@ -83,7 +85,7 @@ import java.util.Set;
     @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
-public class PrologParser {
+public class PrologParser implements RingBufferFactory<ParserTreeItem> {
 
     private static final int INSIDE_TABLE_CAPACITY = 0x100;
     private static final float LOAD_FACTOR = 0.75f;
@@ -143,6 +145,7 @@ public class PrologParser {
             OPERATOR_VERTICALBAR = META_SYSTEM_OPERATORS.get("|");
         }
     }
+    private final RingBuffer<ParserTreeItem> itemCache = new RingBuffer<ParserTreeItem>(this, 128);
 
     /**
      * It allows to get the system operator map (it includes both system
@@ -300,6 +303,7 @@ public class PrologParser {
             throw new PrologParserException("End operator is not found", this.prologReader.getLineNumber(),
                     this.prologReader.getNextCharStringPosition());
         }
+        endAtom.dispose();
         return result;
     }
 
@@ -324,12 +328,13 @@ public class PrologParser {
                 return null;
             }
 
-            final TokenizerResult nextAtom = tokenizer.nextToken(prologReader,this);
+            final TokenizerResult nextAtom = tokenizer.nextToken(prologReader, this);
             final String nextText = nextAtom.getResult().getText();
+            nextAtom.dispose();
 
             final int firstCharCode = getFirstCharIfItIsSingle(nextText);
-            
-            if ((int)',' == firstCharCode) {
+
+            if ((int) ',' == firstCharCode) {
                 // next item
                 if (block == null) {
                     throw new PrologParserException("Empty structure element",
@@ -339,7 +344,7 @@ public class PrologParser {
                     listOfAtoms.add(block);
                 }
                 continue;
-            } else if ((int)')' == firstCharCode) {
+            } else if ((int) ')' == firstCharCode) {
                 // end of the structure
                 if (block != null) {
                     listOfAtoms.add(block);
@@ -376,23 +381,23 @@ public class PrologParser {
 
         boolean doRead = true;
 
+        TokenizerResult nextAtom = null;
         while (doRead) {
             final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-            TokenizerResult nextAtom = tokenizer.nextToken(prologReader,
-                    this);
-
+            if (nextAtom !=null) nextAtom.dispose();
+            nextAtom = tokenizer.nextToken(prologReader, this);
             final String text = nextAtom.getResult().getText();
-            
+
             final int singleCharCode = getFirstCharIfItIsSingle(text);
-            
-            if ((int)']' == singleCharCode) {
+
+            if ((int) ']' == singleCharCode) {
                 // end
                 doRead = false;
                 if (block == null) {
                     continue;
                 }
-            } else if ((int)'|' == singleCharCode) {
+            } else if ((int) '|' == singleCharCode) {
                 // we have found the list tail, so we need read it as one block
                 // until the ']' atom
                 checkForNull(block, "There is not any list element", openingBracket);
@@ -415,6 +420,7 @@ public class PrologParser {
                             tokenizer.getLastTokenStrPos());
                 }
 
+                nextAtom.dispose();
                 nextAtom = tokenizer.nextToken(prologReader, this);
                 if (!nextAtom.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
                     throw new PrologParserException(
@@ -422,9 +428,8 @@ public class PrologParser {
                             tokenizer.getLastTokenLineNum(),
                             tokenizer.getLastTokenStrPos());
                 }
-
                 break;
-            } else if ((int)',' == singleCharCode) {
+            } else if ((int) ',' == singleCharCode) {
                 // all good and we read next block
                 checkForNull(block, "List element not found", nextAtom);
             } else {
@@ -487,9 +492,13 @@ public class PrologParser {
         // atom or operator
         ParserTreeItem currentTreeItem = null;
 
+        TokenizerResult readAtomContainer = null;
         while (true) {
             // read next atom from tokenizer
-            final TokenizerResult readAtomContainer = tokenizer.nextToken(
+            if (readAtomContainer != null) {
+                readAtomContainer.dispose();
+            }
+            readAtomContainer = tokenizer.nextToken(
                     prologReader, this);
             boolean atBrakes = false;
 
@@ -563,13 +572,13 @@ public class PrologParser {
                         final String operatorText = readOperator.getText();
                         if (operatorText.length() == 1) {
                             final int firstSignleChar = getFirstCharIfItIsSingle(operatorText);
-                            if ((int)'[' == firstSignleChar) {
+                            if ((int) '[' == firstSignleChar) {
                                 // it's a list
                                 readAtom = readList(readAtomContainer);
                                 readAtom.setStrPosition(readAtomContainer.getStringPosition());
                                 readAtom.setLineNumber(readAtomContainer.getLineNumber());
                                 readAtomPriority = 0;
-                            } else if ((int)'(' == firstSignleChar) {
+                            } else if ((int) '(' == firstSignleChar) {
                                 // read subblock
                                 atBrakes = true;
                                 readAtom = readBlock(OPERATORS_SUBBLOCK);
@@ -580,7 +589,11 @@ public class PrologParser {
                                 readAtom.setStrPosition(readAtomContainer.getStringPosition());
                                 readAtom.setLineNumber(readAtomContainer.getLineNumber());
                                 readAtomPriority = 0;
-                                final AbstractPrologTerm closingAtom = tokenizer.nextToken(prologReader, this).getResult();
+                                
+                                final TokenizerResult token = tokenizer.nextToken(prologReader, this);
+                                final AbstractPrologTerm closingAtom = token.getResult();
+                                token.dispose();
+                                
                                 if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
                                     throw new PrologParserException("Non-closed brakes", prologReader.getLineNumber(),
                                             prologReader.getNextCharStringPosition());
@@ -602,18 +615,22 @@ public class PrologParser {
                 default: {
                     final TokenizerResult nextToken = tokenizer.nextToken(prologReader, this);
                     if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
+                        final int nextTokenLineNumber = nextToken.getLineNumber();
+                        final int nextTokenStrPosition = nextToken.getStringPosition();
+                        
                         // it is a structure
                         if (readAtom.getType() == PrologTermType.ATOM) {
+                            nextToken.dispose();
                             readAtom = readStruct(readAtom);
                             if (readAtom == null) {
                                 // we have met the empty brackets, it disallowed by Prolog
                                 throw new PrologParserException("Illegal start of term",
-                                        nextToken.getLineNumber(), nextToken.getStringPosition());
+                                        nextTokenLineNumber, nextTokenStrPosition);
                             }
                         } else {
                             tokenizer.pushTermBack(nextToken);
                             throw new PrologParserException("You must have an atom as the structure functor",
-                                    nextToken.getLineNumber(), nextToken.getStringPosition());
+                                    nextTokenLineNumber, nextTokenStrPosition);
                         }
                     } else {
                         // push back the next atom
@@ -636,7 +653,8 @@ public class PrologParser {
                 break;
             }
 
-            final ParserTreeItem readAtomTreeItem = new ParserTreeItem(this, readAtom,
+            final ParserTreeItem readAtomTreeItem = itemCache.get();
+            readAtomTreeItem.setData(readAtom,
                     atBrakes,
                     readAtomContainer.getLineNumber(),
                     readAtomContainer.getStringPosition());
@@ -707,7 +725,7 @@ public class PrologParser {
         if (currentTreeItem == null) {
             return null;
         } else {
-            return currentTreeItem.findRoot().convertTreeItemIntoTerm();
+            return currentTreeItem.findRoot().convertTreeItemIntoTerm(itemCache);
         }
     }
 
@@ -806,7 +824,7 @@ public class PrologParser {
             }
         }
     }
-    
+
     /**
      * Get a char code of a sngle char text string.
      *
@@ -820,5 +838,10 @@ public class PrologParser {
         } else {
             return text.charAt(0);
         }
+    }
+
+    @Override
+    public ParserTreeItem makeNew() {
+        return new ParserTreeItem(this);
     }
 }
