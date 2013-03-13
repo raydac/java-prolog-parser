@@ -1,5 +1,6 @@
 package com.igormaznitsa.prologparser;
 
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;

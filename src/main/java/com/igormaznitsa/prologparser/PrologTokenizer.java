@@ -20,15 +20,18 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.ringbuffer.RingBufferFactory;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import com.igormaznitsa.prologparser.utils.CharacterProcessor;
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.SingleCharString;
 import com.igormaznitsa.prologparser.utils.StringUtils;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferFactory;
 import java.io.IOException;
 
 /**
@@ -37,60 +40,12 @@ import java.io.IOException;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
+final class PrologTokenizer extends CharacterProcessor implements RingBufferFactory<TokenizerResult> {
 
     /**
      * Inside caching ring buffer to cache tokenizer result items.
      */
     private final RingBuffer<TokenizerResult> resultCache = new RingBuffer<TokenizerResult>(this, 32);
-    /**
-     * The set contains flags or letter and digits chars.
-     */
-    private static final CharFlagSet mapLettersOrDigits = new CharFlagSet();
-    /**
-     * The set contains flags for digits. 
-     */
-    private static final CharFlagSet mapDigits = new CharFlagSet();
-    /**
-     * The set contains flags for white spaces.
-     */
-    private static final CharFlagSet mapWhitespace = new CharFlagSet();
-    /**
-     * The set contains flags for iso controls.
-     */
-    private static final CharFlagSet mapIsoControl = new CharFlagSet();
-    /**
-     * The set contains flags for spaces and iso controls.
-     */
-    private static final CharFlagSet mapWhiteSpaceOrIsoControl = new CharFlagSet();
-    /**
-     * The set contains flags for upper cased letters.
-     */
-    private static final CharFlagSet mapUpperCaseLetters = new CharFlagSet();
-
-    static {
-        // init char flag sets
-        for (int i = 0; i < 0x10000; i++) {
-            final char ch = (char) i;
-            if (Character.isLetterOrDigit(ch)) {
-                mapLettersOrDigits.addChar(ch);
-            }
-            if (Character.isDigit(ch)) {
-                mapDigits.addChar(ch);
-            }
-            if (Character.isWhitespace(ch)) {
-                mapWhitespace.addChar(ch);
-                mapWhiteSpaceOrIsoControl.addChar(ch);
-            }
-            if (Character.isISOControl(ch)) {
-                mapIsoControl.addChar(ch);
-                mapWhiteSpaceOrIsoControl.addChar(ch);
-            }
-            if (Character.isUpperCase(ch)) {
-                mapUpperCaseLetters.addChar(ch);
-            }
-        }
-    }
     /**
      * Inside string buffer.
      */
@@ -266,7 +221,7 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                         return null;
                     case FLOAT:
                     case INTEGER:
-                    case ATOM:
+                    case ATOM: {
                         if (state == TokenizerState.FLOAT && localstrbuffer.isLastChar('.')) {
                             // non-ended float then it is an integer number ened by the '.' operator
                             reader.pushCharBack('.');
@@ -279,18 +234,20 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                             return makeResult(makeTermFromString(localstrbuffer.toString(), state),
                                     state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
-                    case VARIABLE:
+                    }
+                    case VARIABLE: {
                         if (localstrbuffer.hasSingleChar('_')) {
                             return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
                         } else {
                             return makeResult(new PrologVariable(localstrbuffer.toString()),
                                     state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
-
-                    case STRING:
+                    }
+                    case STRING: {
                         throw new PrologParserException("Unclosed string found",
                                 lastReadTokenLineNum, lastReadTokenStrPos);
-                    case OPERATOR:
+                    }
+                    case OPERATOR: {
                         if (lastFoundFullOperator == null) {
                             return makeResult(makeTermFromString(localstrbuffer.toString(),
                                     state), state, getLastTokenStrPos(), getLastTokenLineNum());
@@ -299,15 +256,17 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                     lastFoundFullOperator.getText(), localstrbuffer);
                             return makeResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                         }
-                    default:
+                    }
+                    default: {
                         throw new CriticalSoftwareDefectError();
+                    }
                 }
             }
 
             final char chr = (char) readchar;
 
             switch (state) {
-                case LOOKFOR:
+                case LOOKFOR: {
                     if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
                         continue;
                     }
@@ -336,7 +295,7 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                 state = TokenizerState.VARIABLE;
                             } else {
                                 letterOrDigitOnly = mapLettersOrDigits.containsChar(chr);
-                                final String operator = Character.toString(chr);
+                                final String operator = SingleCharString.valueOf(chr);
                                 if (hasOperatorStartsWith(operator, parser)) {
                                     lastFoundFullOperator = findOperatorForName(
                                             operator, parser);
@@ -350,8 +309,9 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                 }
                             }
                     }
-                    break;
-                case ATOM:
+                }
+                break;
+                case ATOM: {
                     if (chr == '_') {
                         localstrbuffer.append(chr);
                     } else if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
@@ -359,8 +319,7 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                 localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                     } else if (chr == '\''
                             || (letterOrDigitOnly != mapLettersOrDigits.containsChar(chr))
-                            || findOperatorForName(Character.toString(chr),
-                            parser) != null) {
+                            || findOperatorForSingleChar(chr, parser) != null) {
                         reader.pushCharBack(chr);
 
                         return makeResult(makeTermFromString(
@@ -368,8 +327,9 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                     } else {
                         localstrbuffer.append(chr);
                     }
-                    break;
-                case INTEGER:
+                }
+                break;
+                case INTEGER: {
                     if (mapDigits.containsChar(chr)) {
                         localstrbuffer.append(chr);
                     } else {
@@ -384,8 +344,9 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                     TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
                         }
                     }
-                    break;
-                case FLOAT:
+                }
+                break;
+                case FLOAT: {
                     if (mapDigits.containsChar(chr)) {
                         localstrbuffer.append(chr);
                     } else {
@@ -399,7 +360,7 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                         TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
                             }
                         } else if (chr == 'e' || chr == 'E') {
-                            if (localstrbuffer.indexOf('e') < 0) {
+                            if (localstrbuffer.lastIndexOf('e') < 0) {
                                 localstrbuffer.append('e');
                             } else {
                                 reader.pushCharBack(chr);
@@ -423,8 +384,9 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                             }
                         }
                     }
-                    break;
-                case OPERATOR:
+                }
+                break;
+                case OPERATOR: {
                     if (chr != '_' && letterOrDigitOnly != mapLettersOrDigits.containsChar(chr)) {
                         reader.pushCharBack(chr);
 
@@ -441,7 +403,7 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                         lastFoundFullOperator = findOperatorForName(operator, parser);
                         if (previousleDetectedOperator == null) {
                             if (!hasOperatorStartsWith(operator, parser)) {
-                                if (hasOperatorStartsWith(Character.toString(chr),
+                                if (hasOperatorStartsWith(SingleCharString.valueOf(chr),
                                         parser)) {
                                     // next char can be the start char of an
                                     // operator so we need get back it into the
@@ -474,8 +436,9 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                             }
                         }
                     }
-                    break;
-                case STRING:
+                }
+                break;
+                case STRING: {
                     if (specialchar) {
                         if (localspecialCharBuffer.isEmpty() && chr == '\n') {
                             // just add the next line code
@@ -521,8 +484,9 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                                 break;
                         }
                     }
-                    break;
-                case VARIABLE:
+                }
+                break;
+                case VARIABLE: {
                     if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
                         if (localstrbuffer.hasSingleChar('_')) {
                             return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
@@ -537,7 +501,8 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
                     } else {
                         localstrbuffer.append(chr);
                     }
-                    break;
+                }
+                break;
                 default:
                     throw new CriticalSoftwareDefectError();
             }
@@ -546,6 +511,7 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
 
     /**
      * The auxiliary method to centralize of result creation.
+     *
      * @param term a term
      * @param state a tokenizer state
      * @param strPos a string position
@@ -658,6 +624,21 @@ final class PrologTokenizer implements RingBufferFactory<TokenizerResult> {
             }
         }
 
+        return result;
+    }
+
+    /**
+     * Method allows to find an operator for its char representation.
+     *
+     * @param c the char name of an operator.
+     * @param parser a prolog parser which context will be used, it can be null
+     * @return an OperatorContainer if the operator is presented, else null
+     */
+    static OperatorContainer findOperatorForSingleChar(final char c, final PrologParser parser) {
+        OperatorContainer result = PrologParser.META_SYSTEM_OPERATORS.get(c);
+        if (result == null) {
+            return findOperatorForName(SingleCharString.valueOf(c), parser);
+        }
         return result;
     }
 

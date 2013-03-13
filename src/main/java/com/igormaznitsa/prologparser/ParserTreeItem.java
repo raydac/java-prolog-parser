@@ -8,12 +8,14 @@ import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorType;
-import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.ringbuffer.RingBufferItem;
 import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferFactory;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
 
 /**
  * Inside auxiliary class represents a tree item
@@ -48,9 +50,17 @@ public final class ParserTreeItem implements RingBufferItem {
      */
     private final PrologParser parser;
 
+    private static final RingBuffer<PrologTermWrapper> cacheForTermWrappers = new RingBuffer<PrologTermWrapper>(new RingBufferFactory<PrologTermWrapper>(){
+      @Override
+      public PrologTermWrapper makeNew() {
+        return new PrologTermWrapper();
+      }
+    }, 256);
+    
     /**
      * A Constructor.
-     * @param parser  the parser processes the item, it must not be null
+     *
+     * @param parser the parser processes the item, it must not be null
      */
     ParserTreeItem(final PrologParser parser) {
         this.parser = parser;
@@ -61,13 +71,15 @@ public final class ParserTreeItem implements RingBufferItem {
      * A constructor
      *
      * @param parser the parser which has the tree item, must not be null
-     * @param term the term has been read from the input stream, must not be null
+     * @param term the term has been read from the input stream, must not be
+     * null
      * @param insideBrakes the flag shows that the term was in the brakes so it
      * has the max priority
      * @param lineNum the line number of the line where the term has been found
      * @param strPos the string position of the read stream
      */
     ParserTreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
+        super();
         this.parser = parser;
         setData(term, insideBrakes, lineNum, strPos);
     }
@@ -83,6 +95,7 @@ public final class ParserTreeItem implements RingBufferItem {
 
     /**
      * Inside method to set data to the item.
+     *
      * @param term the term
      * @param insideBrakes the flag shows that it is into inside brakes
      * @param lineNum the line number
@@ -94,7 +107,9 @@ public final class ParserTreeItem implements RingBufferItem {
         } else {
             final PrologTermType termType = term.getType();
             if (termType == PrologTermType.OPERATOR || termType == PrologTermType.OPERATORS) {
-                savedTerm = new PrologTermWrapper(term);
+                final PrologTermWrapper termWrapper = cacheForTermWrappers.get();
+                termWrapper.setWrappedTerm(term);
+                savedTerm = termWrapper;
             } else {
                 savedTerm = term;
             }
@@ -110,10 +125,11 @@ public final class ParserTreeItem implements RingBufferItem {
      * @return the priority value of the term
      */
     int getPriority() {
-        if (insideBrakes) {
-            return 0;
+        int result = 0;
+        if (!insideBrakes) {
+            result = savedTerm.getPriority();
         }
-        return savedTerm.getPriority();
+        return result;
     }
 
     /**
@@ -250,7 +266,7 @@ public final class ParserTreeItem implements RingBufferItem {
             newItem.parentItem = null;
             return;
         }
-        if (this.equals(parentItem.getLeftBranch())) {
+        if (this == parentItem.getLeftBranch()) {
             parentItem.setLeftBranch(newItem);
         } else {
             parentItem.setRightBranch(newItem);
@@ -308,52 +324,64 @@ public final class ParserTreeItem implements RingBufferItem {
      *
      * @return the tree item represented as a prolog term
      */
-    AbstractPrologTerm convertTreeItemIntoTerm(final RingBuffer<ParserTreeItem> cache) throws PrologParserException {
+    AbstractPrologTerm convertTreeItemIntoTerm() throws PrologParserException {
         AbstractPrologTerm result;
         final ParserContext ctx = parser.getContext();
         final boolean ctxNotNull = ctx != null;
         switch (savedTerm.getType()) {
-            case OPERATOR:
+            case OPERATOR: {
                 final PrologTermWrapper wrapper = (PrologTermWrapper) savedTerm;
                 PrologStructure operatorStruct;
-                if (!validate()) {
-                    throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(), wrapper.getStrPosition());
+              try {
+                if (leftBranch == null && rightBranch == null) {
+                  // it is an atom because it has not any arguments
+                  return new PrologAtom(wrapper.getWrappedTerm().getText(), wrapper.getLineNumber(), wrapper.getStrPosition());
                 }
-                final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm(cache);
-                final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm(cache);
+
+
+                if (!validate()) {
+                  throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(), wrapper.getStrPosition());
+                }
+
+                final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm();
+                final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
                 if (left == null && right == null) {
-                    throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
+                  throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
                 }
                 // this code replaces '-'(number) to '-number'
                 if (right instanceof AbstractPrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
-                    result = ((AbstractPrologNumericTerm) right).neg();
-                    break;
+                  result = ((AbstractPrologNumericTerm) right).neg();
+                  break;
                 }
                 if (left == null) {
-                    operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), new AbstractPrologTerm[]{right});
-                } else {
-                    if (right == null) {
-                        operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), new AbstractPrologTerm[]{left});
-                    } else {
-                        operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), new AbstractPrologTerm[]{left, right});
-                    }
+                  operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), new AbstractPrologTerm[]{right});
+                }
+                else {
+                  operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), (right == null ? new AbstractPrologTerm[]{left} : new AbstractPrologTerm[]{left, right}));
                 }
                 operatorStruct.setStrPosition(wrapper.getStrPosition());
                 operatorStruct.setLineNumber(wrapper.getLineNumber());
                 if (ctxNotNull) {
-                    ctx.processNewStructure(parser, operatorStruct);
+                  ctx.processNewStructure(parser, operatorStruct);
                 }
                 result = operatorStruct;
-                break;
-            case STRUCT:
+              }
+              finally {
+                wrapper.dispose();
+              }
+            }
+            break;
+            case STRUCT: {
                 if (ctxNotNull) {
                     ctx.processNewStructure(parser, (PrologStructure) savedTerm);
                 }
                 result = savedTerm;
-                break;
-            default:
+            }
+            break;
+            default: {
                 result = savedTerm;
-                break;
+            }
+            break;
         }
 
         dispose();
@@ -364,7 +392,7 @@ public final class ParserTreeItem implements RingBufferItem {
     @Override
     @SuppressWarnings("unchecked")
     public void setRingBuffer(final RingBuffer<?> owner) {
-        this.ringBuffer = (RingBuffer<ParserTreeItem>)owner;
+        this.ringBuffer = (RingBuffer<ParserTreeItem>) owner;
     }
 
     @Override

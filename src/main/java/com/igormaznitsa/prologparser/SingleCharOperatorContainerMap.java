@@ -107,6 +107,10 @@ final class SingleCharOperatorContainerMap {
         return charMap[code];
     }
 
+    public OperatorContainer get(final char c){
+        return c>0xFF ? null : charMap [c]; 
+    }
+    
     /**
      * Get mapped containers as a map.
      * @return a map contains all mapped containers and their keys.

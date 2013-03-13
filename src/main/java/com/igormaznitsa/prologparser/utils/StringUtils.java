@@ -17,7 +17,6 @@
  */
 package com.igormaznitsa.prologparser.utils;
 
-import com.igormaznitsa.prologparser.FastStringBuilder;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**

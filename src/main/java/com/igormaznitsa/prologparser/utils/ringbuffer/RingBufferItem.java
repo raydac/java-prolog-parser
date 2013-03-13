@@ -15,18 +15,25 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307  USA
  */
-package com.igormaznitsa.prologparser.ringbuffer;
+package com.igormaznitsa.prologparser.utils.ringbuffer;
 
 /**
- * The interface describes a factory to produce items for the RingBuffer
+ * The interface describes an item to be saved in a ring buffer.
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @param <T> the object type produced by the factory.
  * @see RingBuffer
  */
-public interface RingBufferFactory <T extends RingBufferItem> {
+public interface RingBufferItem {
     /**
-     * To create new item.
-     * @return the new created item.
+     * Set the ring buffer owns the item.
+     * @param ringBuffer the ring buffer, it must not be null.
      */
-    T makeNew();
+    void setRingBuffer(RingBuffer<? extends RingBufferItem> ringBuffer);
+    /**
+     * Reset data in the item.
+     */
+    void reset();
+    /**
+     * Dispose the item.
+     */
+    void dispose();
 }

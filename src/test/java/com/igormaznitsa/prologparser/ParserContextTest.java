@@ -15,6 +15,7 @@ import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 
@@ -73,12 +74,9 @@ public class ParserContextTest extends AbstractPrologParserTest {
 
         final PrologParser parser = new PrologParser(mockContext);
         final PrologCharDataSource reader = new PrologCharDataSource("operator.");
-        try {
-            parser.nextSentence(reader);
-            fail("Must throw PPE");
-        } catch (PrologParserException ex) {
-        }
-
+        final PrologAtom atom = (PrologAtom)parser.nextSentence(reader);
+        assertEquals("It must be the 'operator' atom","operator",atom.getText());
+        
         verify(mockContext).findOperatorForName(parser, "operator");
 
     }

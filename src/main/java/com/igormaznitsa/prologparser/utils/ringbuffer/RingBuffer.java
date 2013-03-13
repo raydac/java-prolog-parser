@@ -15,7 +15,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307  USA
  */
-package com.igormaznitsa.prologparser.ringbuffer;
+package com.igormaznitsa.prologparser.utils.ringbuffer;
 
 /**
  * The class implements a ring buffer allows to cache some items. But also the buffer creates new items if there is not any free one for a request.

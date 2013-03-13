@@ -18,6 +18,7 @@
 package com.igormaznitsa.prologparser.terms;
 
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import com.igormaznitsa.prologparser.utils.CharacterProcessor;
 import java.io.Serializable;
 
 /**
@@ -26,7 +27,7 @@ import java.io.Serializable;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-public abstract class AbstractPrologTerm implements Serializable {
+public abstract class AbstractPrologTerm extends CharacterProcessor implements Serializable {
 
     private static final long serialVersionUID = 1482429096900255841L;
     /**

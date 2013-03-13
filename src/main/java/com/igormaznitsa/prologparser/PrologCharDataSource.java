@@ -17,6 +17,7 @@
  */
 package com.igormaznitsa.prologparser;
 
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +75,7 @@ public class PrologCharDataSource {
 
     /**
      * A constructor. To make a reader based on an input stream (with the
-     * default charset)
+     * default charset!)
      *
      * @param inStream an input stream object which will be used as the source
      * for the reader, must not be null
@@ -91,7 +92,6 @@ public class PrologCharDataSource {
      */
     public PrologCharDataSource(final ReadableByteChannel channel) {
         this(Channels.newInputStream(channel));
-        checkNotNull("Channel is null", channel);
     }
 
     /**

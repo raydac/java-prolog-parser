@@ -15,7 +15,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307  USA
  */
-package com.igormaznitsa.prologparser;
+package com.igormaznitsa.prologparser.utils;
 
 /**
  * A String builder working a bit faster than the standard one for the parsing
@@ -45,7 +45,7 @@ public final class FastStringBuilder {
      * placed in the start.
      */
     public FastStringBuilder(final String initialString) {
-        this(Math.max(initialString.length() << 1, 64));
+        this(Math.max(initialString.length() << 1, 32));
         append(initialString);
     }
 
@@ -55,19 +55,19 @@ public final class FastStringBuilder {
      * @param capacity a capacity of the buffer.
      */
     public FastStringBuilder(final int capacity) {
-        charArray = new char[capacity];
-        maxPosition = capacity - 1;
+        this.charArray = new char[capacity];
+        this.maxPosition = capacity - 1;
     }
 
     /**
      * Inside method to double the buffer capacity.
      */
     private void doubleBuffer() {
-        final int newlen = charArray.length << 1;
+        final int newlen = this.charArray.length << 1;
         final char[] newbuffer = new char[newlen];
-        System.arraycopy(charArray, 0, newbuffer, 0, pointer);
-        charArray = newbuffer;
-        maxPosition = newlen - 1;
+        System.arraycopy(this.charArray, 0, newbuffer, 0, this.pointer);
+        this.charArray = newbuffer;
+        this.maxPosition = newlen - 1;
     }
 
     /**
@@ -77,10 +77,10 @@ public final class FastStringBuilder {
      * @return the buffer instance.
      */
     public FastStringBuilder append(final char chr) {
-        if (pointer == maxPosition) {
+        if (this.pointer == this.maxPosition) {
             doubleBuffer();
         }
-        charArray[pointer++] = chr;
+        this.charArray[this.pointer++] = chr;
         return this;
     }
 
@@ -101,7 +101,7 @@ public final class FastStringBuilder {
      * @return a characted found in the position.
      */
     public char charAt(final int position) {
-        return charArray[position];
+        return this.charArray[position];
     }
 
     /**
@@ -111,8 +111,8 @@ public final class FastStringBuilder {
      * @return -1 if the char is not found, its first position otherwise
      */
     public int indexOf(final char chr) {
-        final char[] local = charArray;
-        final int localp = pointer;
+        final char[] local = this.charArray;
+        final int localp = this.pointer;
         for (int i = 0; i < localp; i++) {
             if (local[i] == chr) {
                 return i;
@@ -121,6 +121,17 @@ public final class FastStringBuilder {
         return -1;
     }
 
+    public int lastIndexOf(final char chr){
+        final char[] local = this.charArray;
+        int pos = this.pointer;
+        while(pos!=0){
+            if (local[--pos] == chr){
+                return pos;
+            }
+        }
+        return -1;
+    }
+    
     /**
      * Check that the buffer has a single char, its length is 1.
      *
@@ -129,10 +140,10 @@ public final class FastStringBuilder {
      * otherwise.
      */
     public boolean hasSingleChar(final char chr) {
-        if (pointer != 1) {
+        if (this.pointer != 1) {
             return false;
         }
-        return charArray[0] == chr;
+        return this.charArray[0] == chr;
     }
 
     /**
@@ -142,11 +153,11 @@ public final class FastStringBuilder {
      * @return false if the end of the buffer is not the char, true otherwise.
      */
     public boolean isLastChar(final char chr) {
-        final int p = pointer;
+        final int p = this.pointer;
         if (p == 0) {
             return false;
         }
-        return charArray[p - 1] == chr;
+        return this.charArray[p - 1] == chr;
     }
 
     /**
@@ -156,11 +167,14 @@ public final class FastStringBuilder {
      * @throws IndexOutOfBoundsException if the buffer is empty.
      */
     public String toStringExcludeLastChar() {
-        final int p = pointer;
+        final int p = this.pointer;
         if (p == 0) {
             throw new IndexOutOfBoundsException("The buffer is empty");
         }
-        return new String(charArray, 0, p - 1);
+        final int len = p-1;
+        final char [] array = new char [len];
+        System.arraycopy(this.charArray, 0, array, 0, len);
+        return new String(array);
     }
 
     /**
@@ -174,10 +188,10 @@ public final class FastStringBuilder {
      */
     public String substring(final int offset, final int count) {
         final int maxpos = offset + count;
-        if (maxpos > pointer) {
+        if (maxpos > this.pointer) {
             throw new IndexOutOfBoundsException("The end of the substring is out of bound of the inside buffer [" + maxpos + ']');
         }
-        return new String(charArray, offset, count);
+        return new String(this.charArray, offset, count);
     }
 
     /**
@@ -188,23 +202,19 @@ public final class FastStringBuilder {
      */
     public FastStringBuilder append(final String str) {
         int strlen = str.length();
-        while (true) {
-            final int newlen = pointer + strlen;
-            if (newlen <= maxPosition) {
-                break;
-            }
+        while (this.pointer + strlen > this.maxPosition) {
             doubleBuffer();
         }
 
-        final char[] localarray = charArray;
+        final char[] localarray = this.charArray;
 
         int index = 0;
-        int localpointer = pointer;
+        int localpointer = this.pointer;
         while (strlen != 0) {
             localarray[localpointer++] = str.charAt(index++);
             strlen--;
         }
-        pointer = localpointer;
+        this.pointer = localpointer;
         return this;
     }
 
@@ -230,7 +240,10 @@ public final class FastStringBuilder {
 
     @Override
     public String toString() {
-        return new String(charArray, 0, pointer);
+        final int len = pointer;
+        final char [] array = new char[len];
+        System.arraycopy(charArray, 0, array, 0, len);
+        return new String(array);
     }
 
     /**

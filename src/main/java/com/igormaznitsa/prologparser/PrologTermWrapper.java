@@ -19,12 +19,13 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.ringbuffer.RingBufferFactory;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
 
 /**
- * The class allows to make a wrapper containing a source stream position and a linked object for a singleton prolog term.
+ * An Auxiliary class allows to make a wrapper containing a source stream position and a linked object for a singleton prolog term.
  * It is used by the prolog parser during tree building so it is a package level class.
  * 
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
@@ -32,16 +33,19 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
  * @see Operator
  * @see OperatorContainer
  */
-final class PrologTermWrapper extends AbstractPrologTerm {
+final class PrologTermWrapper extends AbstractPrologTerm implements RingBufferItem {
     private static final long serialVersionUID = 9006607815982718325L;
-
-    private final AbstractPrologTerm wrappedTerm;
-
-    public PrologTermWrapper(final AbstractPrologTerm wrappedTerm) {
-        super(wrappedTerm.getText());
-        this.wrappedTerm = wrappedTerm;
+    private volatile AbstractPrologTerm wrappedTerm;
+    private volatile RingBuffer<PrologTermWrapper> ringBuffer;
+    
+    PrologTermWrapper() {
+        super("termWrapper");
     }
 
+    public void setWrappedTerm(final AbstractPrologTerm term){
+      this.wrappedTerm = term;
+    }
+    
     public AbstractPrologTerm getWrappedTerm() {
         return this.wrappedTerm;
     }
@@ -64,5 +68,21 @@ final class PrologTermWrapper extends AbstractPrologTerm {
     @Override
     public String toString() {
         return wrappedTerm.toString();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void setRingBuffer(final RingBuffer<? extends RingBufferItem> ringBuffer) {
+        this.ringBuffer = (RingBuffer<PrologTermWrapper>)ringBuffer;
+    }
+
+    @Override
+    public void reset() {
+        this.wrappedTerm = null;
+    }
+
+    @Override
+    public void dispose() {
+        this.ringBuffer.dispose(this);
     }
 }

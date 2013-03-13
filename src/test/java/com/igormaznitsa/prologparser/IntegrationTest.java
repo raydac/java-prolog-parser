@@ -683,4 +683,17 @@ public class IntegrationTest extends AbstractPrologParserTest {
         }
     }
 
+    @Test
+    public void testAtomInSequenceWithNameSimilarOperator() throws Exception {
+          final PrologStructure structure = (PrologStructure)new PrologParser(null).nextSentence("functor(1,2,3,mod,5,6).");
+          assertEquals("Arity must be 6",6,structure.getArity());
+          assertEquals("Must be 1","1",structure.getElement(0).getText());
+          assertEquals("Must be 2","2",structure.getElement(1).getText());
+          assertEquals("Must be 3","3",structure.getElement(2).getText());
+          assertEquals("Must be 'mod'","mod",structure.getElement(3).getText());
+          assertEquals("Must be 5","5",structure.getElement(4).getText());
+          assertEquals("Must be 6","6",structure.getElement(5).getText());
+          
+    }
+
 }

@@ -16,7 +16,7 @@
  * Boston, MA 02111-1307  USA
  */
 package com.igormaznitsa.prologparser.terms;
-import com.igormaznitsa.prologparser.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 
 /**

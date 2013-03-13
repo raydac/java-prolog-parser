@@ -26,6 +26,7 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
 import java.io.ObjectStreamException;
+import java.util.Locale;
 
 /**
  * The class describes a prolog operator for the prolog parser.
@@ -169,17 +170,19 @@ public final class Operator extends AbstractPrologTerm {
             throw new IllegalArgumentException("Empty operator name");
         }
 
-        if (Character.isSpaceChar(name.charAt(0))) {
+        final char firstLetter = name.charAt(0);
+        
+        if (mapWhiteSpaceOrIsoControl.containsChar(firstLetter)) {
             throw new IllegalArgumentException(
                     "Space char as the first one at name");
         }
 
-        if (Character.isUpperCase(name.charAt(0))) {
+        if (mapUpperCaseLetters.containsChar(firstLetter)) {
             throw new IllegalArgumentException(
                     "Capital char as the first one at name");
         }
 
-        if (name.charAt(0) == '_') {
+        if (firstLetter == '_') {
             throw new IllegalArgumentException("'_' as the first char");
         }
 
@@ -363,7 +366,7 @@ public final class Operator extends AbstractPrologTerm {
     @Override
     public String toString() {
         return "op(" + getPriority() + ','
-                + getOperatorType().toString().toLowerCase() + ",\'"
+                + getOperatorType().toString().toLowerCase(Locale.ENGLISH) + ",\'"
                 + getText() + "\').";
     }
 

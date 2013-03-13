@@ -24,17 +24,20 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
-import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.ringbuffer.RingBufferFactory;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.utils.ThreadSafeArrayListCache;
 import com.igormaznitsa.prologparser.utils.AssertionUtils;
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -87,7 +90,12 @@ import java.util.Set;
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
 public class PrologParser implements RingBufferFactory<ParserTreeItem> {
 
-    private static final int INSIDE_TABLE_CAPACITY = 0x100;
+    /**
+     * Inside cache of array lists to accumulate AbstractPrologTerms
+     */
+    private static final ThreadSafeArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ThreadSafeArrayListCache<AbstractPrologTerm>();
+  
+    private static final int INSIDE_TABLE_CAPACITY = 0x300;
     private static final float LOAD_FACTOR = 0.75f;
     /**
      * The Static map contains all system operators are being used by the
@@ -107,42 +115,87 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
     /**
      * Inside link to the system ',' operator.
      */
-    private static OperatorContainer OPERATOR_COMMA;
+    private final static OperatorContainer OPERATOR_COMMA;
     /**
      * Inside link to the system '(' operator.
      */
-    private static OperatorContainer OPERATOR_LEFTBRACKET;
+    private final static OperatorContainer OPERATOR_LEFTBRACKET;
     /**
      * Inside link to the system ')' operator.
      */
-    private static OperatorContainer OPERATOR_RIGHTBRACKET;
+    private final static OperatorContainer OPERATOR_RIGHTBRACKET;
     /**
      * Inside link to the system '[' operator.
      */
-    private static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
+    private final static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
     /**
      * Inside link to the system ']' operator.
      */
-    private static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
+    private final static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
     /**
      * Inside link to the system '.' operator.
      */
-    private static OperatorContainer OPERATOR_DOT;
+    private final static OperatorContainer OPERATOR_DOT;
     /**
      * Inside link to the '|' operator.
      */
-    private static OperatorContainer OPERATOR_VERTICALBAR;
+    private final static OperatorContainer OPERATOR_VERTICALBAR;
 
     static {
         synchronized (PrologParser.class) {
-            initSystemOperatorsFromClassAnnotations();
+            META_SYSTEM_OPERATORS.clear();
+
+            OPERATOR_DOT = new OperatorContainer(Operator.METAOPERATOR_DOT);
+            META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_DOT.getText(), OPERATOR_DOT);
+
+            OPERATOR_LEFTBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_BRACKET);
+            META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_BRACKET.getText(), OPERATOR_LEFTBRACKET);
+
+            OPERATOR_RIGHTBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_BRACKET);
+            META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_BRACKET.getText(), OPERATOR_RIGHTBRACKET);
+
+            OPERATOR_LEFTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET);
+            META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText(), OPERATOR_LEFTSQUAREBRACKET);
+
+            OPERATOR_RIGHTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET);
+            META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText(), OPERATOR_RIGHTSQUAREBRACKET);
+
+            OPERATOR_VERTICALBAR = new OperatorContainer(Operator.METAOPERATOR_VERTICAL_BAR);
+            META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(), OPERATOR_VERTICALBAR);
+
+            SYSTEM_OPERATORS.clear();
+            SYSTEM_OPERATORS_PREFIXES.clear();
+
+            SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_DOT.getText());
+            SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_BRACKET.getText());
+            SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText());
+            SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_BRACKET.getText());
+            SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText());
+            SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_VERTICAL_BAR.getText());
+
+            final PrologOperators operators = PrologParser.class.getAnnotation(PrologOperators.class);
+            if (operators != null) {
+                final FastStringBuilder accum = new FastStringBuilder(10);
+                for (final PrologOperator operator : operators.Operators()) {
+                    if (SYSTEM_OPERATORS.containsKey(operator.Name())) {
+                        final OperatorContainer container = SYSTEM_OPERATORS.get(operator.Name());
+                        container.addOperator(Operator.makeOperator(operator.Priority(),
+                                operator.Type(), operator.Name()));
+                    } else {
+                        final OperatorContainer container = new OperatorContainer(
+                                Operator.makeOperator(operator.Priority(), operator.Type(),
+                                operator.Name()));
+                        SYSTEM_OPERATORS.put(operator.Name(), container);
+                    }
+
+                    accum.clear();
+                    for (char chr : operator.Name().toCharArray()) {
+                        accum.append(chr);
+                        SYSTEM_OPERATORS_PREFIXES.add(accum.toString());
+                    }
+                }
+            }
             OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
-            OPERATOR_LEFTBRACKET = META_SYSTEM_OPERATORS.get("(");
-            OPERATOR_RIGHTBRACKET = META_SYSTEM_OPERATORS.get(")");
-            OPERATOR_LEFTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("[");
-            OPERATOR_RIGHTSQUAREBRACKET = META_SYSTEM_OPERATORS.get("]");
-            OPERATOR_DOT = META_SYSTEM_OPERATORS.get(".");
-            OPERATOR_VERTICALBAR = META_SYSTEM_OPERATORS.get("|");
         }
     }
     private final RingBuffer<ParserTreeItem> itemCache = new RingBuffer<ParserTreeItem>(this, 128);
@@ -319,8 +372,9 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
      */
     private PrologStructure readStruct(final AbstractPrologTerm functor)
             throws PrologParserException, IOException {
-        final ArrayList<AbstractPrologTerm> listOfAtoms = new ArrayList<AbstractPrologTerm>();
-
+        final List<AbstractPrologTerm> listOfAtoms = abstractPrologTermListCache.getListFromCache();
+        PrologStructure result; 
+        try{
         while (true) {
             final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
@@ -336,13 +390,7 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
 
             if ((int) ',' == firstCharCode) {
                 // next item
-                if (block == null) {
-                    throw new PrologParserException("Empty structure element",
-                            tokenizer.getLastTokenLineNum(),
-                            tokenizer.getLastTokenStrPos());
-                } else {
-                    listOfAtoms.add(block);
-                }
+                listOfAtoms.add(block);
                 continue;
             } else if ((int) ')' == firstCharCode) {
                 // end of the structure
@@ -353,9 +401,11 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
             }
         }
 
-        final PrologStructure result = new PrologStructure(functor,
+        result = new PrologStructure(functor,
                 listOfAtoms.toArray(new AbstractPrologTerm[listOfAtoms.size()]));
-
+        }finally{
+          abstractPrologTermListCache.putListToCache(listOfAtoms);
+        }
         return result;
     }
 
@@ -385,7 +435,9 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
         while (doRead) {
             final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-            if (nextAtom !=null) nextAtom.dispose();
+            if (nextAtom != null) {
+                nextAtom.dispose();
+            }
             nextAtom = tokenizer.nextToken(prologReader, this);
             final String text = nextAtom.getResult().getText();
 
@@ -589,11 +641,11 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
                                 readAtom.setStrPosition(readAtomContainer.getStringPosition());
                                 readAtom.setLineNumber(readAtomContainer.getLineNumber());
                                 readAtomPriority = 0;
-                                
+
                                 final TokenizerResult token = tokenizer.nextToken(prologReader, this);
                                 final AbstractPrologTerm closingAtom = token.getResult();
                                 token.dispose();
-                                
+
                                 if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
                                     throw new PrologParserException("Non-closed brakes", prologReader.getLineNumber(),
                                             prologReader.getNextCharStringPosition());
@@ -617,7 +669,7 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
                     if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
                         final int nextTokenLineNumber = nextToken.getLineNumber();
                         final int nextTokenStrPosition = nextToken.getStringPosition();
-                        
+
                         // it is a structure
                         if (readAtom.getType() == PrologTermType.ATOM) {
                             nextToken.dispose();
@@ -725,7 +777,7 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
         if (currentTreeItem == null) {
             return null;
         } else {
-            return currentTreeItem.findRoot().convertTreeItemIntoTerm(itemCache);
+            return currentTreeItem.findRoot().convertTreeItemIntoTerm();
         }
     }
 
@@ -764,65 +816,6 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
         }
 
         return result;
-    }
-
-    /**
-     * Inside auxiliary function to initialize inside system operators table
-     * from annotations.
-     */
-    private static void initSystemOperatorsFromClassAnnotations() {
-        META_SYSTEM_OPERATORS.clear();
-
-        OPERATOR_DOT = new OperatorContainer(Operator.METAOPERATOR_DOT);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_DOT.getText(), OPERATOR_DOT);
-
-        OPERATOR_LEFTBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_BRACKET.getText(), OPERATOR_LEFTBRACKET);
-
-        OPERATOR_RIGHTBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_BRACKET.getText(), OPERATOR_RIGHTBRACKET);
-
-        OPERATOR_LEFTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText(), OPERATOR_LEFTSQUAREBRACKET);
-
-        OPERATOR_RIGHTSQUAREBRACKET = new OperatorContainer(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText(), OPERATOR_RIGHTSQUAREBRACKET);
-
-        OPERATOR_VERTICALBAR = new OperatorContainer(Operator.METAOPERATOR_VERTICAL_BAR);
-        META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(), OPERATOR_VERTICALBAR);
-
-        SYSTEM_OPERATORS.clear();
-        SYSTEM_OPERATORS_PREFIXES.clear();
-
-        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_DOT.getText());
-        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_BRACKET.getText());
-        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_SQUARE_BRACKET.getText());
-        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_BRACKET.getText());
-        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText());
-        SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_VERTICAL_BAR.getText());
-
-        final PrologOperators operators = PrologParser.class.getAnnotation(PrologOperators.class);
-        if (operators != null) {
-            final FastStringBuilder accum = new FastStringBuilder(10);
-            for (final PrologOperator operator : operators.Operators()) {
-                if (SYSTEM_OPERATORS.containsKey(operator.Name())) {
-                    final OperatorContainer container = SYSTEM_OPERATORS.get(operator.Name());
-                    container.addOperator(Operator.makeOperator(operator.Priority(),
-                            operator.Type(), operator.Name()));
-                } else {
-                    final OperatorContainer container = new OperatorContainer(
-                            Operator.makeOperator(operator.Priority(), operator.Type(),
-                            operator.Name()));
-                    SYSTEM_OPERATORS.put(operator.Name(), container);
-                }
-
-                accum.clear();
-                for (char chr : operator.Name().toCharArray()) {
-                    accum.append(chr);
-                    SYSTEM_OPERATORS_PREFIXES.add(accum.toString());
-                }
-            }
-        }
     }
 
     /**

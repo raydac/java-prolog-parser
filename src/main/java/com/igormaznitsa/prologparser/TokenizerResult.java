@@ -17,11 +17,11 @@
  */
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.ringbuffer.RingBufferItem;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
+import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
 
 /**
  * The class is a container to save information about parsed token, tokenizer

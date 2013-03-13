@@ -17,7 +17,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 
 /**
