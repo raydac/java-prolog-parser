@@ -30,8 +30,8 @@ import com.igormaznitsa.prologparser.utils.CharacterProcessor;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.SingleCharString;
 import com.igormaznitsa.prologparser.utils.StringUtils;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferFactory;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
 import java.io.IOException;
 
 /**
@@ -40,12 +40,12 @@ import java.io.IOException;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-final class PrologTokenizer extends CharacterProcessor implements RingBufferFactory<TokenizerResult> {
+final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemFactory<TokenizerResult> {
 
     /**
      * Inside caching ring buffer to cache tokenizer result items.
      */
-    private final RingBuffer<TokenizerResult> resultCache = new RingBuffer<TokenizerResult>(this, 32);
+    private final SoftCache<TokenizerResult> resultCache = new SoftCache<TokenizerResult>(this, 32);
     /**
      * Inside string buffer.
      */

@@ -18,16 +18,16 @@
 package com.igormaznitsa.prologparser.utils.ringbuffer;
 
 /**
- * The interface describes an item to be saved in a ring buffer.
+ * The interface describes an item to be saved in a SoftCache.
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @see RingBuffer
+ * @see SoftCache
  */
-public interface RingBufferItem {
+public interface SoftCacheItem {
     /**
-     * Set the ring buffer owns the item.
-     * @param ringBuffer the ring buffer, it must not be null.
+     * Set the SoftCache owns the item.
+     * @param softCache a SoftCache to be the owner, it must not be null.
      */
-    void setRingBuffer(RingBuffer<? extends RingBufferItem> ringBuffer);
+    void setSoftCache(SoftCache<? extends SoftCacheItem> softCache);
     /**
      * Reset data in the item.
      */

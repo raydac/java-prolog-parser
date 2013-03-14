@@ -19,18 +19,20 @@ package com.igormaznitsa.prologparser.utils.ringbuffer;
 
 /**
  * The class implements a ring buffer allows to cache some items. But also the buffer creates new items if there is not any free one for a request.
+ * It is soft one because it can lost items if it is full and generate new ones if it is empty.
+ * NB! It is not a thread-safe class
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @param <T> the type of an item kept by the buffer
  */
-public class RingBuffer <T extends RingBufferItem> {
+public class SoftCache <T extends SoftCacheItem> {
     /**
      * The factory allows to create new items.
      */
-    private final RingBufferFactory<T> factory;
+    private final SoftCacheItemFactory<T> factory;
     /**
-     * The inside ring buffer.
+     * The inside buffer.
      */
-    private final  RingBufferItem  [] ringBuffer;
+    private final  SoftCacheItem  [] buffer;
     
     /**
      * The pointer to the first element in the buffer.
@@ -38,14 +40,9 @@ public class RingBuffer <T extends RingBufferItem> {
     private int headPointer;
     
     /**
-     * The pointer to the last element in the buffer.
+     * The max element index in the buffer.
      */
-    private int tailPointer;
-    
-    /**
-     * The size of the buffer.
-     */
-    private final int bufferSize;
+    private final int maxElementIndex;
     
     /**
      * The constructor.
@@ -53,12 +50,11 @@ public class RingBuffer <T extends RingBufferItem> {
      * @param size the size of the buffer.
      */
     @SuppressWarnings("unchecked")
-    public RingBuffer(final RingBufferFactory<T> factory, final int size){
+    public SoftCache(final SoftCacheItemFactory<T> factory, final int size){
         this.factory = factory;
-        this.ringBuffer =  new RingBufferItem[size];
-        this.bufferSize = size;
+        this.buffer =  new SoftCacheItem[size];
+        this.maxElementIndex = size;
         this.headPointer = 0;
-        this.tailPointer = 0;
     }
     
     /**
@@ -68,17 +64,15 @@ public class RingBuffer <T extends RingBufferItem> {
     @SuppressWarnings("unchecked")
     public T get(){
         T result;
-        int pointer = headPointer;
-        if (pointer == tailPointer){
-            // create new one
-            result = factory.makeNew();
-            result.setRingBuffer(this);
-        }else{
-            result = (T)ringBuffer[pointer++];
-            if (pointer==bufferSize){
-                pointer = 0;
-            }
-            headPointer = pointer;
+        int pointer = headPointer-1;
+        if (pointer < 0) {
+          // create new one
+          result = factory.makeNew();
+          result.setSoftCache(this);
+        }
+        else {
+          result = (T) buffer[pointer];
+          headPointer = pointer;
         }
         return result;
     }
@@ -88,16 +82,13 @@ public class RingBuffer <T extends RingBufferItem> {
      * @param item an item to be disposed.
      */
     @SuppressWarnings("unchecked")
-    public void dispose(final RingBufferItem item){
-        int pointer = tailPointer+1;
-        if (pointer == bufferSize){
-            pointer = 0;
-        }
-        if (pointer != headPointer){
-            final T ringitem = (T) item;
-            ringitem.reset();
-            ringBuffer[tailPointer] = ringitem;
-            tailPointer = pointer;
+    public void dispose(final SoftCacheItem item){
+        int pointer = headPointer;
+        if (pointer < maxElementIndex) {
+          final T ringitem = (T) item;
+          ringitem.reset();
+          buffer[pointer++] = ringitem;
+          headPointer = pointer;
         }
     }
 }

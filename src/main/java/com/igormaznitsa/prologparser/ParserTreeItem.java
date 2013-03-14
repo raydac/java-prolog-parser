@@ -26,18 +26,18 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferFactory;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
 
 /**
  * Inside auxiliary class represents a tree item
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-public final class ParserTreeItem implements RingBufferItem {
+public final class ParserTreeItem implements SoftCacheItem {
     
-    private RingBuffer<ParserTreeItem> ringBuffer;
+    private SoftCache<ParserTreeItem> ringBuffer;
     /**
      * The term saved by the item.
      */
@@ -63,13 +63,6 @@ public final class ParserTreeItem implements RingBufferItem {
      */
     private final PrologParser parser;
 
-    private static final RingBuffer<PrologTermWrapper> cacheForTermWrappers = new RingBuffer<PrologTermWrapper>(new RingBufferFactory<PrologTermWrapper>(){
-      @Override
-      public PrologTermWrapper makeNew() {
-        return new PrologTermWrapper();
-      }
-    }, 256);
-    
     /**
      * A Constructor.
      *
@@ -77,24 +70,7 @@ public final class ParserTreeItem implements RingBufferItem {
      */
     ParserTreeItem(final PrologParser parser) {
         this.parser = parser;
-        this.setData(null, false, -1, -1);
-    }
-
-    /**
-     * A constructor
-     *
-     * @param parser the parser which has the tree item, must not be null
-     * @param term the term has been read from the input stream, must not be
-     * null
-     * @param insideBrakes the flag shows that the term was in the brakes so it
-     * has the max priority
-     * @param lineNum the line number of the line where the term has been found
-     * @param strPos the string position of the read stream
-     */
-    ParserTreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
-        super();
-        this.parser = parser;
-        setData(term, insideBrakes, lineNum, strPos);
+        this.setData(null,null, false, -1, -1);
     }
 
     @Override
@@ -109,18 +85,19 @@ public final class ParserTreeItem implements RingBufferItem {
     /**
      * Inside method to set data to the item.
      *
+     * @param prologTermWrapperCache the cache of prolog term wrappers, it can be null only if the term is null
      * @param term the term
      * @param insideBrakes the flag shows that it is into inside brakes
      * @param lineNum the line number
      * @param strPos the string position
      */
-    void setData(final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
+    void setData(final SoftCache<PrologTermWrapper> prologTermWrapperCache, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
         if (term == null) {
             this.savedTerm = null;
         } else {
             final PrologTermType termType = term.getType();
             if (termType == PrologTermType.OPERATOR || termType == PrologTermType.OPERATORS) {
-                final PrologTermWrapper termWrapper = cacheForTermWrappers.get();
+                final PrologTermWrapper termWrapper = prologTermWrapperCache.get();
                 termWrapper.setWrappedTerm(term);
                 savedTerm = termWrapper;
             } else {
@@ -404,8 +381,8 @@ public final class ParserTreeItem implements RingBufferItem {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void setRingBuffer(final RingBuffer<?> owner) {
-        this.ringBuffer = (RingBuffer<ParserTreeItem>) owner;
+    public void setSoftCache(final SoftCache<?> owner) {
+        this.ringBuffer = (SoftCache<ParserTreeItem>) owner;
     }
 
     @Override

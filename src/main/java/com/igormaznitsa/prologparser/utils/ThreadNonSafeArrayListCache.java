@@ -23,10 +23,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * An Auxiliary Thread-safe class allows to cache ArrayLists
+ * An Auxiliary Thread-NONsafe class allows to cache ArrayLists
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
  */
-public final class ThreadSafeArrayListCache <T> {
+public final class ThreadNonSafeArrayListCache <T> {
   /**
    * The initial cached ArrayList size
    */
@@ -40,26 +40,30 @@ public final class ThreadSafeArrayListCache <T> {
   /**
    * Inside blocking queue to keep cached lists
    */
-  private final BlockingQueue<List<T>> insideQueue = new ArrayBlockingQueue<List<T>>(MAX_CACHED_NUMBER);
+  private final Object[] insideList = new Object[MAX_CACHED_NUMBER];
 
-  public ThreadSafeArrayListCache() {
+  private int firstFreeElementPointer = 0;
+  
+  public ThreadNonSafeArrayListCache() {
     // init cached items
     for (int i = 0; i < MAX_CACHED_NUMBER; i++) {
-      insideQueue.add(new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE));
+      insideList[i] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
     }
   }
 
+  @SuppressWarnings("unchecked")
   public List<T> getListFromCache() {
-    try {
-      return insideQueue.take();
-    }
-    catch (InterruptedException ex) {
+    if (firstFreeElementPointer == 0){
       return new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
+    }else{
+      return (List<T>)insideList[--firstFreeElementPointer];
     }
   }
   
   public void putListToCache(final List<T> list){
-    list.clear();
-    insideQueue.offer(list);
+    if (firstFreeElementPointer < MAX_CACHED_NUMBER){
+      list.clear();
+      insideList[firstFreeElementPointer++] = list;
+    }
   }
 }

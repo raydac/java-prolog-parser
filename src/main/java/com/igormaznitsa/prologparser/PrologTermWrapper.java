@@ -21,8 +21,8 @@ import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
 /**
  * An Auxiliary class allows to make a wrapper containing a source stream position and a linked object for a singleton prolog term.
@@ -33,10 +33,10 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
  * @see Operator
  * @see OperatorContainer
  */
-final class PrologTermWrapper extends AbstractPrologTerm implements RingBufferItem {
+final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheItem {
     private static final long serialVersionUID = 9006607815982718325L;
     private volatile AbstractPrologTerm wrappedTerm;
-    private volatile RingBuffer<PrologTermWrapper> ringBuffer;
+    private volatile SoftCache<PrologTermWrapper> ringBuffer;
     
     PrologTermWrapper() {
         super("termWrapper");
@@ -72,8 +72,8 @@ final class PrologTermWrapper extends AbstractPrologTerm implements RingBufferIt
 
     @Override
     @SuppressWarnings("unchecked")
-    public void setRingBuffer(final RingBuffer<? extends RingBufferItem> ringBuffer) {
-        this.ringBuffer = (RingBuffer<PrologTermWrapper>)ringBuffer;
+    public void setSoftCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
+        this.ringBuffer = (SoftCache<PrologTermWrapper>)ringBuffer;
     }
 
     @Override

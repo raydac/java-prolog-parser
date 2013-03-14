@@ -28,13 +28,12 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.ThreadSafeArrayListCache;
 import com.igormaznitsa.prologparser.utils.AssertionUtils;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferFactory;
+import com.igormaznitsa.prologparser.utils.ThreadNonSafeArrayListCache;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,12 +87,21 @@ import java.util.Set;
     @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
-public class PrologParser implements RingBufferFactory<ParserTreeItem> {
+public class PrologParser implements SoftCacheItemFactory<ParserTreeItem> {
+    /**
+     * Inside cache for term wrappers.
+     */
+    private final SoftCache<PrologTermWrapper> cacheForTermWrappers = new SoftCache<PrologTermWrapper>(new SoftCacheItemFactory<PrologTermWrapper>() {
+      @Override
+      public PrologTermWrapper makeNew() {
+        return new PrologTermWrapper();
+      }
+    }, 256);
 
     /**
      * Inside cache of array lists to accumulate AbstractPrologTerms
      */
-    private static final ThreadSafeArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ThreadSafeArrayListCache<AbstractPrologTerm>();
+    private final ThreadNonSafeArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ThreadNonSafeArrayListCache<AbstractPrologTerm>();
   
     private static final int INSIDE_TABLE_CAPACITY = 0x300;
     private static final float LOAD_FACTOR = 0.75f;
@@ -198,7 +206,7 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
             OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
         }
     }
-    private final RingBuffer<ParserTreeItem> itemCache = new RingBuffer<ParserTreeItem>(this, 128);
+    private final SoftCache<ParserTreeItem> itemCache = new SoftCache<ParserTreeItem>(this, 128);
 
     /**
      * It allows to get the system operator map (it includes both system
@@ -706,7 +714,7 @@ public class PrologParser implements RingBufferFactory<ParserTreeItem> {
             }
 
             final ParserTreeItem readAtomTreeItem = itemCache.get();
-            readAtomTreeItem.setData(readAtom,
+            readAtomTreeItem.setData(cacheForTermWrappers,readAtom,
                     atBrakes,
                     readAtomContainer.getLineNumber(),
                     readAtomContainer.getStringPosition());

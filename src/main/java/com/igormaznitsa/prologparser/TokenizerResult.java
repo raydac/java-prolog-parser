@@ -20,8 +20,8 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBuffer;
-import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
 /**
  * The class is a container to save information about parsed token, tokenizer
@@ -29,9 +29,9 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.RingBufferItem;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-public final class TokenizerResult implements RingBufferItem {
+public final class TokenizerResult implements SoftCacheItem {
 
-    private RingBuffer<? extends RingBufferItem> ringBuffer;
+    private SoftCache<? extends SoftCacheItem> ringBuffer;
     
     /**
      * The variable contains the tokenizer state during the reading of the term.
@@ -54,7 +54,7 @@ public final class TokenizerResult implements RingBufferItem {
 
     
     @Override
-    public void setRingBuffer(final RingBuffer<? extends RingBufferItem> owner) {
+    public void setSoftCache(final SoftCache<? extends SoftCacheItem> owner) {
         this.ringBuffer = owner;
     }
 
