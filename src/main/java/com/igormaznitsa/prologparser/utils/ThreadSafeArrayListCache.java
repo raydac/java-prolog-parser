@@ -43,6 +43,7 @@ public final class ThreadSafeArrayListCache <T> {
   private final BlockingQueue<List<T>> insideQueue = new ArrayBlockingQueue<List<T>>(MAX_CACHED_NUMBER);
 
   public ThreadSafeArrayListCache() {
+    // init cached items
     for (int i = 0; i < MAX_CACHED_NUMBER; i++) {
       insideQueue.add(new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE));
     }
@@ -59,6 +60,6 @@ public final class ThreadSafeArrayListCache <T> {
   
   public void putListToCache(final List<T> list){
     list.clear();
-    insideQueue.add(list);
+    insideQueue.offer(list);
   }
 }
