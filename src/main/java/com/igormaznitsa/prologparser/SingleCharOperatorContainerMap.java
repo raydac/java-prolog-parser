@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A wrapper to keep single char mapped operato containers.
+ * A wrapper to keep single char mapped operator containers.
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 final class SingleCharOperatorContainerMap {

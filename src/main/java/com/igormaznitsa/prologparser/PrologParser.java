@@ -86,15 +86,25 @@ import java.util.Set;
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
 public class PrologParser implements SoftCacheItemFactory<ParserTreeItem> {
-    /**
+  
+  private static final class TermWrapperCacheFactory implements SoftCacheItemFactory<PrologTermWrapper> {
+    @Override
+    public PrologTermWrapper makeNew() {
+      return new PrologTermWrapper();
+    }
+  }
+  
+  private static final class TermWrapperCache extends SoftCache<PrologTermWrapper> {
+    private static final TermWrapperCacheFactory factory = new TermWrapperCacheFactory();
+    public TermWrapperCache(int size) {
+      super(factory,size);
+    }
+  }
+  
+  /**
      * Inside cache for term wrappers.
      */
-    private final SoftCache<PrologTermWrapper> cacheForTermWrappers = new SoftCache<PrologTermWrapper>(new SoftCacheItemFactory<PrologTermWrapper>() {
-      @Override
-      public PrologTermWrapper makeNew() {
-        return new PrologTermWrapper();
-      }
-    }, 256);
+    private final SoftCache<PrologTermWrapper> cacheForTermWrappers = new TermWrapperCache(256);
 
     /**
      * Inside cache of array lists to accumulate AbstractPrologTerms
@@ -397,12 +407,9 @@ public class PrologParser implements SoftCacheItemFactory<ParserTreeItem> {
             if ((int) ',' == firstCharCode) {
                 // next item
                 listOfAtoms.add(block);
-                continue;
             } else if ((int) ')' == firstCharCode) {
                 // end of the structure
-                if (block != null) {
-                    listOfAtoms.add(block);
-                }
+                listOfAtoms.add(block);
                 break;
             }
         }

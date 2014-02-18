@@ -252,7 +252,6 @@ public final class PrologList extends PrologStructure {
                     final AbstractPrologTerm ltail = current.getTail();
                     if (ltail.getType() == PrologTermType.LIST) {
                         current = (PrologList) ltail;
-                        continue;
                     } else {
                         final PrologList newOne = new PrologList(term,
                                 new PrologList());
