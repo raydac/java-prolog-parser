@@ -26,7 +26,6 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
 
 /**
  * Inside auxiliary class represents a tree item
