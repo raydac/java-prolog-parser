@@ -1,4 +1,4 @@
-The Java Prolog Parser was developed as a part of the Prol engine (it is an embeddable Prolog Java engine) but lately it was separated as a free-standing open source project to allow for everyone to develop own Prolog engines in Java. The parser allows to parse prolog sources written in the Edinburgh style (pay your attention, it supports only '%' comments). It can use below Java objects as char data sources: 
+This parser was started as a part of [the JProl engine (it is an embeddable Prolog Java engine)](https://github.com/raydac/jprol) but then it was separated as a free-standing open source project to allow for everyone to develop own Prolog engines in Java. The parser allows to parse prolog sources written in the Edinburgh style (pay your attention, it supports only '%' comments). It can use below Java objects as char data sources: 
 
 - java.lang.String
 - java.io.InputStream?
@@ -19,8 +19,8 @@ final PrologParser parser = new PrologParser(null);
       }
 ```
 
-# Usage from Maven
-Since 1.3.1 version the Prolog Parser is accessible in the Maven Central and you can add it as a dependency into your pom.xml 
+# How to use with Maven
+Since 1.3.1 version the Prolog Parser has been published through Maven Central and you can add it as a dependency into your pom.xml 
 ```
 <dependency>
    <groupId>com.igormaznitsa</groupId>
