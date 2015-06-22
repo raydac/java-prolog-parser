@@ -16,7 +16,7 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 
 /**
  * The class is the main char data source for a prolog parser, the class adapts
@@ -79,7 +80,7 @@ public class PrologCharDataSource {
      * for the reader, must not be null
      */
     public PrologCharDataSource(final InputStream inStream) {
-        this(new InputStreamReader(inStream));
+        this(new InputStreamReader(inStream,Charset.defaultCharset()));
     }
 
     /**
@@ -98,7 +99,7 @@ public class PrologCharDataSource {
      * @param reader a java reader object, must not be null
      */
     public PrologCharDataSource(final Reader reader) {
-        checkNotNull("Reader is null", reader);
+        assertNotNull("Reader is null", reader);
 
         inReader = reader;
         strPos = 1;

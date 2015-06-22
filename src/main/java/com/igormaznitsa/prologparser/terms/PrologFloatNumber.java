@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -101,7 +101,7 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      */
     public PrologFloatNumber(final BigDecimal value) {
         super();
-        checkNotNull("Value is null", value);
+        assertNotNull("Value is null", value);
         this.value = value;
     }
 

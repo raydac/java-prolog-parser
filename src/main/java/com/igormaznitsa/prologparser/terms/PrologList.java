@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 
 /**
  * The class describes a prolog list being used by the prolog parser.
@@ -61,12 +61,12 @@ public final class PrologList extends PrologStructure {
      */
     public PrologList(final AbstractPrologTerm[] array) {
         this();
-        checkNotNull("Array is null", array);
+        assertNotNull("Array is null", array);
 
         PrologList current = this;
 
         for (final AbstractPrologTerm term : array) {
-            checkNotNull("Array contains a null element", term);
+            assertNotNull("Array contains a null element", term);
             current = current.addAsNewListToEndOfListChain(term);
         }
     }
@@ -207,8 +207,8 @@ public final class PrologList extends PrologStructure {
      */
     public static PrologList setTermAsNewListTail(final PrologList list,
             final AbstractPrologTerm term) {
-        checkNotNull("The list is null", list);
-        checkNotNull("The term is null", term);
+        assertNotNull("The list is null", list);
+        assertNotNull("The term is null", term);
 
         PrologList result = list;
 
@@ -235,7 +235,7 @@ public final class PrologList extends PrologStructure {
      */
     public PrologList addAsNewListToEndOfListChain(
             final AbstractPrologTerm term) {
-        checkNotNull("The term is null", term);
+        assertNotNull("The term is null", term);
 
         if (isNullList()) {
             setHead(term);
@@ -272,7 +272,7 @@ public final class PrologList extends PrologStructure {
      */
     public void replaceLastElement(
             final AbstractPrologTerm elementToReplace) {
-        checkNotNull("The element is null", elementToReplace);
+        assertNotNull("The element is null", elementToReplace);
 
         PrologList curList = this;
         while (true) {

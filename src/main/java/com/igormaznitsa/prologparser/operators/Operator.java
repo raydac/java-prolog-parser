@@ -22,7 +22,7 @@ import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.io.ObjectStreamException;
 import java.util.Locale;
 
@@ -99,8 +99,8 @@ public final class Operator extends AbstractPrologTerm {
             throw new IllegalArgumentException(
                     "Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
         }
-        checkNotNull("Type is null", type);
-        checkNotNull("Name array is null", names);
+        assertNotNull("Type is null", type);
+        assertNotNull("Name array is null", names);
 
         final Operator[] result = new Operator[names.length];
         for (int li = 0; li < names.length; li++) {
@@ -138,8 +138,8 @@ public final class Operator extends AbstractPrologTerm {
      * @return the new generated operator instance
      */
     private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
-        checkNotNull("Type is null", type);
-        checkNotNull("Name array is null", name);
+        assertNotNull("Type is null", type);
+        assertNotNull("Name array is null", name);
         return new Operator(priority, type, name);
     }
 
@@ -162,11 +162,8 @@ public final class Operator extends AbstractPrologTerm {
             final String name) {
         super(name);
 
-        checkNotNull("Type is null", type);
-
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException("Empty operator name");
-        }
+        assertNotNull("Type is null", type);
+        assertNonEmptyString("Empty operator namee", name);
 
         final char firstLetter = name.charAt(0);
         

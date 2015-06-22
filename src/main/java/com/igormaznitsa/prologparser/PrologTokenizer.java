@@ -23,7 +23,7 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import com.igormaznitsa.prologparser.utils.CharacterProcessor;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.SingleCharString;
@@ -185,7 +185,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
             final PrologParser parser) throws PrologParserException,
             IOException {
 
-        checkNotNull("Reader is null", reader);
+        assertNotNull("Reader is null", reader);
 
         if (lastPushedTerm != null) {
             try {

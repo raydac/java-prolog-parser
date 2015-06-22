@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * An Auxiliary Thread-NONsafe class allows to cache ArrayLists
- * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
+ * @param <T> class type to be processed by cache
  */
 public final class ThreadNonSafeArrayListCache <T> {
   /**
@@ -46,7 +46,7 @@ public final class ThreadNonSafeArrayListCache <T> {
   public ThreadNonSafeArrayListCache() {
     // init cached items
     for (int i = 0; i < MAX_CACHED_NUMBER; i++) {
-      insideList[i] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
+      this.insideList[i] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
     }
   }
 
@@ -54,17 +54,17 @@ public final class ThreadNonSafeArrayListCache <T> {
 
   @SuppressWarnings("unchecked")
   public List<T> getListFromCache() {
-    if (firstFreeElementPointer == 0){
+    if (this.firstFreeElementPointer == 0){
       return new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
     }else{
-      return (List<T>)insideList[--firstFreeElementPointer];
+      return (List<T>)this.insideList[--this.firstFreeElementPointer];
     }
   }
 
   public void putListToCache(final List<T> list){
-    if (firstFreeElementPointer < MAX_CACHED_NUMBER){
+    if (this.firstFreeElementPointer < MAX_CACHED_NUMBER){
       list.clear();
-      insideList[firstFreeElementPointer++] = list;
+      this.insideList[this.firstFreeElementPointer++] = list;
     }
   }
 }

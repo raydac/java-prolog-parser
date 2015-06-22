@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * @return the numeric value of the text as a BigInteger
      */
     private static BigInteger valueOf(final String text) {
-        checkNotNull("Null text", text);
+        assertNotNull("Null text", text);
         final int len = text.length();
         BigInteger result = null;
         if (len == 0) {
@@ -129,7 +129,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      */
     public PrologIntegerNumber(final BigInteger value) {
         super();
-        checkNotNull("Value is null", value);
+        assertNotNull("Value is null", value);
         this.value = value;
     }
 

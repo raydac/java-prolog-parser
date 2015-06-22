@@ -18,7 +18,7 @@ package com.igormaznitsa.prologparser.terms;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.operators.Operator;
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.util.Arrays;
 
 /**
@@ -68,12 +68,12 @@ public class PrologStructure extends AbstractPrologTerm {
             throw new IllegalArgumentException("Number can't be a functor");
         }
 
-        checkNotNull("The Element array is null", elements);
+        assertNotNull("The Element array is null", elements);
 
         this.functor = functor;
         this.elements = elements.clone();
 
-        checkArrayForNullElements("There is a null element in the array, use EMPTY_ATOM instead of null", this.elements);
+        assertArrayDoesntContanNull("There is a null element in the array, use EMPTY_ATOM instead of null", this.elements);
     }
 
     /**
@@ -228,7 +228,7 @@ public class PrologStructure extends AbstractPrologTerm {
         if (index < 0 || index >= getArity()) {
             throw new ArrayIndexOutOfBoundsException();
         }
-        checkNotNull("Attempt to set null as a structure element", term);
+        assertNotNull("Attempt to set null as a structure element", term);
         elements[index] = term;
     }
 

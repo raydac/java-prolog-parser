@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 import com.igormaznitsa.prologparser.utils.CharacterProcessor;
 import java.io.Serializable;
 
@@ -55,7 +55,7 @@ public abstract class AbstractPrologTerm extends CharacterProcessor implements S
      * @param text the text representing the term, must not be null
      */
     public AbstractPrologTerm(final String text) {
-        checkNotNull("Term text is null", text);
+        assertNotNull("Term text is null", text);
         this.text = text;
         this.strPosition = -1;
         this.lineNumber = -1;

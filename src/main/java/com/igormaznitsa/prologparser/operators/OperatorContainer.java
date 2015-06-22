@@ -19,7 +19,7 @@ import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import static com.igormaznitsa.prologparser.utils.AssertionUtils.*;
+import static com.igormaznitsa.prologparser.utils.Assert.*;
 
 /**
  * The class being used by the prolog parser to save operators with the same
@@ -67,7 +67,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * the container
      */
     public boolean addOperator(final Operator operator) {
-        checkNotNull("Operator must not be null", operator);
+        assertNotNull("Operator must not be null", operator);
 
         if (!getText().equals(operator.getText())) {
             throw new IllegalArgumentException(
@@ -154,7 +154,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * container, else false
      */
     public boolean remove(final Operator op) {
-        checkNotNull("Operator is null", op);
+        assertNotNull("Operator is null", op);
 
         if (!getText().equals(op.getText())) {
             throw new IllegalArgumentException(
@@ -259,7 +259,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @return the found operator or null
      */
     public Operator getOperatorForType(final OperatorType type) {
-        checkNotNull("Operator type is null", type);
+        assertNotNull("Operator type is null", type);
         Operator result = null;
         switch (type) {
             case FY:
@@ -328,7 +328,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @return true if the operator was found and removed, else false
      */
     public boolean removeOperatorForType(final OperatorType type) {
-        checkNotNull("Operator type is null", type);
+        assertNotNull("Operator type is null", type);
         boolean result = false;
         switch (type) {
             case FX:
