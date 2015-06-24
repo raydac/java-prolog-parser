@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.PrologParser;
+import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
@@ -369,7 +369,7 @@ public final class Operator extends AbstractPrologTerm {
     private Object readResolve() throws ObjectStreamException {
         Object result = this;
 
-        final Operator singletone = PrologParser.findSystemOperatorForNameAndType(text, opType);
+        final Operator singletone = AbstractPrologParser.findSystemOperatorForNameAndType(text, opType);
         if (singletone != null) {
             result = singletone;
         }

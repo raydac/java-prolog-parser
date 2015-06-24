@@ -57,7 +57,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Override
-    public boolean hasOperatorStartsWith(final PrologParser source,
+    public boolean hasOperatorStartsWith(final AbstractPrologParser source,
                                          final String operatorNameStartSubstring) {
       for (final String string : operators.keySet()) {
         if (string.startsWith(operatorNameStartSubstring)) {
@@ -69,18 +69,18 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Override
-    public OperatorContainer findOperatorForName(final PrologParser source,
+    public OperatorContainer findOperatorForName(final AbstractPrologParser source,
                                                  final String operatorName) {
       return operators.get(operatorName);
     }
 
     @Override
-    public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
+    public boolean hasZeroArityPredicate(final AbstractPrologParser source, final String predicateName) {
       return false;
     }
 
     @Override
-    public void processNewStructure(final PrologParser source, final PrologStructure structure) {
+    public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
     }
   };
   final ParserContext mock = mock(ParserContext.class);

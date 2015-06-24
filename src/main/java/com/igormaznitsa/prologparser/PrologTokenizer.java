@@ -107,7 +107,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * @throws IOException it will be throws if there is any transport problem
      */
     TokenizerResult peekToken(final PrologCharDataSource reader,
-            final PrologParser parser) throws PrologParserException,
+            final AbstractPrologParser parser) throws PrologParserException,
             IOException {
         TokenizerResult result;
         if (lastPushedTerm == null) {
@@ -182,7 +182,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * during the operation
      */
     TokenizerResult nextToken(final PrologCharDataSource reader,
-            final PrologParser parser) throws PrologParserException,
+            final AbstractPrologParser parser) throws PrologParserException,
             IOException {
 
         assertNotNull("Reader is null", reader);
@@ -572,10 +572,10 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      */
     static boolean hasOperatorStartsWith(
             final String operatorNameStartSubstring,
-            final PrologParser parser) {
+            final AbstractPrologParser parser) {
 
         // check for system
-        if (PrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
+        if (AbstractPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
             return true;
         }
 
@@ -600,12 +600,12 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * @return an OperatorContainer if the operator is presented, else null
      */
     static OperatorContainer findOperatorForName(final String operatorName,
-            final PrologParser parser) {
+            final AbstractPrologParser parser) {
         OperatorContainer result = null;
 
         // check metaoperators as the first ones
         if (operatorName.length() == 1) {
-            result = PrologParser.META_SYSTEM_OPERATORS.get(operatorName);
+            result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(operatorName);
         }
         if (result == null) {
             // check user defined operators because a user can replace a system operator
@@ -618,7 +618,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
 
             // check system operators
             if (result == null) {
-                result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
+                result = AbstractPrologParser.SYSTEM_OPERATORS.get(operatorName);
             }
         }
 
@@ -632,8 +632,8 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * @param parser a prolog parser which context will be used, it can be null
      * @return an OperatorContainer if the operator is presented, else null
      */
-    static OperatorContainer findOperatorForSingleChar(final char c, final PrologParser parser) {
-        OperatorContainer result = PrologParser.META_SYSTEM_OPERATORS.get(c);
+    static OperatorContainer findOperatorForSingleChar(final char c, final AbstractPrologParser parser) {
+        OperatorContainer result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(c);
         if (result == null) {
             return findOperatorForName(SingleCharString.valueOf(c), parser);
         }

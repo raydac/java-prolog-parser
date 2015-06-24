@@ -26,7 +26,7 @@ import org.junit.Test;
 public class SerializationTest {
     @Test
     public void testSerializationOperator() throws Exception {
-        final PrologParser parser = new PrologParser(null);
+        final AbstractPrologParser parser = new PrologParser(null);
         
         final PrologCharDataSource source = new PrologCharDataSource("a+b. c+d.");
         
@@ -59,7 +59,7 @@ public class SerializationTest {
     
     @Test
     public void testSerializationOfVariables() throws Exception {
-        final PrologParser parser = new PrologParser(null);
+        final AbstractPrologParser parser = new PrologParser(null);
         final PrologStructure structure = (PrologStructure) parser.nextSentence("a(A,A).");
         
         assertNotSame("Must not be the same", structure.getElement(0), structure.getElement(1));

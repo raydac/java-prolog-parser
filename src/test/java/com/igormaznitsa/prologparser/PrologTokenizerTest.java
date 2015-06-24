@@ -32,7 +32,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
     private final PrologTokenizer tokenizer = new PrologTokenizer();
     private final ParserContext mockContext = mock(ParserContext.class);
-    private final PrologParser mockPrologParser = mock(PrologParser.class);
+    private final AbstractPrologParser mockPrologParser = mock(AbstractPrologParser.class);
 
     @Before
     public void onSetUp() {
@@ -280,7 +280,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
     public void testHasOperatorStartsWith() {
         assertFalse("Should support null as context", PrologTokenizer.hasOperatorStartsWith("<------------------------------------------------------->", null));
 
-        when(mockContext.hasOperatorStartsWith(any(PrologParser.class), eq("start_with"))).thenReturn(true);
+        when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), eq("start_with"))).thenReturn(true);
 
         assertTrue(PrologTokenizer.hasOperatorStartsWith(":", mockPrologParser));
         assertFalse(PrologTokenizer.hasOperatorStartsWith("sstart_with", mockPrologParser));
@@ -299,7 +299,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
         final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX, "some_operator"));
 
-        when(mockContext.findOperatorForName(any(PrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
+        when(mockContext.findOperatorForName(any(AbstractPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 
         final OperatorContainer systemOne = PrologTokenizer.findOperatorForName(":-", mockPrologParser);
         assertNotNull("Must be found at system operator list", systemOne);

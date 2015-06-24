@@ -39,7 +39,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     @Test
     public void testHasOperatorStartsWith() throws Exception {
         final ParserContext mockContext = mock(ParserContext.class);
-        stub(mockContext.hasOperatorStartsWith(any(PrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
+        stub(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return "operator".startsWith((String) invocation.getArguments()[1]);
@@ -47,7 +47,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
         });
 
 
-        final PrologParser parser = new PrologParser(mockContext);
+        final AbstractPrologParser parser = new PrologParser(mockContext);
         final PrologCharDataSource reader = new PrologCharDataSource("a operator b.");
         try {
             parser.nextSentence(reader);
@@ -69,7 +69,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     @Test
     public void testFindOperatorForName() throws Exception {
         final ParserContext mockContext = mock(ParserContext.class);
-        stub(mockContext.findOperatorForName(any(PrologParser.class), anyString())).toAnswer(new Answer<OperatorContainer>() {
+        stub(mockContext.findOperatorForName(any(AbstractPrologParser.class), anyString())).toAnswer(new Answer<OperatorContainer>() {
             @Override
             public OperatorContainer answer(InvocationOnMock invocation) throws Throwable {
                 if ("operator".startsWith((String) invocation.getArguments()[1])) {
@@ -80,14 +80,14 @@ public class ParserContextTest extends AbstractPrologParserTest {
             }
         });
 
-        stub(mockContext.hasOperatorStartsWith(any(PrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
+        stub(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return "operator".startsWith((String) invocation.getArguments()[1]);
             }
         });
 
-        final PrologParser parser = new PrologParser(mockContext);
+        final AbstractPrologParser parser = new PrologParser(mockContext);
         final PrologCharDataSource reader = new PrologCharDataSource("operator.");
         final PrologAtom atom = (PrologAtom)parser.nextSentence(reader);
         assertEquals("It must be the 'operator' atom","operator",atom.getText());
@@ -99,14 +99,14 @@ public class ParserContextTest extends AbstractPrologParserTest {
     @Test
     public void testHasZeroArityPredicate() throws Exception {
         final ParserContext mockContext = mock(ParserContext.class);
-        stub(mockContext.hasZeroArityPredicate(any(PrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
+        stub(mockContext.hasZeroArityPredicate(any(AbstractPrologParser.class), anyString())).toAnswer(new Answer<Boolean>() {
             @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 return "foo".equals(invocation.getArguments()[1]);
             }
         });
 
-        final PrologParser parser = new PrologParser(mockContext);
+        final AbstractPrologParser parser = new PrologParser(mockContext);
 
         final AbstractPrologTerm term = parser.nextSentence("foo.");
         assertNotNull(term);
@@ -123,27 +123,27 @@ public class ParserContextTest extends AbstractPrologParserTest {
         final Map<String, PrologStructure> detectedStructures = new HashMap<String, PrologStructure>();
         final ParserContext stubContext = new ParserContext() {
             @Override
-            public void processNewStructure(final PrologParser source, final PrologStructure structure) {
+            public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
                 detectedStructures.put(structure.getFunctor().getText(), structure);
             }
 
             @Override
-            public boolean hasZeroArityPredicate(final PrologParser source, String predicateName) {
+            public boolean hasZeroArityPredicate(final AbstractPrologParser source, String predicateName) {
                 return "foo".equals(predicateName);
             }
 
             @Override
-            public boolean hasOperatorStartsWith(final PrologParser source, String operatorNameStartSubstring) {
+            public boolean hasOperatorStartsWith(final AbstractPrologParser source, String operatorNameStartSubstring) {
                 return false;
             }
 
             @Override
-            public OperatorContainer findOperatorForName(final PrologParser source, String operatorName) {
+            public OperatorContainer findOperatorForName(final AbstractPrologParser source, String operatorName) {
                 return null;
             }
         };
 
-        final PrologParser parser = new PrologParser(stubContext);
+        final AbstractPrologParser parser = new PrologParser(stubContext);
         final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(5). a :- b.");
         while (parser.nextSentence(reader) != null);
 

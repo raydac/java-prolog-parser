@@ -58,14 +58,14 @@ public final class ParserTreeItem implements SoftCacheItem {
   /**
    * The link to the owner parser for the item.
    */
-  private final PrologParser parser;
+  private final AbstractPrologParser parser;
 
   /**
    * A Constructor.
    *
    * @param parser the parser processes the item, it must not be null
    */
-  ParserTreeItem(final PrologParser parser) {
+  ParserTreeItem(final AbstractPrologParser parser) {
     this.parser = parser;
     this.setData(null, null, false, -1, -1);
   }

@@ -26,7 +26,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
-import com.igormaznitsa.prologparser.PrologParser;
+import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
@@ -59,7 +59,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                     new PrologAtom("first"), new PrologFloatNumber(123d),
                     new PrologList(), new PrologVariable()}).toString());
 
-        final Map<String, OperatorContainer> systemOperators = PrologParser.getSystemOperators();
+        final Map<String, OperatorContainer> systemOperators = AbstractPrologParser.getSystemOperators();
         assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").getOperatorForType(OperatorType.XFX),
                 new AbstractPrologTerm[]{new PrologAtom("hello"),
                     new PrologAtom("world")}).toString());

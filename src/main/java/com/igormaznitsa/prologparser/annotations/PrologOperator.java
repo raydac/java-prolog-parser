@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.annotations;
 
-import com.igormaznitsa.prologparser.PrologParser;
+import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.operators.OperatorType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,32 +25,39 @@ import java.lang.annotation.Target;
 /**
  * The annotation being used to define a prolog operator. It allows to define an
  * operator in the shortest way.
- * 
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @see PrologParser
+ *
+ * @see AbstractPrologParser
  */
 @Target(value = ElementType.TYPE)
 @Retention(value = RetentionPolicy.CLASS)
 public @interface PrologOperator {
 
-    /**
-     * The operator priority (0..1200)
-     * 
-     * @return the priority as integer
-     */
-    int Priority();
+  /**
+   * The operator priority (0..1200)
+   *
+   * @return the priority as integer
+   */
+  int Priority();
 
-    /**
-     * The operator type
-     * 
-     * @return the operator type
-     */
-    OperatorType Type();
+  /**
+   * The operator type
+   *
+   * @return the operator type
+   */
+  OperatorType Type();
 
-    /**
-     * The operator name
-     * 
-     * @return the operator name as a String
-     */
-    String Name();
+  /**
+   * The operator name
+   *
+   * @return the operator name as a String
+   */
+  String Name();
+
+  /**
+   * Short reference of the operator.
+   *
+   * @return the short reference of the operator.
+   * @since 1.3.3
+   */
+  String Comments() default "";
 }

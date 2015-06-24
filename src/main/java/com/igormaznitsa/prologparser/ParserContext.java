@@ -22,8 +22,6 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
  * The interface describes a parser context which is used by a parser to
  * recognize non-system operators and some special information, also the context
  * will be notified about new structure creation
- * 
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 public interface ParserContext {
 
@@ -36,7 +34,7 @@ public interface ParserContext {
      *            operator name (or whole operator name too)
      * @return true is there is an operator starts with the string, else false
      */
-    boolean hasOperatorStartsWith(PrologParser source, String operatorNameStartSubstring);
+    boolean hasOperatorStartsWith(AbstractPrologParser source, String operatorNameStartSubstring);
 
     /**
      * Find an operator container in the context which name equals a string
@@ -46,7 +44,7 @@ public interface ParserContext {
      *            a string to be used as whole operator name
      * @return an operator container if there is one for the name, else null
      */
-    OperatorContainer findOperatorForName(PrologParser source, String operatorName);
+    OperatorContainer findOperatorForName(AbstractPrologParser source, String operatorName);
 
     /**
      * The method is being called when a parser wants to check that there is a
@@ -57,7 +55,7 @@ public interface ParserContext {
      *            a string contains the predicate name
      * @return true if there is such predicate, else false
      */
-    boolean hasZeroArityPredicate(PrologParser source, String predicateName);
+    boolean hasZeroArityPredicate(AbstractPrologParser source, String predicateName);
 
     /**
      * It will be called by parser every time as it has created a structure and
@@ -66,5 +64,5 @@ public interface ParserContext {
      * @param structure
      *            the structure just created by the parser
      */
-    void processNewStructure(PrologParser source, PrologStructure structure);
+    void processNewStructure(AbstractPrologParser source, PrologStructure structure);
 }

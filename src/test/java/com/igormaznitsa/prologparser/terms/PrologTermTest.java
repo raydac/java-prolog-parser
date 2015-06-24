@@ -23,12 +23,13 @@ import static org.mockito.Mockito.*;
 
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.ParserContext;
+import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.PrologParser;
 
 public class PrologTermTest extends AbstractPrologParserTest {
 
     final ParserContext mock = mock(ParserContext.class);
-    final PrologParser parser = new PrologParser(mock);
+    final AbstractPrologParser parser = new PrologParser(mock);
 
     @Before
     public void beforeTest() {
