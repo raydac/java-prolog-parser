@@ -19,6 +19,9 @@ import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.operators.OperatorType;
 
+/**
+ * Parser with predefined system operators for Edinburgh prolog.
+ */
 @PrologOperators(Operators = {
   @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
   @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
@@ -64,6 +67,11 @@ public final class PrologParser extends AbstractPrologParser {
     readSystemOperators(PrologParser.class);
   }
   
+  /**
+   * The constructor
+   *
+   * @param context the context for the parser, it can be null.
+   */
   public PrologParser(final ParserContext context){
     super(context);
   }
