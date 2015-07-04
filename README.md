@@ -29,3 +29,6 @@ Since 1.3.1 version the Prolog Parser has been published through Maven Central a
 </dependency>
 ```
 [It also can be downloaded as a prebuilt jar from maven central](http://search.maven.org/#search|gav|1|g%3A%22com.igormaznitsa%22%20AND%20a%3A%22prologparser%22)
+# Donation
+If you like the software you can make some donation to the author   
+[![https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y7ND3NMFWGVWA)
