@@ -39,7 +39,7 @@ public enum OperatorType {
      *
      * @param text the right prolog text for the type, must not be null
      */
-    private OperatorType(final String text, final int arity) {
+    OperatorType(final String text, final int arity) {
         this.text = text;
         this.arity = arity;
     }

@@ -234,21 +234,13 @@ public final class Operator extends AbstractPrologTerm {
                         case XF:
                         case FX: {
                             final AbstractPrologTerm atom = struct.getElement(0);
-                            if (atom == null) {
-                                result = false;
-                            } else {
-                                result = atom.getPriority() < getPriority();
-                            }
+                            result = atom != null && atom.getPriority() < getPriority();
                         }
                         break;
                         case YF:
                         case FY: {
                             final AbstractPrologTerm atom = struct.getElement(0);
-                            if (atom == null) {
-                                result = false;
-                            } else {
-                                result = atom.getPriority() <= getPriority();
-                            }
+                            result = atom != null && atom.getPriority() <= getPriority();
                         }
                         break;
                         default:
@@ -290,21 +282,13 @@ public final class Operator extends AbstractPrologTerm {
                         case XF:
                         case FX: {
                             final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.XF ? 0 : 1);
-                            if (atom == null) {
-                                result = false;
-                            } else {
-                                result = atom.getPriority() < getPriority();
-                            }
+                            result = atom != null && atom.getPriority() < getPriority();
                         }
                         break;
                         case YF:
                         case FY: {
                             final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.YF ? 0 : 1);
-                            if (atom == null) {
-                                result = false;
-                            } else {
-                                result = atom.getPriority() <= getPriority();
-                            }
+                            result = atom != null && atom.getPriority() <= getPriority();
 
                         }
                         break;

@@ -83,8 +83,8 @@ public class PrologStructure extends AbstractPrologTerm {
      * @param functor the functor for the new structure, must not be null
      * @param elements the elements of the new structure, must not be null and
      * must not contain null (!)
-     * @param strPosition
-     * @param lineNumber
+     * @param strPosition string position
+     * @param lineNumber line number
      */
     public PrologStructure(final AbstractPrologTerm functor, final AbstractPrologTerm[] elements, final int strPosition, final int lineNumber) {
         this(functor, elements);

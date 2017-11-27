@@ -247,10 +247,7 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
       return false;
     }
 
-    if (operator.getType() == PrologTermType.OPERATORS) {
-      return endOperators.containsKey(operator.getText());
-    }
-    return false;
+    return operator.getType() == PrologTermType.OPERATORS && endOperators.containsKey(operator.getText());
   }
   /**
    * The tokenizer which is being used to tokenize the data stream.
@@ -795,7 +792,7 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
    * and clear inside variables of the parser. I don't recommend to use the
    * parser after the method call.
    *
-   * @throws IOException
+   * @throws IOException thrown if any error
    */
   public void close() throws IOException {
     if (prologReader != null) {

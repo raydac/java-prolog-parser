@@ -346,10 +346,10 @@ public final class ParserTreeItem implements SoftCacheItem {
             break;
           }
           if (left == null) {
-            operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), new AbstractPrologTerm[]{right});
+            operatorStruct = new PrologStructure(wrapper.getWrappedTerm(), new AbstractPrologTerm[]{right});
           }
           else {
-            operatorStruct = new PrologStructure((Operator) wrapper.getWrappedTerm(), (right == null ? new AbstractPrologTerm[]{left} : new AbstractPrologTerm[]{left, right}));
+            operatorStruct = new PrologStructure(wrapper.getWrappedTerm(), (right == null ? new AbstractPrologTerm[]{left} : new AbstractPrologTerm[]{left, right}));
           }
           operatorStruct.setStrPosition(wrapper.getStrPosition());
           operatorStruct.setLineNumber(wrapper.getLineNumber());

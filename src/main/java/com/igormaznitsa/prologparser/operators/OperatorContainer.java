@@ -300,7 +300,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * @return the found operator or null
      */
     public Operator getOperatorForSimilarType(final OperatorType type) {
-        Operator result = null;
+        Operator result;
         switch (type) {
             case FX:
             case FY:

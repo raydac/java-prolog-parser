@@ -50,5 +50,5 @@ public enum TokenizerState {
     /**
      * It shows that the parser in the float number reading state.
      */
-    FLOAT;
+    FLOAT
 }

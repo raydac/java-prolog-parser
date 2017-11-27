@@ -138,10 +138,7 @@ public final class FastStringBuilder {
    * otherwise.
    */
   public boolean hasSingleChar(final char chr) {
-    if (this.pointer != 1) {
-      return false;
-    }
-    return this.charArray[0] == chr;
+    return this.pointer == 1 && this.charArray[0] == chr;
   }
 
   /**
@@ -152,10 +149,7 @@ public final class FastStringBuilder {
    */
   public boolean isLastChar(final char chr) {
     final int p = this.pointer;
-    if (p == 0) {
-      return false;
-    }
-    return this.charArray[p - 1] == chr;
+    return p != 0 && this.charArray[p - 1] == chr;
   }
 
   /**

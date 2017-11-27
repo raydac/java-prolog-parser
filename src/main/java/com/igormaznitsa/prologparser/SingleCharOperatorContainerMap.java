@@ -62,10 +62,7 @@ final class SingleCharOperatorContainerMap {
             return false;
         }
         final int chr = key.charAt(0);
-        if (chr > 0xFF) {
-            return false;
-        }
-        return charMap[chr] != null;
+        return chr <= 0xFF && charMap[chr] != null;
     }
 
     /**

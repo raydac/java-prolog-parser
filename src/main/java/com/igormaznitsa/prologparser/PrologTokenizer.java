@@ -452,7 +452,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
                                 // errors
                                 if (specialCharResult.get() != null) {
                                     // the special char fully parsed
-                                    localstrbuffer.append(specialCharResult.get().charValue());
+                                    localstrbuffer.append(specialCharResult.get());
                                     specialchar = false;
                                 }
                             } else {
