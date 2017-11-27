@@ -18,16 +18,16 @@ package com.igormaznitsa.prologparser.utils.ringbuffer;
 /**
  * The interface describes a factory to produce items for the SoftCache
  *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @param <T> the object type produced by the factory.
+ * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @see SoftCache
  */
 public interface SoftCacheItemFactory<T extends SoftCacheItem> {
 
-  /**
-   * To create new item.
-   *
-   * @return the new created item.
-   */
-  T makeNew();
+    /**
+     * To create new item.
+     *
+     * @return the new created item.
+     */
+    T makeNew();
 }

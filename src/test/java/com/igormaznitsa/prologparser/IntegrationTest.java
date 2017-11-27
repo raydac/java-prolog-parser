@@ -36,44 +36,9 @@ import static org.mockito.Mockito.*;
 
 public class IntegrationTest extends AbstractPrologParserTest {
 
-    private static class StubContext implements ParserContext {
-
-        private final Map<String, OperatorContainer> operators;
-
-        public StubContext(final Map<String, OperatorContainer> operators) {
-            this.operators = operators;
-        }
-
-        @Override
-        public boolean hasOperatorStartsWith(final AbstractPrologParser source,
-                                             final String operatorNameStartSubstring) {
-            for (final String string : operators.keySet()) {
-                if (string.startsWith(operatorNameStartSubstring)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        @Override
-        public OperatorContainer findOperatorForName(final AbstractPrologParser source,
-                                                     final String operatorName) {
-            return operators.get(operatorName);
-        }
-
-        @Override
-        public boolean hasZeroArityPredicate(final AbstractPrologParser source, final String predicateName) {
-            return false;
-        }
-
-        @Override
-        public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
-        }
-    }
+    final ParserContext mock = mock(ParserContext.class);
 
     ;
-    final ParserContext mock = mock(ParserContext.class);
     final PrologParser parser = new PrologParser(mock);
 
     @Before
@@ -758,6 +723,42 @@ public class IntegrationTest extends AbstractPrologParserTest {
         assertEquals("test", struct.getFunctor().getText());
         for (int i = 0; i < ELEMENTS; i++) {
             assertEquals(i, ((PrologIntegerNumber) struct.getElement(i)).getValue().intValue());
+        }
+    }
+
+    private static class StubContext implements ParserContext {
+
+        private final Map<String, OperatorContainer> operators;
+
+        public StubContext(final Map<String, OperatorContainer> operators) {
+            this.operators = operators;
+        }
+
+        @Override
+        public boolean hasOperatorStartsWith(final AbstractPrologParser source,
+                                             final String operatorNameStartSubstring) {
+            for (final String string : operators.keySet()) {
+                if (string.startsWith(operatorNameStartSubstring)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
+        public OperatorContainer findOperatorForName(final AbstractPrologParser source,
+                                                     final String operatorName) {
+            return operators.get(operatorName);
+        }
+
+        @Override
+        public boolean hasZeroArityPredicate(final AbstractPrologParser source, final String predicateName) {
+            return false;
+        }
+
+        @Override
+        public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
         }
     }
 

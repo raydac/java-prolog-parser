@@ -22,23 +22,6 @@ import static org.junit.Assert.*;
 
 public class AbstractPrologTermTest extends AbstractPrologParserTest {
 
-    private final static class StubAbstractPrologTermTest extends AbstractPrologTerm {
-        private static final long serialVersionUID = 2578516387208704688L;
-
-        public StubAbstractPrologTermTest(final String text) {
-            super(text);
-        }
-
-        public StubAbstractPrologTermTest(final String text, final int strPos, final int lineNum) {
-            super(text, strPos, lineNum);
-        }
-
-        @Override
-        public PrologTermType getType() {
-            throw new UnsupportedOperationException("It's a stub");
-        }
-    }
-
     @Test
     public void testAbstractPrologTermString() {
         try {
@@ -130,5 +113,22 @@ public class AbstractPrologTermTest extends AbstractPrologParserTest {
         assertNull(stub.getLinkedObject());
         stub.linkedObject = "testObject";
         assertEquals("testObject", stub.getLinkedObject());
+    }
+
+    private final static class StubAbstractPrologTermTest extends AbstractPrologTerm {
+        private static final long serialVersionUID = 2578516387208704688L;
+
+        public StubAbstractPrologTermTest(final String text) {
+            super(text);
+        }
+
+        public StubAbstractPrologTermTest(final String text, final int strPos, final int lineNum) {
+            super(text, strPos, lineNum);
+        }
+
+        @Override
+        public PrologTermType getType() {
+            throw new UnsupportedOperationException("It's a stub");
+        }
     }
 }

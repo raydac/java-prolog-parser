@@ -31,7 +31,7 @@ import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 public final class TokenizerResult implements SoftCacheItem {
 
     private SoftCache<? extends SoftCacheItem> ringBuffer;
-    
+
     /**
      * The variable contains the tokenizer state during the reading of the term.
      */
@@ -51,7 +51,25 @@ public final class TokenizerResult implements SoftCacheItem {
      */
     private int lineNumber;
 
-    
+
+    public TokenizerResult() {
+
+    }
+
+    /**
+     * The constructor.
+     *
+     * @param term           the term to be saved in the object, must not be null.
+     * @param parserState    the tokenizer state to be saved in the object, must
+     *                       not be null.
+     * @param stringPosition the first result char string position
+     * @param lineNumber     the first result char line number
+     */
+    public TokenizerResult(final AbstractPrologTerm term,
+                           final TokenizerState parserState, final int stringPosition, final int lineNumber) {
+        setData(term, parserState, stringPosition, lineNumber);
+    }
+
     @Override
     public void setSoftCache(final SoftCache<? extends SoftCacheItem> owner) {
         this.ringBuffer = owner;
@@ -59,27 +77,9 @@ public final class TokenizerResult implements SoftCacheItem {
 
     @Override
     public void dispose() {
-        if (ringBuffer!=null){
+        if (ringBuffer != null) {
             ringBuffer.dispose(this);
         }
-    }
-    
-    public TokenizerResult(){
-        
-    }
-    
-    /**
-     * The constructor.
-     *
-     * @param term the term to be saved in the object, must not be null.
-     * @param parserState the tokenizer state to be saved in the object, must
-     * not be null.
-     * @param stringPosition the first result char string position
-     * @param lineNumber the first result char line number
-     */
-    public TokenizerResult(final AbstractPrologTerm term,
-            final TokenizerState parserState, final int stringPosition, final int lineNumber) {
-        setData(term, parserState, stringPosition, lineNumber);
     }
 
     @Override
@@ -89,9 +89,9 @@ public final class TokenizerResult implements SoftCacheItem {
         this.lineNumber = -1;
         this.stringPosition = -1;
     }
-    
+
     public void setData(final AbstractPrologTerm term,
-            final TokenizerState parserState, final int stringPosition, final int lineNumber){
+                        final TokenizerState parserState, final int stringPosition, final int lineNumber) {
         assertNotNull("The term is null", term);
         assertNotNull("The Parser state is null", parserState);
 
@@ -100,7 +100,7 @@ public final class TokenizerResult implements SoftCacheItem {
         this.resultTerm = term;
         this.parserState = parserState;
     }
-    
+
     /**
      * Get the tokenizer state.
      *

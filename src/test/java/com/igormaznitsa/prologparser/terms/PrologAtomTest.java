@@ -45,7 +45,7 @@ public class PrologAtomTest extends AbstractPrologParserTest {
     @Test
     public void testPrologAtom_String_NPE() {
         try {
-            new PrologAtom((String)null);
+            new PrologAtom((String) null);
             fail("Null name must throw NPE");
         } catch (NullPointerException ex) {
         }
@@ -54,28 +54,28 @@ public class PrologAtomTest extends AbstractPrologParserTest {
     @Test
     public void testPrologAtom_Term_NPE() {
         try {
-            new PrologAtom((AbstractPrologTerm)null);
+            new PrologAtom((AbstractPrologTerm) null);
             fail("Null name must throw NPE");
         } catch (NullPointerException ex) {
         }
     }
 
     @Test
-    public void testPrologAtom_String(){
+    public void testPrologAtom_String() {
         final PrologAtom atom = new PrologAtom("test");
-        assertEquals("Must be 'test'","test",atom.getText());
+        assertEquals("Must be 'test'", "test", atom.getText());
     }
-    
+
     @Test
-    public void testPrologAtom_Term(){
+    public void testPrologAtom_Term() {
         final PrologAtom etalon = new PrologAtom("etal", 111, 222);
-        
+
         final PrologAtom atom = new PrologAtom(etalon);
-        assertEquals("Must be 'etal'","etal",atom.getText());
-        assertEquals("Must be 111",111,atom.getStrPosition());
-        assertEquals("Must be 222",222,atom.getLineNumber());
+        assertEquals("Must be 'etal'", "etal", atom.getText());
+        assertEquals("Must be 111", 111, atom.getStrPosition());
+        assertEquals("Must be 222", 222, atom.getLineNumber());
     }
-    
+
     @Test
     public void testPrologAtomStringIntInt() {
         try {

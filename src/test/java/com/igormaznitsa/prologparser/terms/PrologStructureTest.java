@@ -38,7 +38,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
         assertEquals(666,
                 new PrologStructure(testOperator,
-                new AbstractPrologTerm[]{new PrologAtom("test")}).getPriority());
+                        new AbstractPrologTerm[]{new PrologAtom("test")}).getPriority());
     }
 
     @Test
@@ -51,62 +51,62 @@ public class PrologStructureTest extends AbstractPrologParserTest {
                 "test"), 3).toString());
         assertEquals("'123'('first', 123.0, [], _)", new PrologStructure(
                 new PrologAtom("123"), new AbstractPrologTerm[]{
-                    new PrologAtom("first"), new PrologFloatNumber(123d),
-                    new PrologList(), new PrologVariable()}).toString());
+                new PrologAtom("first"), new PrologFloatNumber(123d),
+                new PrologList(), new PrologVariable()}).toString());
 
         final Map<String, OperatorContainer> systemOperators = AbstractPrologParser.getSystemOperators();
         assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").getOperatorForType(OperatorType.XFX),
                 new AbstractPrologTerm[]{new PrologAtom("hello"),
-                    new PrologAtom("world")}).toString());
+                        new PrologAtom("world")}).toString());
         assertEquals(":- 'hello'",
                 new PrologStructure(systemOperators.get(":-").getOperatorForType(OperatorType.FX),
-                new AbstractPrologTerm[]{new PrologAtom("hello")}).toString());
+                        new AbstractPrologTerm[]{new PrologAtom("hello")}).toString());
         assertEquals(
                 "- 10 * (1 + 2)",
                 new PrologStructure(
-                systemOperators.get("*").getOperatorForType(
-                OperatorType.YFX),
-                new AbstractPrologTerm[]{
-                    new PrologStructure(
-                    systemOperators.get("-").getOperatorForType(
-                    OperatorType.FY),
-                    new AbstractPrologTerm[]{new PrologIntegerNumber("10")}),
-                    new PrologStructure(systemOperators.get("+").getOperatorForType(OperatorType.YFX),
-                    new AbstractPrologTerm[]{
-                        new PrologIntegerNumber("1"),
-                        new PrologIntegerNumber("2")})}).toString());
+                        systemOperators.get("*").getOperatorForType(
+                                OperatorType.YFX),
+                        new AbstractPrologTerm[]{
+                                new PrologStructure(
+                                        systemOperators.get("-").getOperatorForType(
+                                                OperatorType.FY),
+                                        new AbstractPrologTerm[]{new PrologIntegerNumber("10")}),
+                                new PrologStructure(systemOperators.get("+").getOperatorForType(OperatorType.YFX),
+                                        new AbstractPrologTerm[]{
+                                                new PrologIntegerNumber("1"),
+                                                new PrologIntegerNumber("2")})}).toString());
 
         assertEquals(
                 "- - 10",
                 new PrologStructure(
-                systemOperators.get("-").getOperatorForType(
-                OperatorType.FY),
-                new AbstractPrologTerm[]{new PrologStructure(
-                    systemOperators.get("-").getOperatorForType(
-                    OperatorType.FY),
-                    new AbstractPrologTerm[]{new PrologIntegerNumber(
-                        "10")})}).toString());
+                        systemOperators.get("-").getOperatorForType(
+                                OperatorType.FY),
+                        new AbstractPrologTerm[]{new PrologStructure(
+                                systemOperators.get("-").getOperatorForType(
+                                        OperatorType.FY),
+                                new AbstractPrologTerm[]{new PrologIntegerNumber(
+                                        "10")})}).toString());
 
         assertEquals(
                 "\\ (\\+ 10)",
                 new PrologStructure(
-                systemOperators.get("\\").getOperatorForType(
-                OperatorType.FY),
-                new AbstractPrologTerm[]{new PrologStructure(
-                    systemOperators.get("\\+").getOperatorForType(
-                    OperatorType.FY),
-                    new AbstractPrologTerm[]{new PrologIntegerNumber(
-                        "10")})}).toString());
+                        systemOperators.get("\\").getOperatorForType(
+                                OperatorType.FY),
+                        new AbstractPrologTerm[]{new PrologStructure(
+                                systemOperators.get("\\+").getOperatorForType(
+                                        OperatorType.FY),
+                                new AbstractPrologTerm[]{new PrologIntegerNumber(
+                                        "10")})}).toString());
         assertEquals(
                 "(10 .) .",
                 new PrologStructure(
-                systemOperators.get(".").getOperatorForType(
-                OperatorType.XF),
-                new AbstractPrologTerm[]{new PrologStructure(
-                    systemOperators.get(".").getOperatorForType(
-                    OperatorType.XF),
-                    new AbstractPrologTerm[]{new PrologIntegerNumber(
-                        "10")})}).toString());
+                        systemOperators.get(".").getOperatorForType(
+                                OperatorType.XF),
+                        new AbstractPrologTerm[]{new PrologStructure(
+                                systemOperators.get(".").getOperatorForType(
+                                        OperatorType.XF),
+                                new AbstractPrologTerm[]{new PrologIntegerNumber(
+                                        "10")})}).toString());
 
         final Operator operatorYF = Operator.makeOperator(800, OperatorType.YF, "!");
         final Operator operatorYF2 = Operator.makeOperator(1000, OperatorType.YF, "!!");
@@ -114,39 +114,39 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         assertEquals(
                 "(10 !!) !",
                 new PrologStructure(
-                operatorYF,
-                new AbstractPrologTerm[]{new PrologStructure(
-                    operatorYF2,
-                    new AbstractPrologTerm[]{new PrologIntegerNumber(
-                        "10")})}).toString());
+                        operatorYF,
+                        new AbstractPrologTerm[]{new PrologStructure(
+                                operatorYF2,
+                                new AbstractPrologTerm[]{new PrologIntegerNumber(
+                                        "10")})}).toString());
 
         final Operator operatorXFX = Operator.makeOperator(800, OperatorType.XFX, "$");
         final Operator operatorXFX2 = Operator.makeOperator(1000, OperatorType.XFX, "$$");
 
         assertEquals("(10 $$ 20) $ (5 $ 30)",
                 new PrologStructure(operatorXFX, new AbstractPrologTerm[]{
-                    new PrologStructure(operatorXFX2,
-                    new AbstractPrologTerm[]{
-                        new PrologIntegerNumber("10"),
-                        new PrologIntegerNumber("20")}),
-                    new PrologStructure(operatorXFX,
-                    new AbstractPrologTerm[]{
-                        new PrologIntegerNumber("5"),
-                        new PrologIntegerNumber("30")})}).toString());
+                        new PrologStructure(operatorXFX2,
+                                new AbstractPrologTerm[]{
+                                        new PrologIntegerNumber("10"),
+                                        new PrologIntegerNumber("20")}),
+                        new PrologStructure(operatorXFX,
+                                new AbstractPrologTerm[]{
+                                        new PrologIntegerNumber("5"),
+                                        new PrologIntegerNumber("30")})}).toString());
 
         final Operator operatorXFY = Operator.makeOperator(800, OperatorType.XFY, "$");
         final Operator operatorXFY2 = Operator.makeOperator(1000, OperatorType.XFY, "$$");
 
         assertEquals("10 $ 20 $$ 5 $ 30",
                 new PrologStructure(operatorXFY2, new AbstractPrologTerm[]{
-                    new PrologStructure(operatorXFY,
-                    new AbstractPrologTerm[]{
-                        new PrologIntegerNumber("10"),
-                        new PrologIntegerNumber("20")}),
-                    new PrologStructure(operatorXFY,
-                    new AbstractPrologTerm[]{
-                        new PrologIntegerNumber("5"),
-                        new PrologIntegerNumber("30")})}).toString());
+                        new PrologStructure(operatorXFY,
+                                new AbstractPrologTerm[]{
+                                        new PrologIntegerNumber("10"),
+                                        new PrologIntegerNumber("20")}),
+                        new PrologStructure(operatorXFY,
+                                new AbstractPrologTerm[]{
+                                        new PrologIntegerNumber("5"),
+                                        new PrologIntegerNumber("30")})}).toString());
     }
 
     @Test
@@ -163,10 +163,10 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testPrologStructureAbstractPrologTermAbstractPrologTermArray() {
         final AbstractPrologTerm[] testterms = new AbstractPrologTerm[]{
-            new PrologAtom("test1"), new PrologAtom("test2"),
-            new PrologAtom("test3")};
+                new PrologAtom("test1"), new PrologAtom("test2"),
+                new PrologAtom("test3")};
         final AbstractPrologTerm[] testtermswithnull = new AbstractPrologTerm[]{
-            new PrologAtom("test1"), null, new PrologAtom("test3")};
+                new PrologAtom("test1"), null, new PrologAtom("test3")};
 
         try {
             new PrologStructure(null, testterms);
@@ -217,10 +217,10 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testPrologStructureAbstractPrologTermAbstractPrologTermArrayIntInt() {
         final AbstractPrologTerm[] testterms = new AbstractPrologTerm[]{
-            new PrologAtom("test1"), new PrologAtom("test2"),
-            new PrologAtom("test3")};
+                new PrologAtom("test1"), new PrologAtom("test2"),
+                new PrologAtom("test3")};
         final AbstractPrologTerm[] testtermswithnull = new AbstractPrologTerm[]{
-            new PrologAtom("test1"), null, new PrologAtom("test3")};
+                new PrologAtom("test1"), null, new PrologAtom("test3")};
 
         try {
             new PrologStructure(null, testterms, 1, 2);
@@ -443,8 +443,8 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testGetArity() {
         final AbstractPrologTerm[] testterms = new AbstractPrologTerm[]{
-            new PrologAtom("test1"), new PrologAtom("test2"),
-            new PrologAtom("test3")};
+                new PrologAtom("test1"), new PrologAtom("test2"),
+                new PrologAtom("test3")};
 
         assertEquals(testterms.length, new PrologStructure(new PrologAtom(
                 "hello"), testterms).getArity());
@@ -455,7 +455,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testGetElement() {
         final String[] strings = new String[]{"test1", "test2", "test3",
-            "test4", "test5", "test6", "test7", "test8"};
+                "test4", "test5", "test6", "test7", "test8"};
         final AbstractPrologTerm[] terms = new AbstractPrologTerm[strings.length];
         for (int i = 0; i < strings.length; i++) {
             terms[i] = new PrologAtom(strings[i]);
@@ -482,7 +482,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     @Test
     public void testSetElement() {
         final String[] strings = new String[]{"test1", "test2", "test3",
-            "test4", "test5", "test6", "test7", "test8"};
+                "test4", "test5", "test6", "test7", "test8"};
         final AbstractPrologTerm[] terms = new AbstractPrologTerm[strings.length];
         for (int i = 0; i < strings.length; i++) {
             terms[i] = new PrologAtom(strings[i]);
@@ -532,16 +532,16 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         assertEquals("<<<", new PrologStructure(Operator.makeOperator(222,
                 OperatorType.FY, "<<<"), 5).getText());
     }
-    
+
     @Test
-    public void testCopyWithAnotherFunctor(){
+    public void testCopyWithAnotherFunctor() {
         final PrologAtom functor = new PrologAtom("hello");
         final PrologAtom element = new PrologAtom("world");
-        final PrologStructure struct = new PrologStructure(functor, new AbstractPrologTerm[]{element},10,20);
-        
-        final PrologAtom newFunctor = new PrologAtom("haha",3,4);
+        final PrologStructure struct = new PrologStructure(functor, new AbstractPrologTerm[]{element}, 10, 20);
+
+        final PrologAtom newFunctor = new PrologAtom("haha", 3, 4);
         final PrologStructure copy = struct.copyWithAnotherFunctor(newFunctor);
-        
+
         assertEquals("Must be the new functor", newFunctor, copy.getFunctor());
         assertEquals("Must be arity 1", 1, copy.getArity());
         assertEquals("Must be the old element", element, copy.getElement(0));

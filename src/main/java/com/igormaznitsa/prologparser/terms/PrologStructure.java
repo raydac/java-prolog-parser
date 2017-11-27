@@ -31,7 +31,6 @@ import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
  */
 public class PrologStructure extends AbstractPrologTerm {
 
-    private static final long serialVersionUID = 9000641998734217154L;
     /**
      * An auxiliary constant contains an empty prolog term array
      */
@@ -41,6 +40,7 @@ public class PrologStructure extends AbstractPrologTerm {
      * atom contains the empty string
      */
     public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
+    private static final long serialVersionUID = 9000641998734217154L;
     /**
      * The functor of the structure
      */
@@ -54,12 +54,12 @@ public class PrologStructure extends AbstractPrologTerm {
      * A Constructor. It allows to create a structure for a functor and a term
      * array
      *
-     * @param functor the functor for the new structure, must not be null
+     * @param functor  the functor for the new structure, must not be null
      * @param elements the elements of the new structure, must not be null and
-     * must not contain null (!)
+     *                 must not contain null (!)
      */
     public PrologStructure(final AbstractPrologTerm functor,
-            final AbstractPrologTerm[] elements) {
+                           final AbstractPrologTerm[] elements) {
         super(functor.getText());
 
         if (functor.getType() != PrologTermType.ATOM
@@ -83,11 +83,11 @@ public class PrologStructure extends AbstractPrologTerm {
      * A Constructor. It allows to create a structure for a functor and a term
      * array and set the first term char position in the source stream
      *
-     * @param functor the functor for the new structure, must not be null
-     * @param elements the elements of the new structure, must not be null and
-     * must not contain null (!)
+     * @param functor     the functor for the new structure, must not be null
+     * @param elements    the elements of the new structure, must not be null and
+     *                    must not contain null (!)
      * @param strPosition string position
-     * @param lineNumber line number
+     * @param lineNumber  line number
      */
     public PrologStructure(final AbstractPrologTerm functor, final AbstractPrologTerm[] elements, final int strPosition, final int lineNumber) {
         this(functor, elements);
@@ -109,9 +109,9 @@ public class PrologStructure extends AbstractPrologTerm {
      * A Constructor. It allows to create a zero arity structure and set the
      * first term char position in the source stream
      *
-     * @param text the text to create the functor, must not be null
+     * @param text        the text to create the functor, must not be null
      * @param strPosition the first term string position
-     * @param lineNumber the first term char line number
+     * @param lineNumber  the first term char line number
      */
     public PrologStructure(final String text, final int strPosition, final int lineNumber) {
         this(text);
@@ -133,10 +133,10 @@ public class PrologStructure extends AbstractPrologTerm {
      * A Constructor. It allows to create a zero (I mean a zero arity one)
      * structure with a prolog term as a functor
      *
-     * @param functor a prolog term to be used as the functor, must not be null
+     * @param functor     a prolog term to be used as the functor, must not be null
      * @param strPosition the first term char string position in the source
-     * stream
-     * @param lineNumber the first term char line number in the source stream
+     *                    stream
+     * @param lineNumber  the first term char line number in the source stream
      */
     public PrologStructure(final AbstractPrologTerm functor, final int strPosition, final int lineNumber) {
         this(functor);
@@ -149,8 +149,8 @@ public class PrologStructure extends AbstractPrologTerm {
      * needed arity (it will use EMPTY_ATOM as each element)
      *
      * @param functor a prolog term to be used as the structure functor, it must
-     * not be null.
-     * @param arity the arity of the new structure, must not be less than zero.
+     *                not be null.
+     * @param arity   the arity of the new structure, must not be less than zero.
      */
     protected PrologStructure(final AbstractPrologTerm functor, final int arity) {
         super(functor.getText());
@@ -181,11 +181,11 @@ public class PrologStructure extends AbstractPrologTerm {
      * needed arity (it will use EMPTY_ATOM as each element) and set the source
      * stream position
      *
-     * @param functor a prolog term to be used as the structure functor, it must
-     * not be null.
-     * @param arity the arity of the new structure, must not be less than zero.
+     * @param functor     a prolog term to be used as the structure functor, it must
+     *                    not be null.
+     * @param arity       the arity of the new structure, must not be less than zero.
      * @param strPosition the first term char string position
-     * @param lineNumber the first term char line number
+     * @param lineNumber  the first term char line number
      */
     protected PrologStructure(final AbstractPrologTerm functor, final int arity, final int strPosition, final int lineNumber) {
         this(functor, arity);
@@ -225,7 +225,7 @@ public class PrologStructure extends AbstractPrologTerm {
      * Set a structure element at a position by a prolog term
      *
      * @param index the position of the element, the first is 0
-     * @param term the term to be set into the position, must not be null
+     * @param term  the term to be set into the position, must not be null
      */
     public void setElement(final int index, final AbstractPrologTerm term) {
         if (index < 0 || index >= getArity()) {
@@ -258,6 +258,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
     /**
      * Make a copy of the structure with another term as the functor.
+     *
      * @param newFunctor the new functor for the copy, it must not be null.
      * @return the new prolog structure with the same arity and terms in the body but with the new functor.
      */

@@ -39,7 +39,7 @@ public abstract class AbstractPrologNumericTerm extends AbstractPrologTerm {
      * line number
      *
      * @param strPosition the first term char string position
-     * @param lineNumber the first term char line number
+     * @param lineNumber  the first term char line number
      */
     public AbstractPrologNumericTerm(final int strPosition, final int lineNumber) {
         super("", strPosition, lineNumber);

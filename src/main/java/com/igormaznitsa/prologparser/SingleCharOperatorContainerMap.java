@@ -24,6 +24,7 @@ import java.util.Map;
 
 /**
  * A wrapper to keep single char mapped operator containers.
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 final class SingleCharOperatorContainerMap {
@@ -45,6 +46,7 @@ final class SingleCharOperatorContainerMap {
 
     /**
      * A Constructor.
+     *
      * @param containers containers to be added into the map.
      */
     SingleCharOperatorContainerMap(final OperatorContainer... containers) {
@@ -54,7 +56,8 @@ final class SingleCharOperatorContainerMap {
     }
 
     /**
-     *  Check that there is a mapped operator container for the key.
+     * Check that there is a mapped operator container for the key.
+     *
      * @param key a single char string.
      * @return true if there is a mapped operator container for the key, false otherwise.
      */
@@ -68,7 +71,8 @@ final class SingleCharOperatorContainerMap {
 
     /**
      * Put a mapped operator container for its key.
-     * @param key a single char string to be used as the key for the container, it must not be null.
+     *
+     * @param key       a single char string to be used as the key for the container, it must not be null.
      * @param container a container to be mapped by the key, it must not be null.
      */
     public void put(final String key, final OperatorContainer container) {
@@ -87,6 +91,7 @@ final class SingleCharOperatorContainerMap {
 
     /**
      * Get a mapped operator container for its key.
+     *
      * @param key the key for a desired operator container, it must not be null.
      * @return null if there is not any mapped operator container for the key, a mapped container otherwise
      */
@@ -103,12 +108,13 @@ final class SingleCharOperatorContainerMap {
         return charMap[code];
     }
 
-    public OperatorContainer get(final char c){
-        return c>0xFF ? null : charMap [c]; 
+    public OperatorContainer get(final char c) {
+        return c > 0xFF ? null : charMap[c];
     }
-    
+
     /**
      * Get mapped containers as a map.
+     *
      * @return a map contains all mapped containers and their keys.
      */
     public Map<String, OperatorContainer> getMap() {

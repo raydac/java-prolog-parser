@@ -16,56 +16,55 @@
 package com.igormaznitsa.prologparser.utils;
 
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * An Auxiliary Thread-NONsafe class allows to cache ArrayLists
+ *
  * @param <T> class type to be processed by cache
  */
-public final class ThreadNonSafeArrayListCache <T> {
-  /**
-   * The initial cached ArrayList size
-   */
-  private static final int INITIAL_ARRAY_LIST_SIZE = 32;
- 
-  /**
-   * The number of cached ArrayList objects
-   */
-  private static final int MAX_CACHED_NUMBER = 64;
- 
-  /**
-   * Inside blocking queue to keep cached lists
-   */
-  private final Object[] insideList = new Object[MAX_CACHED_NUMBER];
+public final class ThreadNonSafeArrayListCache<T> {
+    /**
+     * The initial cached ArrayList size
+     */
+    private static final int INITIAL_ARRAY_LIST_SIZE = 32;
 
-  private int firstFreeElementPointer = 0;
- 
+    /**
+     * The number of cached ArrayList objects
+     */
+    private static final int MAX_CACHED_NUMBER = 64;
 
-  public ThreadNonSafeArrayListCache() {
-    // init cached items
-    for (int i = 0; i < MAX_CACHED_NUMBER; i++) {
-      this.insideList[i] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
+    /**
+     * Inside blocking queue to keep cached lists
+     */
+    private final Object[] insideList = new Object[MAX_CACHED_NUMBER];
+
+    private int firstFreeElementPointer = 0;
+
+
+    public ThreadNonSafeArrayListCache() {
+        // init cached items
+        for (int i = 0; i < MAX_CACHED_NUMBER; i++) {
+            this.insideList[i] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
+        }
     }
-  }
 
 
-
-  @SuppressWarnings("unchecked")
-  public List<T> getListFromCache() {
-    if (this.firstFreeElementPointer == 0){
-      return new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
-    }else{
-      return (List<T>)this.insideList[--this.firstFreeElementPointer];
+    @SuppressWarnings("unchecked")
+    public List<T> getListFromCache() {
+        if (this.firstFreeElementPointer == 0) {
+            return new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
+        } else {
+            return (List<T>) this.insideList[--this.firstFreeElementPointer];
+        }
     }
-  }
 
-  public void putListToCache(final List<T> list){
-    if (this.firstFreeElementPointer < MAX_CACHED_NUMBER){
-      list.clear();
-      this.insideList[this.firstFreeElementPointer++] = list;
+    public void putListToCache(final List<T> list) {
+        if (this.firstFreeElementPointer < MAX_CACHED_NUMBER) {
+            list.clear();
+            this.insideList[this.firstFreeElementPointer++] = list;
+        }
     }
-  }
 }
 

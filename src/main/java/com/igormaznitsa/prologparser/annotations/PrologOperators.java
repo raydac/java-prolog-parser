@@ -30,18 +30,18 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface PrologOperators {
 
-  /**
-   * Array of operators, must not be empty.
-   *
-   * @return an array of operators saved by the annotation
-   */
-  PrologOperator[] Operators();
+    /**
+     * Array of operators, must not be empty.
+     *
+     * @return an array of operators saved by the annotation
+     */
+    PrologOperator[] Operators();
 
-  /**
-   * Optional commentaries.
-   *
-   * @return optional commentaries
-   * @since 1.3.3
-   */
-  String Comments() default "";
+    /**
+     * Optional commentaries.
+     *
+     * @return optional commentaries
+     * @since 1.3.3
+     */
+    String Comments() default "";
 }

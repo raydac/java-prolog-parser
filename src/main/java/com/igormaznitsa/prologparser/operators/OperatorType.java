@@ -23,7 +23,7 @@ package com.igormaznitsa.prologparser.operators;
  */
 public enum OperatorType {
 
-    XF("xf",1), YF("yf",1), FX("fx",1), FY("fy",1), XFX("xfx",2), XFY("xfy",2), YFX("yfx",2);
+    XF("xf", 1), YF("yf", 1), FX("fx", 1), FY("fy", 1), XFX("xfx", 2), XFY("xfy", 2), YFX("yfx", 2);
     /**
      * The variable contains right prolog text representation of the type
      */
@@ -33,7 +33,7 @@ public enum OperatorType {
      * The variable saves the arity for the type.
      */
     private final int arity;
-    
+
     /**
      * The constructor to create an instance and set the right text
      *
@@ -43,15 +43,6 @@ public enum OperatorType {
         this.text = text;
         this.arity = arity;
     }
-
-    /**
-     * Get the arity for the type.
-     * @return the arity, it can be either 1 or 2
-     */
-    public int getArity(){
-        return this.arity;
-    }
-    
 
     /**
      * Find an operator type for its prolog text representation
@@ -66,6 +57,15 @@ public enum OperatorType {
             }
         }
         return null;
+    }
+
+    /**
+     * Get the arity for the type.
+     *
+     * @return the arity, it can be either 1 or 2
+     */
+    public int getArity() {
+        return this.arity;
     }
 
     /**

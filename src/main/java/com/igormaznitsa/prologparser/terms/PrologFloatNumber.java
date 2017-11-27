@@ -26,16 +26,15 @@ import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
  * text value which was used to create the atom.
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- *
  * @see BigDecimal
  */
 public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 
-    private static final long serialVersionUID = -8375787317103540082L;
     /**
      * The math context to be used for float numbers
      */
     public static final MathContext MATH_CONTEXT = MathContext.DECIMAL64;
+    private static final long serialVersionUID = -8375787317103540082L;
     /**
      * The variable contains the immutable BigDecimal value.
      */
@@ -46,9 +45,9 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      * representation.
      *
      * @param text the text compatibles with Java BigDecimal type. Must not be
-     * null.
+     *             null.
      * @throws NumberFormatException will be thrown if the text can't be parsed
-     * as a BigDeclmal value.
+     *                               as a BigDeclmal value.
      * @see PrologFloatNumber#MATH_CONTEXT
      */
     public PrologFloatNumber(final String text) {
@@ -60,12 +59,12 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      * (BigDecimal compatible) and set the source stream position of the first
      * term char
      *
-     * @param text the text in the Java BigDecimal compatible format. Must not
-     * be null.
-     * @param strPos the first term char string position in the source stream.
+     * @param text       the text in the Java BigDecimal compatible format. Must not
+     *                   be null.
+     * @param strPos     the first term char string position in the source stream.
      * @param lineNumber the first term char line number in the source stream.
      * @throws NumberFormatException will be thrown if the text format is not
-     * compatible with the BigDecimal representation.
+     *                               compatible with the BigDecimal representation.
      * @see PrologFloatNumber#MATH_CONTEXT
      */
     public PrologFloatNumber(final String text, final int strPos, final int lineNumber) {
@@ -85,9 +84,9 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to create new instance based on a double value
      * and set the first term char position values in the source stream.
      *
-     * @param value the double value to make new instance.
+     * @param value       the double value to make new instance.
      * @param strPosition the first term char string position
-     * @param lineNumber the first term char line number
+     * @param lineNumber  the first term char line number
      */
     public PrologFloatNumber(final double value, final int strPosition, final int lineNumber) {
         this(BigDecimal.valueOf(value), strPosition, lineNumber);
@@ -98,7 +97,7 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      * value.
      *
      * @param value the BigDecimal value to be represented by the instance, must
-     * not be null
+     *              not be null
      */
     public PrologFloatNumber(final BigDecimal value) {
         super();
@@ -110,10 +109,10 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to make an instance based on a BigDecimal value
      * and set the first term char position values in the source stream.
      *
-     * @param value the BigDecimal value to be used for new instance, must not
-     * be null.
+     * @param value       the BigDecimal value to be used for new instance, must not
+     *                    be null.
      * @param strPosition the first term char string position
-     * @param lineNumber the first term char line number
+     * @param lineNumber  the first term char line number
      */
     public PrologFloatNumber(final BigDecimal value, final int strPosition, final int lineNumber) {
         this(value);

@@ -64,7 +64,7 @@ public class PrologCharDataSource {
      * A constructor. To make a reader based on a String object.
      *
      * @param string A string object which will be used as the source for the
-     * reader, must not be null
+     *               reader, must not be null
      */
     public PrologCharDataSource(final String string) {
         this(new StringReader(string));
@@ -75,17 +75,17 @@ public class PrologCharDataSource {
      * default charset!)
      *
      * @param inStream an input stream object which will be used as the source
-     * for the reader, must not be null
+     *                 for the reader, must not be null
      */
     public PrologCharDataSource(final InputStream inStream) {
-        this(new InputStreamReader(inStream,Charset.defaultCharset()));
+        this(new InputStreamReader(inStream, Charset.defaultCharset()));
     }
 
     /**
      * A constructor. To make a reader based on a channel
      *
      * @param channel the channel to be used as the data source, must not be
-     * null
+     *                null
      */
     public PrologCharDataSource(final ReadableByteChannel channel) {
         this(Channels.newInputStream(channel));
@@ -111,7 +111,7 @@ public class PrologCharDataSource {
      *
      * @return the next char code or -1 if the stream end has been reached
      * @throws IOException it will be thrown if there is any transport error
-     * during the operation
+     *                     during the operation
      */
     public int read() throws IOException {
         int ch;
@@ -154,7 +154,7 @@ public class PrologCharDataSource {
         int locStrPosPrev = strPosPrev;
         int locLineNum = lineNum;
         int locLineNumPrev = lineNumPrev;
-        
+
         while (chars > 0) {
             final char ch = buffer.charAt(pos--);
             charBuffer.pushChar(ch);
@@ -172,7 +172,7 @@ public class PrologCharDataSource {
                 locLineNumPrev = locLineNum;
             }
         }
-        
+
         strPos = locStrPos;
         strPosPrev = locStrPosPrev;
         lineNum = locLineNum;
@@ -242,7 +242,7 @@ public class PrologCharDataSource {
      * Close the current reader
      *
      * @throws IOException it will be thrown if there is any error during the
-     * operation
+     *                     operation
      */
     public void close() throws IOException {
         inReader.close();

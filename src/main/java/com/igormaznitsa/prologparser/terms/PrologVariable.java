@@ -42,7 +42,7 @@ public final class PrologVariable extends AbstractPrologTerm {
      * source stream position
      *
      * @param strPosition the variable char string position in the source stream
-     * @param lineNumber the variable char line number in the source stream
+     * @param lineNumber  the variable char line number in the source stream
      */
     public PrologVariable(final int strPosition, final int lineNumber) {
         this();
@@ -55,7 +55,7 @@ public final class PrologVariable extends AbstractPrologTerm {
      * create and an anonymous one if the text is '_')
      *
      * @param text the name for the new variable, it can't be null and must use
-     * the prolog syntax variable naming rules
+     *             the prolog syntax variable naming rules
      */
     public PrologVariable(final String text) {
         super(text);
@@ -67,7 +67,7 @@ public final class PrologVariable extends AbstractPrologTerm {
         if (!mapUpperCaseLetters.containsChar(firstLetter) && firstLetter != '_') {
             throw new IllegalArgumentException(
                     "The variable name must be started from an upper case letter or '_' ["
-                    + text + ']');
+                            + text + ']');
         }
 
         is_anonymous = text.length() == 1 && firstLetter == '_';
@@ -78,10 +78,10 @@ public final class PrologVariable extends AbstractPrologTerm {
      * create and an anonymous one if the text is '_') and set the first
      * variable char position in the source string
      *
-     * @param text the name for the new variable, it can't be null and must use
-     * the prolog syntax variable naming rules
+     * @param text        the name for the new variable, it can't be null and must use
+     *                    the prolog syntax variable naming rules
      * @param strPosition the first variable char string position
-     * @param lineNumber the first variable char line number
+     * @param lineNumber  the first variable char line number
      */
     public PrologVariable(final String text, final int strPosition, final int lineNumber) {
         this(text);

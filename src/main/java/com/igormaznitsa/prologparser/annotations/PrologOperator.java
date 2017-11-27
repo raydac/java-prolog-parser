@@ -33,32 +33,32 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.CLASS)
 public @interface PrologOperator {
 
-  /**
-   * The operator priority (0..1200)
-   *
-   * @return the priority as integer
-   */
-  int Priority();
+    /**
+     * The operator priority (0..1200)
+     *
+     * @return the priority as integer
+     */
+    int Priority();
 
-  /**
-   * The operator type
-   *
-   * @return the operator type
-   */
-  OperatorType Type();
+    /**
+     * The operator type
+     *
+     * @return the operator type
+     */
+    OperatorType Type();
 
-  /**
-   * The operator name
-   *
-   * @return the operator name as a String
-   */
-  String Name();
+    /**
+     * The operator name
+     *
+     * @return the operator name as a String
+     */
+    String Name();
 
-  /**
-   * Short reference of the operator.
-   *
-   * @return the short reference of the operator.
-   * @since 1.3.3
-   */
-  String Comments() default "";
+    /**
+     * Short reference of the operator.
+     *
+     * @return the short reference of the operator.
+     * @since 1.3.3
+     */
+    String Comments() default "";
 }

@@ -25,9 +25,8 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 /**
  * An Auxiliary class allows to make a wrapper containing a source stream position and a linked object for a singleton prolog term.
  * It is used by the prolog parser during tree building so it is a package level class.
- * 
+ *
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
- * 
  * @see Operator
  * @see OperatorContainer
  */
@@ -35,17 +34,17 @@ final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheIte
     private static final long serialVersionUID = 9006607815982718325L;
     private volatile AbstractPrologTerm wrappedTerm;
     private transient volatile SoftCache<PrologTermWrapper> ringBuffer;
-    
+
     PrologTermWrapper() {
         super("termWrapper");
     }
 
-    public void setWrappedTerm(final AbstractPrologTerm term){
-      this.wrappedTerm = term;
-    }
-    
     public AbstractPrologTerm getWrappedTerm() {
         return this.wrappedTerm;
+    }
+
+    public void setWrappedTerm(final AbstractPrologTerm term) {
+        this.wrappedTerm = term;
     }
 
     @Override
@@ -71,7 +70,7 @@ final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheIte
     @Override
     @SuppressWarnings("unchecked")
     public void setSoftCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
-        this.ringBuffer = (SoftCache<PrologTermWrapper>)ringBuffer;
+        this.ringBuffer = (SoftCache<PrologTermWrapper>) ringBuffer;
     }
 
     @Override
@@ -81,8 +80,8 @@ final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheIte
 
     @Override
     public void dispose() {
-      if (this.ringBuffer!=null){  
-        this.ringBuffer.dispose(this);
-      }
+        if (this.ringBuffer != null) {
+            this.ringBuffer.dispose(this);
+        }
     }
 }

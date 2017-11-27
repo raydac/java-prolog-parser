@@ -17,34 +17,33 @@ package com.igormaznitsa.prologparser.utils;
 
 /**
  * It is an auxiliary class contains methods to check arguments
- *
  */
 public enum Assert {
-  ;
+    ;
 
-  public static void assertCanCast(final String message, final Class<?> klazz, final Object obj) {
-    if (obj == null || !klazz.isAssignableFrom(obj.getClass())) {
-      throw new IllegalArgumentException(message);
+    public static void assertCanCast(final String message, final Class<?> klazz, final Object obj) {
+        if (obj == null || !klazz.isAssignableFrom(obj.getClass())) {
+            throw new IllegalArgumentException(message);
+        }
     }
-  }
 
-  public static void assertNotNull(final String message, final Object obj) {
-    if (obj == null) {
-      throw new NullPointerException(message);
+    public static void assertNotNull(final String message, final Object obj) {
+        if (obj == null) {
+            throw new NullPointerException(message);
+        }
     }
-  }
 
-  public static void assertNonEmptyString(final String message, final String str) {
-    if (str.length() == 0) {
-      throw new IllegalArgumentException(message);
+    public static void assertNonEmptyString(final String message, final String str) {
+        if (str.length() == 0) {
+            throw new IllegalArgumentException(message);
+        }
     }
-  }
 
-  public static void assertArrayDoesntContanNull(final String message, final Object[] array) {
-    for (final Object obj : array) {
-      if (obj == null) {
-        throw new NullPointerException(message);
-      }
+    public static void assertArrayDoesntContanNull(final String message, final Object[] array) {
+        for (final Object obj : array) {
+            if (obj == null) {
+                throw new NullPointerException(message);
+            }
+        }
     }
-  }
 }

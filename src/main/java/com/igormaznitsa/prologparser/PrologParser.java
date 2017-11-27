@@ -23,56 +23,56 @@ import com.igormaznitsa.prologparser.operators.OperatorType;
  * Parser with predefined system operators for Edinburgh prolog.
  */
 @PrologOperators(Operators = {
-  @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
-  @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
-  @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = "?-"),
-  @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = ":-"),
-  @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
-  @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
-  @PrologOperator(Priority = 900, Type = OperatorType.FY, Name = "\\+"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\=="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@<"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@=<"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=.."),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "is"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=:="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=\\="),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "<"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=<"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">"),
-  @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">="),
-  @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "+"),
-  @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "-"),
-  @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "/\\"),
-  @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "\\/"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "*"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "/"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "//"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "<<"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = ">>"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "rem"),
-  @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "mod"),
-  @PrologOperator(Priority = 200, Type = OperatorType.XFX, Name = "**"),
-  @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
-  @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
-  @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
+        @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
+        @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
+        @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = "?-"),
+        @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = ":-"),
+        @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
+        @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
+        @PrologOperator(Priority = 900, Type = OperatorType.FY, Name = "\\+"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\=="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@<"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@=<"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=.."),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "is"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=:="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=\\="),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "<"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=<"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">"),
+        @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">="),
+        @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "+"),
+        @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "-"),
+        @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "/\\"),
+        @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "\\/"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "*"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "/"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "//"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "<<"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = ">>"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "rem"),
+        @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "mod"),
+        @PrologOperator(Priority = 200, Type = OperatorType.XFX, Name = "**"),
+        @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
+        @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
+        @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
 public final class PrologParser extends AbstractPrologParser {
 
-  static {
-    readSystemOperators(PrologParser.class);
-  }
-  
-  /**
-   * The constructor
-   *
-   * @param context the context for the parser, it can be null.
-   */
-  public PrologParser(final ParserContext context){
-    super(context);
-  }
+    static {
+        readSystemOperators(PrologParser.class);
+    }
+
+    /**
+     * The constructor
+     *
+     * @param context the context for the parser, it can be null.
+     */
+    public PrologParser(final ParserContext context) {
+        super(context);
+    }
 }

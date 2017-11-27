@@ -31,15 +31,15 @@ public abstract class AbstractPrologTerm extends CharacterProcessor implements S
 
     private static final long serialVersionUID = 1482429096900255841L;
     /**
+     * The variable contains the text for the term
+     */
+    protected final String text;
+    /**
      * The variable save any Java object, it is not being used by the prolog
      * parser but allows a user to link some data to the structure, the default
      * value is null
      */
     protected Object linkedObject;
-    /**
-     * The variable contains the text for the term
-     */
-    protected final String text;
     /**
      * The variable contains the line number for the term in the source stream
      */
@@ -67,11 +67,11 @@ public abstract class AbstractPrologTerm extends CharacterProcessor implements S
      * The constructor allows to make new instance based on a text value and set
      * both the string position and the line number values
      *
-     * @param text the text representing the term, must not be null
+     * @param text        the text representing the term, must not be null
      * @param strPosition the string position of the first term char in the
-     * source stream, the first char is 1
-     * @param lineNumber the line number of the first term char in the source
-     * stream, the first line is 1
+     *                    source stream, the first char is 1
+     * @param lineNumber  the line number of the first term char in the source
+     *                    stream, the first line is 1
      */
     public AbstractPrologTerm(final String text, final int strPosition, final int lineNumber) {
         this(text);
@@ -114,7 +114,7 @@ public abstract class AbstractPrologTerm extends CharacterProcessor implements S
      * Set the first term char line number in the source stream
      *
      * @param lineNumber the line number, if it is zero or less then the value
-     * will be -1
+     *                   will be -1
      */
     public final void setLineNumber(final int lineNumber) {
         this.lineNumber = lineNumber <= 0 ? -1 : lineNumber;
@@ -149,21 +149,21 @@ public abstract class AbstractPrologTerm extends CharacterProcessor implements S
     }
 
     /**
-     * Set the linked object for the term
-     *
-     * @param obj the new linked object, it can be null
-     */
-    public void setLinkedObject(final Object obj) {
-        this.linkedObject = obj;
-    }
-
-    /**
      * Get the linked object for the term
      *
      * @return the linked object, it can be null
      */
     public Object getLinkedObject() {
         return this.linkedObject;
+    }
+
+    /**
+     * Set the linked object for the term
+     *
+     * @param obj the new linked object, it can be null
+     */
+    public void setLinkedObject(final Object obj) {
+        this.linkedObject = obj;
     }
 
     /**

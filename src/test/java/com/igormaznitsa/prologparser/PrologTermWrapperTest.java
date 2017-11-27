@@ -25,16 +25,16 @@ import static org.junit.Assert.assertSame;
 public class PrologTermWrapperTest {
 
     final static Operator testWrapped = Operator.makeOperator(300, OperatorType.FX, "---");
-    
+
     final static PrologTermWrapper testWrapper = new PrologTermWrapper();
-    
-    static{
-      testWrapper.setWrappedTerm(testWrapped);
+
+    static {
+        testWrapper.setWrappedTerm(testWrapped);
     }
-    
+
     @Test
     public void testGetText() {
-      assertEquals(testWrapped.getText(), testWrapper.getText());
+        assertEquals(testWrapped.getText(), testWrapper.getText());
     }
 
     @Test

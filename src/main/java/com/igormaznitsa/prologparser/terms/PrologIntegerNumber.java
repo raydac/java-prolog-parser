@@ -32,11 +32,6 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 
     private static final long serialVersionUID = 6955747225309951985L;
     /**
-     * The variable contains immutable numeric value for the instance.
-     */
-    private final BigInteger value;
-    
-    /**
      * Inside cache for text-number pairs
      */
     private static final Map<String, BigInteger> cachedValues = new HashMap<String, BigInteger>(128);
@@ -49,31 +44,9 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
     }
 
     /**
-     * Find in cache a number for a text or to create a new on if not found.
-     * @param text a text to be converted into BigInteger, it must not be null
-     * @return the numeric value of the text as a BigInteger
+     * The variable contains immutable numeric value for the instance.
      */
-    private static BigInteger valueOf(final String text) {
-        assertNotNull("Null text", text);
-        final int len = text.length();
-        BigInteger result = null;
-        if (len == 0) {
-            throw new NumberFormatException("Empty string");
-        }else{    
-            if (text.charAt(0) == '-') {
-                if (len < 4) {
-                    result = cachedValues.get(text);
-                }
-            } else if (len < 3) {
-                result = cachedValues.get(text);
-            }
-
-            if (result == null) {
-                result = new BigInteger(text, 10);
-            }
-        }
-        return result;
-    }
+    private final BigInteger value;
 
     /**
      * A Constructor. It allows to create new instance based on a text numeric
@@ -90,9 +63,9 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to create new instance based on a text
      * compatibles with Java BigInteger class
      *
-     * @param text the text represents numeric value in BigInteger compatible
-     * manner, must not be null
-     * @param strPos the first term char string position
+     * @param text    the text represents numeric value in BigInteger compatible
+     *                manner, must not be null
+     * @param strPos  the first term char string position
      * @param lineNum the first term char line number
      * @see BigInteger
      */
@@ -114,8 +87,8 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to make new instances based on a Java long
      * number.
      *
-     * @param value a long value to make new instance.
-     * @param strPos the first term char string position
+     * @param value      a long value to make new instance.
+     * @param strPos     the first term char string position
      * @param lineNumber the first term char line number
      */
     public PrologIntegerNumber(final long value, final int strPos, final int lineNumber) {
@@ -138,15 +111,43 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
      * A Constructor. It allows to create new instance based on a Java
      * BigInteger value.
      *
-     * @param value the value to be saved into the new instance, must not be
-     * null.
+     * @param value       the value to be saved into the new instance, must not be
+     *                    null.
      * @param strPosition the first term char string position
-     * @param lineNumber the first term char line number
+     * @param lineNumber  the first term char line number
      */
     public PrologIntegerNumber(final BigInteger value, final int strPosition, final int lineNumber) {
         this(value);
         setStrPosition(strPosition);
         setLineNumber(lineNumber);
+    }
+
+    /**
+     * Find in cache a number for a text or to create a new on if not found.
+     *
+     * @param text a text to be converted into BigInteger, it must not be null
+     * @return the numeric value of the text as a BigInteger
+     */
+    private static BigInteger valueOf(final String text) {
+        assertNotNull("Null text", text);
+        final int len = text.length();
+        BigInteger result = null;
+        if (len == 0) {
+            throw new NumberFormatException("Empty string");
+        } else {
+            if (text.charAt(0) == '-') {
+                if (len < 4) {
+                    result = cachedValues.get(text);
+                }
+            } else if (len < 3) {
+                result = cachedValues.get(text);
+            }
+
+            if (result == null) {
+                result = new BigInteger(text, 10);
+            }
+        }
+        return result;
     }
 
     /**

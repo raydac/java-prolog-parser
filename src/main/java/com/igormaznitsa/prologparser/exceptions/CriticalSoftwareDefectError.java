@@ -17,12 +17,13 @@ package com.igormaznitsa.prologparser.exceptions;
 
 /**
  * The error will be throws if a critical work logic defect has been found
+ *
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
  */
 public class CriticalSoftwareDefectError extends Error {
     private static final long serialVersionUID = -8219655356191420973L;
-    
-    public CriticalSoftwareDefectError(){
+
+    public CriticalSoftwareDefectError() {
         super("Critical software defect, contact developers please and check the new version of the software!");
     }
 }

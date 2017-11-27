@@ -88,9 +88,9 @@ public class ParserContextTest extends AbstractPrologParserTest {
 
         final AbstractPrologParser parser = new PrologParser(mockContext);
         final PrologCharDataSource reader = new PrologCharDataSource("operator.");
-        final PrologAtom atom = (PrologAtom)parser.nextSentence(reader);
-        assertEquals("It must be the 'operator' atom","operator",atom.getText());
-        
+        final PrologAtom atom = (PrologAtom) parser.nextSentence(reader);
+        assertEquals("It must be the 'operator' atom", "operator", atom.getText());
+
         verify(mockContext).findOperatorForName(parser, "operator");
 
     }
@@ -144,7 +144,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
 
         final AbstractPrologParser parser = new PrologParser(stubContext);
         final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(5). a :- b.");
-        while (parser.nextSentence(reader) != null);
+        while (parser.nextSentence(reader) != null) ;
 
         assertEquals(4, detectedStructures.size());
         assertTrue(detectedStructures.containsKey("test"));

@@ -18,7 +18,7 @@ package com.igormaznitsa.prologparser.exceptions;
 /**
  * The class is an exception and being used by the prolog parser to notify user
  * about a syntax prolog problem and its position in the source.
- * 
+ *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 public class PrologParserException extends Exception {
@@ -37,16 +37,13 @@ public class PrologParserException extends Exception {
 
     /**
      * The constructor.
-     * 
-     * @param text
-     *            the text of the problem. It can be null.
-     * @param lineNumber
-     *            the line number of the problem.
-     * @param stringPos
-     *            the string position of the problem.
+     *
+     * @param text       the text of the problem. It can be null.
+     * @param lineNumber the line number of the problem.
+     * @param stringPos  the string position of the problem.
      */
     public PrologParserException(final String text, final int lineNumber,
-            final int stringPos) {
+                                 final int stringPos) {
         super(text);
         this.lineNumber = lineNumber;
         this.stringPosition = stringPos;
@@ -54,7 +51,7 @@ public class PrologParserException extends Exception {
 
     /**
      * Get the line number of the problem.
-     * 
+     *
      * @return the line number as integer.
      */
     public int getLineNumber() {
@@ -63,7 +60,7 @@ public class PrologParserException extends Exception {
 
     /**
      * Get the string position of the problem.
-     * 
+     *
      * @return the string position as integer.
      */
     public int getStringPosition() {
@@ -73,9 +70,9 @@ public class PrologParserException extends Exception {
     /**
      * Allows to check that the exception contains valid line-string position
      * information, they must be more than zero.
-     * 
+     *
      * @return true if both the line index and the string position are more than
-     *         zero, else false
+     * zero, else false
      */
     public boolean containsRightPositionData() {
         return lineNumber > 0 && stringPosition > 0;

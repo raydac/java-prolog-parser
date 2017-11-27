@@ -38,6 +38,7 @@ import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
  */
 final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemFactory<TokenizerResult> {
 
+    final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<Character>();
     /**
      * Inside caching ring buffer to cache tokenizer result items.
      */
@@ -72,7 +73,6 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * The variable contains the last value of the read token string position.
      */
     int lastReadTokenStrPos;
-    final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<Character>();
 
     /**
      * The constructor.
@@ -82,10 +82,89 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
     }
 
     /**
+     * Function allows to check that there is an operator starts with a string,
+     * as the first it checks the system operators then call the prolog context.
+     *
+     * @param operatorNameStartSubstring the start substring to be checked as
+     *                                   the operator start name, must not be null
+     * @param parser                     a prolog parser which context will be used, it can be null
+     * @return true if there is any operator starts with the string, else false
+     */
+    static boolean hasOperatorStartsWith(
+            final String operatorNameStartSubstring,
+            final AbstractPrologParser parser) {
+
+        // check for system
+        if (AbstractPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
+            return true;
+        }
+
+        // check only context
+        boolean result = false;
+        if (parser != null) {
+            final ParserContext ctx = parser.getContext();
+            if (ctx != null) {
+                result = ctx.hasOperatorStartsWith(parser, operatorNameStartSubstring);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Function to find an operator for its name, as the first it will search
+     * among system operators then in the prolog context.
+     *
+     * @param operatorName an operator name to be used for search, must not be
+     *                     null
+     * @param parser       a prolog parser which context will be used, it can be null
+     * @return an OperatorContainer if the operator is presented, else null
+     */
+    static OperatorContainer findOperatorForName(final String operatorName,
+                                                 final AbstractPrologParser parser) {
+        OperatorContainer result = null;
+
+        // check metaoperators as the first ones
+        if (operatorName.length() == 1) {
+            result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(operatorName);
+        }
+        if (result == null) {
+            // check user defined operators because a user can replace a system operator
+            if (parser != null) {
+                final ParserContext ctx = parser.getContext();
+                if (ctx != null) {
+                    result = ctx.findOperatorForName(parser, operatorName);
+                }
+            }
+
+            // check system operators
+            if (result == null) {
+                result = AbstractPrologParser.SYSTEM_OPERATORS.get(operatorName);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Method allows to find an operator for its char representation.
+     *
+     * @param c      the char name of an operator.
+     * @param parser a prolog parser which context will be used, it can be null
+     * @return an OperatorContainer if the operator is presented, else null
+     */
+    static OperatorContainer findOperatorForSingleChar(final char c, final AbstractPrologParser parser) {
+        OperatorContainer result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(c);
+        if (result == null) {
+            return findOperatorForName(SingleCharString.valueOf(c), parser);
+        }
+        return result;
+    }
+
+    /**
      * Push a read object back into buffer to read it lately
      *
      * @param object the object to be pushed back into buffer, null will clear
-     * the buffer.
+     *               the buffer.
      */
     void pushTermBack(final TokenizerResult object) {
         if (lastPushedTerm != null) {
@@ -105,7 +184,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * @throws IOException it will be throws if there is any transport problem
      */
     TokenizerResult peekToken(final PrologCharDataSource reader,
-            final AbstractPrologParser parser) throws PrologParserException,
+                              final AbstractPrologParser parser) throws PrologParserException,
             IOException {
         TokenizerResult result;
         if (lastPushedTerm == null) {
@@ -141,7 +220,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * Inside function to fix current read string and line positions.
      *
      * @param reader the reader which position must be fixed within inside
-     * variables, must not be null
+     *               variables, must not be null
      */
     void fixPosition(final PrologCharDataSource reader) {
         prevReadTokenLineNum = lastReadTokenLineNum;
@@ -155,7 +234,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      *
      * @param reader the source for char data, must not be null
      * @throws IOException it will be thrown if there is any transport problem
-     * during the operation
+     *                     during the operation
      */
     void skipUntilNextString(final PrologCharDataSource reader)
             throws IOException {
@@ -171,16 +250,16 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * Read the next token from a reader
      *
      * @param reader the reader to be used as the char data source, must not be
-     * null
+     *               null
      * @param parser the prolog parser calling reading the stream, it can be
-     * null
+     *               null
      * @return the next token found at the stream as a ProlTokenizerResult
      * object or null if the end of the stream has been reached
      * @throws IOException it will be thrown if there is any transport error
-     * during the operation
+     *                     during the operation
      */
     TokenizerResult nextToken(final PrologCharDataSource reader,
-            final AbstractPrologParser parser) throws PrologParserException,
+                              final AbstractPrologParser parser) throws PrologParserException,
             IOException {
 
         assertNotNull("Reader is null", reader);
@@ -459,8 +538,8 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
                                     // exception
                                     throw new PrologParserException(
                                             "Unsupported special char [\\"
-                                            + localspecialCharBuffer.toString()
-                                            + "]",
+                                                    + localspecialCharBuffer.toString()
+                                                    + "]",
                                             reader.getPrevLineNumber(),
                                             reader.getPreviousNextCharStringPosition());
                                 }
@@ -508,9 +587,9 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
     /**
      * The auxiliary method to centralize of result creation.
      *
-     * @param term a term
-     * @param state a tokenizer state
-     * @param strPos a string position
+     * @param term    a term
+     * @param state   a tokenizer state
+     * @param strPos  a string position
      * @param lineNum a line number
      * @return a generated tokenizer result
      */
@@ -524,13 +603,13 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
      * Inside auxiliary function to make a term from a String
      *
      * @param string the source string object, must not be null
-     * @param state the state of inside state machine which was set during the
-     * term reading
+     * @param state  the state of inside state machine which was set during the
+     *               term reading
      * @return a Term object as the result, not-null value will be returned
      * anyway
      */
     AbstractPrologTerm makeTermFromString(final String string,
-            final TokenizerState state) {
+                                          final TokenizerState state) {
         AbstractPrologTerm result;
 
         switch (state) {
@@ -556,85 +635,6 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
             result = new PrologAtom(string);
         }
 
-        return result;
-    }
-
-    /**
-     * Function allows to check that there is an operator starts with a string,
-     * as the first it checks the system operators then call the prolog context.
-     *
-     * @param operatorNameStartSubstring the start substring to be checked as
-     * the operator start name, must not be null
-     * @param parser a prolog parser which context will be used, it can be null
-     * @return true if there is any operator starts with the string, else false
-     */
-    static boolean hasOperatorStartsWith(
-            final String operatorNameStartSubstring,
-            final AbstractPrologParser parser) {
-
-        // check for system
-        if (AbstractPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
-            return true;
-        }
-
-        // check only context
-        boolean result = false;
-        if (parser != null) {
-            final ParserContext ctx = parser.getContext();
-            if (ctx != null) {
-                result = ctx.hasOperatorStartsWith(parser, operatorNameStartSubstring);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Function to find an operator for its name, as the first it will search
-     * among system operators then in the prolog context.
-     *
-     * @param operatorName an operator name to be used for search, must not be
-     * null
-     * @param parser a prolog parser which context will be used, it can be null
-     * @return an OperatorContainer if the operator is presented, else null
-     */
-    static OperatorContainer findOperatorForName(final String operatorName,
-            final AbstractPrologParser parser) {
-        OperatorContainer result = null;
-
-        // check metaoperators as the first ones
-        if (operatorName.length() == 1) {
-            result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(operatorName);
-        }
-        if (result == null) {
-            // check user defined operators because a user can replace a system operator
-            if (parser != null) {
-                final ParserContext ctx = parser.getContext();
-                if (ctx != null) {
-                    result = ctx.findOperatorForName(parser, operatorName);
-                }
-            }
-
-            // check system operators
-            if (result == null) {
-                result = AbstractPrologParser.SYSTEM_OPERATORS.get(operatorName);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Method allows to find an operator for its char representation.
-     *
-     * @param c the char name of an operator.
-     * @param parser a prolog parser which context will be used, it can be null
-     * @return an OperatorContainer if the operator is presented, else null
-     */
-    static OperatorContainer findOperatorForSingleChar(final char c, final AbstractPrologParser parser) {
-        OperatorContainer result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(c);
-        if (result == null) {
-            return findOperatorForName(SingleCharString.valueOf(c), parser);
-        }
         return result;
     }
 

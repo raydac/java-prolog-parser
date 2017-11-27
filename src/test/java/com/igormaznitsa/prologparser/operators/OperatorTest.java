@@ -171,7 +171,7 @@ public class OperatorTest extends AbstractPrologParserTest {
                 new AbstractPrologTerm[]{new PrologAtom("first")});
         final PrologStructure two = new PrologStructure(new PrologAtom(
                 "functor"), new AbstractPrologTerm[]{new PrologAtom("first"),
-                    new PrologAtom("second")});
+                new PrologAtom("second")});
 
         assertFalse(opFX.compatibleWith(empty));
         assertFalse(opFY.compatibleWith(empty));

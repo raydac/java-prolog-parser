@@ -56,9 +56,9 @@ public class PrologTermTest extends AbstractPrologParserTest {
 
         assertEquals("\'test\'(\'first\', 100, -1000.0)", new PrologStructure(
                 new PrologAtom("test"), new AbstractPrologTerm[]{
-                    new PrologAtom("first"),
-                    new PrologIntegerNumber("100"),
-                    new PrologFloatNumber(-1000d)}).toString());
+                new PrologAtom("first"),
+                new PrologIntegerNumber("100"),
+                new PrologFloatNumber(-1000d)}).toString());
 
         assertEquals(new PrologList().toString(), "[]");
 
@@ -75,9 +75,9 @@ public class PrologTermTest extends AbstractPrologParserTest {
         assertEquals("[X|'Test']", list3.toString());
 
         final PrologList list4 = new PrologList(new AbstractPrologTerm[]{
-                    new PrologList(new AbstractPrologTerm[]{
+                new PrologList(new AbstractPrologTerm[]{
                         new PrologAtom("First"), new PrologVariable()}),
-                    new PrologList(new AbstractPrologTerm[]{
+                new PrologList(new AbstractPrologTerm[]{
                         new PrologAtom("hello"), new PrologAtom("world")})});
         assertEquals("[['First', _], ['hello', 'world']]", list4.toString());
 

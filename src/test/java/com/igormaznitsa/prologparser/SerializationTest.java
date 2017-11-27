@@ -29,41 +29,41 @@ public class SerializationTest {
     @Test
     public void testSerializationOperator() throws Exception {
         final AbstractPrologParser parser = new PrologParser(null);
-        
+
         final PrologCharDataSource source = new PrologCharDataSource("a+b. c+d.");
-        
-        final PrologStructure first = (PrologStructure)parser.nextSentence(source);
-        final PrologStructure second = (PrologStructure)parser.nextSentence(source);
-        
+
+        final PrologStructure first = (PrologStructure) parser.nextSentence(source);
+        final PrologStructure second = (PrologStructure) parser.nextSentence(source);
+
         assertNotNull(first);
         assertNotNull(second);
-        assertNotSame(first,second);
-        
+        assertNotSame(first, second);
+
         assertSame("Must be the same", first.getFunctor(), second.getFunctor());
-     
+
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream(16384);
         final ObjectOutputStream objectStream = new ObjectOutputStream(buffer);
-        
+
         objectStream.writeObject(first);
         objectStream.writeObject(second);
         objectStream.close();
-        
+
         final ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-        
-        final PrologStructure firstClone = (PrologStructure)inStream.readObject();
-        final PrologStructure secondClone = (PrologStructure)inStream.readObject();
-        
+
+        final PrologStructure firstClone = (PrologStructure) inStream.readObject();
+        final PrologStructure secondClone = (PrologStructure) inStream.readObject();
+
         assertNotSame(first, second);
         assertSame("Must be the same", firstClone.getFunctor(), secondClone.getFunctor());
         assertSame("Must be the same", first.getFunctor(), firstClone.getFunctor());
         assertSame("Must be the same", second.getFunctor(), secondClone.getFunctor());
     }
-    
+
     @Test
     public void testSerializationOfVariables() throws Exception {
         final AbstractPrologParser parser = new PrologParser(null);
         final PrologStructure structure = (PrologStructure) parser.nextSentence("a(A,A).");
-        
+
         assertNotSame("Must not be the same", structure.getElement(0), structure.getElement(1));
 
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream(16384);
@@ -78,6 +78,6 @@ public class SerializationTest {
 
         assertNotSame("Must not be the same", structure, structureClone);
         assertNotSame("Must not be the same", structureClone.getElement(0), structureClone.getElement(1));
-        
+
     }
 }

@@ -62,10 +62,10 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * Add an operator into the container
      *
      * @param operator an operator to be added into the container, must not be
-     * null
+     *                 null
      * @return true if the operator has been added, else false
      * @throws IllegalArgumentException if the operator has different name than
-     * the container
+     *                                  the container
      */
     public boolean addOperator(final Operator operator) {
         assertNotNull("Operator must not be null", operator);
@@ -221,14 +221,14 @@ public final class OperatorContainer extends AbstractPrologTerm {
      * Get an operator from the container which can be used for a situation, as
      * situation I mean the left right arguments existence.
      *
-     * @param leftPresented true if there is the left argument in the situation,
-     * false if there is not any left one
+     * @param leftPresented  true if there is the left argument in the situation,
+     *                       false if there is not any left one
      * @param rightPresented false if thee is the right argument in the
-     * situation, false if there is not any right one
+     *                       situation, false if there is not any right one
      * @return the found operator or null if there is not anyone found
      */
     public Operator findCompatibleOperator(final boolean leftPresented,
-            final boolean rightPresented) {
+                                           final boolean rightPresented) {
         if (leftPresented && rightPresented) {
             if (opZFZ != null) {
                 return opZFZ;

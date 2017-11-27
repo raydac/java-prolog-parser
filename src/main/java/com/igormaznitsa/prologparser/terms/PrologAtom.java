@@ -40,18 +40,19 @@ public final class PrologAtom extends AbstractPrologTerm {
 
     /**
      * A Constructor to clone a Prolog term as an atom.
+     *
      * @param term a prolog term, it must not be null.
      */
-    public PrologAtom(final AbstractPrologTerm term){
+    public PrologAtom(final AbstractPrologTerm term) {
         super(term.getText(), term.getStrPosition(), term.getLineNumber());
     }
-    
+
     /**
      * A Constructor allows to make an instance based on a text part and set the
      * position values for the text at the source stream
      *
-     * @param text the text to be used for new instance, must not be null
-     * @param strPos the first term char string position
+     * @param text       the text to be used for new instance, must not be null
+     * @param strPos     the first term char string position
      * @param lineNumber the first term char line number
      */
     public PrologAtom(final String text, final int strPos, final int lineNumber) {
