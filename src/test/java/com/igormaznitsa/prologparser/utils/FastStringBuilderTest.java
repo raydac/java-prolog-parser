@@ -17,6 +17,7 @@
 package com.igormaznitsa.prologparser.utils;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class FastStringBuilderTest {

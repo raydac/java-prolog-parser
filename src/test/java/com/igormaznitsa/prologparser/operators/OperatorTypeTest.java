@@ -15,9 +15,10 @@
  */
 package com.igormaznitsa.prologparser.operators;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class OperatorTypeTest extends AbstractPrologParserTest {
 

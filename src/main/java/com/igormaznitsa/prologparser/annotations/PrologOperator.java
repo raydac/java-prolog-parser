@@ -17,6 +17,7 @@ package com.igormaznitsa.prologparser.annotations;
 
 import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.operators.OperatorType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

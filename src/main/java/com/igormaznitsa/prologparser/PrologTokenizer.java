@@ -18,19 +18,17 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
-import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
-import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
-import com.igormaznitsa.prologparser.terms.PrologVariable;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
+import com.igormaznitsa.prologparser.terms.*;
 import com.igormaznitsa.prologparser.utils.CharacterProcessor;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.SingleCharString;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
+
 import java.io.IOException;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class implements an intermediate tokenizer between a data stream and a

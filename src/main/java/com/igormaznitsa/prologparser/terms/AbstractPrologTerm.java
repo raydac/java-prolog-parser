@@ -15,9 +15,11 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.Assert.*;
 import com.igormaznitsa.prologparser.utils.CharacterProcessor;
+
 import java.io.Serializable;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The abstract class describes an abstract prolog term for the prolog parser.

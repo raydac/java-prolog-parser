@@ -17,9 +17,10 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class is a container to save information about parsed token, tokenizer

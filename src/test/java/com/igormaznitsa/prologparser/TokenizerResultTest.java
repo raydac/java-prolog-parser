@@ -15,13 +15,12 @@
  */
 package com.igormaznitsa.prologparser;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class TokenizerResultTest {
 

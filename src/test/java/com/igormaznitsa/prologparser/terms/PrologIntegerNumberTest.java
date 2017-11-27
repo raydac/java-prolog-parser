@@ -15,10 +15,12 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static org.junit.Assert.*;
-import java.math.BigInteger;
-import org.junit.Test;
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
+import org.junit.Test;
+
+import java.math.BigInteger;
+
+import static org.junit.Assert.*;
 
 public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 

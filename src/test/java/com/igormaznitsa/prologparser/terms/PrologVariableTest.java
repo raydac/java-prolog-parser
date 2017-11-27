@@ -15,11 +15,10 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static org.junit.Assert.*;
-
+import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import org.junit.Test;
 
-import com.igormaznitsa.prologparser.AbstractPrologParserTest;
+import static org.junit.Assert.*;
 
 public class PrologVariableTest extends AbstractPrologParserTest {
 

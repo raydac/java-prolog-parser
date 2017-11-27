@@ -16,18 +16,14 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 

@@ -15,11 +15,14 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.operators.Operator;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+
 import java.util.Arrays;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertArrayDoesntContanNull;
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class describes a prolog structure.

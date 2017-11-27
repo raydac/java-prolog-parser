@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package com.igormaznitsa.prologparser.terms;
+
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class describes a prolog list being used by the prolog parser.

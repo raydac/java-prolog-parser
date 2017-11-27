@@ -15,11 +15,12 @@
  */
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
+import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class being used by the prolog parser to save operators with the same

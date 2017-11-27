@@ -20,9 +20,10 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.junit.Assert.*;
 
 public class OperatorTest extends AbstractPrologParserTest {
 

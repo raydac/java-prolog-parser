@@ -15,16 +15,16 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static org.junit.Assert.*;
-
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
-
+import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.ParserContext;
-import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.PrologParser;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 
 public class PrologTermTest extends AbstractPrologParserTest {
 

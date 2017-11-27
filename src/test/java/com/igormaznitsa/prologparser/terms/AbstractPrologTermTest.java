@@ -16,8 +16,9 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class AbstractPrologTermTest extends AbstractPrologParserTest {
 

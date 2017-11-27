@@ -16,6 +16,7 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;

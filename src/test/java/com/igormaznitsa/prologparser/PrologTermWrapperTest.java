@@ -15,12 +15,12 @@
  */
 package com.igormaznitsa.prologparser;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorType;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class PrologTermWrapperTest {
 

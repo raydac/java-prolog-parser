@@ -16,12 +16,14 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.PrologStructure;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
 import static org.junit.Assert.*;
-import org.junit.Test;
 
 public class SerializationTest {
     @Test

@@ -15,7 +15,7 @@
  */
 package com.igormaznitsa.prologparser.utils;
 
-import static com.igormaznitsa.prologparser.utils.Assert.*;
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class contains misc auxiliary string functions and classes.

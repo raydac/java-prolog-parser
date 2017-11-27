@@ -16,15 +16,13 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
+
+import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class is the main char data source for a prolog parser, the class adapts

@@ -22,9 +22,12 @@ import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import static com.igormaznitsa.prologparser.utils.Assert.*;
+
 import java.io.ObjectStreamException;
 import java.util.Locale;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNonEmptyString;
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class describes a prolog operator for the prolog parser.

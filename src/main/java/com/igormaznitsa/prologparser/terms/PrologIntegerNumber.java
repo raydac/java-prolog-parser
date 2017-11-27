@@ -15,10 +15,11 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class describes an immutable integer numeric atom, it is like a prolog

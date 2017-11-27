@@ -15,9 +15,10 @@
  */
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.Assert.*;
 import java.math.BigDecimal;
 import java.math.MathContext;
+
+import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
 
 /**
  * The class describes a float numeric atom for the prolog parser. It looks like
