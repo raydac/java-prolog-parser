@@ -38,7 +38,7 @@ public class PrologTermTest extends AbstractPrologParserTest {
   }
 
   @Test
-  public void testToString() throws Exception {
+  public void testToString() {
 
     assertEquals("\'Hello\\nWorld\'",
         new PrologAtom("Hello\nWorld").toString());

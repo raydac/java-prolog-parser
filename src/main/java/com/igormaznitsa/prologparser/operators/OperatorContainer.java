@@ -222,30 +222,36 @@ public final class OperatorContainer extends AbstractPrologTerm {
    *                       situation, false if there is not any right one
    * @return the found operator or null if there is not anyone found
    */
-  public Operator findCompatibleOperator(final boolean leftPresented,
-                                         final boolean rightPresented) {
-    if (leftPresented && rightPresented) {
-      if (opZFZ != null) {
-        return opZFZ;
+  public Operator findCompatibleOperator(final boolean leftPresented, final boolean rightPresented) {
+    final Operator result;
+    if (leftPresented) {
+      if (rightPresented) {
+        if (opZFZ != null) {
+          result = opZFZ;
+        } else if (opFZ != null) {
+          result = opFZ;
+        } else {
+          result = opZF;
+        }
+      } else {
+        if (opZF != null) {
+          result = opZF;
+        } else {
+          result = opFZ;
+        }
       }
-      if (opFZ != null) {
-        return opFZ;
+    } else {
+      if (rightPresented) {
+        if (opFZ != null) {
+          result = opFZ;
+        } else {
+          result = opZF;
+        }
+      } else {
+        result = null;
       }
-      return opZF;
     }
-    if (leftPresented && !rightPresented) {
-      if (opZF != null) {
-        return opZF;
-      }
-      return opFZ;
-    }
-    if (!leftPresented && rightPresented) {
-      if (opFZ != null) {
-        return opFZ;
-      }
-      return opZF;
-    }
-    return null;
+    return result;
   }
 
   /**

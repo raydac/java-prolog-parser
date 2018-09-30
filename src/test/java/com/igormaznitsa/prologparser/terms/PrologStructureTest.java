@@ -282,7 +282,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologStructureAbstractPrologTermIntIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologStructure((AbstractPrologTerm) null, 4, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologStructure(null, 4, 1, 2));
     assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologAtom("test"), -1, 1, 2));
     assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologVariable(), 10, 1, 2));
     assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 10, 1, 2));

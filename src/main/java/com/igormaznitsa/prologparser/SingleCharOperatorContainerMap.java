@@ -33,7 +33,7 @@ final class SingleCharOperatorContainerMap {
   /**
    * Inside wrapped map.
    */
-  private final Map<String, OperatorContainer> insideMap = new HashMap<String, OperatorContainer>();
+  private final Map<String, OperatorContainer> insideMap = new HashMap<>();
   /**
    * Array keeping operator containers for chars with codes lesser than 256.
    */

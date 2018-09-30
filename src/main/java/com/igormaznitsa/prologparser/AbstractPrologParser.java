@@ -67,12 +67,12 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
   /**
    * The Static map contains all system operators are being used by the parser.
    */
-  static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<String, OperatorContainer>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
+  static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
   /**
    * The set contains all possible prefixes of system operators to expedite
    * parsing.
    */
-  static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<String>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
+  static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
   /**
    * Inside link to the system ',' operator.
    */
@@ -173,8 +173,8 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
   /**
    * Inside cache of array lists to accumulate AbstractPrologTerms
    */
-  private final ThreadNonSafeArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ThreadNonSafeArrayListCache<AbstractPrologTerm>();
-  private final SoftCache<ParserTreeItem> itemCache = new SoftCache<ParserTreeItem>(this, 128);
+  private final ThreadNonSafeArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ThreadNonSafeArrayListCache<>();
+  private final SoftCache<ParserTreeItem> itemCache = new SoftCache<>(this, 128);
   /**
    * The tokenizer which is being used to tokenize the data stream.
    */
@@ -231,7 +231,7 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
    * @see OperatorContainer
    */
   public static Map<String, OperatorContainer> getSystemOperators() {
-    final Map<String, OperatorContainer> result = new HashMap<String, OperatorContainer>(SYSTEM_OPERATORS);
+    final Map<String, OperatorContainer> result = new HashMap<>(SYSTEM_OPERATORS);
     result.putAll(META_SYSTEM_OPERATORS.getMap());
     return result;
   }

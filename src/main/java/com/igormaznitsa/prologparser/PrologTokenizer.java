@@ -41,11 +41,11 @@ import java.io.IOException;
  */
 final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemFactory<TokenizerResult> {
 
-  final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<Character>();
+  final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<>();
   /**
    * Inside caching ring buffer to cache tokenizer result items.
    */
-  private final SoftCache<TokenizerResult> resultCache = new SoftCache<TokenizerResult>(this, 32);
+  private final SoftCache<TokenizerResult> resultCache = new SoftCache<>(this, 32);
   /**
    * Inside string buffer.
    */

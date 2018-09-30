@@ -24,7 +24,6 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 
-import java.io.ObjectStreamException;
 import java.util.Locale;
 
 /**
@@ -228,7 +227,7 @@ public final class Operator extends AbstractPrologTerm {
    * @return true if the operator is compatible with the structure else false
    */
   public boolean compatibleWith(final PrologStructure struct) {
-    boolean result = false;
+    final boolean result;
     if (struct != null) {
 
       switch (struct.getArity()) {
@@ -309,6 +308,8 @@ public final class Operator extends AbstractPrologTerm {
           result = false;
           break;
       }
+    } else {
+      result = false;
     }
     return result;
   }
@@ -352,19 +353,12 @@ public final class Operator extends AbstractPrologTerm {
    */
   @Override
   public String toString() {
-    return "op(" + getPriority() + ','
-        + getOperatorType().toString().toLowerCase(Locale.ENGLISH) + ",\'"
-        + getText() + "\').";
+    return String.format("op(%d,%s,'%s').",getPriority(),getOperatorType().toString().toLowerCase(Locale.ENGLISH),getText());
   }
 
-  // The method makes all system operators as singletons for serelization, but only system ones!
-  private Object readResolve() throws ObjectStreamException {
-    Object result = this;
-
-    final Operator singletone = AbstractPrologParser.findSystemOperatorForNameAndType(text, opType);
-    if (singletone != null) {
-      result = singletone;
-    }
-    return result;
+  // The method makes all system operators as singletons for serialization, but only system ones!
+  private Object readResolve() {
+    final Object result = AbstractPrologParser.findSystemOperatorForNameAndType(text, opType);
+    return result == null ? this : result;
   }
 }

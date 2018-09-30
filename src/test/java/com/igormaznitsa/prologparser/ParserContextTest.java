@@ -39,7 +39,7 @@ import static org.mockito.Mockito.*;
 public class ParserContextTest extends AbstractPrologParserTest {
 
   @Test
-  public void testHasOperatorStartsWith() throws Exception {
+  public void testHasOperatorStartsWith() {
     final ParserContext mockContext = mock(ParserContext.class);
     Mockito.when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
@@ -126,7 +126,6 @@ public class ParserContextTest extends AbstractPrologParserTest {
     final AbstractPrologParser parser = new PrologParser(stubContext);
     final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(5). a :- b.");
     while (parser.nextSentence(reader) != null) {
-      ;
     }
 
     assertEquals(4, detectedStructures.size());

@@ -97,9 +97,9 @@ public class IntegrationTest extends AbstractPrologParserTest {
     assertEquals("C", varC.getText());
 
     for (int li = 3; li < structure.getArity(); ) {
-      assertNotSame(varA, ((PrologVariable) structure.getElement(li++)));
-      assertNotSame(varB, ((PrologVariable) structure.getElement(li++)));
-      assertNotSame(varC, ((PrologVariable) structure.getElement(li++)));
+      assertNotSame(varA, structure.getElement(li++));
+      assertNotSame(varB, structure.getElement(li++));
+      assertNotSame(varC, structure.getElement(li++));
     }
   }
 
@@ -118,8 +118,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     assertNull(term);
   }
 
-  private void checkWrongSentenceReadingWithPPE(final String readSentence, final int stringPosition)
-      throws Exception {
+  private void checkWrongSentenceReadingWithPPE(final String readSentence, final int stringPosition) {
     assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parser.nextSentence(readSentence)).getStringPosition());
   }
 
@@ -631,14 +630,14 @@ public class IntegrationTest extends AbstractPrologParserTest {
   }
 
   @Test
-  public void testOperatorNameAsFunctor_EmptyBrackets() throws Exception {
+  public void testOperatorNameAsFunctor_EmptyBrackets() {
     final PrologParserException ex = assertThrows(PrologParserException.class, () -> new PrologParser(null).nextSentence("+()."));
     assertEquals(2, ex.getStringPosition());
     assertEquals(1, ex.getLineNumber());
   }
 
   @Test
-  public void testAtomAsFunctor_EmptyBrackets() throws Exception {
+  public void testAtomAsFunctor_EmptyBrackets() {
     final PrologParserException ex = assertThrows(PrologParserException.class, () -> new PrologParser(null).nextSentence("'hello'()."));
     assertEquals(8, ex.getStringPosition());
     assertEquals(1, ex.getLineNumber());

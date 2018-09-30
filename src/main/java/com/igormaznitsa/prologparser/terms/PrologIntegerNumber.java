@@ -33,7 +33,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
   /**
    * Inside cache for text-number pairs
    */
-  private static final Map<String, BigInteger> cachedValues = new HashMap<String, BigInteger>(128);
+  private static final Map<String, BigInteger> cachedValues = new HashMap<>(128);
 
   static {
     // cache numbers from -99 to 99

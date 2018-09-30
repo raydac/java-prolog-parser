@@ -84,6 +84,6 @@ public class PrologParserException extends Exception {
    */
   @Override
   public String toString() {
-    return this.getMessage() + '[' + this.lineNumber + ':' + this.stringPosition + ']';
+    return String.format("%s[%d:%d]", this.getMessage(), this.lineNumber, this.stringPosition);
   }
 }

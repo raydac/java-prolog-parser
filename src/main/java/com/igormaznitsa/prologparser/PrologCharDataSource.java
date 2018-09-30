@@ -153,8 +153,6 @@ public class PrologCharDataSource {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 
-    final FastStringBuilder charBuffer = this.insideCharBuffer;
-
     int locStrPos = strPos;
     int locStrPosPrev = strPosPrev;
     int locLineNum = lineNum;
@@ -162,7 +160,7 @@ public class PrologCharDataSource {
 
     while (chars > 0) {
       final char ch = buffer.charAt(pos--);
-      charBuffer.pushChar(ch);
+      this.insideCharBuffer.pushChar(ch);
       chars--;
       locStrPos--;
       if (locStrPos < 1) {

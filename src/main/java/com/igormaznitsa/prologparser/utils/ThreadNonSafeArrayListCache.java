@@ -55,7 +55,7 @@ public final class ThreadNonSafeArrayListCache<T> {
   @SuppressWarnings("unchecked")
   public List<T> getListFromCache() {
     if (this.firstFreeElementPointer == 0) {
-      return new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
+      return new ArrayList<>(INITIAL_ARRAY_LIST_SIZE);
     } else {
       return (List<T>) this.insideList[--this.firstFreeElementPointer];
     }
