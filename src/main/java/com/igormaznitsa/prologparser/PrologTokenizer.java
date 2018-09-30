@@ -343,7 +343,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
 
       switch (state) {
         case LOOKFOR: {
-          if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
+          if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
             continue;
           }
 
@@ -367,17 +367,17 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
 
               localstrbuffer.append(chr);
 
-              if (mapUpperCaseLetters.containsChar(chr)) {
+              if (Character.isUpperCase(chr)) {
                 state = TokenizerState.VARIABLE;
               } else {
-                letterOrDigitOnly = mapLettersOrDigits.containsChar(chr);
+                letterOrDigitOnly = Character.isLetterOrDigit(chr);
                 final String operator = SingleCharString.valueOf(chr);
                 if (hasOperatorStartsWith(operator, parser)) {
                   lastFoundFullOperator = findOperatorForName(
                       operator, parser);
                   state = TokenizerState.OPERATOR;
                 } else {
-                  if (mapDigits.containsChar(chr)) {
+                  if (Character.isDigit(chr)) {
                     state = TokenizerState.INTEGER;
                   } else {
                     state = TokenizerState.ATOM;
@@ -390,11 +390,11 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
         case ATOM: {
           if (chr == '_') {
             localstrbuffer.append(chr);
-          } else if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
+          } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
             return makeResult(makeTermFromString(
                 localstrbuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
           } else if (chr == '\''
-              || (letterOrDigitOnly != mapLettersOrDigits.containsChar(chr))
+              || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
               || findOperatorForSingleChar(chr, parser) != null) {
             reader.pushCharBack(chr);
 
@@ -406,7 +406,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
         }
         break;
         case INTEGER: {
-          if (mapDigits.containsChar(chr)) {
+          if (Character.isDigit(chr)) {
             localstrbuffer.append(chr);
           } else {
             if (chr == '.' || chr == 'e' || chr == 'E') {
@@ -423,7 +423,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
         }
         break;
         case FLOAT: {
-          if (mapDigits.containsChar(chr)) {
+          if (Character.isDigit(chr)) {
             localstrbuffer.append(chr);
           } else {
             if (chr == '-' || chr == '+') {
@@ -463,7 +463,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
         }
         break;
         case OPERATOR: {
-          if (chr != '_' && letterOrDigitOnly != mapLettersOrDigits.containsChar(chr)) {
+          if (chr != '_' && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
             reader.pushCharBack(chr);
 
             if (lastFoundFullOperator == null) {
@@ -563,12 +563,12 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
         }
         break;
         case VARIABLE: {
-          if (mapWhiteSpaceOrIsoControl.containsChar(chr)) {
+          if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
             if (localstrbuffer.hasSingleChar('_')) {
               return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
             }
             return makeResult(new PrologVariable(localstrbuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
-          } else if (chr != '_' && !mapLettersOrDigits.containsChar(chr)) {
+          } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
             reader.pushCharBack(chr);
             if (localstrbuffer.hasSingleChar('_')) {
               return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());

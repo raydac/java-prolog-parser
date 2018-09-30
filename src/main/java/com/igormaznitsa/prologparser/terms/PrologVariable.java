@@ -65,7 +65,7 @@ public final class PrologVariable extends AbstractPrologTerm {
 
     final char firstLetter = text.charAt(0);
 
-    if (!mapUpperCaseLetters.containsChar(firstLetter) && firstLetter != '_') {
+    if (!Character.isUpperCase(firstLetter) && firstLetter != '_') {
       throw new IllegalArgumentException(
           "The variable name must be started from an upper case letter or '_' ["
               + text + ']');

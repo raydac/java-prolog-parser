@@ -109,12 +109,12 @@ public final class Operator extends AbstractPrologTerm {
 
     final char firstLetter = name.charAt(0);
 
-    if (mapWhiteSpaceOrIsoControl.containsChar(firstLetter)) {
+    if (Character.isWhitespace(firstLetter) || Character.isISOControl(firstLetter)) {
       throw new IllegalArgumentException(
           "Space char as the first one at name");
     }
 
-    if (mapUpperCaseLetters.containsChar(firstLetter)) {
+    if (Character.isUpperCase(firstLetter)) {
       throw new IllegalArgumentException(
           "Capital char as the first one at name");
     }
