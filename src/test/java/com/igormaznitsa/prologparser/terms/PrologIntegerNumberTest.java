@@ -47,23 +47,10 @@ public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologIntegerNumberString() {
-    try {
-      new PrologIntegerNumber((String) null);
-      fail("Must throw NPE if the text is null");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologIntegerNumber((String) null));
 
-    try {
-      new PrologIntegerNumber("wrong value");
-      fail("Must throw IAE when wrong text");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologIntegerNumber("");
-      fail("Must throw IAE when empty text");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> new PrologIntegerNumber("wrong value"));
+    assertThrows(IllegalArgumentException.class, () -> new PrologIntegerNumber(""));
 
     assertEquals(78621837612L, new PrologIntegerNumber("78621837612").getValue().longValue());
     assertEquals(-121231234214L, new PrologIntegerNumber("-121231234214").getValue().longValue());
@@ -74,11 +61,7 @@ public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologIntegerNumberBigInteger() {
-    try {
-      new PrologIntegerNumber((BigInteger) null);
-      fail("Must throw NPE if the value is null");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologIntegerNumber((BigInteger) null));
 
     final BigInteger testValue = new BigInteger("829374982374812093209380194832984");
 
@@ -87,11 +70,7 @@ public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologIntegerNumberStringIntInt() {
-    try {
-      new PrologIntegerNumber((String) null, 0, 0);
-      fail("Must throw NPE for null text");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologIntegerNumber((String) null, 0, 0));
 
     final AbstractPrologTerm term = new PrologIntegerNumber("123", 1, 2);
     assertEquals(1, term.getStrPosition());
@@ -107,11 +86,7 @@ public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologIntegerNumberBigIntegerIntInt() {
-    try {
-      new PrologIntegerNumber((BigInteger) null, 0, 0);
-      fail("Must throw NPE for null number");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologIntegerNumber((BigInteger) null, 0, 0));
 
     final AbstractPrologTerm term = new PrologIntegerNumber(BigInteger.ONE, 1, 2);
     assertEquals(1, term.getStrPosition());

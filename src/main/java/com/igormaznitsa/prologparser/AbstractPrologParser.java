@@ -27,7 +27,6 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.Assert;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.ThreadNonSafeArrayListCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
@@ -344,7 +343,6 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
   public AbstractPrologTerm nextSentence(
       final PrologCharDataSource reader) throws PrologParserException,
       IOException {
-    Assert.assertNotNull("The reader is null", reader);
     prologReader = reader;
     return this.nextSentence();
   }
@@ -360,7 +358,6 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
    */
   public AbstractPrologTerm nextSentence()
       throws PrologParserException, IOException {
-    Assert.assertNotNull("The Current prolog reader is null", prologReader);
 
     final AbstractPrologTerm result = readBlock(OPERATORS_PHRASE);
     if (result == null) {
@@ -432,8 +429,6 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
    */
   private AbstractPrologTerm readList(final TokenizerResult openingBracket) throws PrologParserException,
       IOException {
-    Assert.assertNotNull("The Opening bracket info is null", openingBracket);
-
     PrologList leftPart = new PrologList();
     PrologList leftPartFirst = leftPart;
     AbstractPrologTerm rightPart = null;

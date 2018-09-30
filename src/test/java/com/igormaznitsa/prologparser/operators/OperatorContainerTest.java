@@ -49,11 +49,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
   @Test
   public void testOperatorContainer() {
-    try {
-      new OperatorContainer(null);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new OperatorContainer(null));
 
     final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
     final OperatorContainer container = new OperatorContainer(operator);
@@ -71,17 +67,8 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
-    try {
-      container.addOperator(null);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      container.addOperator(otheroperatorYF);
-      fail("Must throw IAE for wrong operator name");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> container.addOperator(null));
+    assertThrows(IllegalArgumentException.class, () -> container.addOperator(otheroperatorYF));
 
     assertEquals(1, container.size());
     assertTrue(container.addOperator(operatorXFX));
@@ -106,11 +93,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
-    try {
-      container.addOperator(null);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> container.addOperator(null));
 
     assertTrue(container.addOperator(operatorXFX));
     assertTrue(container.addOperator(operatorYF));
@@ -141,18 +124,8 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     assertEquals(2, container.size());
     assertNull(container.getOperatorForSimilarType(OperatorType.FX));
 
-
-    try {
-      container.remove(null);
-      fail("Must throw NPE for null");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      container.remove(otheroperatorXFX);
-      fail("Must throw IAE for operator wrong name");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> container.remove(null));
+    assertThrows(IllegalArgumentException.class, () -> container.remove(otheroperatorXFX));
 
     assertTrue(container.remove(operatorXFX));
     assertEquals(1, container.size());
@@ -248,11 +221,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
-    try {
-      container.getOperatorForType(null);
-      fail("Must throw NPE for null");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> container.getOperatorForType(null));
 
     assertNull(container.getOperatorForType(OperatorType.XFX));
     assertNull(container.getOperatorForType(OperatorType.YF));
@@ -277,11 +246,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     container.addOperator(operatorXFX);
     container.addOperator(operatorYF);
 
-    try {
-      container.getOperatorForSimilarType(null);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> container.getOperatorForSimilarType(null));
 
     assertSame(operatorFX,
         container.getOperatorForSimilarType(OperatorType.FY));
@@ -302,11 +267,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     container.addOperator(operatorXFX);
     container.addOperator(operatorYF);
 
-    try {
-      container.removeOperatorForType(null);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> container.removeOperatorForType(null));
 
     assertTrue(container.removeOperatorForType(OperatorType.FX));
     assertNull(container.getOperatorForType(OperatorType.FX));

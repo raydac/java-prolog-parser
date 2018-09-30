@@ -55,11 +55,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testPeekToken() throws Exception {
-    try {
-      tokenizer.peekToken(null, mockPrologParser);
-      fail("Must throw NPE for null reader");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> tokenizer.peekToken(null, mockPrologParser));
 
     final PrologCharDataSource reader = new PrologCharDataSource("hello world");
 
@@ -130,11 +126,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
   @Test
   public void testNextToken() throws Exception {
 
-    try {
-      tokenizer.nextToken(null, mockPrologParser);
-      fail("Must throw NPE for null reader");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> tokenizer.nextToken(null, mockPrologParser));
 
     PrologCharDataSource reader = new PrologCharDataSource(
         "     123 222.34 \n111.2e+4 \'string\' \n:- Variable _var _ :--");
@@ -212,17 +204,8 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testMakeTermFromString() {
-    try {
-      tokenizer.makeTermFromString(null, TokenizerState.ATOM);
-      fail("Must throw NPE for null text");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      tokenizer.makeTermFromString("123", null);
-      fail("Must throw NPE for null state");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> tokenizer.makeTermFromString(null, TokenizerState.ATOM));
+    assertThrows(NullPointerException.class, () -> tokenizer.makeTermFromString("123", null));
 
     AbstractPrologTerm term = tokenizer.makeTermFromString("792394382", TokenizerState.INTEGER);
     assertNotNull(term);
@@ -292,12 +275,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testFindOperatorForName() {
-    try {
-      PrologTokenizer.findOperatorForName(null, mockPrologParser);
-      fail("Must throw NPE for null string");
-    } catch (NullPointerException ex) {
-    }
-
+    assertThrows(NullPointerException.class, () -> PrologTokenizer.findOperatorForName(null, mockPrologParser));
     assertNull(PrologTokenizer.findOperatorForName("<------------------------------------------------------->", null));
 
     final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX, "some_operator"));

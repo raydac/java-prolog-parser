@@ -34,11 +34,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceString() throws Exception {
-    try {
-      new PrologCharDataSource((String) null);
-      fail("Must throw NPE for null string");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((String) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final PrologCharDataSource reader = new PrologCharDataSource(testString);
@@ -50,11 +46,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceInputStream() throws Exception {
-    try {
-      new PrologCharDataSource((InputStream) null);
-      fail("Must throw NPE for null string");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((InputStream) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(Charset.forName("UTF8")));
@@ -68,11 +60,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceReadableByteChannel() throws Exception {
-    try {
-      new PrologCharDataSource((ReadableByteChannel) null);
-      fail("Must throw NPE for null string");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((ReadableByteChannel) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(Charset.forName("UTF8")));
@@ -86,11 +74,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceReader() throws Exception {
-    try {
-      new PrologCharDataSource((Reader) null);
-      fail("Must throw NPE for null string");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((Reader) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final Reader inStream = new StringReader(testString);
@@ -104,22 +88,19 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testRead() throws Exception {
-    Reader inStream = new StringReader("");
-    PrologCharDataSource reader = new PrologCharDataSource(inStream);
-    assertEquals(-1, reader.read());
+    final Reader inStream = new StringReader("");
+    final PrologCharDataSource reader1 = new PrologCharDataSource(inStream);
+    assertEquals(-1, reader1.read());
 
-    inStream = new StringReader("a");
-    reader = new PrologCharDataSource(inStream);
-    assertEquals('a', reader.read());
-    assertEquals(-1, reader.read());
+    final Reader inStreamToClose = new StringReader("a");
 
-    inStream.close();
+    final PrologCharDataSource reader2 = new PrologCharDataSource(inStreamToClose);
+    assertEquals('a', reader2.read());
+    assertEquals(-1, reader2.read());
 
-    try {
-      reader.read();
-      fail("Must throw IOE for closed stream");
-    } catch (IOException ex) {
-    }
+    inStreamToClose.close();
+
+    assertThrows(IOException.class, () -> reader2.read());
   }
 
   @Test
@@ -127,17 +108,8 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     Reader inStream = new StringReader("1234567890");
     PrologCharDataSource reader = new PrologCharDataSource(inStream);
 
-    try {
-      reader.calculateDifferenceAndPushTheResultBack(null, new FastStringBuilder("test"));
-      fail("Must throw NPE for null etalon");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      reader.calculateDifferenceAndPushTheResultBack("test", null);
-      fail("Must throw NPE for null string builder");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack(null, new FastStringBuilder("test")));
+    assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack("test", null));
 
     for (int li = 0; li < 10; li++) {
       assertTrue(reader.read() >= 0);
@@ -253,11 +225,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
     reader.close();
 
-    try {
-      reader.read();
-      fail("Must throw IOE for closed reader");
-    } catch (IOException ex) {
-    }
+    assertThrows(IOException.class, () -> reader.read());
 
     reader.close();
     reader.close();

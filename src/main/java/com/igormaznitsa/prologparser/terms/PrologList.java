@@ -18,8 +18,6 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class describes a prolog list being used by the prolog parser.
  *
@@ -63,12 +61,10 @@ public final class PrologList extends PrologStructure {
    */
   public PrologList(final AbstractPrologTerm[] array) {
     this();
-    assertNotNull("Array is null", array);
 
     PrologList current = this;
 
     for (final AbstractPrologTerm term : array) {
-      assertNotNull("Array contains a null element", term);
       current = current.addAsNewListToEndOfListChain(term);
     }
   }
@@ -149,9 +145,6 @@ public final class PrologList extends PrologStructure {
    */
   public static PrologList setTermAsNewListTail(final PrologList list,
                                                 final AbstractPrologTerm term) {
-    assertNotNull("The list is null", list);
-    assertNotNull("The term is null", term);
-
     PrologList result = list;
 
     if (list.isNullList()) {
@@ -229,7 +222,6 @@ public final class PrologList extends PrologStructure {
    */
   public PrologList addAsNewListToEndOfListChain(
       final AbstractPrologTerm term) {
-    assertNotNull("The term is null", term);
 
     if (isNullList()) {
       setHead(term);
@@ -265,7 +257,6 @@ public final class PrologList extends PrologStructure {
    */
   public void replaceLastElement(
       final AbstractPrologTerm elementToReplace) {
-    assertNotNull("The element is null", elementToReplace);
 
     PrologList curList = this;
     while (true) {

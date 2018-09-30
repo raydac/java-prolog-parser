@@ -27,9 +27,6 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import java.io.ObjectStreamException;
 import java.util.Locale;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNonEmptyString;
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class describes a prolog operator for the prolog parser.
  *
@@ -104,8 +101,12 @@ public final class Operator extends AbstractPrologTerm {
                    final String name) {
     super(name);
 
-    assertNotNull("Type is null", type);
-    assertNonEmptyString("Empty operator namee", name);
+    if (type == null) {
+      throw new NullPointerException("Type must not be null");
+    }
+    if (name.isEmpty()) {
+      throw new IllegalArgumentException("Operator name must not be empty");
+    }
 
     final char firstLetter = name.charAt(0);
 
@@ -147,8 +148,13 @@ public final class Operator extends AbstractPrologTerm {
       throw new IllegalArgumentException(
           "Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
     }
-    assertNotNull("Type is null", type);
-    assertNotNull("Name array is null", names);
+
+    if (type == null) {
+      throw new NullPointerException("Type is null");
+    }
+    if (names == null) {
+      throw new NullPointerException("Name array is null");
+    }
 
     final Operator[] result = new Operator[names.length];
     for (int li = 0; li < names.length; li++) {
@@ -186,8 +192,6 @@ public final class Operator extends AbstractPrologTerm {
    * @return the new generated operator instance
    */
   private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
-    assertNotNull("Type is null", type);
-    assertNotNull("Name array is null", name);
     return new Operator(priority, type, name);
   }
 

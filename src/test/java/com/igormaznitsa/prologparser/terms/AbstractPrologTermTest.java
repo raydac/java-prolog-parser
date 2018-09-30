@@ -25,11 +25,7 @@ public class AbstractPrologTermTest extends AbstractPrologParserTest {
 
   @Test
   public void testAbstractPrologTermString() {
-    try {
-      new StubAbstractPrologTermTest(null);
-      fail("Must throw NPE for null text");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new StubAbstractPrologTermTest(null));
 
     final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
     assertEquals(-1, test.getStrPosition());
@@ -38,12 +34,7 @@ public class AbstractPrologTermTest extends AbstractPrologParserTest {
 
   @Test
   public void testAbstractPrologTermStringIntInt() {
-    try {
-      new StubAbstractPrologTermTest(null, 1, 2);
-      fail("Must throw NPE for null text");
-    } catch (NullPointerException ex) {
-    }
-
+    assertThrows(NullPointerException.class, () -> new StubAbstractPrologTermTest(null, 1, 2));
     final AbstractPrologTerm test = new StubAbstractPrologTermTest("test", 1, 2);
     assertEquals(1, test.getStrPosition());
     assertEquals(2, test.getLineNumber());

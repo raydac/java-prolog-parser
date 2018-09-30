@@ -16,8 +16,6 @@
 
 package com.igormaznitsa.prologparser.utils;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class contains misc auxiliary string functions and classes.
  *
@@ -45,8 +43,6 @@ public enum StringUtils {
    */
   public static boolean unescapeCharacter(final String afterString,
                                           final Mutable<Character> result) {
-    assertNotNull("Result object is null", result);
-
     if (afterString == null) {
       result.set(null);
       return false;

@@ -21,8 +21,6 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class being used by the prolog parser to save operators with the same
  * names but with different types.
@@ -69,8 +67,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
    *                                  the container
    */
   public boolean addOperator(final Operator operator) {
-    assertNotNull("Operator must not be null", operator);
-
     if (!getText().equals(operator.getText())) {
       throw new IllegalArgumentException(
           "Wrong operator name for the container");
@@ -156,8 +152,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
    * container, else false
    */
   public boolean remove(final Operator op) {
-    assertNotNull("Operator is null", op);
-
     if (!getText().equals(op.getText())) {
       throw new IllegalArgumentException(
           "Wrong operator name for the container");
@@ -261,7 +255,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
    * @return the found operator or null
    */
   public Operator getOperatorForType(final OperatorType type) {
-    assertNotNull("Operator type is null", type);
     Operator result = null;
     switch (type) {
       case FY:
@@ -330,7 +323,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
    * @return true if the operator was found and removed, else false
    */
   public boolean removeOperatorForType(final OperatorType type) {
-    assertNotNull("Operator type is null", type);
     boolean result = false;
     switch (type) {
       case FX:

@@ -29,7 +29,6 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.StringUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -121,13 +120,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   private void checkWrongSentenceReadingWithPPE(final String readSentence, final int stringPosition)
       throws Exception {
-    try {
-      parser.nextSentence(readSentence);
-      fail("Must throw PPE");
-    } catch (PrologParserException ex) {
-      //ex.printStackTrace();
-      assertEquals(stringPosition, ex.getStringPosition());
-    }
+    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parser.nextSentence(readSentence)).getStringPosition());
   }
 
   @Test
@@ -145,9 +138,9 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) throws Exception {
     final AbstractPrologTerm atom = parser.nextSentence(atomToBeChecked + '.');
-    assertEquals(PrologTermType.ATOM, atom.getType(), "Type: "+atom.getType());
-    assertEquals(PrologAtom.class, atom.getClass(), "Class: "+atom.getClass());
-    assertEquals(expectedAtomText, atom.getText(),"Text: "+atom.getText());
+    assertEquals(PrologTermType.ATOM, atom.getType(), "Type: " + atom.getType());
+    assertEquals(PrologAtom.class, atom.getClass(), "Class: " + atom.getClass());
+    assertEquals(expectedAtomText, atom.getText(), "Text: " + atom.getText());
   }
 
   @Test
@@ -166,10 +159,10 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   private void checkIntegerWithoutPPE(final String atomToBeChecked, final long expectedNumber) throws Exception {
     AbstractPrologTerm atom = parser.nextSentence(atomToBeChecked + '.');
-    assertEquals(PrologTermType.ATOM, atom.getType(), "Type: "+atom.getType());
-    assertEquals(PrologIntegerNumber.class, atom.getClass(), "Class: "+ atom.getClass());
-    assertEquals(expectedNumber, ((PrologIntegerNumber) atom).getValue().longValue(), "Number: "+((PrologIntegerNumber) atom).getValue().longValue());
-    assertEquals(Long.toString(expectedNumber), atom.getText(),"Text: "+atom.getText());
+    assertEquals(PrologTermType.ATOM, atom.getType(), "Type: " + atom.getType());
+    assertEquals(PrologIntegerNumber.class, atom.getClass(), "Class: " + atom.getClass());
+    assertEquals(expectedNumber, ((PrologIntegerNumber) atom).getValue().longValue(), "Number: " + ((PrologIntegerNumber) atom).getValue().longValue());
+    assertEquals(Long.toString(expectedNumber), atom.getText(), "Text: " + atom.getText());
   }
 
   @Test
@@ -639,24 +632,16 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testOperatorNameAsFunctor_EmptyBrackets() throws Exception {
-    try {
-      new PrologParser(null).nextSentence("+().");
-      fail("Must throw PPE");
-    } catch (PrologParserException ex) {
-      assertEquals(2, ex.getStringPosition());
-      assertEquals(1, ex.getLineNumber());
-    }
+    final PrologParserException ex = assertThrows(PrologParserException.class, () -> new PrologParser(null).nextSentence("+()."));
+    assertEquals(2, ex.getStringPosition());
+    assertEquals(1, ex.getLineNumber());
   }
 
   @Test
   public void testAtomAsFunctor_EmptyBrackets() throws Exception {
-    try {
-      new PrologParser(null).nextSentence("'hello'().");
-      fail("Must throw PPE");
-    } catch (PrologParserException ex) {
-      assertEquals(8, ex.getStringPosition());
-      assertEquals(1, ex.getLineNumber());
-    }
+    final PrologParserException ex = assertThrows(PrologParserException.class, () -> new PrologParser(null).nextSentence("'hello'()."));
+    assertEquals(8, ex.getStringPosition());
+    assertEquals(1, ex.getLineNumber());
   }
 
   @Test

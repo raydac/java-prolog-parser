@@ -20,7 +20,7 @@ import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PrologAtomTest extends AbstractPrologParserTest {
 
@@ -45,20 +45,12 @@ public class PrologAtomTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologAtom_String_NPE() {
-    try {
-      new PrologAtom((String) null);
-      fail("Null name must throw NPE");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologAtom((String) null));
   }
 
   @Test
   public void testPrologAtom_Term_NPE() {
-    try {
-      new PrologAtom((AbstractPrologTerm) null);
-      fail("Null name must throw NPE");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologAtom((AbstractPrologTerm) null));
   }
 
   @Test
@@ -79,11 +71,7 @@ public class PrologAtomTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologAtomStringIntInt() {
-    try {
-      new PrologAtom(null, 0, 0);
-      fail("Must throw NPE for null name");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologAtom(null, 0, 0));
 
     final AbstractPrologTerm term = new PrologAtom("test", 1, 2);
     assertEquals(1, term.getStrPosition());

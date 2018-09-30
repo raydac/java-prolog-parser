@@ -16,8 +16,6 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.Assert;
-
 /**
  * The class describes a prolog variable.
  *
@@ -61,7 +59,9 @@ public final class PrologVariable extends AbstractPrologTerm {
   public PrologVariable(final String text) {
     super(text);
 
-    Assert.assertNonEmptyString("Variable name is empty", text);
+    if (text.isEmpty()) {
+      throw new IllegalArgumentException("Variable name is empty");
+    }
 
     final char firstLetter = text.charAt(0);
 

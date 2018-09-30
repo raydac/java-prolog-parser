@@ -27,8 +27,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class is the main char data source for a prolog parser, the class adapts
  * different standard Java input stream classes to be used by a prolog parser.
@@ -102,7 +100,9 @@ public class PrologCharDataSource {
    * @param reader a java reader object, must not be null
    */
   public PrologCharDataSource(final Reader reader) {
-    assertNotNull("Reader is null", reader);
+    if (reader == null) {
+      throw new NullPointerException("Reader must not be null");
+    }
 
     inReader = reader;
     strPos = 1;

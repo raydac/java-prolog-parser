@@ -48,29 +48,10 @@ public class PrologVariableTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologVariableString() {
-    try {
-      new PrologVariable(null);
-      fail("The null argument must throw NPE");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologVariable("");
-      fail("Must throw IAE for wrong prolog variable name");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologVariable("привет");
-      fail("Must throw IAE for wrong prolog variable name");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologVariable("abc");
-      fail("Must throw IAE for wrong prolog variable name");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologVariable(null));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable(""));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("привет"));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("abc"));
 
     PrologVariable var = new PrologVariable("X");
     assertFalse(var.isAnonymous());
@@ -91,29 +72,10 @@ public class PrologVariableTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologVariableStringIntInt() {
-    try {
-      new PrologVariable(null, 1, 2);
-      fail("The null argument must throw NPE");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologVariable("", 1, 2);
-      fail("Must throw IAE for wrong prolog variable name");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologVariable("привет", 1, 2);
-      fail("Must throw IAE for wrong prolog variable name");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologVariable("abc", 1, 2);
-      fail("Must throw IAE for wrong prolog variable name");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologVariable(null, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("", 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("привет", 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("abc", 1, 2));
 
     PrologVariable var = new PrologVariable("X", 1, 2);
 

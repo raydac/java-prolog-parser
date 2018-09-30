@@ -19,8 +19,6 @@ package com.igormaznitsa.prologparser.terms;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class describes a float numeric atom for the prolog parser. It looks like
  * the prolog atom but contains a Java BigDecimal value and doesn't save the
@@ -102,7 +100,9 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
    */
   public PrologFloatNumber(final BigDecimal value) {
     super();
-    assertNotNull("Value is null", value);
+    if (value == null) {
+      throw new NullPointerException("Value is null");
+    }
     this.value = value;
   }
 

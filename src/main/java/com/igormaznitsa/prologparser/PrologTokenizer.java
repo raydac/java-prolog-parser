@@ -33,8 +33,6 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
 
 import java.io.IOException;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class implements an intermediate tokenizer between a data stream and a
  * prolog parser.
@@ -266,8 +264,6 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
   TokenizerResult nextToken(final PrologCharDataSource reader,
                             final AbstractPrologParser parser) throws PrologParserException,
       IOException {
-
-    assertNotNull("Reader is null", reader);
 
     if (lastPushedTerm != null) {
       try {
@@ -607,27 +603,27 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
   /**
    * Inside auxiliary function to make a term from a String
    *
-   * @param string the source string object, must not be null
-   * @param state  the state of inside state machine which was set during the
-   *               term reading
+   * @param str   the source string object, must not be null
+   * @param state the state of inside state machine which was set during the
+   *              term reading
    * @return a Term object as the result, not-null value will be returned
    * anyway
    */
-  AbstractPrologTerm makeTermFromString(final String string,
+  AbstractPrologTerm makeTermFromString(final String str,
                                         final TokenizerState state) {
     AbstractPrologTerm result;
 
     switch (state) {
       case INTEGER:
         try {
-          result = new PrologIntegerNumber(string);
+          result = new PrologIntegerNumber(str);
         } catch (NumberFormatException ex) {
           result = null;
         }
         break;
       case FLOAT:
         try {
-          result = new PrologFloatNumber(string);
+          result = new PrologFloatNumber(str);
         } catch (NumberFormatException ex) {
           result = null;
         }
@@ -637,7 +633,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
     }
 
     if (result == null) {
-      result = new PrologAtom(string);
+      result = new PrologAtom(str);
     }
 
     return result;

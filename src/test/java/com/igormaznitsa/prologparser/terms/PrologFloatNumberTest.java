@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PrologFloatNumberTest extends AbstractPrologParserTest {
 
@@ -81,17 +81,8 @@ public class PrologFloatNumberTest extends AbstractPrologParserTest {
     assertEquals("0.1234221179298734", new PrologFloatNumber("0.123422117929873388").getText());
     assertEquals("-2.987234987239848", new PrologFloatNumber("-2.9872349872398479").getText());
 
-    try {
-      new PrologFloatNumber((String) null);
-      fail("Must throw NPE on null text data");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologFloatNumber("wrong number");
-      fail("Must throw NFE on a text nonnumeric value");
-    } catch (NumberFormatException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((String) null));
+    assertThrows(NumberFormatException.class, () -> new PrologFloatNumber("wrong number"));
   }
 
   @Test
@@ -102,11 +93,7 @@ public class PrologFloatNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologFloatNumberBigDecimal() {
-    try {
-      new PrologFloatNumber((BigDecimal) null);
-      fail("Must throw NPE on null value");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((BigDecimal) null));
 
     final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
     final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
@@ -117,11 +104,7 @@ public class PrologFloatNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologFloatNumberStringIntInt() {
-    try {
-      new PrologFloatNumber((String) null, 0, 0);
-      fail("Must throw NPE for null text");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((String) null, 0, 0));
 
     final AbstractPrologTerm term = new PrologFloatNumber("123.0", 1, 2);
     assertEquals(1, term.getStrPosition());

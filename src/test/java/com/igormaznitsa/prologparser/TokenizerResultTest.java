@@ -28,17 +28,8 @@ public class TokenizerResultTest {
 
   @Test
   public void testTokenizerResult() {
-    try {
-      new TokenizerResult(null, TokenizerState.ATOM, 1, 2);
-      fail("Must throw NPE for null term");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new TokenizerResult(new PrologAtom("test"), null, 1, 2);
-      fail("Must throw NPE for null state");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new TokenizerResult(null, TokenizerState.ATOM, 1, 2));
+    assertThrows(NullPointerException.class, () -> new TokenizerResult(new PrologAtom("test"), null, 1, 2));
 
     final PrologAtom testAtom = new PrologAtom("test");
     final TokenizerResult result = new TokenizerResult(testAtom,

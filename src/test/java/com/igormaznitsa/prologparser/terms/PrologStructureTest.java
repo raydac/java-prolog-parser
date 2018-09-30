@@ -169,35 +169,10 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     final AbstractPrologTerm[] testtermswithnull = new AbstractPrologTerm[] {
         new PrologAtom("test1"), null, new PrologAtom("test3")};
 
-    try {
-      new PrologStructure(null, testterms);
-      fail("Must throw NPE for null functor");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologAtom("hello"), null);
-      fail("Must throw NPE for null array");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologAtom("hello"), testtermswithnull);
-      fail("Must throw NPE for array contains null");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologFloatNumber(0.0d), testtermswithnull);
-      fail("Must throw IAE for numeric functor");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologList(), testtermswithnull);
-      fail("Must throw IAE for list functor");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure(null, testterms));
+    assertThrows(NullPointerException.class, () -> new PrologStructure(new PrologAtom("hello"), null));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d), testtermswithnull));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), testtermswithnull));
 
     final PrologAtom functoratom = new PrologAtom("functor");
     PrologStructure struct = new PrologStructure(functoratom, testterms);
@@ -223,35 +198,11 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     final AbstractPrologTerm[] testtermswithnull = new AbstractPrologTerm[] {
         new PrologAtom("test1"), null, new PrologAtom("test3")};
 
-    try {
-      new PrologStructure(null, testterms, 1, 2);
-      fail("Must throw NPE for null functor");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure(null, testterms, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologStructure(new PrologAtom("hello"), null, 1, 2));
 
-    try {
-      new PrologStructure(new PrologAtom("hello"), null, 1, 2);
-      fail("Must throw NPE for null array");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologAtom("hello"), testtermswithnull, 1, 2);
-      fail("Must throw NPE for array contains null");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologFloatNumber(0.0d), testtermswithnull, 1, 2);
-      fail("Must throw IAE for numeric functor");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologList(), testtermswithnull, 1, 2);
-      fail("Must throw IAE for list functor");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d), testtermswithnull, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), testtermswithnull, 1, 2));
 
     final PrologAtom functoratom = new PrologAtom("functor");
     PrologStructure struct = new PrologStructure(functoratom, testterms, 1, 2);
@@ -261,11 +212,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologStructureString() {
-    try {
-      new PrologStructure((String) null);
-      fail("Musth throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure((String) null));
 
     final PrologStructure struct = new PrologStructure("Hello World");
     assertNotNull(struct.getFunctor());
@@ -282,11 +229,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologStructureStringIntInt() {
-    try {
-      new PrologStructure((String) null, 1, 2);
-      fail("Musth throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure((String) null, 1, 2));
 
     final PrologStructure struct = new PrologStructure("Hello World", 1, 2);
     assertEquals(1, struct.getStrPosition());
@@ -298,23 +241,9 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     final PrologAtom atom = new PrologAtom("atom1");
     final Operator operator = Operator.makeOperator(6, OperatorType.FX, "...");
 
-    try {
-      new PrologStructure((AbstractPrologTerm) null);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologFloatNumber(0.0d));
-      fail("Must throw NPE for numeric argument");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologList());
-      fail("Must throw NPE for list argument");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure((AbstractPrologTerm) null));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d)));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList()));
 
     assertSame(atom, new PrologStructure(atom).getFunctor());
     assertSame(operator, new PrologStructure(operator).getFunctor());
@@ -323,24 +252,9 @@ public class PrologStructureTest extends AbstractPrologParserTest {
   @Test
   public void testPrologStructureAbstractPrologTermIntInt() {
     final PrologAtom atom = new PrologAtom("atom1");
-
-    try {
-      new PrologStructure((AbstractPrologTerm) null, 1, 2);
-      fail("Must throw NPE for null argument");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologFloatNumber(0.0d), 1, 2);
-      fail("Must throw NPE for numeric argument");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologList(), 1, 2);
-      fail("Must throw NPE for list argument");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure((AbstractPrologTerm) null, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d), 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 1, 2));
 
     final PrologStructure test = new PrologStructure(atom, 1, 2);
 
@@ -350,41 +264,12 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologStructureAbstractPrologTermInt() {
-    try {
-      new PrologStructure(null, 4);
-      fail("Must throw NPE for the null functor");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologAtom("test"), -1);
-      fail("Must throw IAE for the negative arity");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologVariable(), 10);
-      fail("Must throw IAE for variable as functor");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologList(), 10);
-      fail("Must throw IAE for variable as list");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologIntegerNumber("5"), 10);
-      fail("Must throw IAE for variable as integer");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologFloatNumber(5.0d), 10);
-      fail("Must throw IAE for variable as float");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure(null, 4));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologAtom("test"), -1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologVariable(), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologIntegerNumber("5"), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(5.0d), 10));
 
     final PrologAtom testAtom = new PrologAtom("test");
     assertEquals(0, new PrologStructure(testAtom, 0).getArity());
@@ -397,41 +282,12 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologStructureAbstractPrologTermIntIntInt() {
-    try {
-      new PrologStructure((AbstractPrologTerm) null, 4, 1, 2);
-      fail("Must throw NPE for the null functor");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologAtom("test"), -1, 1, 2);
-      fail("Must throw IAE for the negative arity");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologVariable(), 10, 1, 2);
-      fail("Must throw IAE for variable as functor");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologList(), 10, 1, 2);
-      fail("Must throw IAE for variable as list");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologIntegerNumber("5"), 10, 1, 2);
-      fail("Must throw IAE for variable as integer");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      new PrologStructure(new PrologFloatNumber(5.0d), 10, 1, 2);
-      fail("Must throw IAE for variable as float");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologStructure((AbstractPrologTerm) null, 4, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologAtom("test"), -1, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologVariable(), 10, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 10, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologIntegerNumber("5"), 10, 1, 2));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(5.0d), 10, 1, 2));
 
     final PrologAtom testAtom = new PrologAtom("test");
 
@@ -467,17 +323,9 @@ public class PrologStructureTest extends AbstractPrologParserTest {
     for (int li = 0; li < strings.length; li++) {
       assertEquals(strings[li], structure.getElement(li).getText());
     }
-    try {
-      structure.getElement(-1);
-      fail("Must throw ArrayIndexOutOfBoundsException for negative index");
-    } catch (ArrayIndexOutOfBoundsException ex) {
-    }
 
-    try {
-      structure.getElement(strings.length);
-      fail("Must throw ArrayIndexOutOfBoundsException for the index equals arity");
-    } catch (ArrayIndexOutOfBoundsException ex) {
-    }
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElement(-1));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElement(strings.length));
   }
 
   @Test
@@ -495,17 +343,8 @@ public class PrologStructureTest extends AbstractPrologParserTest {
       structure.setElement(li, terms[li]);
     }
 
-    try {
-      structure.setElement(-1, new PrologList());
-      fail("Must throw ArrayIndexOutOfBoundsException for negative index");
-    } catch (ArrayIndexOutOfBoundsException ex) {
-    }
-
-    try {
-      structure.setElement(terms.length, new PrologList());
-      fail("Must throw ArrayIndexOutOfBoundsException for the index equals arity");
-    } catch (ArrayIndexOutOfBoundsException ex) {
-    }
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElement(-1, new PrologList()));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElement(terms.length, new PrologList()));
 
     for (int li = 0; li < terms.length; li++) {
       assertSame(terms[li], structure.getElement(li));

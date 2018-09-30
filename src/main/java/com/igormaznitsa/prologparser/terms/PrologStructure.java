@@ -22,9 +22,6 @@ import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 
 import java.util.Arrays;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertArrayDoesntContanNull;
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class describes a prolog structure.
  *
@@ -72,12 +69,12 @@ public class PrologStructure extends AbstractPrologTerm {
       throw new IllegalArgumentException("Number can't be a functor");
     }
 
-    assertNotNull("The Element array is null", elements);
+    if (elements == null) {
+      throw new NullPointerException("Elements must not be null");
+    }
 
     this.functor = functor;
     this.elements = elements.clone();
-
-    assertArrayDoesntContanNull("There is a null element in the array, use EMPTY_ATOM instead of null", this.elements);
   }
 
   /**
@@ -232,7 +229,9 @@ public class PrologStructure extends AbstractPrologTerm {
     if (index < 0 || index >= getArity()) {
       throw new ArrayIndexOutOfBoundsException();
     }
-    assertNotNull("Attempt to set null as a structure element", term);
+    if (term == null) {
+      throw new NullPointerException("Term must not be null");
+    }
     elements[index] = term;
   }
 

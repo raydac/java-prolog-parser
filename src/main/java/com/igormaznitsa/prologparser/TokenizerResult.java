@@ -21,8 +21,6 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
-import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
-
 /**
  * The class is a container to save information about parsed token, tokenizer
  * state during that operation and the parsed term.
@@ -93,8 +91,13 @@ public final class TokenizerResult implements SoftCacheItem {
 
   public void setData(final AbstractPrologTerm term,
                       final TokenizerState parserState, final int stringPosition, final int lineNumber) {
-    assertNotNull("The term is null", term);
-    assertNotNull("The Parser state is null", parserState);
+
+    if (term == null) {
+      throw new NullPointerException("Term is null");
+    }
+    if (parserState == null) {
+      throw new NullPointerException("Parser state is null");
+    }
 
     this.stringPosition = stringPosition;
     this.lineNumber = lineNumber;

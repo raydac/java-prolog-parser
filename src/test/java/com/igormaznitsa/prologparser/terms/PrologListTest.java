@@ -88,11 +88,7 @@ public class PrologListTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologListAbstractPrologTermArray() {
-    try {
-      new PrologList((AbstractPrologTerm[]) null);
-      fail("The part must throw NPE for the null as the array");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm[]) null));
 
     String[] atoms = new String[] {"test1", "test2", "test3", "test4"};
     AbstractPrologTerm[] terms = new AbstractPrologTerm[atoms.length];
@@ -102,7 +98,6 @@ public class PrologListTest extends AbstractPrologParserTest {
     }
 
     PrologList list = new PrologList(terms);
-    index = 0;
     for (final String text : atoms) {
       assertEquals(text, list.getHead().getText());
       list = (PrologList) list.getTail();
@@ -115,20 +110,14 @@ public class PrologListTest extends AbstractPrologParserTest {
     for (final String atom : atoms) {
       terms[index++] = atom == null ? null : new PrologAtom(atom);
     }
-    try {
-      new PrologList(terms);
-      fail("The part must throw NPE for a null element at the array");
-    } catch (NullPointerException ex) {
-    }
+
+    final AbstractPrologTerm[] finalTerms = terms;
+    assertThrows(NullPointerException.class, () -> new PrologList(finalTerms));
   }
 
   @Test
   public void testPrologListAbstractPrologTermArrayIntInt() {
-    try {
-      new PrologList((AbstractPrologTerm[]) null, 1, 2);
-      fail("The part must throw NPE for the null as the array");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm[]) null, 1, 2));
 
     final PrologList list = new PrologList(new AbstractPrologTerm[] {new PrologAtom("test")}, 1, 2);
     assertEquals(1, list.getStrPosition());
@@ -138,11 +127,7 @@ public class PrologListTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologListAbstractPrologTerm() {
-    try {
-      new PrologList((AbstractPrologTerm) null);
-      fail("Must throw NPE for null term");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm) null));
 
     final PrologAtom atom = new PrologAtom("test");
     final PrologList list = new PrologList(atom);
@@ -155,11 +140,7 @@ public class PrologListTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologListAbstractPrologTermIntInt() {
-    try {
-      new PrologList((AbstractPrologTerm) null, 1, 2);
-      fail("Must throw NPE for null term");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm) null, 1, 2));
 
     final PrologAtom atom = new PrologAtom("test");
     final PrologList list = new PrologList(atom, 1, 2);
@@ -170,23 +151,9 @@ public class PrologListTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologListAbstractPrologTermAbstractPrologTerm() {
-    try {
-      new PrologList(null, null);
-      fail("The part must throw NPE for null elements");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologList(null, new PrologAtom("test"));
-      fail("The part must throw NPE for the null as the head");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologList(new PrologAtom("test"), null);
-      fail("The part must throw NPE for the null as the tail");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologList(null, null));
+    assertThrows(NullPointerException.class, () -> new PrologList(null, new PrologAtom("test")));
+    assertThrows(NullPointerException.class, () -> new PrologList(new PrologAtom("test"), null));
 
     final PrologAtom atom1 = new PrologAtom("test");
     final PrologAtom atom2 = new PrologAtom("test2");
@@ -197,23 +164,9 @@ public class PrologListTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologListAbstractPrologTermAbstractPrologTermIntInt() {
-    try {
-      new PrologList(null, null, 1, 2);
-      fail("The part must throw NPE for null elements");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologList(null, new PrologAtom("test"), 1, 2);
-      fail("The part must throw NPE for the null as the head");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      new PrologList(new PrologAtom("test"), null, 1, 2);
-      fail("The part must throw NPE for the null as the tail");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologList(null, null, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologList(null, new PrologAtom("test"), 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologList(new PrologAtom("test"), null, 1, 2));
 
     final PrologAtom atom1 = new PrologAtom("test");
     final PrologAtom atom2 = new PrologAtom("test2");
@@ -259,11 +212,7 @@ public class PrologListTest extends AbstractPrologParserTest {
     final PrologList list = new PrologList();
     final PrologAtom atom = new PrologAtom("test");
 
-    try {
-      list.setHead(null);
-      fail("Must throw NPE for the null as head");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> list.setHead(null));
 
     assertTrue(list.isNullList());
     list.setHead(atom);
@@ -279,11 +228,7 @@ public class PrologListTest extends AbstractPrologParserTest {
     final PrologList list = new PrologList();
     final PrologAtom atom = new PrologAtom("test");
 
-    try {
-      list.setTail(null);
-      fail("Must throw NPE for the null as tail");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> list.setTail(null));
 
     assertTrue(list.isNullList());
     list.setTail(atom);
@@ -299,12 +244,7 @@ public class PrologListTest extends AbstractPrologParserTest {
     final PrologAtom atom = new PrologAtom("test");
 
     assertTrue(list.isNullList());
-
-    try {
-      PrologList.setTermAsNewListTail(list, null);
-      fail("Must throw NPE for the null as the new tail");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> PrologList.setTermAsNewListTail(list, null));
 
     PrologList newList = PrologList.setTermAsNewListTail(list, atom);
     assertFalse(list.isNullList());
@@ -334,11 +274,7 @@ public class PrologListTest extends AbstractPrologParserTest {
 
     final PrologAtom atom = new PrologAtom("hello");
 
-    try {
-      list.addAsNewListToEndOfListChain(null);
-      fail("Must throw NPE for null value");
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> list.addAsNewListToEndOfListChain(null));
 
     list.addAsNewListToEndOfListChain(atom);
     assertFalse(((PrologList) list3.getTail()).isNullList());

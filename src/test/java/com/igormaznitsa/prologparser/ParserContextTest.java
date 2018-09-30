@@ -45,11 +45,8 @@ public class ParserContextTest extends AbstractPrologParserTest {
 
     final AbstractPrologParser parser = new PrologParser(mockContext);
     final PrologCharDataSource reader = new PrologCharDataSource("a operator b.");
-    try {
-      parser.nextSentence(reader);
-      fail("Must throw PPE");
-    } catch (PrologParserException ex) {
-    }
+
+    assertThrows(PrologParserException.class, () -> parser.nextSentence(reader));
 
     verify(mockContext).hasOperatorStartsWith(parser, "a");
     verify(mockContext).hasOperatorStartsWith(parser, "o");

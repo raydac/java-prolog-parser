@@ -71,53 +71,14 @@ public class OperatorTest extends AbstractPrologParserTest {
 
   @Test
   public void testOperatorIntOperatorTypeString() {
-    try {
-      Operator.makeOperator(-1, OperatorType.FX, "<>");
-      fail("Must throw IAE for negative priority");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      Operator.makeOperator(1201, OperatorType.FX, "<>");
-      fail("Must throw IAE for outbound priority");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      Operator.makeOperator(333, OperatorType.FX, null);
-      fail("Must throw NPE for null name");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      Operator.makeOperator(333, null, "<>");
-      fail("Must throw NPE for null type");
-    } catch (NullPointerException ex) {
-    }
-
-    try {
-      Operator.makeOperator(333, OperatorType.FX, "Hello");
-      fail("Must throw IAE for capital first letter");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      Operator.makeOperator(333, OperatorType.FX, " <>");
-      fail("Must throw IAE for space as the first letter");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      Operator.makeOperator(333, OperatorType.FX, "");
-      fail("Must throw IAE for empty name");
-    } catch (IllegalArgumentException ex) {
-    }
-
-    try {
-      Operator.makeOperator(333, OperatorType.FX, "_hello");
-      fail("Must throw IAE for '_' as the first letter");
-    } catch (IllegalArgumentException ex) {
-    }
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(-1, OperatorType.FX, "<>"));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(1201, OperatorType.FX, "<>"));
+    assertThrows(NullPointerException.class, () -> Operator.makeOperator(333, OperatorType.FX, null));
+    assertThrows(NullPointerException.class, () -> Operator.makeOperator(333, null, "<>"));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(333, OperatorType.FX, "Hello"));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(333, OperatorType.FX, " <>"));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(333, OperatorType.FX, ""));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(333, OperatorType.FX, "_hello"));
 
     final Operator operator = Operator.makeOperator(100, OperatorType.XFY, "<>");
     assertEquals(100, operator.getPriority());
