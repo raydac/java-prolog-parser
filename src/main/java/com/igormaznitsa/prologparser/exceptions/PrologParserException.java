@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.exceptions;
 
 /**
@@ -22,67 +23,67 @@ package com.igormaznitsa.prologparser.exceptions;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 public class PrologParserException extends Exception {
-    private static final long serialVersionUID = -4454323844625857706L;
+  private static final long serialVersionUID = -4454323844625857706L;
 
-    /**
-     * The variable contains the line number of the problem. The first line has
-     * the index 1.
-     */
-    protected final int lineNumber;
-    /**
-     * The variable contains the string position of the problem. The first char
-     * has the index 1.
-     */
-    protected final int stringPosition;
+  /**
+   * The variable contains the line number of the problem. The first line has
+   * the index 1.
+   */
+  protected final int lineNumber;
+  /**
+   * The variable contains the string position of the problem. The first char
+   * has the index 1.
+   */
+  protected final int stringPosition;
 
-    /**
-     * The constructor.
-     *
-     * @param text       the text of the problem. It can be null.
-     * @param lineNumber the line number of the problem.
-     * @param stringPos  the string position of the problem.
-     */
-    public PrologParserException(final String text, final int lineNumber,
-                                 final int stringPos) {
-        super(text);
-        this.lineNumber = lineNumber;
-        this.stringPosition = stringPos;
-    }
+  /**
+   * The constructor.
+   *
+   * @param text       the text of the problem. It can be null.
+   * @param lineNumber the line number of the problem.
+   * @param stringPos  the string position of the problem.
+   */
+  public PrologParserException(final String text, final int lineNumber,
+                               final int stringPos) {
+    super(text);
+    this.lineNumber = lineNumber;
+    this.stringPosition = stringPos;
+  }
 
-    /**
-     * Get the line number of the problem.
-     *
-     * @return the line number as integer.
-     */
-    public int getLineNumber() {
-        return lineNumber;
-    }
+  /**
+   * Get the line number of the problem.
+   *
+   * @return the line number as integer.
+   */
+  public int getLineNumber() {
+    return lineNumber;
+  }
 
-    /**
-     * Get the string position of the problem.
-     *
-     * @return the string position as integer.
-     */
-    public int getStringPosition() {
-        return stringPosition;
-    }
+  /**
+   * Get the string position of the problem.
+   *
+   * @return the string position as integer.
+   */
+  public int getStringPosition() {
+    return stringPosition;
+  }
 
-    /**
-     * Allows to check that the exception contains valid line-string position
-     * information, they must be more than zero.
-     *
-     * @return true if both the line index and the string position are more than
-     * zero, else false
-     */
-    public boolean containsRightPositionData() {
-        return lineNumber > 0 && stringPosition > 0;
-    }
+  /**
+   * Allows to check that the exception contains valid line-string position
+   * information, they must be more than zero.
+   *
+   * @return true if both the line index and the string position are more than
+   * zero, else false
+   */
+  public boolean containsRightPositionData() {
+    return lineNumber > 0 && stringPosition > 0;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return this.getMessage() + '[' + this.lineNumber + ':' + this.stringPosition + ']';
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return this.getMessage() + '[' + this.lineNumber + ':' + this.stringPosition + ']';
+  }
 }

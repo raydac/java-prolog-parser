@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
 /**
@@ -23,32 +24,32 @@ package com.igormaznitsa.prologparser;
  */
 public enum TokenizerState {
 
-    /**
-     * It shows that the parser is looking for the next token.
-     */
-    LOOKFOR,
-    /**
-     * It shows that the parser in the atom reading state.
-     */
-    ATOM,
-    /**
-     * It shows that the parser in the string reading state.
-     */
-    STRING,
-    /**
-     * It shows that the parser in the operator reading state.
-     */
-    OPERATOR,
-    /**
-     * It shows that the parser in the variable reading state.
-     */
-    VARIABLE,
-    /**
-     * It shows that the parser in the integer number reading state.
-     */
-    INTEGER,
-    /**
-     * It shows that the parser in the float number reading state.
-     */
-    FLOAT
+  /**
+   * It shows that the parser is looking for the next token.
+   */
+  LOOKFOR,
+  /**
+   * It shows that the parser in the atom reading state.
+   */
+  ATOM,
+  /**
+   * It shows that the parser in the string reading state.
+   */
+  STRING,
+  /**
+   * It shows that the parser in the operator reading state.
+   */
+  OPERATOR,
+  /**
+   * It shows that the parser in the variable reading state.
+   */
+  VARIABLE,
+  /**
+   * It shows that the parser in the integer number reading state.
+   */
+  INTEGER,
+  /**
+   * It shows that the parser in the float number reading state.
+   */
+  FLOAT
 }

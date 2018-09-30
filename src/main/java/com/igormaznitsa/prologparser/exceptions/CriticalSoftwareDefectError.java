@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.exceptions;
 
 /**
@@ -21,9 +22,9 @@ package com.igormaznitsa.prologparser.exceptions;
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
  */
 public class CriticalSoftwareDefectError extends Error {
-    private static final long serialVersionUID = -8219655356191420973L;
+  private static final long serialVersionUID = -8219655356191420973L;
 
-    public CriticalSoftwareDefectError() {
-        super("Critical software defect, contact developers please and check the new version of the software!");
-    }
+  public CriticalSoftwareDefectError() {
+    super("Critical software defect, contact developers please and check the new version of the software!");
+  }
 }

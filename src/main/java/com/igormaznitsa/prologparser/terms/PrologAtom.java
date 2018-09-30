@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
@@ -27,59 +28,59 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
  */
 public final class PrologAtom extends AbstractPrologTerm {
 
-    private static final long serialVersionUID = -1859006002358498466L;
+  private static final long serialVersionUID = -1859006002358498466L;
 
-    /**
-     * A Constructor allows to make an instance based on a text part.
-     *
-     * @param text the text to be used for new instance, must not be null
-     */
-    public PrologAtom(final String text) {
-        super(text);
-    }
+  /**
+   * A Constructor allows to make an instance based on a text part.
+   *
+   * @param text the text to be used for new instance, must not be null
+   */
+  public PrologAtom(final String text) {
+    super(text);
+  }
 
-    /**
-     * A Constructor to clone a Prolog term as an atom.
-     *
-     * @param term a prolog term, it must not be null.
-     */
-    public PrologAtom(final AbstractPrologTerm term) {
-        super(term.getText(), term.getStrPosition(), term.getLineNumber());
-    }
+  /**
+   * A Constructor to clone a Prolog term as an atom.
+   *
+   * @param term a prolog term, it must not be null.
+   */
+  public PrologAtom(final AbstractPrologTerm term) {
+    super(term.getText(), term.getStrPosition(), term.getLineNumber());
+  }
 
-    /**
-     * A Constructor allows to make an instance based on a text part and set the
-     * position values for the text at the source stream
-     *
-     * @param text       the text to be used for new instance, must not be null
-     * @param strPos     the first term char string position
-     * @param lineNumber the first term char line number
-     */
-    public PrologAtom(final String text, final int strPos, final int lineNumber) {
-        super(text, strPos, lineNumber);
-    }
+  /**
+   * A Constructor allows to make an instance based on a text part and set the
+   * position values for the text at the source stream
+   *
+   * @param text       the text to be used for new instance, must not be null
+   * @param strPos     the first term char string position
+   * @param lineNumber the first term char line number
+   */
+  public PrologAtom(final String text, final int strPos, final int lineNumber) {
+    super(text, strPos, lineNumber);
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PrologTermType getType() {
-        return PrologTermType.ATOM;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PrologTermType getType() {
+    return PrologTermType.ATOM;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPriority() {
-        return 0;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getPriority() {
+    return 0;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return new FastStringBuilder("\'").append(StringUtils.escapeString(text)).append('\'').toString();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return new FastStringBuilder("\'").append(StringUtils.escapeString(text)).append('\'').toString();
+  }
 }

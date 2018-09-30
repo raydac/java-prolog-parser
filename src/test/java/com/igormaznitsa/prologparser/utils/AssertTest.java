@@ -13,63 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AssertTest {
-    @Test
-    public void testAssertCanCast() {
-        Assert.assertCanCast("HHH", Number.class, 123);
+  @Test
+  public void testAssertCanCast() {
+    Assert.assertCanCast("HHH", Number.class, 123);
 
-        final String text = "TEST";
-        try {
-            Assert.assertCanCast(text, Number.class, "Hello");
-            fail("Must throw IAE");
-        } catch (IllegalArgumentException ex) {
-            assertSame(text, ex.getMessage());
-        }
+    final String text = "TEST";
+    try {
+      Assert.assertCanCast(text, Number.class, "Hello");
+      fail("Must throw IAE");
+    } catch (IllegalArgumentException ex) {
+      assertSame(text, ex.getMessage());
     }
+  }
 
-    @Test
-    public void testAssertNotNull() {
-        Assert.assertNotNull("HHH", "NotNull");
+  @Test
+  public void testAssertNotNull() {
+    Assert.assertNotNull("HHH", "NotNull");
 
-        final String text = "TEST";
-        try {
-            Assert.assertNotNull(text, null);
-            fail("Must throw NPE");
-        } catch (NullPointerException ex) {
-            assertSame(text, ex.getMessage());
-        }
+    final String text = "TEST";
+    try {
+      Assert.assertNotNull(text, null);
+      fail("Must throw NPE");
+    } catch (NullPointerException ex) {
+      assertSame(text, ex.getMessage());
     }
+  }
 
-    @Test
-    public void testAssertNonEmptyString() {
-        Assert.assertNonEmptyString("HHH", "NonEmpty");
+  @Test
+  public void testAssertNonEmptyString() {
+    Assert.assertNonEmptyString("HHH", "NonEmpty");
 
-        final String text = "TEST";
-        try {
-            Assert.assertNonEmptyString(text, "");
-            fail("Must throw IAE");
-        } catch (IllegalArgumentException ex) {
-            assertSame(text, ex.getMessage());
-        }
+    final String text = "TEST";
+    try {
+      Assert.assertNonEmptyString(text, "");
+      fail("Must throw IAE");
+    } catch (IllegalArgumentException ex) {
+      assertSame(text, ex.getMessage());
     }
+  }
 
-    @Test
-    public void testAssertArrayDoesntContanNull() {
-        Assert.assertArrayDoesntContanNull("HHH", new Object[]{"1", "2"});
+  @Test
+  public void testAssertArrayDoesntContanNull() {
+    Assert.assertArrayDoesntContanNull("HHH", new Object[] {"1", "2"});
 
-        final String text = "TEST";
-        try {
-            Assert.assertArrayDoesntContanNull(text, new Object[]{"1", "2", null});
-            fail("Must throw NPE");
-        } catch (NullPointerException ex) {
-            assertSame(text, ex.getMessage());
-        }
+    final String text = "TEST";
+    try {
+      Assert.assertArrayDoesntContanNull(text, new Object[] {"1", "2", null});
+      fail("Must throw NPE");
+    } catch (NullPointerException ex) {
+      assertSame(text, ex.getMessage());
     }
+  }
 }

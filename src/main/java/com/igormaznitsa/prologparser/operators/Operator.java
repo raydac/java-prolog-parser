@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.AbstractPrologParser;
@@ -38,328 +39,328 @@ import static com.igormaznitsa.prologparser.utils.Assert.assertNotNull;
  */
 public final class Operator extends AbstractPrologTerm {
 
-    /**
-     * Describes the left bracket meta-operator ('(')
-     */
-    public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "(");
-    /**
-     * Describes the right bracket meta-operator (')')
-     */
-    public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")");
-    /**
-     * Describes the left square bracket meta-operator ('[')
-     */
-    public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "[");
-    /**
-     * Describes the right square bracket meta-operator (']')
-     */
-    public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]");
-    /**
-     * Describes the dot meta-operator ('.')
-     */
-    public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, ".");
-    /**
-     * Describes the vertical bar meta-operator ('|')
-     */
-    public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE - 1, OperatorType.XFY, "|");
-    /**
-     * The constant describes the maximum priority for a prolog operator.
-     */
-    public static final int PRIORITY_MAX = 0;
-    /**
-     * The constant describes the minimum priority for a prolog operator.
-     */
-    public static final int PRIORITY_MIN = 1200;
-    private static final long serialVersionUID = -5954317427778538548L;
-    /**
-     * The variable contains the operator type.
-     */
-    private final OperatorType opType;
-    /**
-     * The variable contains the operator priority value.
-     */
-    private final int opPriority;
-    /**
-     * The variable contains the pre-calculated hash code for the operator.
-     */
-    private final int precalculatedHashCode;
+  /**
+   * Describes the left bracket meta-operator ('(')
+   */
+  public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "(");
+  /**
+   * Describes the right bracket meta-operator (')')
+   */
+  public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")");
+  /**
+   * Describes the left square bracket meta-operator ('[')
+   */
+  public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "[");
+  /**
+   * Describes the right square bracket meta-operator (']')
+   */
+  public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]");
+  /**
+   * Describes the dot meta-operator ('.')
+   */
+  public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, ".");
+  /**
+   * Describes the vertical bar meta-operator ('|')
+   */
+  public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE - 1, OperatorType.XFY, "|");
+  /**
+   * The constant describes the maximum priority for a prolog operator.
+   */
+  public static final int PRIORITY_MAX = 0;
+  /**
+   * The constant describes the minimum priority for a prolog operator.
+   */
+  public static final int PRIORITY_MIN = 1200;
+  private static final long serialVersionUID = -5954317427778538548L;
+  /**
+   * The variable contains the operator type.
+   */
+  private final OperatorType opType;
+  /**
+   * The variable contains the operator priority value.
+   */
+  private final int opPriority;
+  /**
+   * The variable contains the pre-calculated hash code for the operator.
+   */
+  private final int precalculatedHashCode;
 
-    /**
-     * The constructor. It has been hidden since 1.02 version because we must
-     * avoid direct operator creation (!)
-     *
-     * @param priority the operator priority 0..1200
-     * @param type     the operator type, must not be null
-     * @param name     the operator name, must not be null
-     * @throws java.lang.IllegalArgumentException will be thrown if there is
-     *                                            some incompatible value at arguments
-     * @see OperatorType
-     * @see Operator#makeOperator(int,
-     * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String)
-     * @see Operator#makeOperators(int,
-     * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[])
-     */
-    private Operator(final int priority, final OperatorType type,
-                     final String name) {
-        super(name);
+  /**
+   * The constructor. It has been hidden since 1.02 version because we must
+   * avoid direct operator creation (!)
+   *
+   * @param priority the operator priority 0..1200
+   * @param type     the operator type, must not be null
+   * @param name     the operator name, must not be null
+   * @throws java.lang.IllegalArgumentException will be thrown if there is
+   *                                            some incompatible value at arguments
+   * @see OperatorType
+   * @see Operator#makeOperator(int,
+   * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String)
+   * @see Operator#makeOperators(int,
+   * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[])
+   */
+  private Operator(final int priority, final OperatorType type,
+                   final String name) {
+    super(name);
 
-        assertNotNull("Type is null", type);
-        assertNonEmptyString("Empty operator namee", name);
+    assertNotNull("Type is null", type);
+    assertNonEmptyString("Empty operator namee", name);
 
-        final char firstLetter = name.charAt(0);
+    final char firstLetter = name.charAt(0);
 
-        if (mapWhiteSpaceOrIsoControl.containsChar(firstLetter)) {
-            throw new IllegalArgumentException(
-                    "Space char as the first one at name");
-        }
-
-        if (mapUpperCaseLetters.containsChar(firstLetter)) {
-            throw new IllegalArgumentException(
-                    "Capital char as the first one at name");
-        }
-
-        if (firstLetter == '_') {
-            throw new IllegalArgumentException("'_' as the first char");
-        }
-
-        opType = type;
-        opPriority = priority;
-
-        precalculatedHashCode = (name + "!" + this.opType + "!" + this.opPriority).hashCode();
+    if (mapWhiteSpaceOrIsoControl.containsChar(firstLetter)) {
+      throw new IllegalArgumentException(
+          "Space char as the first one at name");
     }
 
-    /**
-     * This auxiliary function allows to generate a lot of similar operators
-     * from a string array
-     *
-     * @param priority the priority for all generated operators 0..1200
-     * @param type     the type for all generated operators, must not be null
-     * @param names    a string array contains names for new operators, must not be
-     *                 null
-     * @return an array of new Operator objects which were generated for the
-     * arguments and they have the same type and priority but different names.
-     * @see OperatorType
-     */
-    public static Operator[] makeOperators(final int priority,
-                                           final OperatorType type, final String[] names) {
-        if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
-            throw new IllegalArgumentException(
-                    "Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
-        }
-        assertNotNull("Type is null", type);
-        assertNotNull("Name array is null", names);
-
-        final Operator[] result = new Operator[names.length];
-        for (int li = 0; li < names.length; li++) {
-            result[li] = makeOperator(priority, type, names[li]);
-        }
-        return result;
+    if (mapUpperCaseLetters.containsChar(firstLetter)) {
+      throw new IllegalArgumentException(
+          "Capital char as the first one at name");
     }
 
-    /**
-     * This factory method allows to generate new operator with desired
-     * parameters, it will generate new instance every time because there is not
-     * any inside logic to cache instances(!).
-     *
-     * @param priority the operator priority must be in the [1..1200] interval
-     * @param type     the operator type, must not be null
-     * @param name     the operator name, must not be null or empty
-     * @return the new generated operator instance for arguments
-     * @throws IllegalArgumentException if there is a wrong priority value
-     */
-    public static Operator makeOperator(final int priority, final OperatorType type, final String name) {
-        if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
-            throw new IllegalArgumentException("Wrong priority value");
-        }
-
-        return new Operator(priority, type, name);
+    if (firstLetter == '_') {
+      throw new IllegalArgumentException("'_' as the first char");
     }
 
-    /**
-     * This inside factory method is used to generate operators without check of
-     * their priority
-     *
-     * @param priority the operator priority, it can be any integer value
-     * @param type     the operator type, it must not be null
-     * @param name     the operator name, it must not be null or empty
-     * @return the new generated operator instance
-     */
-    private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
-        assertNotNull("Type is null", type);
-        assertNotNull("Name array is null", name);
-        return new Operator(priority, type, name);
+    opType = type;
+    opPriority = priority;
+
+    precalculatedHashCode = (name + "!" + this.opType + "!" + this.opPriority).hashCode();
+  }
+
+  /**
+   * This auxiliary function allows to generate a lot of similar operators
+   * from a string array
+   *
+   * @param priority the priority for all generated operators 0..1200
+   * @param type     the type for all generated operators, must not be null
+   * @param names    a string array contains names for new operators, must not be
+   *                 null
+   * @return an array of new Operator objects which were generated for the
+   * arguments and they have the same type and priority but different names.
+   * @see OperatorType
+   */
+  public static Operator[] makeOperators(final int priority,
+                                         final OperatorType type, final String[] names) {
+    if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
+      throw new IllegalArgumentException(
+          "Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
+    }
+    assertNotNull("Type is null", type);
+    assertNotNull("Name array is null", names);
+
+    final Operator[] result = new Operator[names.length];
+    for (int li = 0; li < names.length; li++) {
+      result[li] = makeOperator(priority, type, names[li]);
+    }
+    return result;
+  }
+
+  /**
+   * This factory method allows to generate new operator with desired
+   * parameters, it will generate new instance every time because there is not
+   * any inside logic to cache instances(!).
+   *
+   * @param priority the operator priority must be in the [1..1200] interval
+   * @param type     the operator type, must not be null
+   * @param name     the operator name, must not be null or empty
+   * @return the new generated operator instance for arguments
+   * @throws IllegalArgumentException if there is a wrong priority value
+   */
+  public static Operator makeOperator(final int priority, final OperatorType type, final String name) {
+    if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
+      throw new IllegalArgumentException("Wrong priority value");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PrologTermType getType() {
-        return PrologTermType.OPERATOR;
-    }
+    return new Operator(priority, type, name);
+  }
 
-    /**
-     * Get the type of the operator
-     *
-     * @return the operator type
-     */
-    public OperatorType getOperatorType() {
-        return opType;
-    }
+  /**
+   * This inside factory method is used to generate operators without check of
+   * their priority
+   *
+   * @param priority the operator priority, it can be any integer value
+   * @param type     the operator type, it must not be null
+   * @param name     the operator name, it must not be null or empty
+   * @return the new generated operator instance
+   */
+  private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
+    assertNotNull("Type is null", type);
+    assertNotNull("Name array is null", name);
+    return new Operator(priority, type, name);
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getPriority() {
-        return opPriority;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PrologTermType getType() {
+    return PrologTermType.OPERATOR;
+  }
 
-    /**
-     * Check that the operator is compatible with a prolog structure and can be
-     * the functor for the structure.
-     *
-     * @param struct the structure to be checked, must not be null
-     * @return true if the operator is compatible with the structure else false
-     */
-    public boolean compatibleWith(final PrologStructure struct) {
-        boolean result = false;
-        if (struct != null) {
+  /**
+   * Get the type of the operator
+   *
+   * @return the operator type
+   */
+  public OperatorType getOperatorType() {
+    return opType;
+  }
 
-            switch (struct.getArity()) {
-                case 1:
-                    switch (opType) {
-                        case XFY:
-                        case XFX:
-                        case YFX:
-                            result = false;
-                            break;
-                        case XF:
-                        case FX: {
-                            final AbstractPrologTerm atom = struct.getElement(0);
-                            result = atom != null && atom.getPriority() < getPriority();
-                        }
-                        break;
-                        case YF:
-                        case FY: {
-                            final AbstractPrologTerm atom = struct.getElement(0);
-                            result = atom != null && atom.getPriority() <= getPriority();
-                        }
-                        break;
-                        default:
-                            throw new CriticalSoftwareDefectError();
-                    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getPriority() {
+    return opPriority;
+  }
+
+  /**
+   * Check that the operator is compatible with a prolog structure and can be
+   * the functor for the structure.
+   *
+   * @param struct the structure to be checked, must not be null
+   * @return true if the operator is compatible with the structure else false
+   */
+  public boolean compatibleWith(final PrologStructure struct) {
+    boolean result = false;
+    if (struct != null) {
+
+      switch (struct.getArity()) {
+        case 1:
+          switch (opType) {
+            case XFY:
+            case XFX:
+            case YFX:
+              result = false;
+              break;
+            case XF:
+            case FX: {
+              final AbstractPrologTerm atom = struct.getElement(0);
+              result = atom != null && atom.getPriority() < getPriority();
+            }
+            break;
+            case YF:
+            case FY: {
+              final AbstractPrologTerm atom = struct.getElement(0);
+              result = atom != null && atom.getPriority() <= getPriority();
+            }
+            break;
+            default:
+              throw new CriticalSoftwareDefectError();
+          }
+          break;
+        case 2:
+          switch (opType) {
+            case XFY:
+            case XFX:
+            case YFX:
+              final AbstractPrologTerm elementLeft = struct.getElement(0);
+              final AbstractPrologTerm elementRight = struct.getElement(1);
+
+              if (elementLeft == null || elementRight == null) {
+                result = false;
+              } else {
+
+                switch (opType) {
+                  case XFX:
+                    result = elementLeft.getPriority() < getPriority()
+                        && elementRight.getPriority() < getPriority();
                     break;
-                case 2:
-                    switch (opType) {
-                        case XFY:
-                        case XFX:
-                        case YFX:
-                            final AbstractPrologTerm elementLeft = struct.getElement(0);
-                            final AbstractPrologTerm elementRight = struct.getElement(1);
-
-                            if (elementLeft == null || elementRight == null) {
-                                result = false;
-                            } else {
-
-                                switch (opType) {
-                                    case XFX:
-                                        result = elementLeft.getPriority() < getPriority()
-                                                && elementRight.getPriority() < getPriority();
-                                        break;
-                                    case YFX:
-                                        result = elementLeft.getPriority() <= getPriority()
-                                                && elementRight.getPriority() < getPriority();
-                                        break;
-                                    case XFY:
-                                        result = elementLeft.getPriority() < getPriority()
-                                                && elementRight.getPriority() <= getPriority();
-                                        break;
-                                    default:
-                                        result = false;
-                                        break;
-                                }
-                            }
-                            break;
-
-                        case XF:
-                        case FX: {
-                            final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.XF ? 0 : 1);
-                            result = atom != null && atom.getPriority() < getPriority();
-                        }
-                        break;
-                        case YF:
-                        case FY: {
-                            final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.YF ? 0 : 1);
-                            result = atom != null && atom.getPriority() <= getPriority();
-
-                        }
-                        break;
-                        default:
-                            throw new CriticalSoftwareDefectError();
-                    }
-
+                  case YFX:
+                    result = elementLeft.getPriority() <= getPriority()
+                        && elementRight.getPriority() < getPriority();
                     break;
-                default:
+                  case XFY:
+                    result = elementLeft.getPriority() < getPriority()
+                        && elementRight.getPriority() <= getPriority();
+                    break;
+                  default:
                     result = false;
                     break;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return precalculatedHashCode;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(final Object obj) {
-        boolean result = false;
-
-        if (obj != null) {
-            if (this == obj) {
-                result = true;
-            } else {
-                if (obj instanceof Operator) {
-                    final Operator op = (Operator) obj;
-                    if (op.precalculatedHashCode == precalculatedHashCode
-                            && text.equals(op.text)
-                            && opPriority == op.opPriority
-                            && opType == op.opType) {
-                        result = true;
-                    }
                 }
+              }
+              break;
+
+            case XF:
+            case FX: {
+              final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.XF ? 0 : 1);
+              result = atom != null && atom.getPriority() < getPriority();
             }
+            break;
+            case YF:
+            case FY: {
+              final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.YF ? 0 : 1);
+              result = atom != null && atom.getPriority() <= getPriority();
+
+            }
+            break;
+            default:
+              throw new CriticalSoftwareDefectError();
+          }
+
+          break;
+        default:
+          result = false;
+          break;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    return precalculatedHashCode;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(final Object obj) {
+    boolean result = false;
+
+    if (obj != null) {
+      if (this == obj) {
+        result = true;
+      } else {
+        if (obj instanceof Operator) {
+          final Operator op = (Operator) obj;
+          if (op.precalculatedHashCode == precalculatedHashCode
+              && text.equals(op.text)
+              && opPriority == op.opPriority
+              && opType == op.opType) {
+            result = true;
+          }
         }
-
-        return result;
+      }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "op(" + getPriority() + ','
-                + getOperatorType().toString().toLowerCase(Locale.ENGLISH) + ",\'"
-                + getText() + "\').";
-    }
+    return result;
+  }
 
-    // The method makes all system operators as singletons for serelization, but only system ones!
-    private Object readResolve() throws ObjectStreamException {
-        Object result = this;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return "op(" + getPriority() + ','
+        + getOperatorType().toString().toLowerCase(Locale.ENGLISH) + ",\'"
+        + getText() + "\').";
+  }
 
-        final Operator singletone = AbstractPrologParser.findSystemOperatorForNameAndType(text, opType);
-        if (singletone != null) {
-            result = singletone;
-        }
-        return result;
+  // The method makes all system operators as singletons for serelization, but only system ones!
+  private Object readResolve() throws ObjectStreamException {
+    Object result = this;
+
+    final Operator singletone = AbstractPrologParser.findSystemOperatorForNameAndType(text, opType);
+    if (singletone != null) {
+      result = singletone;
     }
+    return result;
+  }
 }

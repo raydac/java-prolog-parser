@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,33 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OperatorTypeTest extends AbstractPrologParserTest {
 
-    @Test
-    public void testGetForName() {
-        assertSame(OperatorType.XF, OperatorType.getForName("xf"));
-        assertSame(OperatorType.FX, OperatorType.getForName("fx"));
-        assertSame(OperatorType.XFX, OperatorType.getForName("xfx"));
-        assertSame(OperatorType.XFY, OperatorType.getForName("xfy"));
-        assertSame(OperatorType.YF, OperatorType.getForName("yf"));
-        assertSame(OperatorType.YFX, OperatorType.getForName("yfx"));
-        assertNull(OperatorType.getForName("yfy"));
-    }
+  @Test
+  public void testGetForName() {
+    assertSame(OperatorType.XF, OperatorType.getForName("xf"));
+    assertSame(OperatorType.FX, OperatorType.getForName("fx"));
+    assertSame(OperatorType.XFX, OperatorType.getForName("xfx"));
+    assertSame(OperatorType.XFY, OperatorType.getForName("xfy"));
+    assertSame(OperatorType.YF, OperatorType.getForName("yf"));
+    assertSame(OperatorType.YFX, OperatorType.getForName("yfx"));
+    assertNull(OperatorType.getForName("yfy"));
+  }
 
-    @Test
-    public void testGetText() {
-        assertEquals("xf", OperatorType.XF.getText());
-        assertEquals("fx", OperatorType.FX.getText());
-        assertEquals("xfx", OperatorType.XFX.getText());
-        assertEquals("xfy", OperatorType.XFY.getText());
-        assertEquals("yf", OperatorType.YF.getText());
-        assertEquals("yfx", OperatorType.YFX.getText());
-    }
+  @Test
+  public void testGetText() {
+    assertEquals("xf", OperatorType.XF.getText());
+    assertEquals("fx", OperatorType.FX.getText());
+    assertEquals("xfx", OperatorType.XFX.getText());
+    assertEquals("xfy", OperatorType.XFY.getText());
+    assertEquals("yf", OperatorType.YF.getText());
+    assertEquals("yfx", OperatorType.YFX.getText());
+  }
 }

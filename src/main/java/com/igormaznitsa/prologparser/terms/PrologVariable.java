@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.Assert;
@@ -23,86 +24,86 @@ import com.igormaznitsa.prologparser.utils.Assert;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 public final class PrologVariable extends AbstractPrologTerm {
-    private static final long serialVersionUID = 1058349084517573220L;
-    /**
-     * The variable contains the flag shows that the variable is an anonymous
-     * one
-     */
-    private final boolean is_anonymous;
+  private static final long serialVersionUID = 1058349084517573220L;
+  /**
+   * The variable contains the flag shows that the variable is an anonymous
+   * one
+   */
+  private final boolean is_anonymous;
 
-    /**
-     * A Constructor. It allows to create an anonymous variable.
-     */
-    public PrologVariable() {
-        this("_");
+  /**
+   * A Constructor. It allows to create an anonymous variable.
+   */
+  public PrologVariable() {
+    this("_");
+  }
+
+  /**
+   * A Constructor. It allows to create an anonymous variable and set the
+   * source stream position
+   *
+   * @param strPosition the variable char string position in the source stream
+   * @param lineNumber  the variable char line number in the source stream
+   */
+  public PrologVariable(final int strPosition, final int lineNumber) {
+    this();
+    setStrPosition(strPosition);
+    setLineNumber(lineNumber);
+  }
+
+  /**
+   * A Constructor . It allows to create a named variable (but also it can
+   * create and an anonymous one if the text is '_')
+   *
+   * @param text the name for the new variable, it can't be null and must use
+   *             the prolog syntax variable naming rules
+   */
+  public PrologVariable(final String text) {
+    super(text);
+
+    Assert.assertNonEmptyString("Variable name is empty", text);
+
+    final char firstLetter = text.charAt(0);
+
+    if (!mapUpperCaseLetters.containsChar(firstLetter) && firstLetter != '_') {
+      throw new IllegalArgumentException(
+          "The variable name must be started from an upper case letter or '_' ["
+              + text + ']');
     }
 
-    /**
-     * A Constructor. It allows to create an anonymous variable and set the
-     * source stream position
-     *
-     * @param strPosition the variable char string position in the source stream
-     * @param lineNumber  the variable char line number in the source stream
-     */
-    public PrologVariable(final int strPosition, final int lineNumber) {
-        this();
-        setStrPosition(strPosition);
-        setLineNumber(lineNumber);
-    }
+    is_anonymous = text.length() == 1 && firstLetter == '_';
+  }
 
-    /**
-     * A Constructor . It allows to create a named variable (but also it can
-     * create and an anonymous one if the text is '_')
-     *
-     * @param text the name for the new variable, it can't be null and must use
-     *             the prolog syntax variable naming rules
-     */
-    public PrologVariable(final String text) {
-        super(text);
+  /**
+   * A Constructor . It allows to create a named variable (but also it can
+   * create and an anonymous one if the text is '_') and set the first
+   * variable char position in the source string
+   *
+   * @param text        the name for the new variable, it can't be null and must use
+   *                    the prolog syntax variable naming rules
+   * @param strPosition the first variable char string position
+   * @param lineNumber  the first variable char line number
+   */
+  public PrologVariable(final String text, final int strPosition, final int lineNumber) {
+    this(text);
+    setStrPosition(strPosition);
+    setLineNumber(lineNumber);
+  }
 
-        Assert.assertNonEmptyString("Variable name is empty", text);
+  /**
+   * Check that the variable is an anonymous one
+   *
+   * @return true if the variable is an anonymous one, else false
+   */
+  public boolean isAnonymous() {
+    return is_anonymous;
+  }
 
-        final char firstLetter = text.charAt(0);
-
-        if (!mapUpperCaseLetters.containsChar(firstLetter) && firstLetter != '_') {
-            throw new IllegalArgumentException(
-                    "The variable name must be started from an upper case letter or '_' ["
-                            + text + ']');
-        }
-
-        is_anonymous = text.length() == 1 && firstLetter == '_';
-    }
-
-    /**
-     * A Constructor . It allows to create a named variable (but also it can
-     * create and an anonymous one if the text is '_') and set the first
-     * variable char position in the source string
-     *
-     * @param text        the name for the new variable, it can't be null and must use
-     *                    the prolog syntax variable naming rules
-     * @param strPosition the first variable char string position
-     * @param lineNumber  the first variable char line number
-     */
-    public PrologVariable(final String text, final int strPosition, final int lineNumber) {
-        this(text);
-        setStrPosition(strPosition);
-        setLineNumber(lineNumber);
-    }
-
-    /**
-     * Check that the variable is an anonymous one
-     *
-     * @return true if the variable is an anonymous one, else false
-     */
-    public boolean isAnonymous() {
-        return is_anonymous;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PrologTermType getType() {
-        return PrologTermType.VAR;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PrologTermType getType() {
+    return PrologTermType.VAR;
+  }
 }

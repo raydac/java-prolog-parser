@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.annotations;
 
 import java.lang.annotation.ElementType;
@@ -30,18 +31,18 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface PrologOperators {
 
-    /**
-     * Array of operators, must not be empty.
-     *
-     * @return an array of operators saved by the annotation
-     */
-    PrologOperator[] Operators();
+  /**
+   * Array of operators, must not be empty.
+   *
+   * @return an array of operators saved by the annotation
+   */
+  PrologOperator[] Operators();
 
-    /**
-     * Optional commentaries.
-     *
-     * @return optional commentaries
-     * @since 1.3.3
-     */
-    String Comments() default "";
+  /**
+   * Optional commentaries.
+   *
+   * @return optional commentaries
+   * @since 1.3.3
+   */
+  String Comments() default "";
 }

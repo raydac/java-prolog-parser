@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.Operator;
@@ -31,57 +32,57 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
  * @see OperatorContainer
  */
 final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheItem {
-    private static final long serialVersionUID = 9006607815982718325L;
-    private volatile AbstractPrologTerm wrappedTerm;
-    private transient volatile SoftCache<PrologTermWrapper> ringBuffer;
+  private static final long serialVersionUID = 9006607815982718325L;
+  private volatile AbstractPrologTerm wrappedTerm;
+  private transient volatile SoftCache<PrologTermWrapper> ringBuffer;
 
-    PrologTermWrapper() {
-        super("termWrapper");
-    }
+  PrologTermWrapper() {
+    super("termWrapper");
+  }
 
-    public AbstractPrologTerm getWrappedTerm() {
-        return this.wrappedTerm;
-    }
+  public AbstractPrologTerm getWrappedTerm() {
+    return this.wrappedTerm;
+  }
 
-    public void setWrappedTerm(final AbstractPrologTerm term) {
-        this.wrappedTerm = term;
-    }
+  public void setWrappedTerm(final AbstractPrologTerm term) {
+    this.wrappedTerm = term;
+  }
 
-    @Override
-    public PrologTermType getType() {
-        return wrappedTerm.getType();
-    }
+  @Override
+  public PrologTermType getType() {
+    return wrappedTerm.getType();
+  }
 
-    @Override
-    public String getText() {
-        return wrappedTerm.getText();
-    }
+  @Override
+  public String getText() {
+    return wrappedTerm.getText();
+  }
 
-    @Override
-    public int getPriority() {
-        return wrappedTerm.getPriority();
-    }
+  @Override
+  public int getPriority() {
+    return wrappedTerm.getPriority();
+  }
 
-    @Override
-    public String toString() {
-        return wrappedTerm.toString();
-    }
+  @Override
+  public String toString() {
+    return wrappedTerm.toString();
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void setSoftCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
-        this.ringBuffer = (SoftCache<PrologTermWrapper>) ringBuffer;
-    }
+  @Override
+  @SuppressWarnings("unchecked")
+  public void setSoftCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
+    this.ringBuffer = (SoftCache<PrologTermWrapper>) ringBuffer;
+  }
 
-    @Override
-    public void reset() {
-        this.wrappedTerm = null;
-    }
+  @Override
+  public void reset() {
+    this.wrappedTerm = null;
+  }
 
-    @Override
-    public void dispose() {
-        if (this.ringBuffer != null) {
-            this.ringBuffer.dispose(this);
-        }
+  @Override
+  public void dispose() {
+    if (this.ringBuffer != null) {
+      this.ringBuffer.dispose(this);
     }
+  }
 }

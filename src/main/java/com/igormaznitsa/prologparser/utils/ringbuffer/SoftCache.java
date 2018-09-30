@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser.utils.ringbuffer;
 
 /**
@@ -26,71 +27,71 @@ package com.igormaznitsa.prologparser.utils.ringbuffer;
  */
 public class SoftCache<T extends SoftCacheItem> {
 
-    /**
-     * The factory allows to create new items.
-     */
-    private final SoftCacheItemFactory<T> factory;
-    /**
-     * The inside buffer.
-     */
-    private final SoftCacheItem[] buffer;
-    /**
-     * The max element index in the buffer.
-     */
-    private final int maxElementIndex;
-    /**
-     * The pointer to the first element in the buffer.
-     */
-    private int headPointer;
+  /**
+   * The factory allows to create new items.
+   */
+  private final SoftCacheItemFactory<T> factory;
+  /**
+   * The inside buffer.
+   */
+  private final SoftCacheItem[] buffer;
+  /**
+   * The max element index in the buffer.
+   */
+  private final int maxElementIndex;
+  /**
+   * The pointer to the first element in the buffer.
+   */
+  private int headPointer;
 
-    /**
-     * The constructor.
-     *
-     * @param factory the factory to create new items, it must not be null.
-     * @param size    the size of the buffer.
-     */
-    @SuppressWarnings("unchecked")
-    public SoftCache(final SoftCacheItemFactory<T> factory, final int size) {
-        this.factory = factory;
-        this.buffer = new SoftCacheItem[size];
-        this.maxElementIndex = size;
-        this.headPointer = 0;
-    }
+  /**
+   * The constructor.
+   *
+   * @param factory the factory to create new items, it must not be null.
+   * @param size    the size of the buffer.
+   */
+  @SuppressWarnings("unchecked")
+  public SoftCache(final SoftCacheItemFactory<T> factory, final int size) {
+    this.factory = factory;
+    this.buffer = new SoftCacheItem[size];
+    this.maxElementIndex = size;
+    this.headPointer = 0;
+  }
 
-    /**
-     * Get an item.
-     *
-     * @return a cached item if it is detected in the cache or a new one.
-     */
-    @SuppressWarnings("unchecked")
-    public T get() {
-        T result;
-        int pointer = headPointer - 1;
-        if (pointer < 0) {
-            // create new one
-            result = factory.makeNew();
-            result.setSoftCache(this);
-        } else {
-            result = (T) buffer[pointer];
-            headPointer = pointer;
-        }
-        return result;
+  /**
+   * Get an item.
+   *
+   * @return a cached item if it is detected in the cache or a new one.
+   */
+  @SuppressWarnings("unchecked")
+  public T get() {
+    T result;
+    int pointer = headPointer - 1;
+    if (pointer < 0) {
+      // create new one
+      result = factory.makeNew();
+      result.setSoftCache(this);
+    } else {
+      result = (T) buffer[pointer];
+      headPointer = pointer;
     }
+    return result;
+  }
 
-    /**
-     * Dispose an item, place it into the buffer if there is a free place, drop
-     * the item otherwise.
-     *
-     * @param item an item to be disposed.
-     */
-    @SuppressWarnings("unchecked")
-    public void dispose(final SoftCacheItem item) {
-        int pointer = headPointer;
-        if (pointer < maxElementIndex) {
-            final T ringitem = (T) item;
-            ringitem.reset();
-            buffer[pointer++] = ringitem;
-            headPointer = pointer;
-        }
+  /**
+   * Dispose an item, place it into the buffer if there is a free place, drop
+   * the item otherwise.
+   *
+   * @param item an item to be disposed.
+   */
+  @SuppressWarnings("unchecked")
+  public void dispose(final SoftCacheItem item) {
+    int pointer = headPointer;
+    if (pointer < maxElementIndex) {
+      final T ringitem = (T) item;
+      ringitem.reset();
+      buffer[pointer++] = ringitem;
+      headPointer = pointer;
     }
+  }
 }

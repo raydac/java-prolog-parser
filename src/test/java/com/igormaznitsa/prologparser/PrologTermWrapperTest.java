@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,47 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class PrologTermWrapperTest {
 
-    final static Operator testWrapped = Operator.makeOperator(300, OperatorType.FX, "---");
+  final static Operator testWrapped = Operator.makeOperator(300, OperatorType.FX, "---");
 
-    final static PrologTermWrapper testWrapper = new PrologTermWrapper();
+  final static PrologTermWrapper testWrapper = new PrologTermWrapper();
 
-    static {
-        testWrapper.setWrappedTerm(testWrapped);
-    }
+  static {
+    testWrapper.setWrappedTerm(testWrapped);
+  }
 
-    @Test
-    public void testGetText() {
-        assertEquals(testWrapped.getText(), testWrapper.getText());
-    }
+  @Test
+  public void testGetText() {
+    assertEquals(testWrapped.getText(), testWrapper.getText());
+  }
 
-    @Test
-    public void testGetPriority() {
-        assertEquals(testWrapped.getPriority(), testWrapper.getPriority());
-    }
+  @Test
+  public void testGetPriority() {
+    assertEquals(testWrapped.getPriority(), testWrapper.getPriority());
+  }
 
-    @Test
-    public void testToString() {
-        assertEquals(testWrapped.toString(), testWrapper.toString());
-    }
+  @Test
+  public void testToString() {
+    assertEquals(testWrapped.toString(), testWrapper.toString());
+  }
 
-    @Test
-    public void testGetType() {
-        assertEquals(testWrapped.getType(), testWrapper.getType());
-    }
+  @Test
+  public void testGetType() {
+    assertEquals(testWrapped.getType(), testWrapper.getType());
+  }
 
-    @Test
-    public void testGetWrappedTerm() {
-        assertSame(testWrapped, testWrapper.getWrappedTerm());
-    }
+  @Test
+  public void testGetWrappedTerm() {
+    assertSame(testWrapped, testWrapper.getWrappedTerm());
+  }
 }
