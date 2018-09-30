@@ -38,7 +38,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
   private final AbstractPrologParser mockPrologParser = mock(AbstractPrologParser.class);
 
   @BeforeEach
-  public void beforeEach() {
+  public void before() {
     reset(mockContext);
     when(mockPrologParser.getContext()).thenReturn(mockContext);
   }
