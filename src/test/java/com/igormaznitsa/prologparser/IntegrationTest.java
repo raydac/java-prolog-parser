@@ -425,7 +425,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
               && operatorstructure.getFunctor().getText().equals("op")) {
             final Operator newoperator = Operator.makeOperator(
                 ((PrologIntegerNumber) operatorstructure.getElement(0)).getValue().intValue(),
-                OperatorType.getForName(operatorstructure.getElement(1).getText()),
+                OperatorType.getForName(operatorstructure.getElement(1).getText()).get(),
                 operatorstructure.getElement(2).getText());
 
             OperatorContainer container = operators.get(newoperator.getText());
@@ -685,10 +685,10 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testHelloWorld() throws Exception {
-    PrologParser parser = new PrologParser(null);
-    PrologStructure rule = (PrologStructure) parser.nextSentence("hello :- world,!.");
-    PrologStructure and = (PrologStructure) rule.getElement(1);
-    System.out.println(rule.getElement(0).getText() + ' ' + and.getElement(0).getText() + and.getElement(1).getText());
+    final PrologParser parser = new PrologParser(null);
+    final PrologStructure rule = (PrologStructure) parser.nextSentence("hello :- world,!.");
+    final PrologStructure and = (PrologStructure) rule.getElement(1);
+    assertEquals("hello world!",rule.getElement(0).getText() + ' ' + and.getElement(0).getText() + and.getElement(1).getText());
   }
 
   @Test

@@ -65,7 +65,9 @@ public final class TokenizerResult implements SoftCacheItem {
    * @param lineNumber     the first result char line number
    */
   public TokenizerResult(final AbstractPrologTerm term,
-                         final TokenizerState parserState, final int stringPosition, final int lineNumber) {
+                         final TokenizerState parserState,
+                         final int stringPosition,
+                         final int lineNumber) {
     setData(term, parserState, stringPosition, lineNumber);
   }
 
@@ -90,7 +92,9 @@ public final class TokenizerResult implements SoftCacheItem {
   }
 
   public void setData(final AbstractPrologTerm term,
-                      final TokenizerState parserState, final int stringPosition, final int lineNumber) {
+                      final TokenizerState parserState,
+                      final int stringPosition,
+                      final int lineNumber) {
 
     if (term == null) {
       throw new NullPointerException("Term is null");

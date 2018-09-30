@@ -17,8 +17,7 @@
 package com.igormaznitsa.prologparser.utils;
 
 /**
- * A String builder working a bit faster than the standard one for the parsing
- * purposes.
+ * A String builder provides some auxiliary methods.
  *
  * @author Igor Maznita (http://www.igormaznitsa.com)
  */

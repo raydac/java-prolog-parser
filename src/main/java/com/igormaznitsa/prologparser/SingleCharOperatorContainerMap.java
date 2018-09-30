@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Arrays.stream;
+
 /**
  * A wrapper to keep single char mapped operator containers.
  *
@@ -30,14 +32,8 @@ import java.util.Map;
  */
 final class SingleCharOperatorContainerMap {
 
-  /**
-   * Inside wrapped map.
-   */
   private final Map<String, OperatorContainer> insideMap = new HashMap<>();
-  /**
-   * Array keeping operator containers for chars with codes lesser than 256.
-   */
-  private final OperatorContainer[] charMap = new OperatorContainer[0x100];
+  private final OperatorContainer[] charMap = new OperatorContainer[0x80];
 
   /**
    * A Constructor.
@@ -51,9 +47,7 @@ final class SingleCharOperatorContainerMap {
    * @param containers containers to be added into the map.
    */
   SingleCharOperatorContainerMap(final OperatorContainer... containers) {
-    for (final OperatorContainer c : containers) {
-      put(c.getText(), c);
-    }
+    stream(containers).forEach(x -> put(x.getText(), x));
   }
 
   /**
@@ -82,8 +76,8 @@ final class SingleCharOperatorContainerMap {
     }
 
     final int chr = key.charAt(0);
-    if (chr > 0xFF) {
-      throw new IllegalArgumentException("The char code is greater than 0xFF");
+    if (chr > 0x7F) {
+      throw new IllegalArgumentException("The char code is greater than 0x7F");
     }
 
     charMap[chr] = container;
@@ -103,14 +97,14 @@ final class SingleCharOperatorContainerMap {
 
     final int code = key.charAt(0);
 
-    if (code > 0xFF) {
+    if (code > 0x7F) {
       return null;
     }
     return charMap[code];
   }
 
   public OperatorContainer get(final char c) {
-    return c > 0xFF ? null : charMap[c];
+    return c > 0x7F ? null : charMap[c];
   }
 
   /**

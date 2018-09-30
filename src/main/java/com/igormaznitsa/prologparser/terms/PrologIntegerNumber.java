@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser.terms;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * The class describes an immutable integer numeric atom, it is like a prolog
@@ -37,9 +38,7 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
 
   static {
     // cache numbers from -99 to 99
-    for (int i = -99; i < 100; i++) {
-      cachedValues.put(Integer.toString(i), BigInteger.valueOf((long) i));
-    }
+    IntStream.range(-99, 100).forEach(x -> cachedValues.put(Integer.toString(x), BigInteger.valueOf((long) x)));
   }
 
   /**

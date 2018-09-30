@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 
@@ -373,7 +373,7 @@ public class PrologStructure extends AbstractPrologTerm {
         }
         break;
         default:
-          throw new CriticalSoftwareDefectError();
+          throw new CriticalUnexpectedError();
       }
 
     } else {

@@ -18,7 +18,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
-import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -491,7 +491,7 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
         // all good and we read next block
         checkForNull(block, "List element not found", nextAtom);
       } else {
-        throw new CriticalSoftwareDefectError();
+        throw new CriticalUnexpectedError();
       }
 
       if (leftPartFirst.isNullList()) {
@@ -749,7 +749,7 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
                   currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
                   break;
                 default:
-                  throw new CriticalSoftwareDefectError();
+                  throw new CriticalUnexpectedError();
               }
             }
 

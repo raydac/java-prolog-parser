@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
@@ -99,7 +99,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
         numberAtContainer++;
         break;
       default:
-        throw new CriticalSoftwareDefectError();
+        throw new CriticalUnexpectedError();
     }
     return true;
   }
@@ -283,7 +283,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
         }
         break;
       default:
-        throw new CriticalSoftwareDefectError();
+        throw new CriticalUnexpectedError();
     }
 
     if (result != null && result.getOperatorType() == type) {
@@ -317,7 +317,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
         result = opZFZ;
         break;
       default:
-        throw new CriticalSoftwareDefectError();
+        throw new CriticalUnexpectedError();
     }
     return result;
   }
@@ -354,7 +354,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
         }
         break;
       default:
-        throw new CriticalSoftwareDefectError();
+        throw new CriticalUnexpectedError();
     }
     return result;
   }

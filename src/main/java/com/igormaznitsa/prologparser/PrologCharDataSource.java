@@ -148,8 +148,7 @@ public class PrologCharDataSource {
    * @param etalon an etalon string must not be null
    * @param buffer a string buffer object, must not be null
    */
-  public void calculateDifferenceAndPushTheResultBack(
-      final String etalon, final FastStringBuilder buffer) {
+  public void calculateDifferenceAndPushTheResultBack(final String etalon, final FastStringBuilder buffer) {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 

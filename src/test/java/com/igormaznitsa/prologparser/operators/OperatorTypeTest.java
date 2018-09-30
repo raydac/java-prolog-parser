@@ -25,13 +25,13 @@ public class OperatorTypeTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetForName() {
-    assertSame(OperatorType.XF, OperatorType.getForName("xf"));
-    assertSame(OperatorType.FX, OperatorType.getForName("fx"));
-    assertSame(OperatorType.XFX, OperatorType.getForName("xfx"));
-    assertSame(OperatorType.XFY, OperatorType.getForName("xfy"));
-    assertSame(OperatorType.YF, OperatorType.getForName("yf"));
-    assertSame(OperatorType.YFX, OperatorType.getForName("yfx"));
-    assertNull(OperatorType.getForName("yfy"));
+    assertSame(OperatorType.XF, OperatorType.getForName("xf").get());
+    assertSame(OperatorType.FX, OperatorType.getForName("fx").get());
+    assertSame(OperatorType.XFX, OperatorType.getForName("xfx").get());
+    assertSame(OperatorType.XFY, OperatorType.getForName("xfy").get());
+    assertSame(OperatorType.YF, OperatorType.getForName("yf").get());
+    assertSame(OperatorType.YFX, OperatorType.getForName("yfx").get());
+    assertFalse(OperatorType.getForName("yfy").isPresent());
   }
 
   @Test

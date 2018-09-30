@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
@@ -24,7 +24,7 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
-import com.igormaznitsa.prologparser.utils.CharacterProcessor;
+import com.igormaznitsa.prologparser.utils.AbstractCharProcessor;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
 import com.igormaznitsa.prologparser.utils.SingleCharString;
 import com.igormaznitsa.prologparser.utils.StringUtils;
@@ -39,7 +39,7 @@ import java.io.IOException;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemFactory<TokenizerResult> {
+final class PrologTokenizer extends AbstractCharProcessor implements SoftCacheItemFactory<TokenizerResult> {
 
   final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<>();
   /**
@@ -334,7 +334,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
             }
           }
           default: {
-            throw new CriticalSoftwareDefectError();
+            throw new CriticalUnexpectedError();
           }
         }
       }
@@ -580,7 +580,7 @@ final class PrologTokenizer extends CharacterProcessor implements SoftCacheItemF
         }
         break;
         default:
-          throw new CriticalSoftwareDefectError();
+          throw new CriticalUnexpectedError();
       }
     }
   }

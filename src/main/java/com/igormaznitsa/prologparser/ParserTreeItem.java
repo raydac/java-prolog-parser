@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorType;
@@ -295,7 +295,7 @@ public final class ParserTreeItem implements SoftCacheItem {
         case YFX:
           return (leftBranch != null && leftBranch.getPriority() <= priority) && (rightBranch != null && rightBranch.getPriority() < priority);
         default:
-          throw new CriticalSoftwareDefectError();
+          throw new CriticalUnexpectedError();
       }
     } else {
       return leftBranch == null && rightBranch == null;

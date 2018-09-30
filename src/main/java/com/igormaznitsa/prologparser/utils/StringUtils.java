@@ -22,9 +22,10 @@ package com.igormaznitsa.prologparser.utils;
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
 @SuppressWarnings("serial")
-public enum StringUtils {
+public final class StringUtils {
 
-  ;
+  private StringUtils() {
+  }
 
   /**
    * The function can convert a string value describes a special escape char

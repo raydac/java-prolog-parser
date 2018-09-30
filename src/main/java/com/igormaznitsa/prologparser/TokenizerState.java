@@ -25,31 +25,31 @@ package com.igormaznitsa.prologparser;
 public enum TokenizerState {
 
   /**
-   * It shows that the parser is looking for the next token.
+   * Looking for next token.
    */
   LOOKFOR,
   /**
-   * It shows that the parser in the atom reading state.
+   * Reading atom.
    */
   ATOM,
   /**
-   * It shows that the parser in the string reading state.
+   * Reading string.
    */
   STRING,
   /**
-   * It shows that the parser in the operator reading state.
+   * Reading operator.
    */
   OPERATOR,
   /**
-   * It shows that the parser in the variable reading state.
+   * Reading variable.
    */
   VARIABLE,
   /**
-   * It shows that the parser in the integer number reading state.
+   * Reading integer number.
    */
   INTEGER,
   /**
-   * It shows that the parser in the float number reading state.
+   * Reading float number.
    */
   FLOAT
 }

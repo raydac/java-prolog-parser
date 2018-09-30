@@ -18,7 +18,7 @@ package com.igormaznitsa.prologparser.utils;
 
 public final class SingleCharString {
 
-  private static final int MAX_CODE = 0xFF;
+  private static final int MAX_CODE = 0x7F;
   private static final String[] map = new String[MAX_CODE + 1];
 
   static {

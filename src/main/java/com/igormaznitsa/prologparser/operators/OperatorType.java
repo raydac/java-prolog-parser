@@ -16,6 +16,10 @@
 
 package com.igormaznitsa.prologparser.operators;
 
+import java.util.Optional;
+
+import static java.util.Arrays.stream;
+
 /**
  * The enumeration describes prolog operator types being used by the prolog
  * parser.
@@ -24,7 +28,14 @@ package com.igormaznitsa.prologparser.operators;
  */
 public enum OperatorType {
 
-  XF("xf", 1), YF("yf", 1), FX("fx", 1), FY("fy", 1), XFX("xfx", 2), XFY("xfy", 2), YFX("yfx", 2);
+  XF("xf", 1),
+  YF("yf", 1),
+  FX("fx", 1),
+  FY("fy", 1),
+  XFX("xfx", 2),
+  XFY("xfy", 2),
+  YFX("yfx", 2);
+
   /**
    * The variable contains right prolog text representation of the type
    */
@@ -51,13 +62,8 @@ public enum OperatorType {
    * @param str the prolog text representation for the finding type
    * @return found type or null if the type has not been found
    */
-  public static OperatorType getForName(final String str) {
-    for (final OperatorType type : values()) {
-      if (type.text.equals(str)) {
-        return type;
-      }
-    }
-    return null;
+  public static Optional<OperatorType> getForName(final String str) {
+    return stream(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 
   /**

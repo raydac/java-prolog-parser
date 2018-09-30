@@ -24,7 +24,7 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
 /**
- * An Auxiliary class allows to make a wrapper containing a source stream position and a linked object for a singleton prolog term.
+ * Auxiliary class allows to make a wrapper containing a source stream position and a linked object for a singleton prolog term.
  * It is used by the prolog parser during tree building so it is a package level class.
  *
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)

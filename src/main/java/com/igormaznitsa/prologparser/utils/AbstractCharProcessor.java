@@ -16,6 +16,6 @@
 
 package com.igormaznitsa.prologparser.utils;
 
-public abstract class CharacterProcessor {
+public abstract class AbstractCharProcessor {
 
 }

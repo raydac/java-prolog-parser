@@ -21,10 +21,10 @@ package com.igormaznitsa.prologparser.exceptions;
  *
  * @author Igor Maznitsa (igor.maznitsa@igormaznitsa.com)
  */
-public class CriticalSoftwareDefectError extends Error {
+public class CriticalUnexpectedError extends Error {
   private static final long serialVersionUID = -8219655356191420973L;
 
-  public CriticalSoftwareDefectError() {
+  public CriticalUnexpectedError() {
     super("Critical software defect, contact developers please and check the new version of the software!");
   }
 }

@@ -19,6 +19,7 @@ package com.igormaznitsa.prologparser.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * An Auxiliary Thread-NONsafe class allows to cache ArrayLists
@@ -43,14 +44,11 @@ public final class ThreadNonSafeArrayListCache<T> {
 
   private int firstFreeElementPointer = 0;
 
-
   public ThreadNonSafeArrayListCache() {
     // init cached items
-    for (int i = 0; i < MAX_CACHED_NUMBER; i++) {
-      this.insideList[i] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE);
-    }
+    IntStream.range(0, MAX_CACHED_NUMBER)
+        .forEach(x -> this.insideList[x] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE));
   }
-
 
   @SuppressWarnings("unchecked")
   public List<T> getListFromCache() {

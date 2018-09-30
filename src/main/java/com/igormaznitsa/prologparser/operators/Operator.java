@@ -19,7 +19,7 @@ package com.igormaznitsa.prologparser.operators;
 import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.annotations.PrologOperator;
 import com.igormaznitsa.prologparser.annotations.PrologOperators;
-import com.igormaznitsa.prologparser.exceptions.CriticalSoftwareDefectError;
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
@@ -251,7 +251,7 @@ public final class Operator extends AbstractPrologTerm {
             }
             break;
             default:
-              throw new CriticalSoftwareDefectError();
+              throw new CriticalUnexpectedError();
           }
           break;
         case 2:
@@ -300,7 +300,7 @@ public final class Operator extends AbstractPrologTerm {
             }
             break;
             default:
-              throw new CriticalSoftwareDefectError();
+              throw new CriticalUnexpectedError();
           }
 
           break;
