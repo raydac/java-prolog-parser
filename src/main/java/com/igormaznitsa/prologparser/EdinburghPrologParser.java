@@ -62,10 +62,10 @@ import com.igormaznitsa.prologparser.operators.OperatorType;
     @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
     @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
-public final class PrologParser extends AbstractPrologParser {
+public final class EdinburghPrologParser extends AbstractPrologParser {
 
   static {
-    readSystemOperators(PrologParser.class);
+    readSystemOperators(EdinburghPrologParser.class);
   }
 
   /**
@@ -73,7 +73,7 @@ public final class PrologParser extends AbstractPrologParser {
    *
    * @param context the context for the parser, it can be null.
    */
-  public PrologParser(final ParserContext context) {
+  public EdinburghPrologParser(final ParserContext context) {
     super(context);
   }
 }

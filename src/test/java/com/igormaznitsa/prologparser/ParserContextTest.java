@@ -43,7 +43,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     final ParserContext mockContext = mock(ParserContext.class);
     Mockito.when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
-    final AbstractPrologParser parser = new PrologParser(mockContext);
+    final AbstractPrologParser parser = new EdinburghPrologParser(mockContext);
     final PrologCharDataSource reader = new PrologCharDataSource("a operator b.");
 
     assertThrows(PrologParserException.class, () -> parser.nextSentence(reader));
@@ -72,7 +72,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
 
     Mockito.when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
-    final AbstractPrologParser parser = new PrologParser(mockContext);
+    final AbstractPrologParser parser = new EdinburghPrologParser(mockContext);
     final PrologCharDataSource reader = new PrologCharDataSource("operator.");
     final PrologAtom atom = (PrologAtom) parser.nextSentence(reader);
     assertEquals("operator", atom.getText());
@@ -86,7 +86,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     final ParserContext mockContext = mock(ParserContext.class);
     Mockito.when(mockContext.hasZeroArityPredicate(any(AbstractPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "foo".equals(invocation.getArguments()[1]));
 
-    final AbstractPrologParser parser = new PrologParser(mockContext);
+    final AbstractPrologParser parser = new EdinburghPrologParser(mockContext);
 
     final AbstractPrologTerm term = parser.nextSentence("foo.");
     assertNotNull(term);
@@ -123,7 +123,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
       }
     };
 
-    final AbstractPrologParser parser = new PrologParser(stubContext);
+    final AbstractPrologParser parser = new EdinburghPrologParser(stubContext);
     final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(5). a :- b.");
     while (parser.nextSentence(reader) != null) {
     }

@@ -16,15 +16,15 @@
 
 package com.igormaznitsa.prologparser.utils;
 
+import java.util.stream.IntStream;
+
 public final class SingleCharString {
 
   private static final int MAX_CODE = 0x7F;
   private static final String[] map = new String[MAX_CODE + 1];
 
   static {
-    for (int i = 0; i <= MAX_CODE; i++) {
-      map[i] = String.valueOf((char) i);
-    }
+    IntStream.range(0,MAX_CODE).forEach(i -> map[i] = String.valueOf((char) i));
   }
 
   public static String valueOf(final char chr) {

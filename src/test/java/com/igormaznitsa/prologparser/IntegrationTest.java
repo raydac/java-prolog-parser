@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 public class IntegrationTest extends AbstractPrologParserTest {
 
   final ParserContext mock = mock(ParserContext.class);
-  final PrologParser parser = new PrologParser(mock);
+  final EdinburghPrologParser parser = new EdinburghPrologParser(mock);
 
   @BeforeEach
   public void before() {
@@ -247,7 +247,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
   public void testParseStructure() throws Exception {
     final AbstractPrologTerm term = parser.nextSentence("date(Day,may,2001).");
 
-    verify(mock, times(1)).processNewStructure(any(PrologParser.class), any(PrologStructure.class));
+    verify(mock, times(1)).processNewStructure(any(EdinburghPrologParser.class), any(PrologStructure.class));
 
     assertEquals(PrologTermType.STRUCT, term.getType());
 
@@ -300,7 +300,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
   public void testParseOperator() throws Exception {
     PrologStructure struct = (PrologStructure) parser.nextSentence("hello:-world.");
 
-    verify(mock, times(1)).processNewStructure(any(PrologParser.class), any(PrologStructure.class));
+    verify(mock, times(1)).processNewStructure(any(EdinburghPrologParser.class), any(PrologStructure.class));
 
     assertEquals(PrologStructure.class, struct.getClass());
     assertEquals(PrologTermType.OPERATOR, struct.getFunctor().getType());
@@ -314,7 +314,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     reset(mock);
     struct = (PrologStructure) parser.nextSentence(":-test.");
 
-    verify(mock, times(1)).processNewStructure(any(PrologParser.class), any(PrologStructure.class));
+    verify(mock, times(1)).processNewStructure(any(EdinburghPrologParser.class), any(PrologStructure.class));
 
     assertEquals(PrologStructure.class, struct.getClass());
     assertEquals(PrologTermType.OPERATOR, struct.getFunctor().getType());
@@ -327,7 +327,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     reset(mock);
     struct = (PrologStructure) parser.nextSentence("X is X+1.");
 
-    verify(mock, times(2)).processNewStructure(any(PrologParser.class), any(PrologStructure.class));
+    verify(mock, times(2)).processNewStructure(any(EdinburghPrologParser.class), any(PrologStructure.class));
 
     assertEquals(PrologStructure.class, struct.getClass());
     assertEquals(PrologTermType.OPERATOR, struct.getFunctor().getType());
@@ -395,7 +395,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     operators.put(thirdOperator.getText(), new OperatorContainer(thirdOperator));
 
     final StubContext contextStub = new StubContext(operators);
-    final PrologParser parser = new PrologParser(contextStub);
+    final EdinburghPrologParser parser = new EdinburghPrologParser(contextStub);
     final AbstractPrologTerm term = parser.nextSentence("+++++++++++ 3.");
 
     assertSame(firstOperator, ((PrologStructure) term).getFunctor());
@@ -410,7 +410,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
     final StubContext contextStub = new StubContext(operators);
 
-    final PrologParser parser = new PrologParser(contextStub);
+    final EdinburghPrologParser parser = new EdinburghPrologParser(contextStub);
 
     AbstractPrologTerm term = parser.nextSentence(":-op(800,xfx,'<===>').:-op(700,xfy,'v').:-op(600,xfy,'&').:-op(500,fy,'~').~(A&B)<===> ~A v ~B.");
     AbstractPrologTerm lastterm = null;
@@ -615,7 +615,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     operators.put("...", new OperatorContainer(Operator.makeOperator(1200, OperatorType.XF, "...")));
     final StubContext stubContext = new StubContext(operators);
 
-    final PrologStructure structure = (PrologStructure) new PrologParser(stubContext).nextSentence("(((hello....");
+    final PrologStructure structure = (PrologStructure) new EdinburghPrologParser(stubContext).nextSentence("(((hello....");
     assertEquals("...", structure.getFunctor().getText());
     assertEquals("(((", ((PrologStructure) structure.getElement(0)).getFunctor().getText());
     assertEquals("hello", ((PrologStructure) structure.getElement(0)).getElement(0).getText());
@@ -623,7 +623,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testOperatorNameAsAtomicFunctor() throws Exception {
-    final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("'mod'(_,_,_,_).");
+    final PrologStructure structure = (PrologStructure) new EdinburghPrologParser(null).nextSentence("'mod'(_,_,_,_).");
     assertEquals("mod", structure.getFunctor().getText());
     assertNotSame(structure.getFunctor().getType(), PrologTermType.OPERATOR);
     assertEquals(4, structure.getArity());
@@ -631,21 +631,21 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testOperatorNameAsFunctor_EmptyBrackets() {
-    final PrologParserException ex = assertThrows(PrologParserException.class, () -> new PrologParser(null).nextSentence("+()."));
+    final PrologParserException ex = assertThrows(PrologParserException.class, () -> new EdinburghPrologParser(null).nextSentence("+()."));
     assertEquals(2, ex.getStringPosition());
     assertEquals(1, ex.getLineNumber());
   }
 
   @Test
   public void testAtomAsFunctor_EmptyBrackets() {
-    final PrologParserException ex = assertThrows(PrologParserException.class, () -> new PrologParser(null).nextSentence("'hello'()."));
+    final PrologParserException ex = assertThrows(PrologParserException.class, () -> new EdinburghPrologParser(null).nextSentence("'hello'()."));
     assertEquals(8, ex.getStringPosition());
     assertEquals(1, ex.getLineNumber());
   }
 
   @Test
   public void testAtomInSequenceWithNameSimilarOperator() throws Exception {
-    final PrologStructure structure = (PrologStructure) new PrologParser(null).nextSentence("functor(1,2,3,mod,5,6).");
+    final PrologStructure structure = (PrologStructure) new EdinburghPrologParser(null).nextSentence("functor(1,2,3,mod,5,6).");
     assertEquals(6, structure.getArity());
     assertEquals("1", structure.getElement(0).getText());
     assertEquals("2", structure.getElement(1).getText());
@@ -672,7 +672,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
     buffer.append("].");
 
-    PrologList list = (PrologList) new PrologParser(null).nextSentence(buffer.toString());
+    PrologList list = (PrologList) new EdinburghPrologParser(null).nextSentence(buffer.toString());
 
     for (int i = 0; i < ELEMENTS; i++) {
       final PrologIntegerNumber head = (PrologIntegerNumber) list.getHead();
@@ -685,7 +685,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testHelloWorld() throws Exception {
-    final PrologParser parser = new PrologParser(null);
+    final EdinburghPrologParser parser = new EdinburghPrologParser(null);
     final PrologStructure rule = (PrologStructure) parser.nextSentence("hello :- world,!.");
     final PrologStructure and = (PrologStructure) rule.getElement(1);
     assertEquals("hello world!",rule.getElement(0).getText() + ' ' + and.getElement(0).getText() + and.getElement(1).getText());
@@ -708,7 +708,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
     buffer.append(").");
 
-    PrologStructure struct = (PrologStructure) new PrologParser(null).nextSentence(buffer.toString());
+    PrologStructure struct = (PrologStructure) new EdinburghPrologParser(null).nextSentence(buffer.toString());
 
     assertEquals(ELEMENTS, struct.getArity());
     assertEquals("test", struct.getFunctor().getText());
