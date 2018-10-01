@@ -40,7 +40,7 @@ public class PrologTermWrapperTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(testWrapped.getPriority(), testWrapper.getPriority());
+    assertEquals(testWrapped.getPrecedence(), testWrapper.getPrecedence());
   }
 
   @Test

@@ -597,7 +597,7 @@ public class GenericPrologParser {
                   readAtomContainer.getLineNumber(), readAtomContainer.getStringPosition());
             }
             // we have found needed operator so get its priority
-            readAtomPriority = readAtom.getPriority();
+            readAtomPriority = readAtom.getPrecedence();
           } else {
             readAtom = readOperator;
             final String operatorText = readOperator.getText();
@@ -630,10 +630,10 @@ public class GenericPrologParser {
                       charSource.getStrPos());
                 }
               } else {
-                readAtomPriority = readOperator.getPriority();
+                readAtomPriority = readOperator.getPrecedence();
               }
             } else {
-              readAtomPriority = readOperator.getPriority();
+              readAtomPriority = readOperator.getPrecedence();
             }
           }
         }

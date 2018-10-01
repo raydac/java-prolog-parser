@@ -133,7 +133,7 @@ public abstract class AbstractPrologTerm implements Serializable {
    *
    * @return the priority as integer
    */
-  public int getPriority() {
+  public int getPrecedence() {
     return 0;
   }
 

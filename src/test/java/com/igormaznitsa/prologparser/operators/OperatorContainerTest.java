@@ -27,7 +27,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
   @Test
   public void testGetPriority() {
     assertEquals(new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX,
-        "<>")).getPriority(), 0);
+        "<>")).getPrecedence(), 0);
   }
 
   @Test

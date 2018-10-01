@@ -72,7 +72,7 @@ public final class PrologAtom extends AbstractPrologTerm {
    * {@inheritDoc}
    */
   @Override
-  public int getPriority() {
+  public int getPrecedence() {
     return 0;
   }
 

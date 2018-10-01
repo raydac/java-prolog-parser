@@ -31,15 +31,15 @@ public class PrologStructureTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(new PrologStructure("hello").getPriority(), 0);
+    assertEquals(new PrologStructure("hello").getPrecedence(), 0);
     assertEquals(0,
-        new PrologStructure(new PrologAtom("hello")).getPriority());
+        new PrologStructure(new PrologAtom("hello")).getPrecedence());
 
     final Operator testOperator = Operator.makeOperator(666, OperatorType.FX, ":::");
 
     assertEquals(666,
         new PrologStructure(testOperator,
-            new AbstractPrologTerm[] {new PrologAtom("test")}).getPriority());
+            new AbstractPrologTerm[] {new PrologAtom("test")}).getPrecedence());
   }
 
   @Test

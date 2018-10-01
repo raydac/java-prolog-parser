@@ -31,7 +31,7 @@ public class OperatorTest extends AbstractPrologParserTest {
   @Test
   public void testGetPriority() {
     final Operator op = Operator.makeOperator(243, OperatorType.FX, "<>");
-    assertEquals(243, op.getPriority());
+    assertEquals(243, op.getPrecedence());
   }
 
   @Test
@@ -64,7 +64,7 @@ public class OperatorTest extends AbstractPrologParserTest {
       final Operator op = operators[li];
       assertNotNull(op);
       assertEquals(names[li], op.getText());
-      assertEquals(321, op.getPriority());
+      assertEquals(321, op.getPrecedence());
       assertEquals(OperatorType.XFX, op.getOperatorType());
     }
   }
@@ -81,7 +81,7 @@ public class OperatorTest extends AbstractPrologParserTest {
     assertThrows(IllegalArgumentException.class, () -> Operator.makeOperator(333, OperatorType.FX, "_hello"));
 
     final Operator operator = Operator.makeOperator(100, OperatorType.XFY, "<>");
-    assertEquals(100, operator.getPriority());
+    assertEquals(100, operator.getPrecedence());
     assertEquals(OperatorType.XFY, operator.getOperatorType());
     assertEquals("<>", operator.getText());
   }

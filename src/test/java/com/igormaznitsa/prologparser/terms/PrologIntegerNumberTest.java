@@ -115,7 +115,7 @@ public class PrologIntegerNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(0, new PrologIntegerNumber("97239847324").getPriority());
-    assertEquals(0, new PrologIntegerNumber(123L).getPriority());
+    assertEquals(0, new PrologIntegerNumber("97239847324").getPrecedence());
+    assertEquals(0, new PrologIntegerNumber(123L).getPrecedence());
   }
 }

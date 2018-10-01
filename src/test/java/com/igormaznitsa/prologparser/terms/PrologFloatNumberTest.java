@@ -72,8 +72,8 @@ public class PrologFloatNumberTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(0, new PrologFloatNumber(23412213.002131d).getPriority());
-    assertEquals(0, new PrologFloatNumber(-000.002131d).getPriority());
+    assertEquals(0, new PrologFloatNumber(23412213.002131d).getPrecedence());
+    assertEquals(0, new PrologFloatNumber(-000.002131d).getPrecedence());
   }
 
   @Test

@@ -363,7 +363,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
    * {@inheritDoc}
    */
   @Override
-  public int getPriority() {
+  public int getPrecedence() {
     return 0;
   }
 

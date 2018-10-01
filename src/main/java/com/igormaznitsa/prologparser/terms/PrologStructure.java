@@ -248,9 +248,9 @@ public class PrologStructure extends AbstractPrologTerm {
    * {@inheritDoc}
    */
   @Override
-  public int getPriority() {
+  public int getPrecedence() {
     if (functor.getType() == PrologTermType.OPERATOR) {
-      return functor.getPriority();
+      return functor.getPrecedence();
     } else {
       return 0;
     }
@@ -276,7 +276,7 @@ public class PrologStructure extends AbstractPrologTerm {
       // an operator based struct
       final Operator operatorFunctor = (Operator) functor;
       final String opName = operatorFunctor.getText();
-      final int priority = operatorFunctor.getPriority();
+      final int priority = operatorFunctor.getPrecedence();
 
       final String text1 = getElement(0).toString();
       final String text2 = getArity() > 1 ? getElement(1).toString()
@@ -286,7 +286,7 @@ public class PrologStructure extends AbstractPrologTerm {
         case FX: {
           builder.append(opName).append(' ');
 
-          if (getElement(0).getPriority() >= priority) {
+          if (getElement(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -297,7 +297,7 @@ public class PrologStructure extends AbstractPrologTerm {
           builder.append(opName);
           builder.append(' ');
 
-          if (getElement(0).getPriority() > priority) {
+          if (getElement(0).getPrecedence() > priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -305,7 +305,7 @@ public class PrologStructure extends AbstractPrologTerm {
         }
         break;
         case XF: {
-          if (getElement(0).getPriority() >= priority) {
+          if (getElement(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -315,7 +315,7 @@ public class PrologStructure extends AbstractPrologTerm {
         }
         break;
         case YF: {
-          if (getElement(0).getPriority() > priority) {
+          if (getElement(0).getPrecedence() > priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -325,7 +325,7 @@ public class PrologStructure extends AbstractPrologTerm {
         }
         break;
         case XFX: {
-          if (getElement(0).getPriority() >= priority) {
+          if (getElement(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -333,7 +333,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
           builder.append(' ').append(opName).append(' ');
 
-          if (getElement(1).getPriority() >= priority) {
+          if (getElement(1).getPrecedence() >= priority) {
             builder.append('(').append(text2).append(')');
           } else {
             builder.append(text2);
@@ -341,7 +341,7 @@ public class PrologStructure extends AbstractPrologTerm {
         }
         break;
         case YFX: {
-          if (getElement(0).getPriority() > priority) {
+          if (getElement(0).getPrecedence() > priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -349,7 +349,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
           builder.append(' ').append(opName).append(' ');
 
-          if (getElement(1).getPriority() >= priority) {
+          if (getElement(1).getPrecedence() >= priority) {
             builder.append('(').append(text2).append(')');
           } else {
             builder.append(text2);
@@ -357,7 +357,7 @@ public class PrologStructure extends AbstractPrologTerm {
         }
         break;
         case XFY: {
-          if (getElement(0).getPriority() >= priority) {
+          if (getElement(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -365,7 +365,7 @@ public class PrologStructure extends AbstractPrologTerm {
 
           builder.append(' ').append(opName).append(' ');
 
-          if (getElement(1).getPriority() > priority) {
+          if (getElement(1).getPrecedence() > priority) {
             builder.append('(').append(text2).append(')');
           } else {
             builder.append(text2);

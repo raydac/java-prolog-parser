@@ -81,7 +81,7 @@ public class AbstractPrologTermTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(0, new StubAbstractPrologTermTest("test").getPriority());
+    assertEquals(0, new StubAbstractPrologTermTest("test").getPrecedence());
   }
 
   @Test

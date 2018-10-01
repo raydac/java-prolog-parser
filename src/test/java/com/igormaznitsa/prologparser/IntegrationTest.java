@@ -450,16 +450,16 @@ public class IntegrationTest extends AbstractPrologParserTest {
     assertEquals(PrologTermType.STRUCT, lastterm.getType());
     assertEquals("<===>", lastterm.getText());
     assertEquals(2, ((PrologStructure) lastterm).getArity());
-    assertEquals(800, lastterm.getPriority());
+    assertEquals(800, lastterm.getPrecedence());
 
     final PrologStructure leftBranch = (PrologStructure) ((PrologStructure) lastterm).getElement(0);
     final PrologStructure rightBranch = (PrologStructure) ((PrologStructure) lastterm).getElement(1);
 
-    assertEquals(500, leftBranch.getPriority());
+    assertEquals(500, leftBranch.getPrecedence());
     assertEquals("~", leftBranch.getText());
     assertEquals(1, leftBranch.getArity());
 
-    assertEquals(700, rightBranch.getPriority());
+    assertEquals(700, rightBranch.getPrecedence());
     assertEquals("v", rightBranch.getText());
     assertEquals(2, rightBranch.getArity());
 
@@ -467,18 +467,18 @@ public class IntegrationTest extends AbstractPrologParserTest {
     final PrologStructure rightBranchL = (PrologStructure) rightBranch.getElement(0);
     final PrologStructure rightBranchR = (PrologStructure) rightBranch.getElement(1);
 
-    assertEquals(600, leftBranch2.getPriority());
+    assertEquals(600, leftBranch2.getPrecedence());
     assertEquals("&", leftBranch2.getText());
     assertEquals(2, leftBranch2.getArity());
     assertEquals("A", leftBranch2.getElement(0).getText());
     assertEquals("B", leftBranch2.getElement(1).getText());
 
-    assertEquals(500, rightBranchL.getPriority());
+    assertEquals(500, rightBranchL.getPrecedence());
     assertEquals("~", rightBranchL.getText());
     assertEquals(1, rightBranchL.getArity());
     assertEquals("A", rightBranchL.getElement(0).getText());
 
-    assertEquals(500, rightBranchR.getPriority());
+    assertEquals(500, rightBranchR.getPrecedence());
     assertEquals("~", rightBranchR.getText());
     assertEquals(1, rightBranchR.getArity());
     assertEquals("B", rightBranchR.getElement(0).getText());

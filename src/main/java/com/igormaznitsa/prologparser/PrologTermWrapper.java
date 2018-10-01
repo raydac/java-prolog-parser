@@ -62,8 +62,8 @@ final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheIte
   }
 
   @Override
-  public int getPriority() {
-    return wrappedTerm.getPriority();
+  public int getPrecedence() {
+    return wrappedTerm.getPrecedence();
   }
 
   @Override

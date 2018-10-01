@@ -26,7 +26,7 @@ public class PrologAtomTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(new PrologAtom("Hello").getPriority(), 0);
+    assertEquals(new PrologAtom("Hello").getPrecedence(), 0);
   }
 
   @Test

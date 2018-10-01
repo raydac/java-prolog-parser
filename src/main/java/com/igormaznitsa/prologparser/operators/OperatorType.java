@@ -20,12 +20,6 @@ import java.util.Optional;
 
 import static java.util.Arrays.stream;
 
-/**
- * The enumeration describes prolog operator types being used by the prolog
- * parser.
- *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
- */
 public enum OperatorType {
 
   XF("xf", 1),
@@ -36,50 +30,23 @@ public enum OperatorType {
   XFY("xfy", 2),
   YFX("yfx", 2);
 
-  /**
-   * The variable contains right prolog text representation of the type
-   */
   private final String text;
 
-  /**
-   * The variable saves the arity for the type.
-   */
   private final int arity;
 
-  /**
-   * The constructor to create an instance and set the right text
-   *
-   * @param text the right prolog text for the type, must not be null
-   */
   OperatorType(final String text, final int arity) {
     this.text = text;
     this.arity = arity;
   }
 
-  /**
-   * Find an operator type for its prolog text representation
-   *
-   * @param str the prolog text representation for the finding type
-   * @return found type or null if the type has not been found
-   */
   public static Optional<OperatorType> getForName(final String str) {
     return stream(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 
-  /**
-   * Get the arity for the type.
-   *
-   * @return the arity, it can be either 1 or 2
-   */
   public int getArity() {
     return this.arity;
   }
 
-  /**
-   * Get right prolog text representation
-   *
-   * @return the text as String
-   */
   public String getText() {
     return text;
   }

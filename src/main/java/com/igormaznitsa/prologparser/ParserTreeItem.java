@@ -116,7 +116,7 @@ public final class ParserTreeItem implements SoftCacheItem {
   int getPriority() {
     int result = 0;
     if (!insideBrakes) {
-      result = savedTerm.getPriority();
+      result = savedTerm.getPrecedence();
     }
     return result;
   }

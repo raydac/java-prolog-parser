@@ -104,7 +104,7 @@ public class PrologVariableTest extends AbstractPrologParserTest {
   @Test
   public void testGetPriority() {
     final PrologVariable var = new PrologVariable("Hello");
-    assertEquals(0, var.getPriority());
+    assertEquals(0, var.getPrecedence());
   }
 
   @Test

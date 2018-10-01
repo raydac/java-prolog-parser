@@ -29,7 +29,6 @@ import java.util.Locale;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  * @see OperatorDef
- * @see PrologOperators
  */
 public final class Operator extends AbstractPrologTerm {
 
@@ -73,7 +72,7 @@ public final class Operator extends AbstractPrologTerm {
   /**
    * The variable contains the operator priority value.
    */
-  private final int opPriority;
+  private final int opPrecedence;
   /**
    * The variable contains the pre-calculated hash code for the operator.
    */
@@ -83,9 +82,9 @@ public final class Operator extends AbstractPrologTerm {
    * The constructor. It has been hidden since 1.02 version because we must
    * avoid direct operator creation (!)
    *
-   * @param priority the operator priority 0..1200
-   * @param type     the operator type, must not be null
-   * @param name     the operator name, must not be null
+   * @param precedence the operator precedence 0..1200
+   * @param type       the operator type, must not be null
+   * @param name       the operator name, must not be null
    * @throws java.lang.IllegalArgumentException will be thrown if there is
    *                                            some incompatible value at arguments
    * @see OperatorType
@@ -94,7 +93,7 @@ public final class Operator extends AbstractPrologTerm {
    * @see Operator#makeOperators(int,
    * com.igormaznitsa.prologparser.operators.OperatorType, java.lang.String[])
    */
-  private Operator(final int priority, final OperatorType type,
+  private Operator(final int precedence, final OperatorType type,
                    final String name) {
     super(name);
 
@@ -122,26 +121,26 @@ public final class Operator extends AbstractPrologTerm {
     }
 
     opType = type;
-    opPriority = priority;
+    opPrecedence = precedence;
 
-    precalculatedHashCode = (name + "!" + this.opType + "!" + this.opPriority).hashCode();
+    precalculatedHashCode = (name + "!" + this.opType + "!" + this.opPrecedence).hashCode();
   }
 
   /**
    * This auxiliary function allows to generate a lot of similar operators
    * from a string array
    *
-   * @param priority the priority for all generated operators 0..1200
-   * @param type     the type for all generated operators, must not be null
-   * @param names    a string array contains names for new operators, must not be
-   *                 null
+   * @param precedence the precedence for all generated operators 0..1200
+   * @param type       the type for all generated operators, must not be null
+   * @param names      a string array contains names for new operators, must not be
+   *                   null
    * @return an array of new Operator objects which were generated for the
    * arguments and they have the same type and priority but different names.
    * @see OperatorType
    */
-  public static Operator[] makeOperators(final int priority,
+  public static Operator[] makeOperators(final int precedence,
                                          final OperatorType type, final String[] names) {
-    if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
+    if (precedence < PRIORITY_MAX || precedence > PRIORITY_MIN) {
       throw new IllegalArgumentException(
           "Priority must be in the PRIORITY_MAX(0)..PRIORITY_MIN(1200)");
     }
@@ -155,7 +154,7 @@ public final class Operator extends AbstractPrologTerm {
 
     final Operator[] result = new Operator[names.length];
     for (int li = 0; li < names.length; li++) {
-      result[li] = makeOperator(priority, type, names[li]);
+      result[li] = makeOperator(precedence, type, names[li]);
     }
     return result;
   }
@@ -165,31 +164,31 @@ public final class Operator extends AbstractPrologTerm {
    * parameters, it will generate new instance every time because there is not
    * any inside logic to cache instances(!).
    *
-   * @param priority the operator priority must be in the [1..1200] interval
-   * @param type     the operator type, must not be null
-   * @param name     the operator name, must not be null or empty
+   * @param precedence the operator precedence must be in the [1..1200] interval
+   * @param type       the operator type, must not be null
+   * @param name       the operator name, must not be null or empty
    * @return the new generated operator instance for arguments
    * @throws IllegalArgumentException if there is a wrong priority value
    */
-  public static Operator makeOperator(final int priority, final OperatorType type, final String name) {
-    if (priority < PRIORITY_MAX || priority > PRIORITY_MIN) {
+  public static Operator makeOperator(final int precedence, final OperatorType type, final String name) {
+    if (precedence < PRIORITY_MAX || precedence > PRIORITY_MIN) {
       throw new IllegalArgumentException("Wrong priority value");
     }
 
-    return new Operator(priority, type, name);
+    return new Operator(precedence, type, name);
   }
 
   /**
    * This inside factory method is used to generate operators without check of
    * their priority
    *
-   * @param priority the operator priority, it can be any integer value
-   * @param type     the operator type, it must not be null
-   * @param name     the operator name, it must not be null or empty
+   * @param precedence the operator priority, it can be any integer value
+   * @param type       the operator type, it must not be null
+   * @param name       the operator name, it must not be null or empty
    * @return the new generated operator instance
    */
-  private static Operator makeMetaOperator(final int priority, final OperatorType type, final String name) {
-    return new Operator(priority, type, name);
+  private static Operator makeMetaOperator(final int precedence, final OperatorType type, final String name) {
+    return new Operator(precedence, type, name);
   }
 
   /**
@@ -206,15 +205,15 @@ public final class Operator extends AbstractPrologTerm {
    * @return the operator type
    */
   public OperatorType getOperatorType() {
-    return opType;
+    return this.opType;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public int getPriority() {
-    return opPriority;
+  public int getPrecedence() {
+    return this.opPrecedence;
   }
 
   /**
@@ -230,7 +229,7 @@ public final class Operator extends AbstractPrologTerm {
 
       switch (struct.getArity()) {
         case 1:
-          switch (opType) {
+          switch (this.opType) {
             case XFY:
             case XFX:
             case YFX:
@@ -239,13 +238,13 @@ public final class Operator extends AbstractPrologTerm {
             case XF:
             case FX: {
               final AbstractPrologTerm atom = struct.getElement(0);
-              result = atom != null && atom.getPriority() < getPriority();
+              result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
             case YF:
             case FY: {
               final AbstractPrologTerm atom = struct.getElement(0);
-              result = atom != null && atom.getPriority() <= getPriority();
+              result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
             default:
@@ -253,7 +252,7 @@ public final class Operator extends AbstractPrologTerm {
           }
           break;
         case 2:
-          switch (opType) {
+          switch (this.opType) {
             case XFY:
             case XFX:
             case YFX:
@@ -264,18 +263,18 @@ public final class Operator extends AbstractPrologTerm {
                 result = false;
               } else {
 
-                switch (opType) {
+                switch (this.opType) {
                   case XFX:
-                    result = elementLeft.getPriority() < getPriority()
-                        && elementRight.getPriority() < getPriority();
+                    result = elementLeft.getPrecedence() < getPrecedence()
+                        && elementRight.getPrecedence() < getPrecedence();
                     break;
                   case YFX:
-                    result = elementLeft.getPriority() <= getPriority()
-                        && elementRight.getPriority() < getPriority();
+                    result = elementLeft.getPrecedence() <= getPrecedence()
+                        && elementRight.getPrecedence() < getPrecedence();
                     break;
                   case XFY:
-                    result = elementLeft.getPriority() < getPriority()
-                        && elementRight.getPriority() <= getPriority();
+                    result = elementLeft.getPrecedence() < getPrecedence()
+                        && elementRight.getPrecedence() <= getPrecedence();
                     break;
                   default:
                     result = false;
@@ -286,14 +285,14 @@ public final class Operator extends AbstractPrologTerm {
 
             case XF:
             case FX: {
-              final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.XF ? 0 : 1);
-              result = atom != null && atom.getPriority() < getPriority();
+              final AbstractPrologTerm atom = struct.getElement(this.opType == OperatorType.XF ? 0 : 1);
+              result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
             case YF:
             case FY: {
-              final AbstractPrologTerm atom = struct.getElement(opType == OperatorType.YF ? 0 : 1);
-              result = atom != null && atom.getPriority() <= getPriority();
+              final AbstractPrologTerm atom = struct.getElement(this.opType == OperatorType.YF ? 0 : 1);
+              result = atom != null && atom.getPrecedence() <= getPrecedence();
 
             }
             break;
@@ -333,10 +332,10 @@ public final class Operator extends AbstractPrologTerm {
       } else {
         if (obj instanceof Operator) {
           final Operator op = (Operator) obj;
-          if (op.precalculatedHashCode == precalculatedHashCode
-              && text.equals(op.text)
-              && opPriority == op.opPriority
-              && opType == op.opType) {
+          if (op.precalculatedHashCode == this.precalculatedHashCode
+              && this.text.equals(op.text)
+              && this.opPrecedence == op.opPrecedence
+              && this.opType == op.opType) {
             result = true;
           }
         }
@@ -351,12 +350,12 @@ public final class Operator extends AbstractPrologTerm {
    */
   @Override
   public String toString() {
-    return String.format("op(%d,%s,'%s').", getPriority(), getOperatorType().toString().toLowerCase(Locale.ENGLISH), getText());
+    return String.format("op(%d,%s,'%s').", getPrecedence(), getOperatorType().toString().toLowerCase(Locale.ENGLISH), getText());
   }
 
   // The method makes all system operators as singletons for serialization, but only system ones!
   private Object readResolve() {
-    final Object result = GenericPrologParser.findSystemOperatorForNameAndType(text, opType);
+    final Object result = GenericPrologParser.findSystemOperatorForNameAndType(this.text, this.opType);
     return result == null ? this : result;
   }
 }
