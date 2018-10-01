@@ -16,8 +16,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.annotations.PrologOperator;
-import com.igormaznitsa.prologparser.annotations.PrologOperators;
+import com.igormaznitsa.prologparser.operators.OperatorDef;
 
 /**
  * The enumeration contains all prolog term types being used by the prolog
@@ -48,7 +47,7 @@ public enum PrologTermType {
   /**
    * The constant describes a prolog operator
    *
-   * @see PrologOperator
+   * @see OperatorDef
    */
   OPERATOR,
   /**

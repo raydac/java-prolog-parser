@@ -35,7 +35,7 @@ public interface ParserContext {
    *                                   operator name (or whole operator name too)
    * @return true is there is an operator starts with the string, else false
    */
-  boolean hasOperatorStartsWith(AbstractPrologParser source, String operatorNameStartSubstring);
+  boolean hasOperatorStartsWith(GenericPrologParser source, String operatorNameStartSubstring);
 
   /**
    * Find an operator container in the context which name equals a string
@@ -44,7 +44,7 @@ public interface ParserContext {
    * @param operatorName a string to be used as whole operator name
    * @return an operator container if there is one for the name, else null
    */
-  OperatorContainer findOperatorForName(AbstractPrologParser source, String operatorName);
+  OperatorContainer findOperatorForName(GenericPrologParser source, String operatorName);
 
   /**
    * The method is being called when a parser wants to check that there is a
@@ -55,7 +55,7 @@ public interface ParserContext {
    * @param predicateName a string contains the predicate name
    * @return true if there is such predicate, else false
    */
-  boolean hasZeroArityPredicate(AbstractPrologParser source, String predicateName);
+  boolean hasZeroArityPredicate(GenericPrologParser source, String predicateName);
 
   /**
    * It will be called by parser every time as it has created a structure and
@@ -64,5 +64,5 @@ public interface ParserContext {
    * @param source    the calling prolog parser
    * @param structure the structure just created by the parser
    */
-  void processNewStructure(AbstractPrologParser source, PrologStructure structure);
+  void processNewStructure(GenericPrologParser source, PrologStructure structure);
 }

@@ -32,8 +32,11 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
  * @see OperatorContainer
  */
 final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheItem {
+
   private static final long serialVersionUID = 9006607815982718325L;
+
   private volatile AbstractPrologTerm wrappedTerm;
+
   private transient volatile SoftCache<PrologTermWrapper> ringBuffer;
 
   PrologTermWrapper() {
@@ -70,7 +73,7 @@ final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheIte
 
   @Override
   @SuppressWarnings("unchecked")
-  public void setSoftCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
+  public void setCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
     this.ringBuffer = (SoftCache<PrologTermWrapper>) ringBuffer;
   }
 
@@ -80,9 +83,9 @@ final class PrologTermWrapper extends AbstractPrologTerm implements SoftCacheIte
   }
 
   @Override
-  public void dispose() {
+  public void release() {
     if (this.ringBuffer != null) {
-      this.ringBuffer.dispose(this);
+      this.ringBuffer.tryPush(this);
     }
   }
 }

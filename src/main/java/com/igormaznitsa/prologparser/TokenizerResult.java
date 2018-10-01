@@ -71,14 +71,14 @@ public final class TokenizerResult implements SoftCacheItem {
   }
 
   @Override
-  public void setSoftCache(final SoftCache<? extends SoftCacheItem> owner) {
+  public void setCache(final SoftCache<? extends SoftCacheItem> owner) {
     this.ringBuffer = owner;
   }
 
   @Override
-  public void dispose() {
+  public void release() {
     if (ringBuffer != null) {
-      ringBuffer.dispose(this);
+      ringBuffer.tryPush(this);
     }
   }
 

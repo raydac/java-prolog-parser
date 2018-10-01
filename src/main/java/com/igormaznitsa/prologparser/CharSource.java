@@ -20,6 +20,7 @@ import com.igormaznitsa.prologparser.utils.StrBuffer;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -28,160 +29,168 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
 /**
- * The class is the main char data source for a prolog parser, the class adapts
- * different standard Java input stream classes to be used by a prolog parser.
- * The class is not thread safe so it must not be simultaneously used from
- * different threads.
+ * Source of char data for Prolog parser.
  *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
+ * @since 2.0.0
  */
 public class CharSource implements Closeable {
 
   private final Reader inReader;
-  private final StrBuffer insideCharBuffer = new StrBuffer(16);
-  private int strPosPrev;
-  private int lineNumPrev;
+  private final StrBuffer insideCharBuffer = new StrBuffer(32);
+  private int prevStrPos;
+  private int prevLineNum;
   private int strPos;
   private int lineNum;
 
-  public CharSource(final ReadableByteChannel channel, final Charset charset) {
-    this(new InputStreamReader(Channels.newInputStream(channel), charset));
-  }
-
-  public CharSource(final String str) {
-    this(new StringReader(str));
-  }
-
-  public CharSource(final Reader reader) {
+  protected CharSource(final Reader reader) {
     if (reader == null) {
       throw new NullPointerException("Reader must not be null");
     }
 
-    inReader = reader;
-    strPos = 1;
-    lineNum = 1;
-    strPosPrev = strPos;
-    lineNumPrev = lineNum;
+    this.inReader = reader;
+    this.strPos = 1;
+    this.lineNum = 1;
+    this.prevStrPos = 1;
+    this.prevLineNum = 1;
   }
 
+  public static CharSource of(final InputStream stream, final Charset charset) {
+    return new CharSource(new InputStreamReader(stream, charset));
+  }
+
+  public static CharSource of(final ReadableByteChannel channel, final Charset charset) {
+    return new CharSource(new InputStreamReader(Channels.newInputStream(channel), charset));
+  }
+
+  public static CharSource of(final String str) {
+    return new CharSource(new StringReader(str));
+  }
+
+  public static CharSource of(final Reader reader) {
+    return new CharSource(reader);
+  }
+
+  /**
+   * Read next char
+   *
+   * @return the next char or -1 if end of stream
+   * @throws IOException if problem during read
+   */
   public int read() throws IOException {
     int ch;
-    if (insideCharBuffer.isEmpty()) {
-      ch = inReader.read();
+    if (this.insideCharBuffer.isEmpty()) {
+      ch = this.inReader.read();
     } else {
-      ch = insideCharBuffer.popChar();
+      ch = this.insideCharBuffer.popChar();
     }
 
-    strPosPrev = strPos;
-    lineNumPrev = lineNum;
+    this.prevStrPos = this.strPos;
+    this.prevLineNum = this.lineNum;
     if (ch == '\n') {
-      strPos = 1;
-      lineNum++;
+      this.strPos = 1;
+      this.lineNum++;
     } else {
       if (ch >= 0) {
-        strPos++;
+        this.strPos++;
       }
     }
     return ch;
   }
 
   /**
-   * Push back the difference between an etalon string and a string buffer
-   * content. For instance if there are 'test' as the etalon and a string
-   * buffer containing 'testhello' then part 'hello' will be pushed back into
-   * inside buffer to be used in next read operations.
+   * Calculate difference between etalon string and a string buffer content
+   * since start of string and push all difference back into internal buffer
    *
-   * @param etalon an etalon string must not be null
-   * @param buffer a string buffer object, must not be null
+   * @param etalon etalon string must not be null
+   * @param buffer string buffer, must not be null
    */
   public void calcDiffAndPushResultBack(final String etalon, final StrBuffer buffer) {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 
-    int locStrPos = strPos;
-    int locStrPosPrev = strPosPrev;
-    int locLineNum = lineNum;
-    int locLineNumPrev = lineNumPrev;
+    int lstrpos = this.strPos;
+    int lstrposprev = this.prevStrPos;
+    int llinenum = this.lineNum;
+    int llinenumprev = this.prevLineNum;
 
     while (chars > 0) {
       final char ch = buffer.charAt(pos--);
       this.insideCharBuffer.pushChar(ch);
       chars--;
-      locStrPos--;
-      if (locStrPos < 1) {
-        locStrPos = 1;
+      lstrpos--;
+      if (lstrpos < 1) {
+        lstrpos = 1;
       }
-      locStrPosPrev = locStrPos;
+      lstrposprev = lstrpos;
       if (ch == '\n') {
-        locLineNum--;
-        if (locLineNum < 1) {
-          locLineNum = 1;
+        llinenum--;
+        if (llinenum < 1) {
+          llinenum = 1;
         }
-        locLineNumPrev = locLineNum;
+        llinenumprev = llinenum;
       }
     }
 
-    strPos = locStrPos;
-    strPosPrev = locStrPosPrev;
-    lineNum = locLineNum;
-    lineNumPrev = locLineNumPrev;
+    this.strPos = lstrpos;
+    this.prevStrPos = lstrposprev;
+    this.lineNum = llinenum;
+    this.prevLineNum = llinenumprev;
   }
 
   /**
-   * Get the previous line number, the first line is 1
+   * Get previous line number, the first line is 1
    *
-   * @return the previous line number
+   * @return previous line number
    */
-  public int getPrevLineNumber() {
-    return lineNumPrev;
+  public int getPrevLineNum() {
+    return this.prevLineNum;
   }
 
   /**
-   * Get the previous value of the next char string position indicator, the
+   * Get previous value of string position indicator, the
    * first char is 1
    *
-   * @return the previous value of the next char string position
+   * @return previous value of string position
    */
-  public int getPreviousNextCharStringPosition() {
-    return strPosPrev;
+  public int getPrevStrPos() {
+    return this.prevStrPos;
   }
 
   /**
    * Get current line number, the first line is 1
    *
-   * @return the line number as integer
+   * @return line number as integer
    */
-  public int getLineNumber() {
-    return lineNum;
+  public int getLineNum() {
+    return this.lineNum;
   }
 
   /**
-   * Get current next char string position, the first char is 1
+   * Get current string position, the first char is 1
    *
-   * @return the next char string position as integer
+   * @return the string position as integer
    */
-  public int getNextCharStringPosition() {
-    return strPos;
+  public int getStrPos() {
+    return this.strPos;
   }
 
   /**
-   * Push a char back into the inside buffer to be read into the next read
-   * operation
+   * Push back a char into inside buffer
    *
-   * @param ch the char to be placed into the inside buffer
+   * @param ch the char to be pushed back into inside buffer
    */
-  public void pushBack(final char ch) {
-    insideCharBuffer.pushChar(ch);
+  public void push(final char ch) {
+    this.insideCharBuffer.pushChar(ch);
     if (ch == '\n') {
-      strPos = 1;
-      lineNum--;
-      if (lineNum <= 0) {
-        lineNum = 1;
+      this.strPos = 1;
+      this.lineNum--;
+      if (this.lineNum <= 0) {
+        this.lineNum = 1;
       }
     } else {
-      strPos--;
-      if (strPos <= 0) {
-        strPos = 1;
+      this.strPos--;
+      if (this.strPos <= 0) {
+        this.strPos = 1;
       }
     }
   }

@@ -18,46 +18,41 @@ package com.igormaznitsa.prologparser.utils.ringbuffer;
 
 import java.util.function.Supplier;
 
+import static java.util.stream.IntStream.range;
+
 /**
  * The class implements a ring buffer allows to cache some items. But also the
  * buffer creates new items if there is not any free one for a request. It is
  * soft one because it can lost items if it is full and generate new ones if it
- * is empty. NB! It is not a thread-safe class
+ * is empty.
+ * NB! NOT THREAD SAFE!
  *
- * @param <T> the type of an item kept by the buffer
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
+ * @param <T> the type of cached element
  */
-public class SoftCache<T extends SoftCacheItem> {
+public class SoftCache<T extends SoftCacheItem> implements Supplier<T> {
 
-  /**
-   * The factory allows to create new items.
-   */
   private final Supplier<T> factory;
-  /**
-   * The inside buffer.
-   */
   private final SoftCacheItem[] buffer;
-  /**
-   * The max element index in the buffer.
-   */
-  private final int maxElementIndex;
-  /**
-   * The pointer to the first element in the buffer.
-   */
-  private int headPointer;
+  private final int limit;
+  private int head;
 
   /**
    * The constructor.
    *
-   * @param factory the factory to create new items, it must not be null.
-   * @param size    the size of the buffer.
+   * @param factory factory to create new items, it must not be null.
+   * @param limit   max allowed number of cached elements
    */
   @SuppressWarnings("unchecked")
-  public SoftCache(final Supplier<T> factory, final int size) {
+  public SoftCache(final Supplier<T> factory, final int limit) {
     this.factory = factory;
-    this.buffer = new SoftCacheItem[size];
-    this.maxElementIndex = size;
-    this.headPointer = 0;
+    this.buffer = new SoftCacheItem[limit];
+    range(0, limit).forEach(i -> {
+      T x = this.factory.get();
+      x.setCache(this);
+      this.buffer[i] = x;
+    });
+    this.limit = limit;
+    this.head = 0;
   }
 
   /**
@@ -65,35 +60,36 @@ public class SoftCache<T extends SoftCacheItem> {
    *
    * @return a cached item if it is detected in the cache or a new one.
    */
+  @Override
   @SuppressWarnings("unchecked")
   public T get() {
     T result;
-    int pointer = headPointer - 1;
+    int pointer = this.head - 1;
     if (pointer < 0) {
       // create new one
       result = factory.get();
-      result.setSoftCache(this);
+      result.setCache(this);
     } else {
-      result = (T) buffer[pointer];
-      headPointer = pointer;
+      result = (T) this.buffer[pointer];
+      this.head = pointer;
     }
     return result;
   }
 
   /**
-   * Dispose an item, place it into the buffer if there is a free place, drop
-   * the item otherwise.
+   * Try push element into cach if there is place
    *
-   * @param item an item to be disposed.
+   * @param item item to be pushed.
+   * @return true if element is pushed or false otherwise
    */
   @SuppressWarnings("unchecked")
-  public void dispose(final SoftCacheItem item) {
-    int pointer = headPointer;
-    if (pointer < maxElementIndex) {
-      final T ringitem = (T) item;
-      ringitem.reset();
-      buffer[pointer++] = ringitem;
-      headPointer = pointer;
+  public boolean tryPush(final SoftCacheItem item) {
+    boolean result = false;
+    if (this.head < this.limit) {
+      item.reset();
+      this.buffer[this.head++] = item;
+      result = true;
     }
+    return result;
   }
 }

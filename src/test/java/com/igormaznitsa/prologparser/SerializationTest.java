@@ -29,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SerializationTest {
   @Test
   public void testSerializationOperator() throws Exception {
-    final AbstractPrologParser parser = new EdinburghPrologParser(null);
+    final GenericPrologParser parser = new EdinburghPrologParser(null);
 
-    final CharSource source = new CharSource("a+b. c+d.");
+    final CharSource source = CharSource.of("a+b. c+d.");
 
     final PrologStructure first = (PrologStructure) parser.nextSentence(source);
     final PrologStructure second = (PrologStructure) parser.nextSentence(source);
@@ -62,7 +62,7 @@ public class SerializationTest {
 
   @Test
   public void testSerializationOfVariables() throws Exception {
-    final AbstractPrologParser parser = new EdinburghPrologParser(null);
+    final GenericPrologParser parser = new EdinburghPrologParser(null);
     final PrologStructure structure = (PrologStructure) parser.nextSentence("a(A,A).");
 
     assertNotSame(structure.getElement(0), structure.getElement(1));

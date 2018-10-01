@@ -16,13 +16,12 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.annotations.PrologOperator;
-import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OperatorDef;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
@@ -37,26 +36,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 
-/**
- * The class is a minimal hand-written prolog parser allows to parse incoming
- * char stream and make prolog structures. The Class process only minimal set of
- * base system operators - '(',')','|','[',']','.',','. All Extra operators can
- * be defined either through context or class successor. NB! Base system
- * operators are saved in static structures, use only parser class per JVM!
- * Don't try to make several successors of the class with different system
- * operators defined through annotations!
- * <p>
- * The class is thread safe.
- *
- * @since 1.3.3
- */
+import static java.util.Arrays.stream;
+
 @SuppressWarnings("serial")
-@PrologOperators(Operators = {
-    @PrologOperator(Priority = 1000, Type = OperatorType.XFY, Name = ",")})
-public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
+public class GenericPrologParser {
 
   /**
    * The Static map contains all system meta-operators for the parser (brackets,
@@ -145,8 +131,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
     OPERATOR_VERTICALBAR = new OperatorContainer(Operator.METAOPERATOR_VERTICAL_BAR);
     META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(), OPERATOR_VERTICALBAR);
 
-    SYSTEM_OPERATORS.clear();
-    SYSTEM_OPERATORS_PREFIXES.clear();
+    registerAsSystemOperators(OperatorDef.of(1000, OperatorType.XFY, ","));
 
     SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_DOT.getText());
     SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_BRACKET.getText());
@@ -155,7 +140,6 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
     SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_RIGHT_SQUARE_BRACKET.getText());
     SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_VERTICAL_BAR.getText());
 
-    readSystemOperators(AbstractPrologParser.class);
     OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
 
     OPERATORS_PHRASE = new SingleCharOperatorContainerMap(OPERATOR_DOT);
@@ -167,15 +151,9 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
     OPERATORS_SUBBLOCK = new SingleCharOperatorContainerMap(OPERATOR_RIGHTBRACKET);
   }
 
-  /**
-   * Inside cache for term wrappers.
-   */
-  private final SoftCache<PrologTermWrapper> cacheForTermWrappers = new TermWrapperCache(256);
-  /**
-   * Inside cache of array lists to accumulate AbstractPrologTerms
-   */
+  private final SoftCache<PrologTermWrapper> cacheForTermWrappers = new SoftCache<>(PrologTermWrapper::new, 256);
   private final ArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ArrayListCache<>();
-  private final SoftCache<ParserTreeItem> itemCache = new SoftCache<>(this, 128);
+  private final SoftCache<ParserTreeItem> itemCache = new SoftCache<>(() -> new ParserTreeItem(this), 128);
   /**
    * The tokenizer which is being used to tokenize the data stream.
    */
@@ -187,41 +165,35 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
   /**
    * The last reader which was used to read a prolog sentence.
    */
-  private CharSource prologReader;
+  private CharSource charSource;
+
+  protected static void registerAsSystemOperators(final OperatorDef... operators) {
+    final StrBuffer buff = new StrBuffer(10);
+    stream(operators).filter(Objects::nonNull).forEach(x -> {
+      stream(x.getNames()).forEach(n -> {
+        if (SYSTEM_OPERATORS.containsKey(n)) {
+          final OperatorContainer container = SYSTEM_OPERATORS.get(n);
+          container.addOperator(Operator.makeOperator(x.getPrecedence(),x.getType(), n));
+        } else {
+          final OperatorContainer container = new OperatorContainer(Operator.makeOperator(x.getPrecedence(), x.getType(), n));
+          SYSTEM_OPERATORS.put(n, container);
+        }
+        buff.clear();
+        for (final char c : n.toCharArray()) {
+          buff.append(c);
+          SYSTEM_OPERATORS_PREFIXES.add(buff.toString());
+        }
+      });
+    });
+  }
 
   /**
    * The constructor
    *
    * @param context the context for the parser, it can be null.
    */
-  public AbstractPrologParser(final ParserContext context) {
+  public GenericPrologParser(final ParserContext context) {
     this.context = context;
-  }
-
-  protected static void readSystemOperators(final Class<?> src) {
-
-    final PrologOperators operators = src.getAnnotation(PrologOperators.class);
-    if (operators != null) {
-      final StrBuffer accum = new StrBuffer(10);
-      for (final PrologOperator operator : operators.Operators()) {
-        if (SYSTEM_OPERATORS.containsKey(operator.Name())) {
-          final OperatorContainer container = SYSTEM_OPERATORS.get(operator.Name());
-          container.addOperator(Operator.makeOperator(operator.Priority(),
-              operator.Type(), operator.Name()));
-        } else {
-          final OperatorContainer container = new OperatorContainer(
-              Operator.makeOperator(operator.Priority(), operator.Type(),
-                  operator.Name()));
-          SYSTEM_OPERATORS.put(operator.Name(), container);
-        }
-
-        accum.clear();
-        for (char chr : operator.Name().toCharArray()) {
-          accum.append(chr);
-          SYSTEM_OPERATORS_PREFIXES.add(accum.toString());
-        }
-      }
-    }
   }
 
   /**
@@ -313,7 +285,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
    * @return the last used reader, it can be null
    */
   public CharSource getReader() {
-    return prologReader;
+    return charSource;
   }
 
   /**
@@ -344,7 +316,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
   public AbstractPrologTerm nextSentence(
       final CharSource reader) throws PrologParserException,
       IOException {
-    prologReader = reader;
+    charSource = reader;
     return this.nextSentence();
   }
 
@@ -364,12 +336,12 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
     if (result == null) {
       return null; // end_of_file
     }
-    final TokenizerResult endAtom = tokenizer.nextToken(this.prologReader, this);
+    final TokenizerResult endAtom = tokenizer.nextToken(this.charSource, this);
     if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
-      throw new PrologParserException("End operator is not found", this.prologReader.getLineNumber(),
-          this.prologReader.getNextCharStringPosition());
+      throw new PrologParserException("End operator is not found", this.charSource.getLineNum(),
+          this.charSource.getStrPos());
     }
-    endAtom.dispose();
+    endAtom.release();
     return result;
   }
 
@@ -394,9 +366,9 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
           return null;
         }
 
-        final TokenizerResult nextAtom = tokenizer.nextToken(prologReader, this);
+        final TokenizerResult nextAtom = tokenizer.nextToken(charSource, this);
         final String nextText = nextAtom.getResult().getText();
-        nextAtom.dispose();
+        nextAtom.release();
 
         final int firstCharCode = getFirstCharIfItIsSingle(nextText);
 
@@ -443,9 +415,9 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
       final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
       if (nextAtom != null) {
-        nextAtom.dispose();
+        nextAtom.release();
       }
-      nextAtom = tokenizer.nextToken(prologReader, this);
+      nextAtom = tokenizer.nextToken(charSource, this);
       final String text = nextAtom.getResult().getText();
 
       final int singleCharCode = getFirstCharIfItIsSingle(text);
@@ -479,8 +451,8 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
               tokenizer.getLastTokenStrPos());
         }
 
-        nextAtom.dispose();
-        nextAtom = tokenizer.nextToken(prologReader, this);
+        nextAtom.release();
+        nextAtom = tokenizer.nextToken(charSource, this);
         if (!nextAtom.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
           throw new PrologParserException(
               "Wrong end of the list tail",
@@ -555,10 +527,10 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
     while (true) {
       // read next atom from tokenizer
       if (readAtomContainer != null) {
-        readAtomContainer.dispose();
+        readAtomContainer.release();
       }
       readAtomContainer = tokenizer.nextToken(
-          prologReader, this);
+          charSource, this);
       boolean atBrakes = false;
 
       if (readAtomContainer == null) {
@@ -613,7 +585,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
               }
             }
 
-            final boolean rightPresented = !isEndOperator(tokenizer.peekToken(prologReader, this).getResult(), endOperators);
+            final boolean rightPresented = !isEndOperator(tokenizer.peekToken(charSource, this).getResult(), endOperators);
 
             readAtom = readOperators.findCompatibleOperator(leftPresented, rightPresented);
 
@@ -649,13 +621,13 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
                 readAtom.setLineNumber(readAtomContainer.getLineNumber());
                 readAtomPriority = 0;
 
-                final TokenizerResult token = tokenizer.nextToken(prologReader, this);
+                final TokenizerResult token = tokenizer.nextToken(charSource, this);
                 final AbstractPrologTerm closingAtom = token.getResult();
-                token.dispose();
+                token.release();
 
                 if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
-                  throw new PrologParserException("Non-closed brakes", prologReader.getLineNumber(),
-                      prologReader.getNextCharStringPosition());
+                  throw new PrologParserException("Non-closed brakes", charSource.getLineNum(),
+                      charSource.getStrPos());
                 }
               } else {
                 readAtomPriority = readOperator.getPriority();
@@ -672,14 +644,14 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
         }
         break;
         default: {
-          final TokenizerResult nextToken = tokenizer.nextToken(prologReader, this);
+          final TokenizerResult nextToken = tokenizer.nextToken(charSource, this);
           if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
             final int nextTokenLineNumber = nextToken.getLineNumber();
             final int nextTokenStrPosition = nextToken.getStringPosition();
 
             // it is a structure
             if (readAtom.getType() == PrologTermType.ATOM) {
-              nextToken.dispose();
+              nextToken.release();
               readAtom = readStruct(readAtom);
               if (readAtom == null) {
                 // we have met the empty brackets, it disallowed by Prolog
@@ -796,30 +768,9 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
    * @throws IOException thrown if any error
    */
   public void close() throws IOException {
-    if (prologReader != null) {
-      prologReader.close();
-      prologReader = null;
-    }
-  }
-
-  @Override
-  public ParserTreeItem get() {
-    return new ParserTreeItem(this);
-  }
-
-  private static final class TermWrapperCacheFactory implements Supplier<PrologTermWrapper> {
-
-    @Override
-    public PrologTermWrapper get() {
-      return new PrologTermWrapper();
-    }
-  }
-
-  private static final class TermWrapperCache extends SoftCache<PrologTermWrapper> {
-    private static final TermWrapperCacheFactory factory = new TermWrapperCacheFactory();
-
-    public TermWrapperCache(int size) {
-      super(factory, size);
+    if (this.charSource != null) {
+      this.charSource.close();
+      this.charSource = null;
     }
   }
 }

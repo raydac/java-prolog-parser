@@ -35,7 +35,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   private final PrologTokenizer tokenizer = new PrologTokenizer();
   private final ParserContext mockContext = mock(ParserContext.class);
-  private final AbstractPrologParser mockPrologParser = mock(AbstractPrologParser.class);
+  private final GenericPrologParser mockPrologParser = mock(GenericPrologParser.class);
 
   @BeforeEach
   public void before() {
@@ -57,7 +57,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
   public void testPeekToken() throws Exception {
     assertThrows(NullPointerException.class, () -> tokenizer.peekToken(null, mockPrologParser));
 
-    final CharSource reader = new CharSource("hello world");
+    final CharSource reader = CharSource.of("hello world");
 
     assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
     assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
@@ -74,7 +74,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetLastTokenStrPos() throws Exception {
-    final CharSource reader = new CharSource(
+    final CharSource reader = CharSource.of(
         "aaa%it's a comment string nd we must skip it until the next string char \n     123 \'hello\'");
     assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
     assertEquals(1, tokenizer.getLastTokenStrPos());
@@ -86,7 +86,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetLastTokenLineNum() throws Exception {
-    final CharSource reader = new CharSource(
+    final CharSource reader = CharSource.of(
         "212\n%it's a comment string nd we must skip it until the next string char \n     123\n\'hello\'");
     assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
     assertEquals(1, tokenizer.getLastTokenLineNum());
@@ -99,8 +99,8 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
   @Test
   public void testFixPosition() {
     final CharSource mockReader = mock(CharSource.class);
-    when(mockReader.getLineNumber()).thenReturn(12);
-    when(mockReader.getNextCharStringPosition()).thenReturn(34);
+    when(mockReader.getLineNum()).thenReturn(12);
+    when(mockReader.getStrPos()).thenReturn(34);
 
     assertEquals(0, tokenizer.getLastTokenStrPos());
     assertEquals(0, tokenizer.getLastTokenLineNum());
@@ -113,11 +113,11 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testSkipUntilNextString() throws Exception {
-    final CharSource reader = new CharSource(
+    final CharSource reader = CharSource.of(
         "it's a comment string so we must skip it until the next string char \n123");
     tokenizer.skipUntilNextString(reader);
-    assertEquals(2, reader.getLineNumber());
-    assertEquals(1, reader.getNextCharStringPosition());
+    assertEquals(2, reader.getLineNum());
+    assertEquals(1, reader.getStrPos());
     final TokenizerResult result = tokenizer.nextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals("123", result.getResult().getText());
@@ -128,7 +128,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
     assertThrows(NullPointerException.class, () -> tokenizer.nextToken(null, mockPrologParser));
 
-    CharSource reader = new CharSource(
+    CharSource reader = CharSource.of(
         "     123 222.34 \n111.2e+4 \'string\' \n:- Variable _var _ :--");
 
     TokenizerResult result = tokenizer.nextToken(reader, mockPrologParser);
@@ -183,7 +183,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
     assertNull(tokenizer.nextToken(reader, mockPrologParser));
 
-    reader = new CharSource(Long.toString(Long.MIN_VALUE + 1) + ' ' + Long.toString(Long.MAX_VALUE));
+    reader = CharSource.of(Long.toString(Long.MIN_VALUE + 1) + ' ' + Long.toString(Long.MAX_VALUE));
 
     result = tokenizer.nextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
@@ -195,7 +195,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals(Long.MAX_VALUE, ((PrologIntegerNumber) result.getResult()).getValue().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
     try {
-      tokenizer.nextToken(new CharSource("    \n    \'unclosed string"), null);
+      tokenizer.nextToken(CharSource.of("    \n    \'unclosed string"), null);
     } catch (PrologParserException ex) {
       assertEquals(2, ex.getLineNumber());
       assertEquals(5, ex.getStringPosition());
@@ -266,7 +266,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
   public void testHasOperatorStartsWith() {
     assertFalse(PrologTokenizer.hasOperatorStartsWith("<------------------------------------------------------->", null));
 
-    when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), eq("start_with"))).thenReturn(true);
+    when(mockContext.hasOperatorStartsWith(any(GenericPrologParser.class), eq("start_with"))).thenReturn(true);
 
     assertTrue(PrologTokenizer.hasOperatorStartsWith(":", mockPrologParser));
     assertFalse(PrologTokenizer.hasOperatorStartsWith("sstart_with", mockPrologParser));
@@ -280,7 +280,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
     final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX, "some_operator"));
 
-    when(mockContext.findOperatorForName(any(AbstractPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
+    when(mockContext.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 
     final OperatorContainer systemOne = PrologTokenizer.findOperatorForName(":-", mockPrologParser);
     assertNotNull(systemOne);

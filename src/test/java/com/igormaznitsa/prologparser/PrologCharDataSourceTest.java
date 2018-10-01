@@ -33,10 +33,10 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceString() throws Exception {
-    assertThrows(NullPointerException.class, () -> new CharSource((String) null));
+    assertThrows(NullPointerException.class, () -> CharSource.of((String) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
-    final CharSource reader = new CharSource(testString);
+    final CharSource reader = CharSource.of(testString);
     for (final char chr : testString.toCharArray()) {
       assertEquals((int) chr, reader.read());
     }
@@ -45,11 +45,11 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceReadableByteChannel() throws Exception {
-    assertThrows(NullPointerException.class, () -> new CharSource((ReadableByteChannel) null, StandardCharsets.US_ASCII));
+    assertThrows(NullPointerException.class, () -> CharSource.of((ReadableByteChannel) null, StandardCharsets.US_ASCII));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(StandardCharsets.UTF_8));
-    final CharSource reader = new CharSource(Channels.newChannel(inStream), StandardCharsets.UTF_8);
+    final CharSource reader = CharSource.of(Channels.newChannel(inStream), StandardCharsets.UTF_8);
 
     for (final char chr : testString.toCharArray()) {
       assertEquals((int) chr, reader.read());
@@ -101,19 +101,19 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     }
 
     assertEquals(-1, reader.read());
-    assertEquals(1, reader.getLineNumber());
-    assertEquals(11, reader.getNextCharStringPosition());
+    assertEquals(1, reader.getLineNum());
+    assertEquals(11, reader.getStrPos());
     reader.calcDiffAndPushResultBack("test", new StrBuffer("testworld"));
-    assertEquals(1, reader.getLineNumber());
-    assertEquals(6, reader.getNextCharStringPosition());
+    assertEquals(1, reader.getLineNum());
+    assertEquals(6, reader.getStrPos());
     for (final char chr : "world".toCharArray()) {
       assertEquals((int) chr, reader.read());
     }
     assertEquals(-1, reader.read());
 
-    assertEquals(1, reader.getLineNumber());
+    assertEquals(1, reader.getLineNum());
     reader.calcDiffAndPushResultBack("test", new StrBuffer("test\n"));
-    assertEquals(1, reader.getLineNumber());
+    assertEquals(1, reader.getLineNum());
   }
 
   @Test
@@ -121,15 +121,15 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     final Reader inStream = new StringReader("a\n\n\n\n\n\n\n");
     final CharSource reader = new CharSource(inStream);
 
-    assertEquals(1, reader.getPrevLineNumber());
+    assertEquals(1, reader.getPrevLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getPrevLineNumber());
+    assertEquals(1, reader.getPrevLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getPrevLineNumber());
+    assertEquals(1, reader.getPrevLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(2, reader.getPrevLineNumber());
+    assertEquals(2, reader.getPrevLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(3, reader.getPrevLineNumber());
+    assertEquals(3, reader.getPrevLineNum());
   }
 
   @Test
@@ -137,41 +137,41 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     final Reader inStream = new StringReader("a\n\n\n\n\n\n\n");
     final CharSource reader = new CharSource(inStream);
 
-    assertEquals(1, reader.getPreviousNextCharStringPosition());
+    assertEquals(1, reader.getPrevStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getPreviousNextCharStringPosition());
+    assertEquals(1, reader.getPrevStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(2, reader.getPreviousNextCharStringPosition());
+    assertEquals(2, reader.getPrevStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getPreviousNextCharStringPosition());
+    assertEquals(1, reader.getPrevStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getPreviousNextCharStringPosition());
+    assertEquals(1, reader.getPrevStrPos());
   }
 
   @Test
   public void testGetLineNumber() throws Exception {
     Reader inStream = new StringReader("a\n\n\n\n\n\n\n");
     CharSource reader = new CharSource(inStream);
-    assertEquals(1, reader.getLineNumber());
+    assertEquals(1, reader.getLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getLineNumber());
+    assertEquals(1, reader.getLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(2, reader.getLineNumber());
+    assertEquals(2, reader.getLineNum());
     assertTrue(reader.read() >= 0);
-    assertEquals(3, reader.getLineNumber());
+    assertEquals(3, reader.getLineNum());
   }
 
   @Test
   public void testGetNextCharStringPosition() throws Exception {
     Reader inStream = new StringReader("12\n67890");
     CharSource reader = new CharSource(inStream);
-    assertEquals(1, reader.getNextCharStringPosition());
+    assertEquals(1, reader.getStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(2, reader.getNextCharStringPosition());
+    assertEquals(2, reader.getStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(3, reader.getNextCharStringPosition());
+    assertEquals(3, reader.getStrPos());
     assertTrue(reader.read() >= 0);
-    assertEquals(1, reader.getNextCharStringPosition());
+    assertEquals(1, reader.getStrPos());
   }
 
   @Test
@@ -181,26 +181,26 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     for (int li = 0; li < 11; li++) {
       assertTrue(reader.read() >= 0);
     }
-    assertEquals(2, reader.getLineNumber());
-    assertEquals(6, reader.getNextCharStringPosition());
-    reader.pushBack('o');
-    reader.pushBack('\n');
-    reader.pushBack('l');
-    reader.pushBack('e');
-    reader.pushBack('h');
-    assertEquals(1, reader.getLineNumber());
-    assertEquals(1, reader.getNextCharStringPosition());
+    assertEquals(2, reader.getLineNum());
+    assertEquals(6, reader.getStrPos());
+    reader.push('o');
+    reader.push('\n');
+    reader.push('l');
+    reader.push('e');
+    reader.push('h');
+    assertEquals(1, reader.getLineNum());
+    assertEquals(1, reader.getStrPos());
     for (char chr : "hel\no".toCharArray()) {
       assertEquals(chr, (char) reader.read());
     }
     assertEquals(-1, reader.read());
 
-    reader.pushBack('\n');
-    reader.pushBack('\n');
-    reader.pushBack('\n');
-    reader.pushBack('\n');
-    reader.pushBack('\n');
-    assertEquals(1, reader.getLineNumber());
+    reader.push('\n');
+    reader.push('\n');
+    reader.push('\n');
+    reader.push('\n');
+    reader.push('\n');
+    assertEquals(1, reader.getLineNum());
   }
 
   @Test

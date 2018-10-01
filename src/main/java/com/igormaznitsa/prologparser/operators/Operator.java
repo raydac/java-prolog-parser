@@ -16,9 +16,7 @@
 
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.AbstractPrologParser;
-import com.igormaznitsa.prologparser.annotations.PrologOperator;
-import com.igormaznitsa.prologparser.annotations.PrologOperators;
+import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
@@ -30,7 +28,7 @@ import java.util.Locale;
  * The class describes a prolog operator for the prolog parser.
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
- * @see PrologOperator
+ * @see OperatorDef
  * @see PrologOperators
  */
 public final class Operator extends AbstractPrologTerm {
@@ -358,7 +356,7 @@ public final class Operator extends AbstractPrologTerm {
 
   // The method makes all system operators as singletons for serialization, but only system ones!
   private Object readResolve() {
-    final Object result = AbstractPrologParser.findSystemOperatorForNameAndType(text, opType);
+    final Object result = GenericPrologParser.findSystemOperatorForNameAndType(text, opType);
     return result == null ? this : result;
   }
 }

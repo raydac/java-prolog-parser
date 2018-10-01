@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.AbstractPrologParser;
+import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -55,7 +55,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         new PrologAtom("first"), new PrologFloatNumber(123d),
         new PrologList(), new PrologVariable()}).toString());
 
-    final Map<String, OperatorContainer> systemOperators = AbstractPrologParser.getSystemOperators();
+    final Map<String, OperatorContainer> systemOperators = GenericPrologParser.getSystemOperators();
     assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").getOperatorForType(OperatorType.XFX),
         new AbstractPrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());

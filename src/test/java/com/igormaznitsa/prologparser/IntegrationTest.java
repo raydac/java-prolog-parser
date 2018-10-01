@@ -488,8 +488,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testParseFileAsChannel() throws Exception {
-    final CharSource reader = new CharSource(
-        Channels.newChannel(getClass().getResourceAsStream("sec812.pro")), StandardCharsets.UTF_8);
+    final CharSource reader = CharSource.of(getClass().getResourceAsStream("sec812.pro"), StandardCharsets.UTF_8);
     AbstractPrologTerm term = null;
     int index = 0;
     try {
@@ -515,8 +514,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
       reader.close();
     }
 
-    final CharSource reader2 = new CharSource(
-        Channels.newChannel(getClass().getResourceAsStream("sec816.pro")), StandardCharsets.UTF_8);
+    final CharSource reader2 = CharSource.of(Channels.newChannel(getClass().getResourceAsStream("sec816.pro")), StandardCharsets.UTF_8);
     try {
       term = parser.nextSentence(reader2);
       assertNotNull(term);
@@ -728,7 +726,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Override
-    public boolean hasOperatorStartsWith(final AbstractPrologParser source,
+    public boolean hasOperatorStartsWith(final GenericPrologParser source,
                                          final String operatorNameStartSubstring) {
       for (final String string : operators.keySet()) {
         if (string.startsWith(operatorNameStartSubstring)) {
@@ -740,18 +738,18 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Override
-    public OperatorContainer findOperatorForName(final AbstractPrologParser source,
+    public OperatorContainer findOperatorForName(final GenericPrologParser source,
                                                  final String operatorName) {
       return operators.get(operatorName);
     }
 
     @Override
-    public boolean hasZeroArityPredicate(final AbstractPrologParser source, final String predicateName) {
+    public boolean hasZeroArityPredicate(final GenericPrologParser source, final String predicateName) {
       return false;
     }
 
     @Override
-    public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
+    public void processNewStructure(final GenericPrologParser source, final PrologStructure structure) {
     }
   }
 

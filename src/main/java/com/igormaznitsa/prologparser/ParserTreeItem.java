@@ -38,7 +38,7 @@ public final class ParserTreeItem implements SoftCacheItem {
   /**
    * The link to the owner parser for the item.
    */
-  private final AbstractPrologParser parser;
+  private final GenericPrologParser parser;
   private SoftCache<ParserTreeItem> ringBuffer;
   /**
    * The term saved by the item.
@@ -66,7 +66,7 @@ public final class ParserTreeItem implements SoftCacheItem {
    *
    * @param parser the parser processes the item, it must not be null
    */
-  ParserTreeItem(final AbstractPrologParser parser) {
+  ParserTreeItem(final GenericPrologParser parser) {
     this.parser = parser;
     this.setData(null, null, false, -1, -1);
   }
@@ -352,7 +352,7 @@ public final class ParserTreeItem implements SoftCacheItem {
           }
           result = operatorStruct;
         } finally {
-          wrapper.dispose();
+          wrapper.release();
         }
       }
       break;
@@ -369,21 +369,21 @@ public final class ParserTreeItem implements SoftCacheItem {
       break;
     }
 
-    dispose();
+    release();
 
     return result;
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public void setSoftCache(final SoftCache<?> owner) {
+  public void setCache(final SoftCache<?> owner) {
     this.ringBuffer = (SoftCache<ParserTreeItem>) owner;
   }
 
   @Override
-  public void dispose() {
+  public void release() {
     if (this.ringBuffer != null) {
-      this.ringBuffer.dispose(this);
+      this.ringBuffer.tryPush(this);
     }
   }
 }

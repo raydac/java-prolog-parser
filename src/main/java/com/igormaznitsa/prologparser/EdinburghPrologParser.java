@@ -1,78 +1,26 @@
-/*
- * Copyright 2015 Igor Maznitsa.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.annotations.PrologOperator;
-import com.igormaznitsa.prologparser.annotations.PrologOperators;
 import com.igormaznitsa.prologparser.operators.OperatorType;
 
-/**
- * Parser with predefined system operators for Edinburgh prolog.
- */
-@PrologOperators(Operators = {
-    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = ":-"),
-    @PrologOperator(Priority = 1200, Type = OperatorType.XFX, Name = "-->"),
-    @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = "?-"),
-    @PrologOperator(Priority = 1200, Type = OperatorType.FX, Name = ":-"),
-    @PrologOperator(Priority = 1100, Type = OperatorType.XFY, Name = ";"),
-    @PrologOperator(Priority = 1050, Type = OperatorType.XFY, Name = "->"),
-    @PrologOperator(Priority = 900, Type = OperatorType.FY, Name = "\\+"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "\\=="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@=<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "@>="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=.."),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "is"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=:="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=\\="),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = "=<"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">"),
-    @PrologOperator(Priority = 700, Type = OperatorType.XFX, Name = ">="),
-    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "+"),
-    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "-"),
-    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "/\\"),
-    @PrologOperator(Priority = 500, Type = OperatorType.YFX, Name = "\\/"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "*"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "/"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "//"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "<<"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = ">>"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "rem"),
-    @PrologOperator(Priority = 400, Type = OperatorType.YFX, Name = "mod"),
-    @PrologOperator(Priority = 200, Type = OperatorType.XFX, Name = "**"),
-    @PrologOperator(Priority = 200, Type = OperatorType.XFY, Name = "^"),
-    @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "-"),
-    @PrologOperator(Priority = 200, Type = OperatorType.FY, Name = "\\")})
-public final class EdinburghPrologParser extends AbstractPrologParser {
+import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
+
+public class EdinburghPrologParser extends GenericPrologParser {
 
   static {
-    readSystemOperators(EdinburghPrologParser.class);
+    registerAsSystemOperators(of(1200, OperatorType.XFX, ":-", "-->"),
+        of(1200, OperatorType.FX, "?-", ":-"),
+        of(1100, OperatorType.XFY, ";"),
+        of(1150, OperatorType.XFY, "->"),
+        of(900, OperatorType.FY, "\\+"),
+        of(700, OperatorType.XFX, "=", "\\=", "==", "\\==", "@<", "@=<", "@>", "@>+", "=..", "is", "=:=", "=\\=", "<", "=<", ">", ">="),
+        of(500, OperatorType.YFX, "+", "-", "/\\", "\\/"),
+        of(400, OperatorType.YFX, "*", "/", "//", "<<", ">>", "rem", "mod"),
+        of(200, OperatorType.XFX, "**"),
+        of(200, OperatorType.XFY, "^"),
+        of(200, OperatorType.FY, "-"),
+        of(200, OperatorType.FY, "\\"));
   }
 
-  /**
-   * The constructor
-   *
-   * @param context the context for the parser, it can be null.
-   */
   public EdinburghPrologParser(final ParserContext context) {
     super(context);
   }

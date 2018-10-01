@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.AbstractPrologParser;
+import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.reset;
 public class PrologTermTest extends AbstractPrologParserTest {
 
   final ParserContext mock = mock(ParserContext.class);
-  final AbstractPrologParser parser = new EdinburghPrologParser(mock);
+  final GenericPrologParser parser = new EdinburghPrologParser(mock);
 
   @BeforeEach
   public void beforeTest() {
