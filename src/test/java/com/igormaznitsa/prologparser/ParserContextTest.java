@@ -44,7 +44,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     Mockito.when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
     final AbstractPrologParser parser = new EdinburghPrologParser(mockContext);
-    final PrologCharDataSource reader = new PrologCharDataSource("a operator b.");
+    final CharSource reader = new CharSource("a operator b.");
 
     assertThrows(PrologParserException.class, () -> parser.nextSentence(reader));
 
@@ -73,7 +73,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     Mockito.when(mockContext.hasOperatorStartsWith(any(AbstractPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
     final AbstractPrologParser parser = new EdinburghPrologParser(mockContext);
-    final PrologCharDataSource reader = new PrologCharDataSource("operator.");
+    final CharSource reader = new CharSource("operator.");
     final PrologAtom atom = (PrologAtom) parser.nextSentence(reader);
     assertEquals("operator", atom.getText());
 
@@ -124,7 +124,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     };
 
     final AbstractPrologParser parser = new EdinburghPrologParser(stubContext);
-    final PrologCharDataSource reader = new PrologCharDataSource("test(1,2,3).foo.ttt(5). a :- b.");
+    final CharSource reader = new CharSource("test(1,2,3).foo.ttt(5). a :- b.");
     while (parser.nextSentence(reader) != null) {
     }
 

@@ -32,6 +32,7 @@ import com.igormaznitsa.prologparser.utils.ArrayListCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -186,7 +187,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
   /**
    * The last reader which was used to read a prolog sentence.
    */
-  private PrologCharDataSource prologReader;
+  private CharSource prologReader;
 
   /**
    * The constructor
@@ -311,7 +312,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
    *
    * @return the last used reader, it can be null
    */
-  public PrologCharDataSource getReader() {
+  public CharSource getReader() {
     return prologReader;
   }
 
@@ -325,7 +326,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
    */
   public AbstractPrologTerm nextSentence(final String str)
       throws IOException, PrologParserException {
-    return this.nextSentence(new PrologCharDataSource(str));
+    return this.nextSentence(new CharSource(new StringReader(str)));
   }
 
   /**
@@ -341,7 +342,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
    * @throws IOException           it will be thrown if there is any transport error
    */
   public AbstractPrologTerm nextSentence(
-      final PrologCharDataSource reader) throws PrologParserException,
+      final CharSource reader) throws PrologParserException,
       IOException {
     prologReader = reader;
     return this.nextSentence();

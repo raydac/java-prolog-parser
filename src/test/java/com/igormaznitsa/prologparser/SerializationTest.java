@@ -31,7 +31,7 @@ public class SerializationTest {
   public void testSerializationOperator() throws Exception {
     final AbstractPrologParser parser = new EdinburghPrologParser(null);
 
-    final PrologCharDataSource source = new PrologCharDataSource("a+b. c+d.");
+    final CharSource source = new CharSource("a+b. c+d.");
 
     final PrologStructure first = (PrologStructure) parser.nextSentence(source);
     final PrologStructure second = (PrologStructure) parser.nextSentence(source);

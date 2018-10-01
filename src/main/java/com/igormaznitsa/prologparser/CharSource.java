@@ -18,6 +18,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.utils.StrBuffer;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +27,7 @@ import java.io.StringReader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * The class is the main char data source for a prolog parser, the class adapts
@@ -35,71 +37,24 @@ import java.nio.charset.Charset;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-public class PrologCharDataSource {
+public class CharSource implements Closeable {
 
-  /**
-   * The text reader which is being used by the reader to read incoming text
-   * data
-   */
   private final Reader inReader;
-  /**
-   * Inside char stack to save back-pushed data
-   */
   private final StrBuffer insideCharBuffer = new StrBuffer(16);
-  /**
-   * The variable contains the previous value of the string position indicator
-   */
   private int strPosPrev;
-  /**
-   * The variable contains the previous position of the line number indicator
-   */
   private int lineNumPrev;
-  /**
-   * The variable contains current value of the string position indicator
-   */
   private int strPos;
-  /**
-   * The variable contains current value of the line number indicator
-   */
   private int lineNum;
 
-  /**
-   * A constructor. To make a reader based on a String object.
-   *
-   * @param string A string object which will be used as the source for the
-   *               reader, must not be null
-   */
-  public PrologCharDataSource(final String string) {
-    this(new StringReader(string));
+  public CharSource(final ReadableByteChannel channel, final Charset charset) {
+    this(new InputStreamReader(Channels.newInputStream(channel), charset));
   }
 
-  /**
-   * A constructor. To make a reader based on an input stream (with the
-   * default charset!)
-   *
-   * @param inStream an input stream object which will be used as the source
-   *                 for the reader, must not be null
-   */
-  public PrologCharDataSource(final InputStream inStream) {
-    this(new InputStreamReader(inStream, Charset.defaultCharset()));
+  public CharSource(final String str) {
+    this(new StringReader(str));
   }
 
-  /**
-   * A constructor. To make a reader based on a channel
-   *
-   * @param channel the channel to be used as the data source, must not be
-   *                null
-   */
-  public PrologCharDataSource(final ReadableByteChannel channel) {
-    this(Channels.newInputStream(channel));
-  }
-
-  /**
-   * A constructor. To make a reader based on a java reader object.
-   *
-   * @param reader a java reader object, must not be null
-   */
-  public PrologCharDataSource(final Reader reader) {
+  public CharSource(final Reader reader) {
     if (reader == null) {
       throw new NullPointerException("Reader must not be null");
     }
@@ -111,13 +66,6 @@ public class PrologCharDataSource {
     lineNumPrev = lineNum;
   }
 
-  /**
-   * Read next char code from the reader
-   *
-   * @return the next char code or -1 if the stream end has been reached
-   * @throws IOException it will be thrown if there is any transport error
-   *                     during the operation
-   */
   public int read() throws IOException {
     int ch;
     if (insideCharBuffer.isEmpty()) {
@@ -240,13 +188,8 @@ public class PrologCharDataSource {
     }
   }
 
-  /**
-   * Close the current reader
-   *
-   * @throws IOException it will be thrown if there is any error during the
-   *                     operation
-   */
+  @Override
   public void close() throws IOException {
-    inReader.close();
+    this.inReader.close();
   }
 }

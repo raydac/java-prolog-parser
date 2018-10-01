@@ -184,7 +184,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * any more token in the stream
    * @throws IOException it will be throws if there is any transport problem
    */
-  TokenizerResult peekToken(final PrologCharDataSource reader,
+  TokenizerResult peekToken(final CharSource reader,
                             final AbstractPrologParser parser) throws PrologParserException,
       IOException {
     TokenizerResult result;
@@ -223,7 +223,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * @param reader the reader which position must be fixed within inside
    *               variables, must not be null
    */
-  void fixPosition(final PrologCharDataSource reader) {
+  void fixPosition(final CharSource reader) {
     prevReadTokenLineNum = lastReadTokenLineNum;
     prevReadTokenStrPos = lastReadTokenStrPos;
     lastReadTokenLineNum = reader.getLineNumber();
@@ -237,7 +237,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * @throws IOException it will be thrown if there is any transport problem
    *                     during the operation
    */
-  void skipUntilNextString(final PrologCharDataSource reader)
+  void skipUntilNextString(final CharSource reader)
       throws IOException {
     while (true) {
       final int readchar = reader.read();
@@ -259,7 +259,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * @throws IOException it will be thrown if there is any transport error
    *                     during the operation
    */
-  TokenizerResult nextToken(final PrologCharDataSource reader,
+  TokenizerResult nextToken(final CharSource reader,
                             final AbstractPrologParser parser) throws PrologParserException,
       IOException {
 

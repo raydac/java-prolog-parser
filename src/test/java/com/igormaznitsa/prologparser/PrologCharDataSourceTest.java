@@ -27,6 +27,7 @@ import java.io.StringReader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,24 +35,10 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceString() throws Exception {
-    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((String) null));
+    assertThrows(NullPointerException.class, () -> new CharSource((String) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
-    final PrologCharDataSource reader = new PrologCharDataSource(testString);
-    for (final char chr : testString.toCharArray()) {
-      assertEquals((int) chr, reader.read());
-    }
-    assertEquals(-1, reader.read());
-  }
-
-  @Test
-  public void testPrologCharDataSourceInputStream() throws Exception {
-    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((InputStream) null));
-
-    final String testString = "It's a test string for prolog test. also there is UTF Привет";
-    final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(Charset.forName("UTF8")));
-    final PrologCharDataSource reader = new PrologCharDataSource(inStream);
-
+    final CharSource reader = new CharSource(testString);
     for (final char chr : testString.toCharArray()) {
       assertEquals((int) chr, reader.read());
     }
@@ -60,11 +47,11 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceReadableByteChannel() throws Exception {
-    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((ReadableByteChannel) null));
+    assertThrows(NullPointerException.class, () -> new CharSource((ReadableByteChannel) null,StandardCharsets.US_ASCII));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
-    final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(Charset.forName("UTF8")));
-    final PrologCharDataSource reader = new PrologCharDataSource(Channels.newChannel(inStream));
+    final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(StandardCharsets.UTF_8));
+    final CharSource reader = new CharSource(Channels.newChannel(inStream), StandardCharsets.UTF_8);
 
     for (final char chr : testString.toCharArray()) {
       assertEquals((int) chr, reader.read());
@@ -74,11 +61,11 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceReader() throws Exception {
-    assertThrows(NullPointerException.class, () -> new PrologCharDataSource((Reader) null));
+    assertThrows(NullPointerException.class, () -> new CharSource((Reader) null));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final Reader inStream = new StringReader(testString);
-    final PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    final CharSource reader = new CharSource(inStream);
 
     for (final char chr : testString.toCharArray()) {
       assertEquals((int) chr, reader.read());
@@ -89,12 +76,12 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testRead() throws Exception {
     final Reader inStream = new StringReader("");
-    final PrologCharDataSource reader1 = new PrologCharDataSource(inStream);
+    final CharSource reader1 = new CharSource(inStream);
     assertEquals(-1, reader1.read());
 
     final Reader inStreamToClose = new StringReader("a");
 
-    final PrologCharDataSource reader2 = new PrologCharDataSource(inStreamToClose);
+    final CharSource reader2 = new CharSource(inStreamToClose);
     assertEquals('a', reader2.read());
     assertEquals(-1, reader2.read());
 
@@ -106,7 +93,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testCalculateDifferenceAndPushTheResultBack() throws Exception {
     Reader inStream = new StringReader("1234567890");
-    PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    CharSource reader = new CharSource(inStream);
 
     assertThrows(NullPointerException.class, () -> reader.calcDiffAndPushResultBack(null, new StrBuffer("test")));
     assertThrows(NullPointerException.class, () -> reader.calcDiffAndPushResultBack("test", null));
@@ -134,7 +121,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testGetPrevLineNumber() throws Exception {
     final Reader inStream = new StringReader("a\n\n\n\n\n\n\n");
-    final PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    final CharSource reader = new CharSource(inStream);
 
     assertEquals(1, reader.getPrevLineNumber());
     assertTrue(reader.read() >= 0);
@@ -150,7 +137,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testGetPreviousNextCharStringPosition() throws Exception {
     final Reader inStream = new StringReader("a\n\n\n\n\n\n\n");
-    final PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    final CharSource reader = new CharSource(inStream);
 
     assertEquals(1, reader.getPreviousNextCharStringPosition());
     assertTrue(reader.read() >= 0);
@@ -166,7 +153,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testGetLineNumber() throws Exception {
     Reader inStream = new StringReader("a\n\n\n\n\n\n\n");
-    PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    CharSource reader = new CharSource(inStream);
     assertEquals(1, reader.getLineNumber());
     assertTrue(reader.read() >= 0);
     assertEquals(1, reader.getLineNumber());
@@ -179,7 +166,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testGetNextCharStringPosition() throws Exception {
     Reader inStream = new StringReader("12\n67890");
-    PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    CharSource reader = new CharSource(inStream);
     assertEquals(1, reader.getNextCharStringPosition());
     assertTrue(reader.read() >= 0);
     assertEquals(2, reader.getNextCharStringPosition());
@@ -192,7 +179,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testPushCharBack() throws Exception {
     Reader inStream = new StringReader("12345\n67890");
-    PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    CharSource reader = new CharSource(inStream);
     for (int li = 0; li < 11; li++) {
       assertTrue(reader.read() >= 0);
     }
@@ -221,7 +208,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
   @Test
   public void testClose() throws Exception {
     Reader inStream = new StringReader("1234567890");
-    PrologCharDataSource reader = new PrologCharDataSource(inStream);
+    CharSource reader = new CharSource(inStream);
 
     reader.close();
 

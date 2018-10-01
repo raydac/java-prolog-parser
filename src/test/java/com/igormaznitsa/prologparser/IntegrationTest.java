@@ -32,8 +32,11 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -359,7 +362,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testParseFileAsStream() throws Exception {
-    final PrologCharDataSource reader = new PrologCharDataSource(getClass().getResourceAsStream("sec811.pro"));
+    final CharSource reader = new CharSource(new InputStreamReader(getClass().getResourceAsStream("sec811.pro"), StandardCharsets.UTF_8));
     try {
       AbstractPrologTerm term = parser.nextSentence(reader);
       assertNotNull(term);
@@ -486,8 +489,8 @@ public class IntegrationTest extends AbstractPrologParserTest {
 
   @Test
   public void testParseFileAsChannel() throws Exception {
-    final PrologCharDataSource reader = new PrologCharDataSource(
-        Channels.newChannel(getClass().getResourceAsStream("sec812.pro")));
+    final CharSource reader = new CharSource(
+        Channels.newChannel(getClass().getResourceAsStream("sec812.pro")), StandardCharsets.UTF_8);
     AbstractPrologTerm term = null;
     int index = 0;
     try {
@@ -513,8 +516,8 @@ public class IntegrationTest extends AbstractPrologParserTest {
       reader.close();
     }
 
-    final PrologCharDataSource reader2 = new PrologCharDataSource(
-        Channels.newChannel(getClass().getResourceAsStream("sec816.pro")));
+    final CharSource reader2 = new CharSource(
+        Channels.newChannel(getClass().getResourceAsStream("sec816.pro")), StandardCharsets.UTF_8);
     try {
       term = parser.nextSentence(reader2);
       assertNotNull(term);
