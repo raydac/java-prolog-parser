@@ -25,6 +25,6 @@ public class CriticalUnexpectedError extends Error {
   private static final long serialVersionUID = -8219655356191420973L;
 
   public CriticalUnexpectedError() {
-    super("Critical software defect, contact developers please and check the new version of the software!");
+    super("Critical unexpected software defect");
   }
 }

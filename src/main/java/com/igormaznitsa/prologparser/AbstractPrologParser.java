@@ -27,8 +27,8 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.ArrayListCache;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
 import java.io.IOException;

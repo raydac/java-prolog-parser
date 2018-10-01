@@ -353,7 +353,7 @@ public final class Operator extends AbstractPrologTerm {
    */
   @Override
   public String toString() {
-    return String.format("op(%d,%s,'%s').",getPriority(),getOperatorType().toString().toLowerCase(Locale.ENGLISH),getText());
+    return String.format("op(%d,%s,'%s').", getPriority(), getOperatorType().toString().toLowerCase(Locale.ENGLISH), getText());
   }
 
   // The method makes all system operators as singletons for serialization, but only system ones!

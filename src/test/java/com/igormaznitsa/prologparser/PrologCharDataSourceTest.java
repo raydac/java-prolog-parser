@@ -21,12 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +45,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
 
   @Test
   public void testPrologCharDataSourceReadableByteChannel() throws Exception {
-    assertThrows(NullPointerException.class, () -> new CharSource((ReadableByteChannel) null,StandardCharsets.US_ASCII));
+    assertThrows(NullPointerException.class, () -> new CharSource((ReadableByteChannel) null, StandardCharsets.US_ASCII));
 
     final String testString = "It's a test string for prolog test. also there is UTF Привет";
     final ByteArrayInputStream inStream = new ByteArrayInputStream(testString.getBytes(StandardCharsets.UTF_8));

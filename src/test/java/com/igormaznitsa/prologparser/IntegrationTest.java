@@ -35,7 +35,6 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -691,7 +690,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     final EdinburghPrologParser parser = new EdinburghPrologParser(null);
     final PrologStructure rule = (PrologStructure) parser.nextSentence("hello :- world,!.");
     final PrologStructure and = (PrologStructure) rule.getElement(1);
-    assertEquals("hello world!",rule.getElement(0).getText() + ' ' + and.getElement(0).getText() + and.getElement(1).getText());
+    assertEquals("hello world!", rule.getElement(0).getText() + ' ' + and.getElement(0).getText() + and.getElement(1).getText());
   }
 
   @Test

@@ -18,8 +18,8 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.AbstractPrologParser;
 import com.igormaznitsa.prologparser.AbstractPrologParserTest;
-import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
+import com.igormaznitsa.prologparser.ParserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
