@@ -108,8 +108,8 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     Reader inStream = new StringReader("1234567890");
     PrologCharDataSource reader = new PrologCharDataSource(inStream);
 
-    assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack(null, new StrBuffer("test")));
-    assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack("test", null));
+    assertThrows(NullPointerException.class, () -> reader.calcDiffAndPushResultBack(null, new StrBuffer("test")));
+    assertThrows(NullPointerException.class, () -> reader.calcDiffAndPushResultBack("test", null));
 
     for (int li = 0; li < 10; li++) {
       assertTrue(reader.read() >= 0);
@@ -118,7 +118,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     assertEquals(-1, reader.read());
     assertEquals(1, reader.getLineNumber());
     assertEquals(11, reader.getNextCharStringPosition());
-    reader.calculateDifferenceAndPushTheResultBack("test", new StrBuffer("testworld"));
+    reader.calcDiffAndPushResultBack("test", new StrBuffer("testworld"));
     assertEquals(1, reader.getLineNumber());
     assertEquals(6, reader.getNextCharStringPosition());
     for (final char chr : "world".toCharArray()) {
@@ -127,7 +127,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     assertEquals(-1, reader.read());
 
     assertEquals(1, reader.getLineNumber());
-    reader.calculateDifferenceAndPushTheResultBack("test", new StrBuffer("test\n"));
+    reader.calcDiffAndPushResultBack("test", new StrBuffer("test\n"));
     assertEquals(1, reader.getLineNumber());
   }
 
@@ -198,11 +198,11 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     }
     assertEquals(2, reader.getLineNumber());
     assertEquals(6, reader.getNextCharStringPosition());
-    reader.pushCharBack('o');
-    reader.pushCharBack('\n');
-    reader.pushCharBack('l');
-    reader.pushCharBack('e');
-    reader.pushCharBack('h');
+    reader.pushBack('o');
+    reader.pushBack('\n');
+    reader.pushBack('l');
+    reader.pushBack('e');
+    reader.pushBack('h');
     assertEquals(1, reader.getLineNumber());
     assertEquals(1, reader.getNextCharStringPosition());
     for (char chr : "hel\no".toCharArray()) {
@@ -210,11 +210,11 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     }
     assertEquals(-1, reader.read());
 
-    reader.pushCharBack('\n');
-    reader.pushCharBack('\n');
-    reader.pushCharBack('\n');
-    reader.pushCharBack('\n');
-    reader.pushCharBack('\n');
+    reader.pushBack('\n');
+    reader.pushBack('\n');
+    reader.pushBack('\n');
+    reader.pushBack('\n');
+    reader.pushBack('\n');
     assertEquals(1, reader.getLineNumber());
   }
 

@@ -148,7 +148,7 @@ public class PrologCharDataSource {
    * @param etalon an etalon string must not be null
    * @param buffer a string buffer object, must not be null
    */
-  public void calculateDifferenceAndPushTheResultBack(final String etalon, final StrBuffer buffer) {
+  public void calcDiffAndPushResultBack(final String etalon, final StrBuffer buffer) {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 
@@ -224,7 +224,7 @@ public class PrologCharDataSource {
    *
    * @param ch the char to be placed into the inside buffer
    */
-  public void pushCharBack(final char ch) {
+  public void pushBack(final char ch) {
     insideCharBuffer.pushChar(ch);
     if (ch == '\n') {
       strPos = 1;
