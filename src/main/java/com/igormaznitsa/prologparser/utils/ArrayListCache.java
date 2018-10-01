@@ -26,43 +26,33 @@ import java.util.stream.IntStream;
  *
  * @param <T> class type to be processed by cache
  */
-public final class ThreadNonSafeArrayListCache<T> {
-  /**
-   * The initial cached ArrayList size
-   */
+public final class ArrayListCache<T> {
   private static final int INITIAL_ARRAY_LIST_SIZE = 32;
-
-  /**
-   * The number of cached ArrayList objects
-   */
   private static final int MAX_CACHED_NUMBER = 64;
+  private final List<T>[] insideList;
 
-  /**
-   * Inside blocking queue to keep cached lists
-   */
-  private final Object[] insideList = new Object[MAX_CACHED_NUMBER];
+  private int pointer = 0;
 
-  private int firstFreeElementPointer = 0;
-
-  public ThreadNonSafeArrayListCache() {
-    // init cached items
+  @SuppressWarnings("unchecked")
+  public ArrayListCache() {
+    insideList = (List<T>[]) new List<?>[MAX_CACHED_NUMBER];
     IntStream.range(0, MAX_CACHED_NUMBER)
         .forEach(x -> this.insideList[x] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE));
   }
 
   @SuppressWarnings("unchecked")
   public List<T> getListFromCache() {
-    if (this.firstFreeElementPointer == 0) {
+    if (this.pointer == 0) {
       return new ArrayList<>(INITIAL_ARRAY_LIST_SIZE);
     } else {
-      return (List<T>) this.insideList[--this.firstFreeElementPointer];
+      return this.insideList[--this.pointer];
     }
   }
 
   public void putListToCache(final List<T> list) {
-    if (this.firstFreeElementPointer < MAX_CACHED_NUMBER) {
+    if (this.pointer < MAX_CACHED_NUMBER) {
       list.clear();
-      this.insideList[this.firstFreeElementPointer++] = list;
+      this.insideList[this.pointer++] = list;
     }
   }
 }

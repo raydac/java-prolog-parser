@@ -16,6 +16,8 @@
 
 package com.igormaznitsa.prologparser.utils.ringbuffer;
 
+import java.util.function.Supplier;
+
 /**
  * The class implements a ring buffer allows to cache some items. But also the
  * buffer creates new items if there is not any free one for a request. It is
@@ -30,7 +32,7 @@ public class SoftCache<T extends SoftCacheItem> {
   /**
    * The factory allows to create new items.
    */
-  private final SoftCacheItemFactory<T> factory;
+  private final Supplier<T> factory;
   /**
    * The inside buffer.
    */
@@ -51,7 +53,7 @@ public class SoftCache<T extends SoftCacheItem> {
    * @param size    the size of the buffer.
    */
   @SuppressWarnings("unchecked")
-  public SoftCache(final SoftCacheItemFactory<T> factory, final int size) {
+  public SoftCache(final Supplier<T> factory, final int size) {
     this.factory = factory;
     this.buffer = new SoftCacheItem[size];
     this.maxElementIndex = size;
@@ -69,7 +71,7 @@ public class SoftCache<T extends SoftCacheItem> {
     int pointer = headPointer - 1;
     if (pointer < 0) {
       // create new one
-      result = factory.makeNew();
+      result = factory.get();
       result.setSoftCache(this);
     } else {
       result = (T) buffer[pointer];

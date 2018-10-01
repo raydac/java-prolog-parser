@@ -102,23 +102,6 @@ public final class FastStringBuilder {
     return this.charArray[position];
   }
 
-  /**
-   * Find the first position of a char in the buffer.
-   *
-   * @param chr a char to be searched.
-   * @return -1 if the char is not found, its first position otherwise
-   */
-  public int indexOf(final char chr) {
-    final char[] local = this.charArray;
-    final int localp = this.pointer;
-    for (int i = 0; i < localp; i++) {
-      if (local[i] == chr) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
   public int lastIndexOf(final char chr) {
     final char[] local = this.charArray;
     int pos = this.pointer;

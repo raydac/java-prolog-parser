@@ -28,9 +28,9 @@ import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import com.igormaznitsa.prologparser.utils.ThreadNonSafeArrayListCache;
+import com.igormaznitsa.prologparser.utils.ArrayListCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
+import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * The class is a minimal hand-written prolog parser allows to parse incoming
@@ -55,7 +56,7 @@ import java.util.Set;
 @SuppressWarnings("serial")
 @PrologOperators(Operators = {
     @PrologOperator(Priority = 1000, Type = OperatorType.XFY, Name = ",")})
-public abstract class AbstractPrologParser implements SoftCacheItemFactory<ParserTreeItem> {
+public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
 
   /**
    * The Static map contains all system meta-operators for the parser (brackets,
@@ -173,7 +174,7 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
   /**
    * Inside cache of array lists to accumulate AbstractPrologTerms
    */
-  private final ThreadNonSafeArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ThreadNonSafeArrayListCache<>();
+  private final ArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ArrayListCache<>();
   private final SoftCache<ParserTreeItem> itemCache = new SoftCache<>(this, 128);
   /**
    * The tokenizer which is being used to tokenize the data stream.
@@ -802,14 +803,14 @@ public abstract class AbstractPrologParser implements SoftCacheItemFactory<Parse
   }
 
   @Override
-  public ParserTreeItem makeNew() {
+  public ParserTreeItem get() {
     return new ParserTreeItem(this);
   }
 
-  private static final class TermWrapperCacheFactory implements SoftCacheItemFactory<PrologTermWrapper> {
+  private static final class TermWrapperCacheFactory implements Supplier<PrologTermWrapper> {
 
     @Override
-    public PrologTermWrapper makeNew() {
+    public PrologTermWrapper get() {
       return new PrologTermWrapper();
     }
   }

@@ -24,14 +24,12 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
-import com.igormaznitsa.prologparser.utils.AbstractCharProcessor;
 import com.igormaznitsa.prologparser.utils.FastStringBuilder;
-import com.igormaznitsa.prologparser.utils.SingleCharString;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItemFactory;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * The class implements an intermediate tokenizer between a data stream and a
@@ -39,7 +37,7 @@ import java.io.IOException;
  *
  * @author Igor Maznitsa (http://www.igormaznitsa.com)
  */
-final class PrologTokenizer extends AbstractCharProcessor implements SoftCacheItemFactory<TokenizerResult> {
+final class PrologTokenizer implements Supplier<TokenizerResult> {
 
   final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<>();
   /**
@@ -158,7 +156,7 @@ final class PrologTokenizer extends AbstractCharProcessor implements SoftCacheIt
   static OperatorContainer findOperatorForSingleChar(final char c, final AbstractPrologParser parser) {
     OperatorContainer result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(c);
     if (result == null) {
-      return findOperatorForName(SingleCharString.valueOf(c), parser);
+      return findOperatorForName(String.valueOf(c), parser);
     }
     return result;
   }
@@ -371,7 +369,7 @@ final class PrologTokenizer extends AbstractCharProcessor implements SoftCacheIt
                 state = TokenizerState.VARIABLE;
               } else {
                 letterOrDigitOnly = Character.isLetterOrDigit(chr);
-                final String operator = SingleCharString.valueOf(chr);
+                final String operator = String.valueOf(chr);
                 if (hasOperatorStartsWith(operator, parser)) {
                   lastFoundFullOperator = findOperatorForName(
                       operator, parser);
@@ -479,7 +477,7 @@ final class PrologTokenizer extends AbstractCharProcessor implements SoftCacheIt
             lastFoundFullOperator = findOperatorForName(operator, parser);
             if (previousleDetectedOperator == null) {
               if (!hasOperatorStartsWith(operator, parser)) {
-                if (hasOperatorStartsWith(SingleCharString.valueOf(chr),
+                if (hasOperatorStartsWith(String.valueOf(chr),
                     parser)) {
                   // next char can be the start char of an
                   // operator so we need get back it into the
@@ -640,7 +638,7 @@ final class PrologTokenizer extends AbstractCharProcessor implements SoftCacheIt
   }
 
   @Override
-  public TokenizerResult makeNew() {
+  public TokenizerResult get() {
     return new TokenizerResult();
   }
 }

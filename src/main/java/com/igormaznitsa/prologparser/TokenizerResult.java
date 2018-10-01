@@ -51,8 +51,7 @@ public final class TokenizerResult implements SoftCacheItem {
   private int lineNumber;
 
 
-  public TokenizerResult() {
-
+  TokenizerResult() {
   }
 
   /**
@@ -64,7 +63,7 @@ public final class TokenizerResult implements SoftCacheItem {
    * @param stringPosition the first result char string position
    * @param lineNumber     the first result char line number
    */
-  public TokenizerResult(final AbstractPrologTerm term,
+  TokenizerResult(final AbstractPrologTerm term,
                          final TokenizerState parserState,
                          final int stringPosition,
                          final int lineNumber) {
