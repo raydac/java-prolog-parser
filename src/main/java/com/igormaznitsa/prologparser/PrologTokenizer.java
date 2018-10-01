@@ -24,7 +24,7 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
@@ -47,11 +47,11 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
   /**
    * Inside string buffer.
    */
-  private final FastStringBuilder strbuffer = new FastStringBuilder(128);
+  private final StrBuffer strbuffer = new StrBuffer(128);
   /**
    * Inside string buffer for special chars processing
    */
-  private final FastStringBuilder specialCharBuffer = new FastStringBuilder(128);
+  private final StrBuffer specialCharBuffer = new StrBuffer(128);
   /**
    * The variable contains the last pushed term. The term has been read
    * already but the reader pushed it back to reread it lately.
@@ -277,8 +277,8 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     strbuffer.clear();
     specialCharBuffer.clear();
 
-    final FastStringBuilder localstrbuffer = this.strbuffer;
-    final FastStringBuilder localspecialCharBuffer = this.specialCharBuffer;
+    final StrBuffer localstrbuffer = this.strbuffer;
+    final StrBuffer localspecialCharBuffer = this.specialCharBuffer;
 
     specialCharResult.reset();
 
@@ -434,7 +434,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
                     TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
               }
             } else if (chr == 'e' || chr == 'E') {
-              if (localstrbuffer.lastIndexOf('e') < 0) {
+              if (localstrbuffer.lastIndexOf("e") < 0) {
                 localstrbuffer.append('e');
               } else {
                 reader.pushCharBack(chr);

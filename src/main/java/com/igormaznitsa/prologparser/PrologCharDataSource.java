@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +45,7 @@ public class PrologCharDataSource {
   /**
    * Inside char stack to save back-pushed data
    */
-  private final FastStringBuilder insideCharBuffer = new FastStringBuilder(16);
+  private final StrBuffer insideCharBuffer = new StrBuffer(16);
   /**
    * The variable contains the previous value of the string position indicator
    */
@@ -148,7 +148,7 @@ public class PrologCharDataSource {
    * @param etalon an etalon string must not be null
    * @param buffer a string buffer object, must not be null
    */
-  public void calculateDifferenceAndPushTheResultBack(final String etalon, final FastStringBuilder buffer) {
+  public void calculateDifferenceAndPushTheResultBack(final String etalon, final StrBuffer buffer) {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 

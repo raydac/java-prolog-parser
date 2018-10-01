@@ -18,7 +18,7 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.operators.Operator;
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 
 import java.util.Arrays;
 
@@ -271,7 +271,7 @@ public class PrologStructure extends AbstractPrologTerm {
    */
   @Override
   public String toString() {
-    final FastStringBuilder builder = new FastStringBuilder(64);
+    final StrBuffer builder = new StrBuffer(64);
     if (functor.getType() == PrologTermType.OPERATOR) {
       // an operator based struct
       final Operator operatorFunctor = (Operator) functor;

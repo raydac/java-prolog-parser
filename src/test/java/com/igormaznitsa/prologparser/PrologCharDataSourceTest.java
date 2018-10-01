@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -108,7 +108,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     Reader inStream = new StringReader("1234567890");
     PrologCharDataSource reader = new PrologCharDataSource(inStream);
 
-    assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack(null, new FastStringBuilder("test")));
+    assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack(null, new StrBuffer("test")));
     assertThrows(NullPointerException.class, () -> reader.calculateDifferenceAndPushTheResultBack("test", null));
 
     for (int li = 0; li < 10; li++) {
@@ -118,7 +118,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     assertEquals(-1, reader.read());
     assertEquals(1, reader.getLineNumber());
     assertEquals(11, reader.getNextCharStringPosition());
-    reader.calculateDifferenceAndPushTheResultBack("test", new FastStringBuilder("testworld"));
+    reader.calculateDifferenceAndPushTheResultBack("test", new StrBuffer("testworld"));
     assertEquals(1, reader.getLineNumber());
     assertEquals(6, reader.getNextCharStringPosition());
     for (final char chr : "world".toCharArray()) {
@@ -127,7 +127,7 @@ public class PrologCharDataSourceTest extends AbstractPrologParserTest {
     assertEquals(-1, reader.read());
 
     assertEquals(1, reader.getLineNumber());
-    reader.calculateDifferenceAndPushTheResultBack("test", new FastStringBuilder("test\n"));
+    reader.calculateDifferenceAndPushTheResultBack("test", new StrBuffer("test\n"));
     assertEquals(1, reader.getLineNumber());
   }
 

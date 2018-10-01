@@ -19,7 +19,7 @@ package com.igormaznitsa.prologparser.operators;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 
 /**
  * The class being used by the prolog parser to save operators with the same
@@ -372,7 +372,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
    */
   @Override
   public String toString() {
-    final FastStringBuilder result = new FastStringBuilder("OperatorContainer [");
+    final StrBuffer result = new StrBuffer("OperatorContainer [");
 
     boolean added = false;
     final Operator[] ops = new Operator[] {opFZ, opZF, opZFZ};

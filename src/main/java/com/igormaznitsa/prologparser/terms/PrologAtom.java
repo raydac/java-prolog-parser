@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 
 /**
@@ -81,6 +81,7 @@ public final class PrologAtom extends AbstractPrologTerm {
    */
   @Override
   public String toString() {
-    return new FastStringBuilder("\'").append(StringUtils.escapeString(text)).append('\'').toString();
+    final String escaped = StringUtils.escapeString(text);
+    return new StrBuffer(escaped.length() + 2).append('\'').append(escaped).append('\'').toString();
   }
 }

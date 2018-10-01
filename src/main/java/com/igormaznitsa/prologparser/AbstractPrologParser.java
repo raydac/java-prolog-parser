@@ -27,10 +27,9 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.ArrayListCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -202,7 +201,7 @@ public abstract class AbstractPrologParser implements Supplier<ParserTreeItem> {
 
     final PrologOperators operators = src.getAnnotation(PrologOperators.class);
     if (operators != null) {
-      final FastStringBuilder accum = new FastStringBuilder(10);
+      final StrBuffer accum = new StrBuffer(10);
       for (final PrologOperator operator : operators.Operators()) {
         if (SYSTEM_OPERATORS.containsKey(operator.Name())) {
           final OperatorContainer container = SYSTEM_OPERATORS.get(operator.Name());

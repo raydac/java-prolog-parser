@@ -16,7 +16,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.FastStringBuilder;
+import com.igormaznitsa.prologparser.utils.StrBuffer;
 
 /**
  * The class describes a prolog list being used by the prolog parser.
@@ -291,7 +291,7 @@ public final class PrologList extends PrologStructure {
     String result = "[]";
 
     if (!isNullList()) {
-      final FastStringBuilder builder = new FastStringBuilder("[");
+      final StrBuffer builder = new StrBuffer("[");
 
       boolean notfirst = false;
       AbstractPrologTerm list = this;

@@ -154,7 +154,7 @@ public final class StringUtils {
    * @return an escaped string.
    */
   public static String escapeString(final String str) {
-    final FastStringBuilder result = new FastStringBuilder(str.length() * 3 / 2);
+    final StrBuffer result = new StrBuffer(str.length() * 3 / 2);
 
     final int strLen = str.length();
     for (int i = 0; i < strLen; i++) {
