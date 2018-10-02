@@ -52,8 +52,8 @@ public class OperatorTest extends AbstractPrologParserTest {
   public void testMakeOperators() {
     final String[] names = new String[] {"op1", "op2", "op3", "op4"};
 
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperators(Operator.PRIORITY_MAX - 1, OperatorType.FX, names));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperators(Operator.PRIORITY_MIN + 1, OperatorType.FX, names));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperators(Operator.PRECEDENCE_MAX - 1, OperatorType.FX, names));
+    assertThrows(IllegalArgumentException.class, () -> Operator.makeOperators(Operator.PRECEDENCE_MIN + 1, OperatorType.FX, names));
     assertThrows(NullPointerException.class, () -> Operator.makeOperators(345, null, names));
     assertThrows(NullPointerException.class, () -> Operator.makeOperators(345, OperatorType.FX, null));
 
@@ -112,44 +112,44 @@ public class OperatorTest extends AbstractPrologParserTest {
         "functor"), new AbstractPrologTerm[] {new PrologAtom("first"),
         new PrologAtom("second")});
 
-    assertFalse(opFX.compatibleWith(empty));
-    assertFalse(opFY.compatibleWith(empty));
-    assertFalse(opYFX.compatibleWith(empty));
-    assertFalse(opXFX.compatibleWith(empty));
-    assertFalse(opXFY.compatibleWith(empty));
-    assertFalse(opYF.compatibleWith(empty));
-    assertFalse(opXF.compatibleWith(empty));
+    assertFalse(opFX.isCompatibleWith(empty));
+    assertFalse(opFY.isCompatibleWith(empty));
+    assertFalse(opYFX.isCompatibleWith(empty));
+    assertFalse(opXFX.isCompatibleWith(empty));
+    assertFalse(opXFY.isCompatibleWith(empty));
+    assertFalse(opYF.isCompatibleWith(empty));
+    assertFalse(opXF.isCompatibleWith(empty));
 
-    assertTrue(opFX.compatibleWith(one));
-    assertTrue(opFY.compatibleWith(one));
-    assertFalse(opYFX.compatibleWith(one));
-    assertFalse(opXFX.compatibleWith(one));
-    assertFalse(opXFY.compatibleWith(one));
-    assertTrue(opYF.compatibleWith(one));
-    assertTrue(opXF.compatibleWith(one));
+    assertTrue(opFX.isCompatibleWith(one));
+    assertTrue(opFY.isCompatibleWith(one));
+    assertFalse(opYFX.isCompatibleWith(one));
+    assertFalse(opXFX.isCompatibleWith(one));
+    assertFalse(opXFY.isCompatibleWith(one));
+    assertTrue(opYF.isCompatibleWith(one));
+    assertTrue(opXF.isCompatibleWith(one));
 
-    assertTrue(opFX.compatibleWith(two));
-    assertTrue(opFY.compatibleWith(two));
-    assertTrue(opYFX.compatibleWith(two));
-    assertTrue(opXFX.compatibleWith(two));
-    assertTrue(opXFY.compatibleWith(two));
-    assertTrue(opYF.compatibleWith(two));
-    assertTrue(opXF.compatibleWith(two));
+    assertTrue(opFX.isCompatibleWith(two));
+    assertTrue(opFY.isCompatibleWith(two));
+    assertTrue(opYFX.isCompatibleWith(two));
+    assertTrue(opXFX.isCompatibleWith(two));
+    assertTrue(opXFY.isCompatibleWith(two));
+    assertTrue(opYF.isCompatibleWith(two));
+    assertTrue(opXF.isCompatibleWith(two));
 
     final PrologStructure nullElementStructure = Mockito.mock(PrologStructure.class);
     Mockito.when(nullElementStructure.getArity()).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(1).thenReturn(1);
 
-    assertFalse(opFX.compatibleWith(nullElementStructure));
-    assertFalse(opFY.compatibleWith(nullElementStructure));
+    assertFalse(opFX.isCompatibleWith(nullElementStructure));
+    assertFalse(opFY.isCompatibleWith(nullElementStructure));
 
-    assertFalse(opYFX.compatibleWith(nullElementStructure));
-    assertFalse(opXFX.compatibleWith(nullElementStructure));
-    assertFalse(opXFY.compatibleWith(nullElementStructure));
-    assertFalse(opXF.compatibleWith(nullElementStructure));
-    assertFalse(opXF.compatibleWith(nullElementStructure));
+    assertFalse(opYFX.isCompatibleWith(nullElementStructure));
+    assertFalse(opXFX.isCompatibleWith(nullElementStructure));
+    assertFalse(opXFY.isCompatibleWith(nullElementStructure));
+    assertFalse(opXF.isCompatibleWith(nullElementStructure));
+    assertFalse(opXF.isCompatibleWith(nullElementStructure));
 
-    assertFalse(opXF.compatibleWith(nullElementStructure));
-    assertFalse(opXF.compatibleWith(nullElementStructure));
+    assertFalse(opXF.isCompatibleWith(nullElementStructure));
+    assertFalse(opXF.isCompatibleWith(nullElementStructure));
   }
 
   @Test

@@ -8,21 +8,6 @@ public final class StringUtils {
   private StringUtils() {
   }
 
-  /**
-   * The function can convert a string value describes a special escape char
-   * into its code. To understand that the string has been decoded successfully
-   * you can if the result has non-null value and the function has returned
-   * true. If the function has returned false and the result contains the null
-   * value then there is error in data format. If the function has returned
-   * false but the result contains not-null data, it signals that there is not
-   * enough information.
-   *
-   * @param afterString the string to be decoded
-   * @param result      the container which will contain the result after the
-   *                    execution or null
-   * @return true if the string has been decoded successfully, false if it can't
-   * be decoded or there is not enough information to decode
-   */
   public static boolean unescapeCharacter(final String afterString, final AtomicReference<Character> result) {
     if (afterString == null) {
       result.set(null);
@@ -126,15 +111,8 @@ public final class StringUtils {
     }
   }
 
-  /**
-   * The function allows to escape a string and replace special chars by special
-   * escape sequences.
-   *
-   * @param str the string to be escaped, must not be null
-   * @return an escaped string.
-   */
   public static String escapeString(final String str) {
-    final StrBuffer result = new StrBuffer(str.length() * 3 / 2);
+    final StrBuffer result = new StrBuffer(str.length() << 1);
 
     final int strLen = str.length();
     for (int i = 0; i < strLen; i++) {

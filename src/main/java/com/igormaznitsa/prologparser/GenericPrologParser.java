@@ -1,19 +1,3 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -30,6 +14,7 @@ import com.igormaznitsa.prologparser.utils.ArrayListCache;
 import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -42,72 +27,24 @@ import java.util.Set;
 import static java.util.Arrays.stream;
 
 @SuppressWarnings("serial")
-public class GenericPrologParser {
+public class GenericPrologParser implements Closeable {
 
-  /**
-   * The Static map contains all system meta-operators for the parser (brackets,
-   * dot, vertical bar).
-   */
   static final SingleCharOperatorContainerMap META_SYSTEM_OPERATORS = new SingleCharOperatorContainerMap();
   private static final int INSIDE_TABLE_CAPACITY = 0x300;
   private static final float LOAD_FACTOR = 0.75f;
-  /**
-   * The Static map contains all system operators are being used by the parser.
-   */
   static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
-  /**
-   * The set contains all possible prefixes of system operators to expedite
-   * parsing.
-   */
   static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<>(INSIDE_TABLE_CAPACITY, LOAD_FACTOR);
-  /**
-   * Inside link to the system ',' operator.
-   */
   private final static OperatorContainer OPERATOR_COMMA;
-  /**
-   * Inside link to the system '(' operator.
-   */
   private final static OperatorContainer OPERATOR_LEFTBRACKET;
-  /**
-   * Inside link to the system ')' operator.
-   */
   private final static OperatorContainer OPERATOR_RIGHTBRACKET;
-  /**
-   * Inside link to the system '[' operator.
-   */
   private final static OperatorContainer OPERATOR_LEFTSQUAREBRACKET;
-  /**
-   * Inside link to the system ']' operator.
-   */
   private final static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
-  /**
-   * Inside link to the system '.' operator.
-   */
   private final static OperatorContainer OPERATOR_DOT;
-  /**
-   * Inside link to the '|' operator.
-   */
   private final static OperatorContainer OPERATOR_VERTICALBAR;
-  /**
-   * Inside array of operators which will be used to read a prolog phrase.
-   */
   private static final SingleCharOperatorContainerMap OPERATORS_PHRASE;
-  /**
-   * Inside array of operators which will be used inside a prolog list.
-   */
   private static final SingleCharOperatorContainerMap OPERATORS_INSIDE_LIST;
-  /**
-   * Inside array of operators which contains the end list operator.
-   */
   private static final SingleCharOperatorContainerMap OPERATORS_END_LIST;
-  /**
-   * Inside array of operators which will be used to read a structure.
-   */
   private static final SingleCharOperatorContainerMap OPERATORS_INSIDE_STRUCT;
-  /**
-   * Inside array of operators which will be used to read a sub-block inside of
-   * a block.
-   */
   private static final SingleCharOperatorContainerMap OPERATORS_SUBBLOCK;
 
   static {
@@ -154,17 +91,8 @@ public class GenericPrologParser {
   private final SoftCache<PrologTermWrapper> cacheForTermWrappers = new SoftCache<>(PrologTermWrapper::new, 256);
   private final ArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ArrayListCache<>();
   private final SoftCache<ParserTreeItem> itemCache = new SoftCache<>(() -> new ParserTreeItem(this), 128);
-  /**
-   * The tokenizer which is being used to tokenize the data stream.
-   */
   private final PrologTokenizer tokenizer = new PrologTokenizer();
-  /**
-   * The engine context which owns the tree builder.
-   */
   private final ParserContext context;
-  /**
-   * The last reader which was used to read a prolog sentence.
-   */
   private CharSource charSource;
 
   protected static void registerAsSystemOperators(final OperatorDef... operators) {
@@ -187,36 +115,16 @@ public class GenericPrologParser {
     });
   }
 
-  /**
-   * The constructor
-   *
-   * @param nullableContext the context for the parser, it can be null.
-   */
   public GenericPrologParser(final ParserContext nullableContext) {
     this.context = nullableContext;
   }
 
-  /**
-   * It allows to get the system operator map (it includes both system operators
-   * and meta-operators)
-   *
-   * @return the operator map contains system operators
-   * @see OperatorContainer
-   */
   public static Map<String, OperatorContainer> collectSystemOperators() {
     final Map<String, OperatorContainer> result = new HashMap<>(SYSTEM_OPERATORS);
     result.putAll(META_SYSTEM_OPERATORS.getMap());
     return result;
   }
 
-  /**
-   * Get a system operator for its name and type. Mainly the method is used for
-   * deserialization.
-   *
-   * @param text the operator name, it must not be null.
-   * @param type the type of the operator, it must not be null.
-   * @return the found operator if it is found, null otherwise
-   */
   public static Operator findSystemOperatorForNameAndType(final String text, final OperatorType type) {
     OperatorContainer container = META_SYSTEM_OPERATORS.get(text);
     if (container == null) {
@@ -232,13 +140,6 @@ public class GenericPrologParser {
     return result;
   }
 
-  /**
-   * Get a char code of a sngle char text string.
-   *
-   * @param text a single char text string.
-   * @return if the text contains the single char then its code point will be
-   * returned, 0x1FFFF otherwise
-   */
   private static int getFirstCharIfItIsSingle(final String text) {
     if (text == null || text.length() != 1) {
       return 0x1FFFF;
@@ -247,16 +148,6 @@ public class GenericPrologParser {
     }
   }
 
-  /**
-   * Check that an operator is presented within an operator map
-   *
-   * @param operator     the operator to be examined, it can be null so the result
-   *                     will be true
-   * @param endOperators the map contains OperatorContainer objects to be
-   *                     checked that it contains the operator, it can be null then the function
-   *                     will return false
-   * @return true if the array contains the operator else false
-   */
   private boolean isEndOperator(final AbstractPrologTerm operator,
                                 final SingleCharOperatorContainerMap endOperators) {
     if (operator == null) {
@@ -270,49 +161,19 @@ public class GenericPrologParser {
     return operator.getType() == PrologTermType.OPERATORS && endOperators.containsKey(operator.getText());
   }
 
-  /**
-   * Get the current parser context
-   *
-   * @return the current context, it can be null.
-   */
   public ParserContext getContext() {
     return context;
   }
 
-  /**
-   * Get last used reader
-   *
-   * @return the last used reader, it can be null
-   */
   public CharSource getReader() {
     return charSource;
   }
 
-  /**
-   * Make a string based reader and read the first sentence from it
-   *
-   * @param str the string to be a stream for a reader, must not be null
-   * @return the first prolog sentence from the string
-   * @throws IOException           it will be thrown for any transport level problem
-   * @throws PrologParserException it will be thrown for wrong prolog syntax
-   */
   public AbstractPrologTerm nextSentence(final String str)
       throws IOException, PrologParserException {
     return this.nextSentence(new CharSource(new StringReader(str)));
   }
 
-  /**
-   * Read next sentence from a reader, the reader will become the current reader
-   * for the parser
-   *
-   * @param reader the reader to be used as the data source for the parser, it
-   *               must not be null and it will become as the current reader for the parser
-   * @return the first prolog sentence met in the data stream from the reader,
-   * if there is not any more sentences then it will return null
-   * @throws PrologParserException it will be thrown if there is any prolog
-   *                               syntax error
-   * @throws IOException           it will be thrown if there is any transport error
-   */
   public AbstractPrologTerm nextSentence(
       final CharSource reader) throws PrologParserException,
       IOException {
@@ -320,15 +181,6 @@ public class GenericPrologParser {
     return this.nextSentence();
   }
 
-  /**
-   * Read the next sentence from the current reader
-   *
-   * @return the first sentence met in the data stream from the reader, if there
-   * is not any data, then it will return null
-   * @throws PrologParserException it will be thrown if there is any prolog
-   *                               syntax error
-   * @throws IOException           it will be thrown if there is any transport error
-   */
   public AbstractPrologTerm nextSentence()
       throws PrologParserException, IOException {
 
@@ -345,15 +197,6 @@ public class GenericPrologParser {
     return result;
   }
 
-  /**
-   * Inside method to read a whole prolog structure from the input stream
-   *
-   * @param functor the functor for the read structure, must not be null
-   * @return the read structure or null if the stream end was reached
-   * @throws IOException           it will be thrown if there will be any transport error
-   * @throws PrologParserException it will be thrown if there is an prolog
-   *                               syntax error
-   */
   private PrologStructure readStruct(final AbstractPrologTerm functor)
       throws PrologParserException, IOException {
     final List<AbstractPrologTerm> listOfAtoms = abstractPrologTermListCache.getListFromCache();
@@ -390,16 +233,6 @@ public class GenericPrologParser {
     return result;
   }
 
-  /**
-   * Inside function to read a prolog list from the reader
-   *
-   * @param openingBracket the tokenizer result for the list opening bracket,
-   *                       must not be null
-   * @return the read list or null if the stream end was reached
-   * @throws IOException           it will be thrown if there is any transport error
-   * @throws PrologParserException it will be thrown if there is a prolog syntax
-   *                               error
-   */
   private AbstractPrologTerm readList(final TokenizerResult openingBracket) throws PrologParserException,
       IOException {
     PrologList leftPart = new PrologList();
@@ -488,16 +321,6 @@ public class GenericPrologParser {
     return leftPartFirst;
   }
 
-  /**
-   * Inside function to throw PrologParserException if an object is null
-   *
-   * @param obj       the object to be asserted
-   * @param message   the message to be wrapped by an exception if the object is
-   *                  null
-   * @param startTerm if the parameter is not null then its first char string
-   *                  parameters will be used to make exception
-   * @throws PrologParserException it will be thrown if the object is null
-   */
   private void checkForNull(final Object obj, final String message, final TokenizerResult startTerm)
       throws PrologParserException {
     if (obj == null) {
@@ -507,15 +330,6 @@ public class GenericPrologParser {
     }
   }
 
-  /**
-   * Inside function to read a block from the reader
-   *
-   * @param endOperators the map contains end operators which will bound the
-   *                     block
-   * @return a read block as Term or null if the end of the stream has been
-   * reached
-   * @throws IOException it will be thrown if there is any transport error
-   */
   private AbstractPrologTerm readBlock(
       final SingleCharOperatorContainerMap endOperators)
       throws PrologParserException, IOException {
@@ -760,13 +574,7 @@ public class GenericPrologParser {
     }
   }
 
-  /**
-   * The method allows to close the read char stream being used by the parser
-   * and clear inside variables of the parser. I don't recommend to use the
-   * parser after the method call.
-   *
-   * @throws IOException thrown if any error
-   */
+  @Override
   public void close() throws IOException {
     if (this.charSource != null) {
       this.charSource.close();

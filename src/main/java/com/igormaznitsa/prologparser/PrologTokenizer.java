@@ -1,19 +1,3 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -32,66 +16,22 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-/**
- * The class implements an intermediate tokenizer between a data stream and a
- * prolog parser.
- *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
- */
 final class PrologTokenizer implements Supplier<TokenizerResult> {
 
   final AtomicReference<Character> specialCharResult = new AtomicReference<>();
-  /**
-   * Inside caching ring buffer to cache tokenizer result items.
-   */
   private final SoftCache<TokenizerResult> resultCache = new SoftCache<>(this, 32);
-  /**
-   * Inside string buffer.
-   */
   private final StrBuffer strBuf = new StrBuffer(128);
-  /**
-   * Inside string buffer for special chars processing
-   */
   private final StrBuffer specCharBuf = new StrBuffer(128);
-  /**
-   * The variable contains the last pushed term. The term has been read
-   * already but the reader pushed it back to reread it lately.
-   */
   TokenizerResult lastPushedTerm;
-  /**
-   * The variable contains the previous value of the read token line number.
-   */
   int prevTokenLine;
-  /**
-   * The variable contains the previous value of the read token string
-   * position.
-   */
   int prevTokenPos;
-  /**
-   * The variable contains the last value of the read token line number.
-   */
   int lastTokenLine;
-  /**
-   * The variable contains the last value of the read token string position.
-   */
   int lastTokenPos;
 
-  /**
-   * The constructor.
-   */
   PrologTokenizer() {
     super();
   }
 
-  /**
-   * Function allows to check that there is an operator starts with a string,
-   * as the first it checks the system operators then call the prolog context.
-   *
-   * @param operatorNameStartSubstring the start substring to be checked as
-   *                                   the operator start name, must not be null
-   * @param parser                     a prolog parser which context will be used, it can be null
-   * @return true if there is any operator starts with the string, else false
-   */
   static boolean hasOperatorStartsWith(
       final String operatorNameStartSubstring,
       final GenericPrologParser parser) {
@@ -112,17 +52,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  /**
-   * Function to find an operator for its name, as the first it will search
-   * among system operators then in the prolog context.
-   *
-   * @param operatorName an operator name to be used for search, must not be
-   *                     null
-   * @param parser       a prolog parser which context will be used, it can be null
-   * @return an OperatorContainer if the operator is presented, else null
-   */
-  static OperatorContainer findOperatorForName(final String operatorName,
-                                               final GenericPrologParser parser) {
+  static OperatorContainer findOperatorForName(final String operatorName, final GenericPrologParser parser) {
     OperatorContainer result = null;
 
     // check metaoperators as the first ones
@@ -147,13 +77,6 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  /**
-   * Method allows to find an operator for its char representation.
-   *
-   * @param c      the char name of an operator.
-   * @param parser a prolog parser which context will be used, it can be null
-   * @return an OperatorContainer if the operator is presented, else null
-   */
   static OperatorContainer findOperatorForSingleChar(final char c, final GenericPrologParser parser) {
     OperatorContainer result = GenericPrologParser.META_SYSTEM_OPERATORS.get(c);
     if (result == null) {
@@ -162,12 +85,6 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  /**
-   * Push a read object back into buffer to read it lately
-   *
-   * @param object the object to be pushed back into buffer, null will clear
-   *               the buffer.
-   */
   void push(final TokenizerResult object) {
     if (this.lastPushedTerm != null) {
       throw new IllegalStateException("There is already pushed term");
@@ -175,19 +92,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     this.lastPushedTerm = object;
   }
 
-  /**
-   * Peek the next token from the incoming stream. The token will be read but
-   * after it will be saved into the inside variable to be read in next step.
-   *
-   * @param reader the reader to read char data, must not be null
-   * @param parser the parser reading the stream, it can be null
-   * @return a read token as a ProlTokenizerResult, or null if there is not
-   * any more token in the stream
-   * @throws IOException it will be throws if there is any transport problem
-   */
-  TokenizerResult peek(final CharSource reader,
-                       final GenericPrologParser parser) throws PrologParserException,
-      IOException {
+  TokenizerResult peek(final CharSource reader, final GenericPrologParser parser) throws PrologParserException, IOException {
     TokenizerResult result;
     if (lastPushedTerm == null) {
       result = nextToken(reader, parser);
@@ -198,31 +103,15 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  /**
-   * Get the string position of the last read token
-   *
-   * @return the string position for the last read token as integer
-   */
   int getLastTokenStrPos() {
     return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
   }
 
-  /**
-   * Get the line number for the last read token
-   *
-   * @return the line number for the last read token as integer
-   */
   int getLastTokenLineNum() {
     return lastPushedTerm == null ? lastTokenLine
         : prevTokenLine;
   }
 
-  /**
-   * Inside function to fix current read string and line positions.
-   *
-   * @param reader the reader which position must be fixed within inside
-   *               variables, must not be null
-   */
   void fixPosition(final CharSource reader) {
     prevTokenLine = lastTokenLine;
     prevTokenPos = lastTokenPos;
@@ -230,13 +119,6 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     lastTokenPos = reader.getStrPos() - 1;
   }
 
-  /**
-   * Skip all characters until the next line detected
-   *
-   * @param reader the source for char data, must not be null
-   * @throws IOException it will be thrown if there is any transport problem
-   *                     during the operation
-   */
   void skipUntilNextString(final CharSource reader)
       throws IOException {
     while (true) {
@@ -247,21 +129,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     }
   }
 
-  /**
-   * Read the next token from a reader
-   *
-   * @param reader the reader to be used as the char data source, must not be
-   *               null
-   * @param parser the prolog parser calling reading the stream, it can be
-   *               null
-   * @return the next token found at the stream as a ProlTokenizerResult
-   * object or null if the end of the stream has been reached
-   * @throws IOException it will be thrown if there is any transport error
-   *                     during the operation
-   */
-  TokenizerResult nextToken(final CharSource reader,
-                            final GenericPrologParser parser) throws PrologParserException,
-      IOException {
+  TokenizerResult nextToken(final CharSource reader, final GenericPrologParser parser) throws PrologParserException, IOException {
 
     if (lastPushedTerm != null) {
       try {
@@ -309,7 +177,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
                   state, getLastTokenStrPos(), getLastTokenLineNum());
             }
           }
-          case VARIABLE: {
+          case VAR: {
             if (localstrbuffer.hasSingleChar('_')) {
               return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
             } else {
@@ -353,7 +221,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
             case '_':
               fixPosition(reader);
               localstrbuffer.append(chr);
-              state = TokenizerState.VARIABLE;
+              state = TokenizerState.VAR;
               break;
             case '\'':
               fixPosition(reader);
@@ -366,7 +234,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
               localstrbuffer.append(chr);
 
               if (Character.isUpperCase(chr)) {
-                state = TokenizerState.VARIABLE;
+                state = TokenizerState.VAR;
               } else {
                 letterOrDigitOnly = Character.isLetterOrDigit(chr);
                 final String operator = String.valueOf(chr);
@@ -558,7 +426,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
           }
         }
         break;
-        case VARIABLE: {
+        case VAR: {
           if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
             if (localstrbuffer.hasSingleChar('_')) {
               return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
@@ -581,32 +449,13 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     }
   }
 
-  /**
-   * The auxiliary method to centralize of result creation.
-   *
-   * @param term    a term
-   * @param state   a tokenizer state
-   * @param strPos  a string position
-   * @param lineNum a line number
-   * @return a generated tokenizer result
-   */
   private TokenizerResult makeResult(final AbstractPrologTerm term, final TokenizerState state, final int strPos, final int lineNum) {
     final TokenizerResult result = resultCache.get();
     result.setData(term, state, strPos, lineNum);
     return result;
   }
 
-  /**
-   * Inside auxiliary function to make a term from a String
-   *
-   * @param str   the source string object, must not be null
-   * @param state the state of inside state machine which was set during the
-   *              term reading
-   * @return a Term object as the result, not-null value will be returned
-   * anyway
-   */
-  AbstractPrologTerm makeTermFromString(final String str,
-                                        final TokenizerState state) {
+  AbstractPrologTerm makeTermFromString(final String str, final TokenizerState state) {
     AbstractPrologTerm result;
 
     switch (state) {

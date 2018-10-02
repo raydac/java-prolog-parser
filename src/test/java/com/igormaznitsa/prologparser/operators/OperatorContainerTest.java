@@ -37,7 +37,7 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     container.addOperator(Operator.makeOperator(300, OperatorType.XFX, "<>"));
     container.addOperator(Operator.makeOperator(800, OperatorType.YF, "<>"));
     assertEquals(
-        "OperatorContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
+        "OpContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
         container.toString());
   }
 
@@ -122,18 +122,18 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     assertTrue(container.remove(operatorFX));
     assertEquals(2, container.size());
-    assertNull(container.getOperatorForSimilarType(OperatorType.FX));
+    assertNull(container.findSimilar(OperatorType.FX));
 
     assertThrows(NullPointerException.class, () -> container.remove(null));
     assertThrows(IllegalArgumentException.class, () -> container.remove(otheroperatorXFX));
 
     assertTrue(container.remove(operatorXFX));
     assertEquals(1, container.size());
-    assertNull(container.getOperatorForSimilarType(OperatorType.XFX));
+    assertNull(container.findSimilar(OperatorType.XFX));
 
     assertTrue(container.remove(operatorYF));
     assertEquals(0, container.size());
-    assertNull(container.getOperatorForSimilarType(OperatorType.YF));
+    assertNull(container.findSimilar(OperatorType.YF));
   }
 
   @Test
@@ -246,14 +246,14 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     container.addOperator(operatorXFX);
     container.addOperator(operatorYF);
 
-    assertThrows(NullPointerException.class, () -> container.getOperatorForSimilarType(null));
+    assertThrows(NullPointerException.class, () -> container.findSimilar(null));
 
     assertSame(operatorFX,
-        container.getOperatorForSimilarType(OperatorType.FY));
+        container.findSimilar(OperatorType.FY));
     assertSame(operatorXFX,
-        container.getOperatorForSimilarType(OperatorType.YFX));
+        container.findSimilar(OperatorType.YFX));
     assertTrue(container.removeOperatorForType(OperatorType.FX));
-    assertNull(container.getOperatorForSimilarType(OperatorType.FY));
+    assertNull(container.findSimilar(OperatorType.FY));
 
   }
 

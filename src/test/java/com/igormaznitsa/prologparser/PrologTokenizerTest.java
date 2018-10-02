@@ -157,17 +157,17 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.nextToken(reader, mockPrologParser);
-    assertEquals(TokenizerState.VARIABLE, result.getTokenizerState());
+    assertEquals(TokenizerState.VAR, result.getTokenizerState());
     assertEquals(PrologTermType.VAR, result.getResult().getType());
     assertEquals("Variable", result.getResult().getText());
 
     result = tokenizer.nextToken(reader, mockPrologParser);
-    assertEquals(TokenizerState.VARIABLE, result.getTokenizerState());
+    assertEquals(TokenizerState.VAR, result.getTokenizerState());
     assertEquals(PrologTermType.VAR, result.getResult().getType());
     assertEquals("_var", result.getResult().getText());
 
     result = tokenizer.nextToken(reader, mockPrologParser);
-    assertEquals(TokenizerState.VARIABLE, result.getTokenizerState());
+    assertEquals(TokenizerState.VAR, result.getTokenizerState());
     assertEquals(PrologTermType.VAR, result.getResult().getType());
     assertEquals("_", result.getResult().getText());
 

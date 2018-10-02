@@ -1,19 +1,3 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -21,51 +5,20 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.StrBuffer;
 
-/**
- * The class being used by the prolog parser to save operators with the same
- * names but with different types.
- *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
- */
 public final class OperatorContainer extends AbstractPrologTerm {
 
   private static final long serialVersionUID = 4946799717661204529L;
-  /**
-   * The variable contains a FZ operator (fx,fy)
-   */
+
   private Operator opFZ;
-  /**
-   * The variable contains a ZF operator (xf,yf)
-   */
   private Operator opZF;
-  /**
-   * The variable contains a ZF operator (xfx,yfx,xfy)
-   */
   private Operator opZFZ;
-  /**
-   * The counter of operators being saved by the container
-   */
   private int numberAtContainer;
 
-  /**
-   * A constructor. Create a container based on an operator.
-   *
-   * @param operator an operator as the ground for the container
-   */
   public OperatorContainer(final Operator operator) {
     super(operator.getText());
     addOperator(operator);
   }
 
-  /**
-   * Add an operator into the container
-   *
-   * @param operator an operator to be added into the container, must not be
-   *                 null
-   * @return true if the operator has been added, else false
-   * @throws IllegalArgumentException if the operator has different name than
-   *                                  the container
-   */
   public boolean addOperator(final Operator operator) {
     if (!getText().equals(operator.getText())) {
       throw new IllegalArgumentException(
@@ -104,11 +57,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return true;
   }
 
-  /**
-   * Remove all operators from the container, but pay your attention that the
-   * container will not lost its name and you will not be able to add
-   * operators with other names.
-   */
   public void removeAll() {
     opFZ = null;
     opZF = null;
@@ -116,12 +64,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
     numberAtContainer = 0;
   }
 
-  /**
-   * Get an operator for its arity.
-   *
-   * @param arity the arity.
-   * @return the found operator or null otherwise.
-   */
   public Operator findForArity(final int arity) {
     Operator result;
     switch (arity) {
@@ -144,13 +86,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  /**
-   * Remove an operator from the container
-   *
-   * @param op the operator to be removed, must not be null
-   * @return true if the operator has been found and removed from the
-   * container, else false
-   */
   public boolean remove(final Operator op) {
     if (!getText().equals(op.getText())) {
       throw new IllegalArgumentException(
@@ -175,29 +110,15 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public PrologTermType getType() {
     return PrologTermType.OPERATORS;
   }
 
-  /**
-   * Return the current number of saved operators within the container
-   *
-   * @return the operator number as integer
-   */
   public int size() {
     return numberAtContainer;
   }
 
-  /**
-   * Get an operator from the container if the operator is the only saved
-   * operator within the container.
-   *
-   * @return an operator if it is only saved operator, else null
-   */
   public Operator getOperatorIfSingle() {
     if (numberAtContainer == 1) {
       if (opZFZ != null) {
@@ -212,16 +133,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return null;
   }
 
-  /**
-   * Get an operator from the container which can be used for a situation, as
-   * situation I mean the left right arguments existence.
-   *
-   * @param leftPresented  true if there is the left argument in the situation,
-   *                       false if there is not any left one
-   * @param rightPresented false if thee is the right argument in the
-   *                       situation, false if there is not any right one
-   * @return the found operator or null if there is not anyone found
-   */
   public Operator findCompatibleOperator(final boolean leftPresented, final boolean rightPresented) {
     final Operator result;
     if (leftPresented) {
@@ -254,12 +165,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  /**
-   * Get an operator for its type.
-   *
-   * @param type the operator type
-   * @return the found operator or null
-   */
   public Operator getOperatorForType(final OperatorType type) {
     Operator result = null;
     switch (type) {
@@ -292,29 +197,21 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return null;
   }
 
-  /**
-   * Find a similar type operator. As the similar type I mean the case of
-   * argument position (ZF, FZ, ZFZ). If you find for XF and there is YF then
-   * you will get YF.
-   *
-   * @param type the type for search
-   * @return the found operator or null
-   */
-  public Operator getOperatorForSimilarType(final OperatorType type) {
+  public Operator findSimilar(final OperatorType type) {
     Operator result;
     switch (type) {
       case FX:
       case FY:
-        result = opFZ;
+        result = this.opFZ;
         break;
       case XF:
       case YF:
-        result = opZF;
+        result = this.opZF;
         break;
       case XFX:
       case YFX:
       case XFY:
-        result = opZFZ;
+        result = this.opZFZ;
         break;
       default:
         throw new CriticalUnexpectedError();
@@ -322,12 +219,6 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  /**
-   * Remove an operator for its type
-   *
-   * @param type the operator type to be removed
-   * @return true if the operator was found and removed, else false
-   */
   public boolean removeOperatorForType(final OperatorType type) {
     boolean result = false;
     switch (type) {
@@ -359,20 +250,14 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public int getPrecedence() {
     return 0;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String toString() {
-    final StrBuffer result = new StrBuffer("OperatorContainer [");
+    final StrBuffer result = new StrBuffer("OpContainer [");
 
     boolean added = false;
     final Operator[] ops = new Operator[] {opFZ, opZF, opZFZ};
