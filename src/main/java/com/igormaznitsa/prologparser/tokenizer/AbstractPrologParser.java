@@ -142,8 +142,7 @@ public abstract class AbstractPrologParser implements Closeable {
     }
   }
 
-  private boolean isEndOperator(final AbstractPrologTerm operator,
-                                final SingleCharOperatorContainerMap endOperators) {
+  private boolean isEndOperator(final AbstractPrologTerm operator, final SingleCharOperatorContainerMap endOperators) {
     if (operator == null) {
       return true;
     }
@@ -468,13 +467,10 @@ public abstract class AbstractPrologParser implements Closeable {
 
             // check read atom to be zero-struct
             if (readAtomContainer.getResult().getType() == PrologTermType.ATOM) {
-              if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM
-                  && readAtom.getText().equals("!")) {
-                readAtom = new PrologStructure("!", readAtomContainer.getStringPosition(),
-                    readAtomContainer.getLineNumber());
+              if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getText().equals("!")) {
+                readAtom = new PrologStructure("!", readAtomContainer.getStringPosition(), readAtomContainer.getLineNumber());
               } else if (context != null && context.hasZeroArityPredicate(this, readAtom.getText())) {
-                readAtom = new PrologStructure(readAtom, readAtomContainer.getStringPosition(),
-                    readAtomContainer.getLineNumber());
+                readAtom = new PrologStructure(readAtom, readAtomContainer.getStringPosition(), readAtomContainer.getLineNumber());
               }
             }
           }
@@ -530,7 +526,7 @@ public abstract class AbstractPrologParser implements Closeable {
             if (readAtomTreeItem.getType() != PrologTermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
               // it's a ground atom and its right branch is not empty
               throw new PrologParserException(
-                  "There is not any operator before the atom",
+                  "There is no any operator before the atom",
                   readAtomContainer.getLineNumber(),
                   readAtomContainer.getStringPosition());
             }
