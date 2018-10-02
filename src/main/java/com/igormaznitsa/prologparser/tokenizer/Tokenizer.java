@@ -1,7 +1,6 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.CharSource;
-import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
@@ -95,7 +94,7 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
     this.lastPushedTerm = object;
   }
 
-  public TokenizerResult peek(final CharSource reader, final AbstractPrologParser parser) throws PrologParserException, IOException {
+  public TokenizerResult peek(final CharSource reader, final AbstractPrologParser parser) throws IOException {
     TokenizerResult result;
     if (lastPushedTerm == null) {
       result = nextToken(reader, parser);
@@ -132,7 +131,7 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
     }
   }
 
-  public TokenizerResult nextToken(final CharSource reader, final AbstractPrologParser parser) throws PrologParserException, IOException {
+  public TokenizerResult nextToken(final CharSource reader, final AbstractPrologParser parser) throws IOException {
 
     if (lastPushedTerm != null) {
       try {
@@ -219,16 +218,19 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
           switch (chr) {
             case '%': {
               skipUntilNextString(reader);
-            }break;
+            }
+            break;
             case '_': {
               fixPosition(reader);
               localstrbuffer.append(chr);
               state = TokenizerState.VAR;
-            }break;
+            }
+            break;
             case '\'': {
               fixPosition(reader);
               state = TokenizerState.STRING;
-            }break;
+            }
+            break;
 
             default: {
               fixPosition(reader);
@@ -252,7 +254,8 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
                   }
                 }
               }
-            }break;
+            }
+            break;
           }
         }
         break;
