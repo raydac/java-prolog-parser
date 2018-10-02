@@ -1,9 +1,10 @@
-package com.igormaznitsa.prologparser;
+package com.igormaznitsa.prologparser.tokenizer;
 
+import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -12,17 +13,17 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
-public final class ParserTreeItem implements SoftCacheItem {
+public final class TreeItem implements SoftCacheItem {
 
-  private final GenericPrologParser parser;
-  private SoftCache<ParserTreeItem> ringBuffer;
+  private final AbstractPrologParser parser;
+  private SoftCache<TreeItem> ringBuffer;
   private AbstractPrologTerm savedTerm;
-  private ParserTreeItem leftBranch;
-  private ParserTreeItem rightBranch;
-  private ParserTreeItem parentItem;
+  private TreeItem leftBranch;
+  private TreeItem rightBranch;
+  private TreeItem parentItem;
   private boolean insideBrakes;
 
-  ParserTreeItem(final GenericPrologParser parser) {
+  TreeItem(final AbstractPrologParser parser) {
     this.parser = parser;
     this.setData(null, null, false, -1, -1);
   }
@@ -36,13 +37,13 @@ public final class ParserTreeItem implements SoftCacheItem {
     this.parentItem = null;
   }
 
-  void setData(final SoftCache<PrologTermWrapper> prologTermWrapperCache, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
+  void setData(final SoftCache<TermWrapper> prologTermWrapperCache, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
     if (term == null) {
       this.savedTerm = null;
     } else {
       final PrologTermType termType = term.getType();
       if (termType == PrologTermType.OPERATOR || termType == PrologTermType.OPERATORS) {
-        final PrologTermWrapper termWrapper = prologTermWrapperCache.get();
+        final TermWrapper termWrapper = prologTermWrapperCache.get();
         termWrapper.setWrappedTerm(term);
         savedTerm = termWrapper;
       } else {
@@ -62,39 +63,39 @@ public final class ParserTreeItem implements SoftCacheItem {
     return result;
   }
 
-  ParserTreeItem makeAsRightBranch(final ParserTreeItem item) {
-    final ParserTreeItem currentSubbranch = rightBranch;
+  TreeItem makeAsRightBranch(final TreeItem item) {
+    final TreeItem currentSubbranch = rightBranch;
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
-    ParserTreeItem result = this;
+    TreeItem result = this;
     if (item.getType() == PrologTermType.OPERATOR && item.getPriority() != 0) {
       result = item;
     }
     return result;
   }
 
-  ParserTreeItem makeAsOwnerWithLeftBranch(final ParserTreeItem item) {
+  TreeItem makeAsOwnerWithLeftBranch(final TreeItem item) {
     this.replaceForOwner(item);
     item.setLeftBranch(this);
     return item;
   }
 
-  ParserTreeItem getRightBranch() {
+  TreeItem getRightBranch() {
     return rightBranch;
   }
 
-  private void setRightBranch(final ParserTreeItem item) {
+  private void setRightBranch(final TreeItem item) {
     rightBranch = item;
     if (item != null) {
       item.parentItem = this;
     }
   }
 
-  private ParserTreeItem getLeftBranch() {
+  private TreeItem getLeftBranch() {
     return leftBranch;
   }
 
-  private void setLeftBranch(final ParserTreeItem item) {
+  private void setLeftBranch(final TreeItem item) {
     leftBranch = item;
     if (item != null) {
       item.parentItem = this;
@@ -105,10 +106,10 @@ public final class ParserTreeItem implements SoftCacheItem {
     return savedTerm.getType();
   }
 
-  ParserTreeItem findRoot() {
-    ParserTreeItem result = this;
+  TreeItem findRoot() {
+    TreeItem result = this;
     while (true) {
-      final ParserTreeItem theParent = result.parentItem;
+      final TreeItem theParent = result.parentItem;
       if (theParent == null) {
         break;
       } else {
@@ -118,11 +119,11 @@ public final class ParserTreeItem implements SoftCacheItem {
     return result;
   }
 
-  ParserTreeItem findFirstNodeWithSuchOrLowerPriority(final int priority) {
-    ParserTreeItem result = this;
+  TreeItem findFirstNodeWithSuchOrLowerPriority(final int priority) {
+    TreeItem result = this;
 
     while (true) {
-      final ParserTreeItem itsparent = result.parentItem;
+      final TreeItem itsparent = result.parentItem;
       if (itsparent == null || result.getPriority() >= priority) {
         break;
       } else {
@@ -133,7 +134,7 @@ public final class ParserTreeItem implements SoftCacheItem {
     return result;
   }
 
-  private void replaceForOwner(final ParserTreeItem newItem) {
+  private void replaceForOwner(final TreeItem newItem) {
     if (parentItem == null) {
       newItem.parentItem = null;
       return;
@@ -146,13 +147,13 @@ public final class ParserTreeItem implements SoftCacheItem {
   }
 
   OpType getOperatorType() {
-    return ((Operator) ((PrologTermWrapper) savedTerm).getWrappedTerm()).getOperatorType();
+    return ((Operator) ((TermWrapper) savedTerm).getWrappedTerm()).getOperatorType();
   }
 
   private boolean validate() {
     if (savedTerm.getType() == PrologTermType.OPERATOR) {
       final int priority = getPriority();
-      final Operator wrappedOperator = (Operator) ((PrologTermWrapper) savedTerm).getWrappedTerm();
+      final Operator wrappedOperator = (Operator) ((TermWrapper) savedTerm).getWrappedTerm();
       switch (wrappedOperator.getOperatorType()) {
         case FX:
           return leftBranch == null && (rightBranch != null && rightBranch.getPriority() < priority);
@@ -187,7 +188,7 @@ public final class ParserTreeItem implements SoftCacheItem {
     final boolean ctxNotNull = ctx != null;
     switch (savedTerm.getType()) {
       case OPERATOR: {
-        final PrologTermWrapper wrapper = (PrologTermWrapper) savedTerm;
+        final TermWrapper wrapper = (TermWrapper) savedTerm;
         PrologStructure operatorStruct;
         try {
           if (leftBranch == null && rightBranch == null) {
@@ -246,7 +247,7 @@ public final class ParserTreeItem implements SoftCacheItem {
   @Override
   @SuppressWarnings("unchecked")
   public void setCache(final SoftCache<?> owner) {
-    this.ringBuffer = (SoftCache<ParserTreeItem>) owner;
+    this.ringBuffer = (SoftCache<TreeItem>) owner;
   }
 
   @Override

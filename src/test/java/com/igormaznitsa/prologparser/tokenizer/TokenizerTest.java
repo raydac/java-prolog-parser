@@ -1,21 +1,8 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.igormaznitsa.prologparser.tokenizer;
 
-package com.igormaznitsa.prologparser;
-
+import com.igormaznitsa.prologparser.CharSource;
+import com.igormaznitsa.prologparser.GenericPrologParser;
+import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -31,9 +18,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PrologTokenizerTest extends AbstractPrologParserTest {
+public class TokenizerTest {
 
-  private final PrologTokenizer tokenizer = new PrologTokenizer();
+  private final Tokenizer tokenizer = new Tokenizer();
   private final ParserContext mockContext = mock(ParserContext.class);
   private final GenericPrologParser mockPrologParser = mock(GenericPrologParser.class);
 
@@ -264,29 +251,29 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
 
   @Test
   public void testHasOperatorStartsWith() {
-    assertFalse(PrologTokenizer.hasOperatorStartsWith("<------------------------------------------------------->", null));
+    assertFalse(Tokenizer.hasOperatorStartsWith("<------------------------------------------------------->", null));
 
     when(mockContext.hasOperatorStartsWith(any(GenericPrologParser.class), eq("start_with"))).thenReturn(true);
 
-    assertTrue(PrologTokenizer.hasOperatorStartsWith(":", mockPrologParser));
-    assertFalse(PrologTokenizer.hasOperatorStartsWith("sstart_with", mockPrologParser));
-    assertTrue(PrologTokenizer.hasOperatorStartsWith("start_with", mockPrologParser));
+    assertTrue(Tokenizer.hasOperatorStartsWith(":", mockPrologParser));
+    assertFalse(Tokenizer.hasOperatorStartsWith("sstart_with", mockPrologParser));
+    assertTrue(Tokenizer.hasOperatorStartsWith("start_with", mockPrologParser));
   }
 
   @Test
   public void testFindOperatorForName() {
-    assertThrows(NullPointerException.class, () -> PrologTokenizer.findOperatorForName(null, mockPrologParser));
-    assertNull(PrologTokenizer.findOperatorForName("<------------------------------------------------------->", null));
+    assertThrows(NullPointerException.class, () -> Tokenizer.findOperatorForName(null, mockPrologParser));
+    assertNull(Tokenizer.findOperatorForName("<------------------------------------------------------->", null));
 
     final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OpType.FX, "some_operator"));
 
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 
-    final OperatorContainer systemOne = PrologTokenizer.findOperatorForName(":-", mockPrologParser);
+    final OperatorContainer systemOne = Tokenizer.findOperatorForName(":-", mockPrologParser);
     assertNotNull(systemOne);
     assertEquals(":-", systemOne.getText());
 
-    assertNull(PrologTokenizer.findOperatorForName("%%%%%%%<unsupported_operator>%%%%%%", mockPrologParser));
-    assertSame(PrologTokenizer.findOperatorForName("some_operator", mockPrologParser), operatorContainer);
+    assertNull(Tokenizer.findOperatorForName("%%%%%%%<unsupported_operator>%%%%%%", mockPrologParser));
+    assertSame(Tokenizer.findOperatorForName("some_operator", mockPrologParser), operatorContainer);
   }
 }

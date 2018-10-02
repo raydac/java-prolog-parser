@@ -1,6 +1,5 @@
 package com.igormaznitsa.prologparser.utils;
 
-import com.igormaznitsa.prologparser.AbstractPrologParserTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -8,17 +7,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class StringUtilsTest extends AbstractPrologParserTest {
+public class StringUtilsTest {
 
   @Test
   public void testUnescapeCharacter() {
 
     final AtomicReference<Character> container = new AtomicReference<>();
 
-    try {
-      StringUtils.unescapeCharacter("Test", null);
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class,()->StringUtils.unescapeCharacter("Test", null));
 
     assertFalse(StringUtils.unescapeCharacter(null, container));
     assertNull(container.get());

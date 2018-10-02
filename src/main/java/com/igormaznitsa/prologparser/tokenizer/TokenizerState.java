@@ -1,4 +1,4 @@
-package com.igormaznitsa.prologparser;
+package com.igormaznitsa.prologparser.tokenizer;
 
 public enum TokenizerState {
 

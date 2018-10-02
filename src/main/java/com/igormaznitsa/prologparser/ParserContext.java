@@ -2,14 +2,15 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 
 public interface ParserContext {
 
-  boolean hasOperatorStartsWith(GenericPrologParser source, String operatorNameStartSubstring);
+  boolean hasOperatorStartsWith(AbstractPrologParser source, String operatorNameStartSubstring);
 
-  OperatorContainer findOperatorForName(GenericPrologParser source, String operatorName);
+  OperatorContainer findOperatorForName(AbstractPrologParser source, String operatorName);
 
-  boolean hasZeroArityPredicate(GenericPrologParser source, String predicateName);
+  boolean hasZeroArityPredicate(AbstractPrologParser source, String predicateName);
 
-  void processNewStructure(GenericPrologParser source, PrologStructure structure);
+  void processNewStructure(AbstractPrologParser source, PrologStructure structure);
 }

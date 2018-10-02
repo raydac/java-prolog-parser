@@ -1,29 +1,14 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -36,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class ParserContextTest extends AbstractPrologParserTest {
+public class ParserContextTest {
 
   @Test
   public void testHasOperatorStartsWith() {
@@ -103,22 +88,22 @@ public class ParserContextTest extends AbstractPrologParserTest {
     final Map<String, PrologStructure> detectedStructures = new HashMap<>();
     final ParserContext stubContext = new ParserContext() {
       @Override
-      public void processNewStructure(final GenericPrologParser source, final PrologStructure structure) {
+      public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
         detectedStructures.put(structure.getFunctor().getText(), structure);
       }
 
       @Override
-      public boolean hasZeroArityPredicate(final GenericPrologParser source, String predicateName) {
+      public boolean hasZeroArityPredicate(final AbstractPrologParser source, String predicateName) {
         return "foo".equals(predicateName);
       }
 
       @Override
-      public boolean hasOperatorStartsWith(final GenericPrologParser source, String operatorNameStartSubstring) {
+      public boolean hasOperatorStartsWith(final AbstractPrologParser source, String operatorNameStartSubstring) {
         return false;
       }
 
       @Override
-      public OperatorContainer findOperatorForName(final GenericPrologParser source, String operatorName) {
+      public OperatorContainer findOperatorForName(final AbstractPrologParser source, String operatorName) {
         return null;
       }
     };

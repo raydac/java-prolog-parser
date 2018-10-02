@@ -1,4 +1,4 @@
-package com.igormaznitsa.prologparser;
+package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;

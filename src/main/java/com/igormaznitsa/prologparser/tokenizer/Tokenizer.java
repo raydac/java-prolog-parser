@@ -1,5 +1,8 @@
-package com.igormaznitsa.prologparser;
+package com.igormaznitsa.prologparser.tokenizer;
 
+import com.igormaznitsa.prologparser.CharSource;
+import com.igormaznitsa.prologparser.GenericPrologParser;
+import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
@@ -16,7 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-final class PrologTokenizer implements Supplier<TokenizerResult> {
+public final class Tokenizer implements Supplier<TokenizerResult> {
 
   final AtomicReference<Character> specialCharResult = new AtomicReference<>();
   private final SoftCache<TokenizerResult> resultCache = new SoftCache<>(this, 32);
@@ -28,16 +31,16 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
   int lastTokenLine;
   int lastTokenPos;
 
-  PrologTokenizer() {
+  public Tokenizer() {
     super();
   }
 
   static boolean hasOperatorStartsWith(
       final String operatorNameStartSubstring,
-      final GenericPrologParser parser) {
+      final AbstractPrologParser parser) {
 
     // check for system
-    if (GenericPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
+    if (AbstractPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
       return true;
     }
 
@@ -52,12 +55,12 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  static OperatorContainer findOperatorForName(final String operatorName, final GenericPrologParser parser) {
+  static OperatorContainer findOperatorForName(final String operatorName, final AbstractPrologParser parser) {
     OperatorContainer result = null;
 
     // check metaoperators as the first ones
     if (operatorName.length() == 1) {
-      result = GenericPrologParser.META_SYSTEM_OPERATORS.get(operatorName);
+      result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(operatorName);
     }
     if (result == null) {
       // check user defined operators because a user can replace a system operator
@@ -70,29 +73,29 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
 
       // check system operators
       if (result == null) {
-        result = GenericPrologParser.SYSTEM_OPERATORS.get(operatorName);
+        result = AbstractPrologParser.SYSTEM_OPERATORS.get(operatorName);
       }
     }
 
     return result;
   }
 
-  static OperatorContainer findOperatorForSingleChar(final char c, final GenericPrologParser parser) {
-    OperatorContainer result = GenericPrologParser.META_SYSTEM_OPERATORS.get(c);
+  static OperatorContainer findOperatorForSingleChar(final char c, final AbstractPrologParser parser) {
+    OperatorContainer result = AbstractPrologParser.META_SYSTEM_OPERATORS.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c), parser);
     }
     return result;
   }
 
-  void push(final TokenizerResult object) {
+  public void push(final TokenizerResult object) {
     if (this.lastPushedTerm != null) {
       throw new IllegalStateException("There is already pushed term");
     }
     this.lastPushedTerm = object;
   }
 
-  TokenizerResult peek(final CharSource reader, final GenericPrologParser parser) throws PrologParserException, IOException {
+  public TokenizerResult peek(final CharSource reader, final AbstractPrologParser parser) throws PrologParserException, IOException {
     TokenizerResult result;
     if (lastPushedTerm == null) {
       result = nextToken(reader, parser);
@@ -103,23 +106,23 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  int getLastTokenStrPos() {
+  public int getLastTokenStrPos() {
     return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
   }
 
-  int getLastTokenLineNum() {
+  public int getLastTokenLineNum() {
     return lastPushedTerm == null ? lastTokenLine
         : prevTokenLine;
   }
 
-  void fixPosition(final CharSource reader) {
+  public void fixPosition(final CharSource reader) {
     prevTokenLine = lastTokenLine;
     prevTokenPos = lastTokenPos;
     lastTokenLine = reader.getLineNum();
     lastTokenPos = reader.getStrPos() - 1;
   }
 
-  void skipUntilNextString(final CharSource reader)
+  public void skipUntilNextString(final CharSource reader)
       throws IOException {
     while (true) {
       final int readchar = reader.read();
@@ -129,7 +132,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     }
   }
 
-  TokenizerResult nextToken(final CharSource reader, final GenericPrologParser parser) throws PrologParserException, IOException {
+  public TokenizerResult nextToken(final CharSource reader, final AbstractPrologParser parser) throws PrologParserException, IOException {
 
     if (lastPushedTerm != null) {
       try {
@@ -214,21 +217,20 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
           }
 
           switch (chr) {
-            case '%':
-              // comments
+            case '%': {
               skipUntilNextString(reader);
-              break;
-            case '_':
+            }break;
+            case '_': {
               fixPosition(reader);
               localstrbuffer.append(chr);
               state = TokenizerState.VAR;
-              break;
-            case '\'':
+            }break;
+            case '\'': {
               fixPosition(reader);
               state = TokenizerState.STRING;
-              break;
+            }break;
 
-            default:
+            default: {
               fixPosition(reader);
 
               localstrbuffer.append(chr);
@@ -250,6 +252,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
                   }
                 }
               }
+            }break;
           }
         }
         break;
@@ -389,7 +392,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
             } else {
               // try to parse special char
               localspecialCharBuffer.append(chr);
-              if (StringUtils.unescapeCharacter(localspecialCharBuffer.toString(),this.specialCharResult)) {
+              if (StringUtils.unescapeCharacter(localspecialCharBuffer.toString(), this.specialCharResult)) {
                 // special character detected and it doesn't have
                 // errors
                 if (specialCharResult.get() != null) {
@@ -459,22 +462,26 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     AbstractPrologTerm result;
 
     switch (state) {
-      case INTEGER:
+      case INTEGER: {
         try {
           result = new PrologIntegerNumber(str);
         } catch (NumberFormatException ex) {
           result = null;
         }
-        break;
-      case FLOAT:
+      }
+      break;
+      case FLOAT: {
         try {
           result = new PrologFloatNumber(str);
         } catch (NumberFormatException ex) {
           result = null;
         }
-        break;
-      default:
+      }
+      break;
+      default: {
         result = null;
+      }
+      break;
     }
 
     if (result == null) {

@@ -23,10 +23,13 @@ public final class StringUtils {
           result.set((char) 7);
           break;
         case 'b':
-          result.set((char) 8);
+          result.set('\b');
           break;
         case 'n':
           result.set('\n');
+          break;
+        case 'f':
+          result.set('\f');
           break;
         case 'r':
           result.set('\r');
@@ -48,6 +51,9 @@ public final class StringUtils {
           break;
         case '\'':
           result.set('\'');
+          break;
+        case '`':
+          result.set('`');
           break;
         case 'u':
         case 'x':
@@ -124,11 +130,17 @@ public final class StringUtils {
         case 8:
           result.append("\\b");
           break;
+        case '\f':
+          result.append("\\f");
+          break;
         case '\n':
           result.append("\\n");
           break;
         case '\r':
           result.append("\\r");
+          break;
+        case '`':
+          result.append("\\`");
           break;
         case 27:
           result.append("\\e");

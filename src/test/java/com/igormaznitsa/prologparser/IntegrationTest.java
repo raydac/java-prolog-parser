@@ -1,19 +1,3 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
@@ -28,6 +12,7 @@ import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +29,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class IntegrationTest extends AbstractPrologParserTest {
+public class IntegrationTest {
 
   final ParserContext mock = mock(ParserContext.class);
   final EdinburghPrologParser parser = new EdinburghPrologParser(mock);
@@ -726,7 +711,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Override
-    public boolean hasOperatorStartsWith(final GenericPrologParser source,
+    public boolean hasOperatorStartsWith(final AbstractPrologParser source,
                                          final String operatorNameStartSubstring) {
       for (final String string : operators.keySet()) {
         if (string.startsWith(operatorNameStartSubstring)) {
@@ -738,18 +723,18 @@ public class IntegrationTest extends AbstractPrologParserTest {
     }
 
     @Override
-    public OperatorContainer findOperatorForName(final GenericPrologParser source,
+    public OperatorContainer findOperatorForName(final AbstractPrologParser source,
                                                  final String operatorName) {
       return operators.get(operatorName);
     }
 
     @Override
-    public boolean hasZeroArityPredicate(final GenericPrologParser source, final String predicateName) {
+    public boolean hasZeroArityPredicate(final AbstractPrologParser source, final String predicateName) {
       return false;
     }
 
     @Override
-    public void processNewStructure(final GenericPrologParser source, final PrologStructure structure) {
+    public void processNewStructure(final AbstractPrologParser source, final PrologStructure structure) {
     }
   }
 
