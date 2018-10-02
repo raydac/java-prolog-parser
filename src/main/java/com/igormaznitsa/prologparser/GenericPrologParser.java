@@ -190,10 +190,10 @@ public class GenericPrologParser {
   /**
    * The constructor
    *
-   * @param context the context for the parser, it can be null.
+   * @param nullableContext the context for the parser, it can be null.
    */
-  public GenericPrologParser(final ParserContext context) {
-    this.context = context;
+  public GenericPrologParser(final ParserContext nullableContext) {
+    this.context = nullableContext;
   }
 
   /**
@@ -203,7 +203,7 @@ public class GenericPrologParser {
    * @return the operator map contains system operators
    * @see OperatorContainer
    */
-  public static Map<String, OperatorContainer> getSystemOperators() {
+  public static Map<String, OperatorContainer> collectSystemOperators() {
     final Map<String, OperatorContainer> result = new HashMap<>(SYSTEM_OPERATORS);
     result.putAll(META_SYSTEM_OPERATORS.getMap());
     return result;
@@ -550,7 +550,7 @@ public class GenericPrologParser {
       // check the atom to be the end atom
       if (isEndOperator(readAtom, endOperators)) {
         // it's an end atom so we push it back and end the cycle
-        tokenizer.pushTermBack(readAtomContainer);
+        tokenizer.push(readAtomContainer);
         break;
       }
 
@@ -585,7 +585,7 @@ public class GenericPrologParser {
               }
             }
 
-            final boolean rightPresented = !isEndOperator(tokenizer.peekToken(charSource, this).getResult(), endOperators);
+            final boolean rightPresented = !isEndOperator(tokenizer.peek(charSource, this).getResult(), endOperators);
 
             readAtom = readOperators.findCompatibleOperator(leftPresented, rightPresented);
 
@@ -659,13 +659,13 @@ public class GenericPrologParser {
                     nextTokenLineNumber, nextTokenStrPosition);
               }
             } else {
-              tokenizer.pushTermBack(nextToken);
+              tokenizer.push(nextToken);
               throw new PrologParserException("You must have an atom as the structure functor",
                   nextTokenLineNumber, nextTokenStrPosition);
             }
           } else {
             // push back the next atom
-            tokenizer.pushTermBack(nextToken);
+            tokenizer.push(nextToken);
 
             // check read atom to be zero-struct
             if (readAtomContainer.getResult().getType() == PrologTermType.ATOM) {

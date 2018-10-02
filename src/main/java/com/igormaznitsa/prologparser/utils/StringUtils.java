@@ -1,26 +1,7 @@
-/*
- * Copyright 2014 Igor Maznitsa (http://www.igormaznitsa.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.igormaznitsa.prologparser.utils;
 
-/**
- * The class contains misc auxiliary string functions and classes.
- *
- * @author Igor Maznitsa (http://www.igormaznitsa.com)
- */
+import java.util.concurrent.atomic.AtomicReference;
+
 @SuppressWarnings("serial")
 public final class StringUtils {
 
@@ -42,8 +23,7 @@ public final class StringUtils {
    * @return true if the string has been decoded successfully, false if it can't
    * be decoded or there is not enough information to decode
    */
-  public static boolean unescapeCharacter(final String afterString,
-                                          final Mutable<Character> result) {
+  public static boolean unescapeCharacter(final String afterString, final AtomicReference<Character> result) {
     if (afterString == null) {
       result.set(null);
       return false;
@@ -191,59 +171,5 @@ public final class StringUtils {
     }
 
     return result.toString();
-  }
-
-  /**
-   * It is a parameterized class allows to make a container saves a mutable
-   * value (I mean that the value can be changed). The class is not a thread
-   * safe one.
-   *
-   * @param <T> the class of a carried object
-   * @author Igor Maznitsa (http://www.igormaznitsa.com)
-   */
-  public final static class Mutable<T> {
-
-    /**
-     * The variable contains the value carried by the container
-     */
-    private T value;
-
-    /**
-     * A Constructor. It allows to create a container with null.
-     */
-    public Mutable() {
-      value = null;
-    }
-
-    /**
-     * A Constructor. It allows to create a container for a defined value.
-     *
-     * @param initValue the init value for the new container, it can be null.
-     */
-    public Mutable(final T initValue) {
-      value = initValue;
-    }
-
-    /**
-     * Set new carried value.
-     *
-     * @param newValue the new value for the container, it can be null.
-     */
-    public void set(final T newValue) {
-      value = newValue;
-    }
-
-    /**
-     * Get the current carried value.
-     *
-     * @return the current value, it can be null.
-     */
-    public T get() {
-      return value;
-    }
-
-    public void reset() {
-      value = null;
-    }
   }
 }

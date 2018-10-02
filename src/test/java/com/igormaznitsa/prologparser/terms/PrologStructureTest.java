@@ -55,7 +55,7 @@ public class PrologStructureTest extends AbstractPrologParserTest {
         new PrologAtom("first"), new PrologFloatNumber(123d),
         new PrologList(), new PrologVariable()}).toString());
 
-    final Map<String, OperatorContainer> systemOperators = GenericPrologParser.getSystemOperators();
+    final Map<String, OperatorContainer> systemOperators = GenericPrologParser.collectSystemOperators();
     assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").getOperatorForType(OperatorType.XFX),
         new AbstractPrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());

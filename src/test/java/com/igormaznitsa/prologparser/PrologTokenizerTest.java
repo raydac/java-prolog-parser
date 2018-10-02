@@ -48,23 +48,23 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
     assertNull(tokenizer.lastPushedTerm);
     final TokenizerResult tokenizerResult = new TokenizerResult(
         new PrologAtom("test"), TokenizerState.ATOM, 1, 2);
-    tokenizer.pushTermBack(tokenizerResult);
+    tokenizer.push(tokenizerResult);
     assertSame(tokenizerResult, tokenizer.nextToken(
         mock(CharSource.class), mockPrologParser));
   }
 
   @Test
   public void testPeekToken() throws Exception {
-    assertThrows(NullPointerException.class, () -> tokenizer.peekToken(null, mockPrologParser));
+    assertThrows(NullPointerException.class, () -> tokenizer.peek(null, mockPrologParser));
 
     final CharSource reader = CharSource.of("hello world");
 
-    assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
-    assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
-    assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
-    assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
-    assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
-    assertEquals("hello", tokenizer.peekToken(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
 
     assertEquals("hello", tokenizer.nextToken(reader, null).getResult().getText());
     assertEquals("world", tokenizer.nextToken(reader, null).getResult().getText());

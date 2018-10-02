@@ -29,6 +29,7 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -39,7 +40,7 @@ import java.util.function.Supplier;
  */
 final class PrologTokenizer implements Supplier<TokenizerResult> {
 
-  final StringUtils.Mutable<Character> specialCharResult = new StringUtils.Mutable<>();
+  final AtomicReference<Character> specialCharResult = new AtomicReference<>();
   /**
    * Inside caching ring buffer to cache tokenizer result items.
    */
@@ -47,11 +48,11 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
   /**
    * Inside string buffer.
    */
-  private final StrBuffer strbuffer = new StrBuffer(128);
+  private final StrBuffer strBuf = new StrBuffer(128);
   /**
    * Inside string buffer for special chars processing
    */
-  private final StrBuffer specialCharBuffer = new StrBuffer(128);
+  private final StrBuffer specCharBuf = new StrBuffer(128);
   /**
    * The variable contains the last pushed term. The term has been read
    * already but the reader pushed it back to reread it lately.
@@ -60,20 +61,20 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
   /**
    * The variable contains the previous value of the read token line number.
    */
-  int prevReadTokenLineNum;
+  int prevTokenLine;
   /**
    * The variable contains the previous value of the read token string
    * position.
    */
-  int prevReadTokenStrPos;
+  int prevTokenPos;
   /**
    * The variable contains the last value of the read token line number.
    */
-  int lastReadTokenLineNum;
+  int lastTokenLine;
   /**
    * The variable contains the last value of the read token string position.
    */
-  int lastReadTokenStrPos;
+  int lastTokenPos;
 
   /**
    * The constructor.
@@ -167,11 +168,11 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * @param object the object to be pushed back into buffer, null will clear
    *               the buffer.
    */
-  void pushTermBack(final TokenizerResult object) {
-    if (lastPushedTerm != null) {
-      throw new IllegalStateException("An object has been pushed already");
+  void push(final TokenizerResult object) {
+    if (this.lastPushedTerm != null) {
+      throw new IllegalStateException("There is already pushed term");
     }
-    lastPushedTerm = object;
+    this.lastPushedTerm = object;
   }
 
   /**
@@ -184,13 +185,13 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * any more token in the stream
    * @throws IOException it will be throws if there is any transport problem
    */
-  TokenizerResult peekToken(final CharSource reader,
-                            final GenericPrologParser parser) throws PrologParserException,
+  TokenizerResult peek(final CharSource reader,
+                       final GenericPrologParser parser) throws PrologParserException,
       IOException {
     TokenizerResult result;
     if (lastPushedTerm == null) {
       result = nextToken(reader, parser);
-      pushTermBack(result);
+      push(result);
     } else {
       result = lastPushedTerm;
     }
@@ -203,8 +204,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * @return the string position for the last read token as integer
    */
   int getLastTokenStrPos() {
-    return lastPushedTerm == null ? lastReadTokenStrPos
-        : prevReadTokenStrPos;
+    return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
   }
 
   /**
@@ -213,8 +213,8 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    * @return the line number for the last read token as integer
    */
   int getLastTokenLineNum() {
-    return lastPushedTerm == null ? lastReadTokenLineNum
-        : prevReadTokenLineNum;
+    return lastPushedTerm == null ? lastTokenLine
+        : prevTokenLine;
   }
 
   /**
@@ -224,10 +224,10 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
    *               variables, must not be null
    */
   void fixPosition(final CharSource reader) {
-    prevReadTokenLineNum = lastReadTokenLineNum;
-    prevReadTokenStrPos = lastReadTokenStrPos;
-    lastReadTokenLineNum = reader.getLineNum();
-    lastReadTokenStrPos = reader.getStrPos() - 1;
+    prevTokenLine = lastTokenLine;
+    prevTokenPos = lastTokenPos;
+    lastTokenLine = reader.getLineNum();
+    lastTokenPos = reader.getStrPos() - 1;
   }
 
   /**
@@ -274,13 +274,13 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
     TokenizerState state = TokenizerState.LOOKFOR;
     boolean specialchar = false;
 
-    strbuffer.clear();
-    specialCharBuffer.clear();
+    strBuf.clear();
+    specCharBuf.clear();
 
-    final StrBuffer localstrbuffer = this.strbuffer;
-    final StrBuffer localspecialCharBuffer = this.specialCharBuffer;
+    final StrBuffer localstrbuffer = this.strBuf;
+    final StrBuffer localspecialCharBuffer = this.specCharBuf;
 
-    specialCharResult.reset();
+    specialCharResult.set(null);
 
     OperatorContainer lastFoundFullOperator = null;
 
@@ -319,7 +319,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
           }
           case STRING: {
             throw new PrologParserException("Unclosed string found",
-                lastReadTokenLineNum, lastReadTokenStrPos);
+                lastTokenLine, lastTokenPos);
           }
           case OPERATOR: {
             if (lastFoundFullOperator == null) {
@@ -521,9 +521,7 @@ final class PrologTokenizer implements Supplier<TokenizerResult> {
             } else {
               // try to parse special char
               localspecialCharBuffer.append(chr);
-              if (StringUtils.unescapeCharacter(
-                  localspecialCharBuffer.toString(),
-                  specialCharResult)) {
+              if (StringUtils.unescapeCharacter(localspecialCharBuffer.toString(),this.specialCharResult)) {
                 // special character detected and it doesn't have
                 // errors
                 if (specialCharResult.get() != null) {
