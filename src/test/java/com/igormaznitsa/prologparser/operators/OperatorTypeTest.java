@@ -25,22 +25,22 @@ public class OperatorTypeTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetForName() {
-    assertSame(OperatorType.XF, OperatorType.getForName("xf").get());
-    assertSame(OperatorType.FX, OperatorType.getForName("fx").get());
-    assertSame(OperatorType.XFX, OperatorType.getForName("xfx").get());
-    assertSame(OperatorType.XFY, OperatorType.getForName("xfy").get());
-    assertSame(OperatorType.YF, OperatorType.getForName("yf").get());
-    assertSame(OperatorType.YFX, OperatorType.getForName("yfx").get());
-    assertFalse(OperatorType.getForName("yfy").isPresent());
+    assertSame(OpType.XF, OpType.getForName("xf").get());
+    assertSame(OpType.FX, OpType.getForName("fx").get());
+    assertSame(OpType.XFX, OpType.getForName("xfx").get());
+    assertSame(OpType.XFY, OpType.getForName("xfy").get());
+    assertSame(OpType.YF, OpType.getForName("yf").get());
+    assertSame(OpType.YFX, OpType.getForName("yfx").get());
+    assertFalse(OpType.getForName("yfy").isPresent());
   }
 
   @Test
   public void testGetText() {
-    assertEquals("xf", OperatorType.XF.getText());
-    assertEquals("fx", OperatorType.FX.getText());
-    assertEquals("xfx", OperatorType.XFX.getText());
-    assertEquals("xfy", OperatorType.XFY.getText());
-    assertEquals("yf", OperatorType.YF.getText());
-    assertEquals("yfx", OperatorType.YFX.getText());
+    assertEquals("xf", OpType.XF.getText());
+    assertEquals("fx", OpType.FX.getText());
+    assertEquals("xfx", OpType.XFX.getText());
+    assertEquals("xfy", OpType.XFY.getText());
+    assertEquals("yf", OpType.YF.getText());
+    assertEquals("yfx", OpType.YFX.getText());
   }
 }

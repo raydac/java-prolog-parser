@@ -4,7 +4,7 @@ import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OperatorDef;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologList;
@@ -68,7 +68,7 @@ public class GenericPrologParser implements Closeable {
     OPERATOR_VERTICALBAR = new OperatorContainer(Operator.METAOPERATOR_VERTICAL_BAR);
     META_SYSTEM_OPERATORS.put(Operator.METAOPERATOR_VERTICAL_BAR.getText(), OPERATOR_VERTICALBAR);
 
-    registerAsSystemOperators(OperatorDef.of(1000, OperatorType.XFY, ","));
+    registerAsSystemOperators(OperatorDef.of(1000, OpType.XFY, ","));
 
     SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_DOT.getText());
     SYSTEM_OPERATORS_PREFIXES.add(Operator.METAOPERATOR_LEFT_BRACKET.getText());
@@ -125,7 +125,7 @@ public class GenericPrologParser implements Closeable {
     return result;
   }
 
-  public static Operator findSystemOperatorForNameAndType(final String text, final OperatorType type) {
+  public static Operator findSystemOperatorForNameAndType(final String text, final OpType type) {
     OperatorContainer container = META_SYSTEM_OPERATORS.get(text);
     if (container == null) {
       container = SYSTEM_OPERATORS.get(text);

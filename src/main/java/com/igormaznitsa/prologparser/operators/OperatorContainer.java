@@ -165,7 +165,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  public Operator getOperatorForType(final OperatorType type) {
+  public Operator getOperatorForType(final OpType type) {
     Operator result = null;
     switch (type) {
       case FY:
@@ -197,7 +197,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return null;
   }
 
-  public Operator findSimilar(final OperatorType type) {
+  public Operator findSimilar(final OpType type) {
     Operator result;
     switch (type) {
       case FX:
@@ -219,7 +219,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  public boolean removeOperatorForType(final OperatorType type) {
+  public boolean removeOperatorForType(final OpType type) {
     boolean result = false;
     switch (type) {
       case FX:

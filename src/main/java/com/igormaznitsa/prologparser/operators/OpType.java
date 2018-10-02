@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import static java.util.Arrays.stream;
 
-public enum OperatorType {
+public enum OpType {
 
   XF("xf", 1),
   YF("yf", 1),
@@ -18,12 +18,12 @@ public enum OperatorType {
 
   private final int arity;
 
-  OperatorType(final String text, final int arity) {
+  OpType(final String text, final int arity) {
     this.text = text;
     this.arity = arity;
   }
 
-  public static Optional<OperatorType> getForName(final String str) {
+  public static Optional<OpType> getForName(final String str) {
     return stream(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 

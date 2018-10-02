@@ -3,7 +3,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
-import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -145,7 +145,7 @@ public final class ParserTreeItem implements SoftCacheItem {
     }
   }
 
-  OperatorType getOperatorType() {
+  OpType getOperatorType() {
     return ((Operator) ((PrologTermWrapper) savedTerm).getWrappedTerm()).getOperatorType();
   }
 

@@ -19,7 +19,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
@@ -64,7 +64,7 @@ public class ParserContextTest extends AbstractPrologParserTest {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
-        return new OperatorContainer(Operator.makeOperator(1000, OperatorType.XFX, "operator"));
+        return new OperatorContainer(Operator.makeOperator(1000, OpType.XFX, "operator"));
       } else {
         return null;
       }

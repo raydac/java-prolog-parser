@@ -26,16 +26,16 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX,
+    assertEquals(new OperatorContainer(Operator.makeOperator(1000, OpType.FX,
         "<>")).getPrecedence(), 0);
   }
 
   @Test
   public void testToString() {
-    final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
+    final Operator operator = Operator.makeOperator(100, OpType.FX, "<>");
     final OperatorContainer container = new OperatorContainer(operator);
-    container.addOperator(Operator.makeOperator(300, OperatorType.XFX, "<>"));
-    container.addOperator(Operator.makeOperator(800, OperatorType.YF, "<>"));
+    container.addOperator(Operator.makeOperator(300, OpType.XFX, "<>"));
+    container.addOperator(Operator.makeOperator(800, OpType.YF, "<>"));
     assertEquals(
         "OpContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
         container.toString());
@@ -44,14 +44,14 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
   @Test
   public void testGetType() {
     assertEquals(PrologTermType.OPERATORS, new OperatorContainer(
-        Operator.makeOperator(1000, OperatorType.FX, "<>")).getType());
+        Operator.makeOperator(1000, OpType.FX, "<>")).getType());
   }
 
   @Test
   public void testOperatorContainer() {
     assertThrows(NullPointerException.class, () -> new OperatorContainer(null));
 
-    final Operator operator = Operator.makeOperator(100, OperatorType.FX, "<>");
+    final Operator operator = Operator.makeOperator(100, OpType.FX, "<>");
     final OperatorContainer container = new OperatorContainer(operator);
     assertEquals(1, container.size());
     assertSame(operator, container.getOperatorIfSingle());
@@ -59,10 +59,10 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
   @Test
   public void testAddOperator() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
-    final Operator otheroperatorYF = Operator.makeOperator(300, OperatorType.YF,
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
+    final Operator otheroperatorYF = Operator.makeOperator(300, OpType.YF,
         "><");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
@@ -80,16 +80,16 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     assertFalse(container.addOperator(operatorFX));
     assertFalse(container.addOperator(operatorYF));
 
-    assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
-    assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
-    assertSame(operatorYF, container.getOperatorForType(OperatorType.YF));
+    assertSame(operatorFX, container.getOperatorForType(OpType.FX));
+    assertSame(operatorXFX, container.getOperatorForType(OpType.XFX));
+    assertSame(operatorYF, container.getOperatorForType(OpType.YF));
   }
 
   @Test
   public void testRemoveAll() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -101,17 +101,17 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     assertEquals(3, container.size());
     container.removeAll();
     assertEquals(0, container.size());
-    assertNull(container.getOperatorForType(OperatorType.FX));
-    assertNull(container.getOperatorForType(OperatorType.XFX));
-    assertNull(container.getOperatorForType(OperatorType.YF));
+    assertNull(container.getOperatorForType(OpType.FX));
+    assertNull(container.getOperatorForType(OpType.XFX));
+    assertNull(container.getOperatorForType(OpType.YF));
   }
 
   @Test
   public void testRemove() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
-    final Operator otheroperatorXFX = Operator.makeOperator(400, OperatorType.XFX,
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
+    final Operator otheroperatorXFX = Operator.makeOperator(400, OpType.XFX,
         "><");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
@@ -122,25 +122,25 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     assertTrue(container.remove(operatorFX));
     assertEquals(2, container.size());
-    assertNull(container.findSimilar(OperatorType.FX));
+    assertNull(container.findSimilar(OpType.FX));
 
     assertThrows(NullPointerException.class, () -> container.remove(null));
     assertThrows(IllegalArgumentException.class, () -> container.remove(otheroperatorXFX));
 
     assertTrue(container.remove(operatorXFX));
     assertEquals(1, container.size());
-    assertNull(container.findSimilar(OperatorType.XFX));
+    assertNull(container.findSimilar(OpType.XFX));
 
     assertTrue(container.remove(operatorYF));
     assertEquals(0, container.size());
-    assertNull(container.findSimilar(OperatorType.YF));
+    assertNull(container.findSimilar(OpType.YF));
   }
 
   @Test
   public void testSize() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -157,9 +157,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetOperatorIfSingle() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -177,9 +177,9 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
   @Test
   public void testFindCompatibleOperator() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
@@ -215,32 +215,32 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
   @Test
   public void testGetOperatorForType() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
 
     assertThrows(NullPointerException.class, () -> container.getOperatorForType(null));
 
-    assertNull(container.getOperatorForType(OperatorType.XFX));
-    assertNull(container.getOperatorForType(OperatorType.YF));
+    assertNull(container.getOperatorForType(OpType.XFX));
+    assertNull(container.getOperatorForType(OpType.YF));
 
     container.addOperator(operatorXFX);
     container.addOperator(operatorYF);
 
-    assertSame(operatorFX, container.getOperatorForType(OperatorType.FX));
-    assertSame(operatorXFX, container.getOperatorForType(OperatorType.XFX));
-    assertSame(operatorYF, container.getOperatorForType(OperatorType.YF));
-    assertNull(container.getOperatorForType(OperatorType.YFX));
-    assertNull(container.getOperatorForType(OperatorType.XF));
+    assertSame(operatorFX, container.getOperatorForType(OpType.FX));
+    assertSame(operatorXFX, container.getOperatorForType(OpType.XFX));
+    assertSame(operatorYF, container.getOperatorForType(OpType.YF));
+    assertNull(container.getOperatorForType(OpType.YFX));
+    assertNull(container.getOperatorForType(OpType.XF));
   }
 
   @Test
   public void testGetOperatorForSimilarType() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
     container.addOperator(operatorXFX);
@@ -249,19 +249,19 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
     assertThrows(NullPointerException.class, () -> container.findSimilar(null));
 
     assertSame(operatorFX,
-        container.findSimilar(OperatorType.FY));
+        container.findSimilar(OpType.FY));
     assertSame(operatorXFX,
-        container.findSimilar(OperatorType.YFX));
-    assertTrue(container.removeOperatorForType(OperatorType.FX));
-    assertNull(container.findSimilar(OperatorType.FY));
+        container.findSimilar(OpType.YFX));
+    assertTrue(container.removeOperatorForType(OpType.FX));
+    assertNull(container.findSimilar(OpType.FY));
 
   }
 
   @Test
   public void testRemoveOperatorForType() {
-    final Operator operatorFX = Operator.makeOperator(100, OperatorType.FX, "<>");
-    final Operator operatorXFX = Operator.makeOperator(400, OperatorType.XFX, "<>");
-    final Operator operatorYF = Operator.makeOperator(300, OperatorType.YF, "<>");
+    final Operator operatorFX = Operator.makeOperator(100, OpType.FX, "<>");
+    final Operator operatorXFX = Operator.makeOperator(400, OpType.XFX, "<>");
+    final Operator operatorYF = Operator.makeOperator(300, OpType.YF, "<>");
 
     final OperatorContainer container = new OperatorContainer(operatorFX);
     container.addOperator(operatorXFX);
@@ -269,18 +269,18 @@ public class OperatorContainerTest extends AbstractPrologParserTest {
 
     assertThrows(NullPointerException.class, () -> container.removeOperatorForType(null));
 
-    assertTrue(container.removeOperatorForType(OperatorType.FX));
-    assertNull(container.getOperatorForType(OperatorType.FX));
-    assertTrue(container.removeOperatorForType(OperatorType.XFX));
-    assertNull(container.getOperatorForType(OperatorType.XFX));
-    assertTrue(container.removeOperatorForType(OperatorType.YF));
-    assertNull(container.getOperatorForType(OperatorType.YF));
-    assertFalse(container.removeOperatorForType(OperatorType.YFX));
+    assertTrue(container.removeOperatorForType(OpType.FX));
+    assertNull(container.getOperatorForType(OpType.FX));
+    assertTrue(container.removeOperatorForType(OpType.XFX));
+    assertNull(container.getOperatorForType(OpType.XFX));
+    assertTrue(container.removeOperatorForType(OpType.YF));
+    assertNull(container.getOperatorForType(OpType.YF));
+    assertFalse(container.removeOperatorForType(OpType.YFX));
   }
 
   @Test
   public void testGetText() {
     assertEquals("<>", new OperatorContainer(Operator.makeOperator(1000,
-        OperatorType.FX, "<>")).getText());
+        OpType.FX, "<>")).getText());
   }
 }

@@ -17,7 +17,7 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.Operator;
-import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OpType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class PrologTermWrapperTest {
 
-  final static Operator testWrapped = Operator.makeOperator(300, OperatorType.FX, "---");
+  final static Operator testWrapped = Operator.makeOperator(300, OpType.FX, "---");
 
   final static PrologTermWrapper testWrapper = new PrologTermWrapper();
 

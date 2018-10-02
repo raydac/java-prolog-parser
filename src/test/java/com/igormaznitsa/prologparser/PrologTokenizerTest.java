@@ -19,7 +19,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
@@ -278,7 +278,7 @@ public class PrologTokenizerTest extends AbstractPrologParserTest {
     assertThrows(NullPointerException.class, () -> PrologTokenizer.findOperatorForName(null, mockPrologParser));
     assertNull(PrologTokenizer.findOperatorForName("<------------------------------------------------------->", null));
 
-    final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OperatorType.FX, "some_operator"));
+    final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OpType.FX, "some_operator"));
 
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 

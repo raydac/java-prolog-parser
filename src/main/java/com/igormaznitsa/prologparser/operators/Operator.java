@@ -26,22 +26,22 @@ import java.util.Locale;
 
 public final class Operator extends AbstractPrologTerm {
 
-  public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OperatorType.FX, "(");
-  public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OperatorType.XF, ")");
-  public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.FX, "[");
-  public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OperatorType.XF, "]");
-  public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OperatorType.XF, ".");
-  public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE - 1, OperatorType.XFY, "|");
+  public static final Operator METAOPERATOR_LEFT_BRACKET = makeMetaOperator(-1, OpType.FX, "(");
+  public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMetaOperator(-1, OpType.XF, ")");
+  public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMetaOperator(-1, OpType.FX, "[");
+  public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMetaOperator(-1, OpType.XF, "]");
+  public static final Operator METAOPERATOR_DOT = makeMetaOperator(Integer.MAX_VALUE, OpType.XF, ".");
+  public static final Operator METAOPERATOR_VERTICAL_BAR = makeMetaOperator(Integer.MAX_VALUE - 1, OpType.XFY, "|");
 
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
 
   private static final long serialVersionUID = -5954317127778538548L;
-  private final OperatorType opType;
+  private final OpType opType;
   private final int opPrecedence;
   private final int precalculatedHashCode;
 
-  private Operator(final int precedence, final OperatorType type, final String name) {
+  private Operator(final int precedence, final OpType type, final String name) {
     super(name);
 
     if (type == null) {
@@ -74,7 +74,7 @@ public final class Operator extends AbstractPrologTerm {
   }
 
   public static Operator[] makeOperators(final int precedence,
-                                         final OperatorType type, final String[] names) {
+                                         final OpType type, final String[] names) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException(
           "Precedence must be in 0..1200");
@@ -94,7 +94,7 @@ public final class Operator extends AbstractPrologTerm {
     return result;
   }
 
-  public static Operator makeOperator(final int precedence, final OperatorType type, final String name) {
+  public static Operator makeOperator(final int precedence, final OpType type, final String name) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException("Wrong precedence value");
     }
@@ -102,7 +102,7 @@ public final class Operator extends AbstractPrologTerm {
     return new Operator(precedence, type, name);
   }
 
-  private static Operator makeMetaOperator(final int precedence, final OperatorType type, final String name) {
+  private static Operator makeMetaOperator(final int precedence, final OpType type, final String name) {
     return new Operator(precedence, type, name);
   }
 
@@ -111,7 +111,7 @@ public final class Operator extends AbstractPrologTerm {
     return PrologTermType.OPERATOR;
   }
 
-  public OperatorType getOperatorType() {
+  public OpType getOperatorType() {
     return this.opType;
   }
 
@@ -190,13 +190,13 @@ public final class Operator extends AbstractPrologTerm {
 
             case XF:
             case FX: {
-              final AbstractPrologTerm atom = struct.getElement(this.opType == OperatorType.XF ? 0 : 1);
+              final AbstractPrologTerm atom = struct.getElement(this.opType == OpType.XF ? 0 : 1);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
             case YF:
             case FY: {
-              final AbstractPrologTerm atom = struct.getElement(this.opType == OperatorType.YF ? 0 : 1);
+              final AbstractPrologTerm atom = struct.getElement(this.opType == OpType.YF ? 0 : 1);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
 
             }

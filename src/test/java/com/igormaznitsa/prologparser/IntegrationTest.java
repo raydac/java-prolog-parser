@@ -19,7 +19,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OperatorType;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
@@ -308,7 +308,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     assertEquals(PrologTermType.OPERATOR, struct.getFunctor().getType());
     assertEquals(":-", struct.getFunctor().getText());
     assertEquals(2, struct.getArity());
-    assertEquals(OperatorType.XFX,
+    assertEquals(OpType.XFX,
         ((Operator) struct.getFunctor()).getOperatorType());
     assertEquals("hello", struct.getElement(0).getText());
     assertEquals("world", struct.getElement(1).getText());
@@ -322,7 +322,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
     assertEquals(PrologTermType.OPERATOR, struct.getFunctor().getType());
     assertEquals(":-", struct.getFunctor().getText());
     assertEquals(1, struct.getArity());
-    assertEquals(OperatorType.FX,
+    assertEquals(OpType.FX,
         ((Operator) struct.getFunctor()).getOperatorType());
     assertEquals("test", struct.getElement(0).getText());
 
@@ -335,12 +335,12 @@ public class IntegrationTest extends AbstractPrologParserTest {
     assertEquals(PrologTermType.OPERATOR, struct.getFunctor().getType());
     assertEquals("is", struct.getFunctor().getText());
     assertEquals(2, struct.getArity());
-    assertEquals(OperatorType.XFX,
+    assertEquals(OpType.XFX,
         ((Operator) struct.getFunctor()).getOperatorType());
     assertEquals("X", struct.getElement(0).getText());
     assertEquals(PrologTermType.STRUCT, struct.getElement(1).getType());
     assertEquals("+", ((PrologStructure) struct.getElement(1)).getFunctor().getText());
-    assertEquals(OperatorType.YFX,
+    assertEquals(OpType.YFX,
         ((Operator) ((PrologStructure) struct.getElement(1)).getFunctor()).getOperatorType());
     assertEquals(2, ((PrologStructure) struct.getElement(1)).getArity());
     assertEquals("X", ((PrologStructure) struct.getElement(1)).getElement(0).getText());
@@ -388,9 +388,9 @@ public class IntegrationTest extends AbstractPrologParserTest {
   @Test
   public void testSimilarOperatorInterpretation() throws Exception {
     final Map<String, OperatorContainer> operators = new HashMap<String, OperatorContainer>();
-    final Operator firstOperator = Operator.makeOperator(100, OperatorType.FY, "++++++");
-    final Operator secondOperator = Operator.makeOperator(100, OperatorType.FY, "+++");
-    final Operator thirdOperator = Operator.makeOperator(100, OperatorType.FY, "++");
+    final Operator firstOperator = Operator.makeOperator(100, OpType.FY, "++++++");
+    final Operator secondOperator = Operator.makeOperator(100, OpType.FY, "+++");
+    final Operator thirdOperator = Operator.makeOperator(100, OpType.FY, "++");
 
     operators.put(firstOperator.getText(), new OperatorContainer(firstOperator));
     operators.put(secondOperator.getText(), new OperatorContainer(secondOperator));
@@ -427,7 +427,7 @@ public class IntegrationTest extends AbstractPrologParserTest {
               && operatorstructure.getFunctor().getText().equals("op")) {
             final Operator newoperator = Operator.makeOperator(
                 ((PrologIntegerNumber) operatorstructure.getElement(0)).getValue().intValue(),
-                OperatorType.getForName(operatorstructure.getElement(1).getText()).get(),
+                OpType.getForName(operatorstructure.getElement(1).getText()).get(),
                 operatorstructure.getElement(2).getText());
 
             OperatorContainer container = operators.get(newoperator.getText());
@@ -611,8 +611,8 @@ public class IntegrationTest extends AbstractPrologParserTest {
   @Test
   public void testRecognizingUserOperatorsWhichSimilarMetaOperators() throws Exception {
     final Map<String, OperatorContainer> operators = new HashMap<>();
-    operators.put("(((", new OperatorContainer(Operator.makeOperator(1, OperatorType.FX, "(((")));
-    operators.put("...", new OperatorContainer(Operator.makeOperator(1200, OperatorType.XF, "...")));
+    operators.put("(((", new OperatorContainer(Operator.makeOperator(1, OpType.FX, "(((")));
+    operators.put("...", new OperatorContainer(Operator.makeOperator(1200, OpType.XF, "...")));
     final StubContext stubContext = new StubContext(operators);
 
     final PrologStructure structure = (PrologStructure) new EdinburghPrologParser(stubContext).nextSentence("(((hello....");
