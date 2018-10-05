@@ -2,6 +2,8 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.OpType;
 
+import java.io.Reader;
+
 import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
 
 public class EdinburghPrologParser extends GenericPrologParser {
@@ -21,7 +23,7 @@ public class EdinburghPrologParser extends GenericPrologParser {
         of(200, OpType.FY, "\\"));
   }
 
-  public EdinburghPrologParser(final CharSource source, final ParserContext context) {
-    super(source, context);
+  public EdinburghPrologParser(final Reader reader, final ParserContext context) {
+    super(reader, context);
   }
 }

@@ -15,7 +15,7 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
 final class TreeItem implements SoftCacheItem {
 
-  private final AbstractPrologParser parser;
+  private final PrologParser parser;
   private SoftCache<TreeItem> ringBuffer;
   private AbstractPrologTerm savedTerm;
   private TreeItem leftBranch;
@@ -23,7 +23,7 @@ final class TreeItem implements SoftCacheItem {
   private TreeItem parentItem;
   private boolean insideBrakes;
 
-  TreeItem(final AbstractPrologParser parser) {
+  TreeItem(final PrologParser parser) {
     this.parser = parser;
     this.setData(null, null, false, -1, -1);
   }

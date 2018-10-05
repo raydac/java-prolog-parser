@@ -7,13 +7,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SerializationTest {
   @Test
   public void testSerializationOperator() throws Exception {
-    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("a+b. c+d."), null);
+    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a+b. c+d."), null);
 
     final PrologStructure first = (PrologStructure) parser.next();
     final PrologStructure second = (PrologStructure) parser.next();
@@ -44,7 +45,7 @@ public class SerializationTest {
 
   @Test
   public void testSerializationOfVariables() throws Exception {
-    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("a(A,A)."), null);
+    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a(A,A)."), null);
     final PrologStructure structure = (PrologStructure) parser.next();
 
     assertNotSame(structure.getElement(0), structure.getElement(1));

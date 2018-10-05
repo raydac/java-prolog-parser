@@ -14,7 +14,6 @@ final class TokenizerResult implements SoftCacheItem {
   private int stringPosition;
   private int lineNumber;
 
-
   TokenizerResult() {
   }
 
