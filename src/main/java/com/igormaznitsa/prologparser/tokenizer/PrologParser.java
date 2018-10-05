@@ -35,7 +35,7 @@ import static com.igormaznitsa.prologparser.operators.OperatorContainer.newOpCon
 
 public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Closeable {
 
-  protected static final SingleCharOperatorContainerMap META_SYSTEM_OPERATORS = new SingleCharOperatorContainerMap();
+  protected static final SingleCharOpContainerMap META_SYSTEM_OPERATORS = new SingleCharOpContainerMap();
 
   protected static final Map<String, OperatorContainer> SYSTEM_OPERATORS = new HashMap<>();
   protected static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<>();
@@ -47,11 +47,11 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
   private final static OperatorContainer OPERATOR_RIGHTSQUAREBRACKET;
   private final static OperatorContainer OPERATOR_DOT;
   private final static OperatorContainer OPERATOR_VERTICALBAR;
-  private static final SingleCharOperatorContainerMap OPERATORS_PHRASE;
-  private static final SingleCharOperatorContainerMap OPERATORS_INSIDE_LIST;
-  private static final SingleCharOperatorContainerMap OPERATORS_END_LIST;
-  private static final SingleCharOperatorContainerMap OPERATORS_INSIDE_STRUCT;
-  private static final SingleCharOperatorContainerMap OPERATORS_SUBBLOCK;
+  private static final SingleCharOpContainerMap OPERATORS_PHRASE;
+  private static final SingleCharOpContainerMap OPERATORS_INSIDE_LIST;
+  private static final SingleCharOpContainerMap OPERATORS_END_LIST;
+  private static final SingleCharOpContainerMap OPERATORS_INSIDE_STRUCT;
+  private static final SingleCharOpContainerMap OPERATORS_SUBBLOCK;
 
   static {
     META_SYSTEM_OPERATORS.clear();
@@ -85,11 +85,11 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
 
     OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
 
-    OPERATORS_PHRASE = new SingleCharOperatorContainerMap(OPERATOR_DOT);
-    OPERATORS_INSIDE_LIST = new SingleCharOperatorContainerMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
-    OPERATORS_END_LIST = new SingleCharOperatorContainerMap(OPERATOR_RIGHTSQUAREBRACKET);
-    OPERATORS_INSIDE_STRUCT = new SingleCharOperatorContainerMap(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
-    OPERATORS_SUBBLOCK = new SingleCharOperatorContainerMap(OPERATOR_RIGHTBRACKET);
+    OPERATORS_PHRASE = new SingleCharOpContainerMap(OPERATOR_DOT);
+    OPERATORS_INSIDE_LIST = new SingleCharOpContainerMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
+    OPERATORS_END_LIST = new SingleCharOpContainerMap(OPERATOR_RIGHTSQUAREBRACKET);
+    OPERATORS_INSIDE_STRUCT = new SingleCharOpContainerMap(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
+    OPERATORS_SUBBLOCK = new SingleCharOpContainerMap(OPERATOR_RIGHTBRACKET);
   }
 
   protected final ParserContext context;
@@ -154,7 +154,7 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
     }
   }
 
-  private boolean isEndOperator(final AbstractPrologTerm operator, final SingleCharOperatorContainerMap endOperators) {
+  private boolean isEndOperator(final AbstractPrologTerm operator, final SingleCharOpContainerMap endOperators) {
     if (operator == null) {
       return true;
     }
@@ -323,7 +323,7 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
     }
   }
 
-  private AbstractPrologTerm readBlock(final SingleCharOperatorContainerMap endOperators) {
+  private AbstractPrologTerm readBlock(final SingleCharOpContainerMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
     TreeItem currentTreeItem = null;

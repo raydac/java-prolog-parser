@@ -43,7 +43,7 @@ final class Tokenizer {
     this.prevLineNum = 1;
   }
 
-  public int readChar() throws IOException {
+  int readChar() throws IOException {
     int ch;
     if (this.insideCharBuffer.isEmpty()) {
       ch = this.reader.read();
@@ -64,7 +64,7 @@ final class Tokenizer {
     return ch;
   }
 
-  public void calcDiffAndPushResultBack(final String etalon, final StrBuffer buffer) {
+  void calcDiffAndPushResultBack(final String etalon, final StrBuffer buffer) {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 

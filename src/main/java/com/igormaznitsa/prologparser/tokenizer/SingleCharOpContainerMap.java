@@ -9,15 +9,15 @@ import java.util.Map;
 
 import static java.util.Arrays.stream;
 
-final class SingleCharOperatorContainerMap {
+final class SingleCharOpContainerMap {
 
   private final Map<String, OperatorContainer> insideMap = new HashMap<>();
   private final OperatorContainer[] charMap = new OperatorContainer[0x80];
 
-  SingleCharOperatorContainerMap() {
+  SingleCharOpContainerMap() {
   }
 
-  SingleCharOperatorContainerMap(final OperatorContainer... containers) {
+  SingleCharOpContainerMap(final OperatorContainer... containers) {
     stream(containers).forEach(x -> put(x.getText(), x));
   }
 

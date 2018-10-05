@@ -7,7 +7,7 @@ final class TermWrapper extends AbstractPrologTerm {
 
   private static final long serialVersionUID = 9006607815982718325L;
 
-  private volatile AbstractPrologTerm term;
+  private AbstractPrologTerm term;
 
   TermWrapper(final AbstractPrologTerm term) {
     super("termWrapper");
