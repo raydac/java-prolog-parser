@@ -8,117 +8,111 @@ public final class StringUtils {
   private StringUtils() {
   }
 
-  public static boolean unescapeCharacter(final String afterString, final AtomicReference<Character> result) {
-    if (afterString == null) {
-      result.set(null);
-      return false;
+  public static UnescapeResult tryUnescapeCharacter(final StrBuffer stringAfterEscMarker) {
+    if (stringAfterEscMarker == null || stringAfterEscMarker.isEmpty()) {
+      return new UnescapeResult('_', false, true);
     }
 
-    final int len = afterString.length();
+    final int len = stringAfterEscMarker.length();
+
+    final char result;
 
     if (len == 1) {
-      boolean flag = true;
-      switch (afterString.charAt(0)) {
+      switch (stringAfterEscMarker.charAt(0)) {
         case 'a':
-          result.set((char) 7);
+          result = (char) 7;
           break;
         case 'b':
-          result.set('\b');
+          result = '\b';
           break;
         case 'n':
-          result.set('\n');
+          result = '\n';
           break;
         case 'f':
-          result.set('\f');
+          result = '\f';
           break;
         case 'r':
-          result.set('\r');
+          result = '\r';
           break;
         case 'e':
-          result.set((char) 27);
+          result = (char) 27;
           break;
         case 't':
-          result.set('\t');
+          result = '\t';
           break;
         case 's':
-          result.set((char) 32);
+          result = (char) 32;
           break;
         case 'v':
-          result.set((char) 11);
+          result = (char) 11;
           break;
         case '\\':
-          result.set('\\');
+          result = '\\';
           break;
         case '\'':
-          result.set('\'');
+          result = '\'';
           break;
         case '`':
-          result.set('`');
+          result = '`';
           break;
         case 'u':
         case 'x':
-          result.set(null);
-          break;
+          return new UnescapeResult(stringAfterEscMarker.charAt(0), true, false);
         default:
-          result.set(null);
-          flag = false;
-          break;
+          return new UnescapeResult(stringAfterEscMarker.charAt(0), false, true);
       }
-      return flag;
+      return new UnescapeResult(result, false, false);
     } else {
-      switch (afterString.charAt(0)) {
+      switch (stringAfterEscMarker.charAt(0)) {
         case 'u': {
-          int num;
-          try {
-            num = Integer.parseInt(afterString.substring(1), 16);
-          } catch (NumberFormatException ex) {
-            result.set(null);
-            return false;
-          }
-
           if (len == 5) {
-            result.set((char) num);
-            return true;
+            final int decoded;
+            try {
+              decoded = Integer.parseInt(stringAfterEscMarker.substring(1), 16);
+            } catch (NumberFormatException ex) {
+              return new UnescapeResult('u', false, true);
+            }
+            return new UnescapeResult((char) decoded, false, false);
           } else {
             if (len > 5) {
-              result.set(null);
-              return false;
+              return new UnescapeResult('u', false, true);
+            } else {
+              if (stringAfterEscMarker.hasSeveralChars() && !isCharAppropriateForHex(stringAfterEscMarker.getLastChar())) {
+                return new UnescapeResult('u', false, true);
+              }
+              return new UnescapeResult('u', true, false);
             }
-            result.set(null);
-            return true;
           }
         }
         case 'x': {
-          int num;
-          try {
-            num = Integer.parseInt(afterString.substring(1), 16);
-          } catch (NumberFormatException ex) {
-            result.set(null);
-            return false;
-          }
-
-          if (len == 3) {
-            result.set((char) num);
-            return true;
-          } else {
-            if (len > 3) {
-              result.set(null);
-              return false;
+          if (stringAfterEscMarker.isLastChar('\\')) {
+            final int decoded;
+            try {
+              decoded = Integer.parseInt(stringAfterEscMarker.substring(1, stringAfterEscMarker.length() - 1), 16);
+            } catch (NumberFormatException ex) {
+              return new UnescapeResult('x', false, true);
             }
-            result.set(null);
-            return true;
+            return new UnescapeResult((char) decoded, false, false);
+          } else {
+            if (stringAfterEscMarker.hasSeveralChars() && !isCharAppropriateForHex(stringAfterEscMarker.getLastChar())) {
+              return new UnescapeResult('x', false, true);
+            }
+            return new UnescapeResult('x', true, false);
           }
         }
         default: {
-          result.set(null);
-          return false;
+          return new UnescapeResult(stringAfterEscMarker.charAt(0), false, true);
         }
       }
     }
   }
 
+  public static boolean isCharAppropriateForHex(final char chr) {
+    return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F');
+  }
+
   public static String escapeString(final String str) {
-    final StrBuffer result = new StrBuffer(str.length() << 1);
+    final StringBuilder result = new StringBuilder(str.length() << 1);
 
     final int strLen = str.length();
     for (int i = 0; i < strLen; i++) {
@@ -161,5 +155,29 @@ public final class StringUtils {
     }
 
     return result.toString();
+  }
+
+  public static final class UnescapeResult {
+    private final boolean needsMore;
+    private final boolean error;
+    private final char decoded;
+
+    UnescapeResult(final char decoded, final boolean needsMore, final boolean error) {
+      this.decoded = decoded;
+      this.needsMore = needsMore;
+      this.error = error;
+    }
+
+    public boolean doesNeedMore() {
+      return this.needsMore;
+    }
+
+    public boolean isError() {
+      return this.error;
+    }
+
+    public char getDecoded() {
+      return this.decoded;
+    }
   }
 }

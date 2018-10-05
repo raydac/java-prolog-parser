@@ -45,10 +45,10 @@ public final class TokenizerResult implements SoftCacheItem {
     this.stringPosition = -1;
   }
 
-  public void setData(final AbstractPrologTerm term,
-                      final TokenizerState parserState,
-                      final int stringPosition,
-                      final int lineNumber) {
+  void setData(final AbstractPrologTerm term,
+               final TokenizerState parserState,
+               final int stringPosition,
+               final int lineNumber) {
 
     if (term == null) {
       throw new NullPointerException("Term is null");

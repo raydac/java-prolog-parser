@@ -14,12 +14,16 @@ public final class OperatorContainer extends AbstractPrologTerm {
   private Operator opZFZ;
   private int numberAtContainer;
 
-  public OperatorContainer(final Operator operator) {
+  private OperatorContainer(final Operator operator) {
     super(operator.getText());
-    addOperator(operator);
+    addOp(operator);
   }
 
-  public boolean addOperator(final Operator operator) {
+  public static OperatorContainer newOpCont(final Operator operator) {
+    return new OperatorContainer(operator);
+  }
+
+  public boolean addOp(final Operator operator) {
     if (!getText().equals(operator.getText())) {
       throw new IllegalArgumentException(
           "Wrong operator name for the container");
@@ -133,10 +137,10 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return null;
   }
 
-  public Operator findCompatibleOperator(final boolean leftPresented, final boolean rightPresented) {
+  public Operator findSimilar(final boolean hasLeftArg, final boolean hasRightArg) {
     final Operator result;
-    if (leftPresented) {
-      if (rightPresented) {
+    if (hasLeftArg) {
+      if (hasRightArg) {
         if (opZFZ != null) {
           result = opZFZ;
         } else if (opFZ != null) {
@@ -152,7 +156,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
         }
       }
     } else {
-      if (rightPresented) {
+      if (hasRightArg) {
         if (opFZ != null) {
           result = opFZ;
         } else {
@@ -165,7 +169,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  public Operator getOperatorForType(final OpType type) {
+  public Operator findForType(final OpType type) {
     Operator result = null;
     switch (type) {
       case FY:
@@ -219,7 +223,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  public boolean removeOperatorForType(final OpType type) {
+  public boolean removeForType(final OpType type) {
     boolean result = false;
     switch (type) {
       case FX:

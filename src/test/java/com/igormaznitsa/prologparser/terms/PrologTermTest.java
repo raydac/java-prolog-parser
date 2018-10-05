@@ -1,10 +1,13 @@
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.GenericPrologParser;
+import com.igormaznitsa.prologparser.CharSource;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

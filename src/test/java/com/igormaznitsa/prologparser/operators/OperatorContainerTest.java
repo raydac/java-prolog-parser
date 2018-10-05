@@ -3,6 +3,10 @@ package com.igormaznitsa.prologparser.operators;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import org.junit.jupiter.api.Test;
 
+import static com.igormaznitsa.prologparser.operators.Operator.makeOperator;
+import static com.igormaznitsa.prologparser.operators.OperatorContainer.newOpCont;
+import static org.junit.jupiter.api.Assertions.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class OperatorContainerTest {

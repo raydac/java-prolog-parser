@@ -4,6 +4,8 @@ import com.igormaznitsa.prologparser.operators.OpType;
 
 import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
 
+import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
+
 public class EdinburghPrologParser extends GenericPrologParser {
 
   static {

@@ -42,6 +42,22 @@ public final class StrBuffer {
     return this.stringBuilder.substring(0, this.stringBuilder.length() - 1);
   }
 
+  public boolean hasSeveralChars() {
+    return this.stringBuilder.length() > 1;
+  }
+
+  public char getLastChar() {
+    return this.stringBuilder.charAt(this.stringBuilder.length() - 1);
+  }
+
+  public String substring(final int start) {
+    return this.stringBuilder.substring(start);
+  }
+
+  public String substring(final int start, final int end) {
+    return this.stringBuilder.substring(start, end);
+  }
+
   public StrBuffer append(final String str) {
     this.stringBuilder.append(str);
     return this;

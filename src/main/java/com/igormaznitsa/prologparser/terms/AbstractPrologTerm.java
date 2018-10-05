@@ -7,13 +7,13 @@ public abstract class AbstractPrologTerm implements Serializable {
   private static final long serialVersionUID = 1482429096900255841L;
 
   protected final String text;
-  protected Object linkedObject;
+  private volatile Serializable payload;
   private int lineNumber;
   private int strPosition;
 
   public AbstractPrologTerm(final String text) {
     if (text == null) {
-      throw new NullPointerException("Term text must not be null");
+      throw new NullPointerException("Term text is null");
     }
     this.text = text;
     this.strPosition = -1;
@@ -55,12 +55,12 @@ public abstract class AbstractPrologTerm implements Serializable {
     return text;
   }
 
-  public Object getLinkedObject() {
-    return this.linkedObject;
+  public Serializable getPayload() {
+    return this.payload;
   }
 
-  public void setLinkedObject(final Object obj) {
-    this.linkedObject = obj;
+  public void setPayload(final Serializable obj) {
+    this.payload = obj;
   }
 
   public abstract PrologTermType getType();

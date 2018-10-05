@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SerializationTest {
   @Test
   public void testSerializationOperator() throws Exception {
-    final GenericPrologParser parser = new EdinburghPrologParser(null);
+    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("a+b. c+d."), null);
 
     final CharSource source = CharSource.of("a+b. c+d.");
 

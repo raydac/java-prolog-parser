@@ -1,7 +1,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.operators.Operator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

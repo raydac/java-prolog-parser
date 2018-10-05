@@ -9,6 +9,8 @@ import java.util.Map;
 
 import static java.util.Arrays.stream;
 
+import static java.util.Arrays.stream;
+
 public final class SingleCharOperatorContainerMap {
 
   private final Map<String, OperatorContainer> insideMap = new HashMap<>();

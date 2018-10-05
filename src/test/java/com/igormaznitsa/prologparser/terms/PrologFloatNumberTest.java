@@ -103,10 +103,7 @@ public class PrologFloatNumberTest {
 
   @Test
   public void testPrologFloatNumberBigDecimalIntInt() {
-    try {
-      new PrologFloatNumber((BigDecimal) null, 1, 2);
-    } catch (NullPointerException ex) {
-    }
+    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((BigDecimal) null, 1, 2));
 
     final AbstractPrologTerm term = new PrologFloatNumber(BigDecimal.ONE, 1, 2);
     assertEquals(1, term.getStrPosition());

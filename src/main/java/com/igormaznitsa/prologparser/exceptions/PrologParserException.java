@@ -1,15 +1,17 @@
 package com.igormaznitsa.prologparser.exceptions;
 
-import java.io.IOException;
-
-public class PrologParserException extends IOException {
-  private static final long serialVersionUID = -4404323844625857006L;
+public class PrologParserException extends RuntimeException {
+  private static final long serialVersionUID = -4404323844125857006L;
 
   protected final int lineNumber;
   protected final int stringPosition;
 
   public PrologParserException(final String text, final int lineNumber, final int stringPos) {
-    super(text);
+    this(text, lineNumber, stringPos, null);
+  }
+
+  public PrologParserException(final String text, final int lineNumber, final int stringPos, final Throwable cause) {
+    super(text, cause);
     this.lineNumber = lineNumber;
     this.stringPosition = stringPos;
   }

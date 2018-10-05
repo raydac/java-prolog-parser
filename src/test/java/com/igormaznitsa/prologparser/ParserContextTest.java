@@ -28,10 +28,9 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     Mockito.when(mockContext.hasOperatorStartsWith(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
-    final GenericPrologParser parser = new EdinburghPrologParser(mockContext);
-    final CharSource reader = CharSource.of("a operator b.");
+    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("a operator b."), mockContext);
 
-    assertThrows(PrologParserException.class, () -> parser.nextSentence(reader));
+    assertThrows(PrologParserException.class, () -> parser.next());
 
     verify(mockContext).hasOperatorStartsWith(parser, "a");
     verify(mockContext).hasOperatorStartsWith(parser, "o");
@@ -49,7 +48,7 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
-        return new OperatorContainer(Operator.makeOperator(1000, OpType.XFX, "operator"));
+        return OperatorContainer.newOpCont(Operator.makeOperator(1000, OpType.XFX, "operator"));
       } else {
         return null;
       }
@@ -57,9 +56,8 @@ public class ParserContextTest {
 
     Mockito.when(mockContext.hasOperatorStartsWith(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
-    final GenericPrologParser parser = new EdinburghPrologParser(mockContext);
-    final CharSource reader = CharSource.of("operator.");
-    final PrologAtom atom = (PrologAtom) parser.nextSentence(reader);
+    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("operator."), mockContext);
+    final PrologAtom atom = (PrologAtom) parser.next();
     assertEquals("operator", atom.getText());
 
     verify(mockContext).findOperatorForName(parser, "operator");
@@ -71,20 +69,20 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     Mockito.when(mockContext.hasZeroArityPredicate(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "foo".equals(invocation.getArguments()[1]));
 
-    final GenericPrologParser parser = new EdinburghPrologParser(mockContext);
+    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("foo."), mockContext);
 
-    final AbstractPrologTerm term = parser.nextSentence("foo.");
+    final AbstractPrologTerm term = parser.next();
     assertNotNull(term);
     assertEquals(PrologTermType.STRUCT, term.getType());
     assertEquals(0, ((PrologStructure) term).getArity());
     assertEquals("foo", term.getText());
-    assertNull(parser.nextSentence());
+    assertFalse(parser.hasNext());
 
     verify(mockContext).hasZeroArityPredicate(parser, "foo");
   }
 
   @Test
-  public void testProcessNewStructure() throws Exception {
+  public void testProcessNewStructure() {
     final Map<String, PrologStructure> detectedStructures = new HashMap<>();
     final ParserContext stubContext = new ParserContext() {
       @Override
@@ -108,9 +106,9 @@ public class ParserContextTest {
       }
     };
 
-    final GenericPrologParser parser = new EdinburghPrologParser(stubContext);
-    final CharSource reader = CharSource.of("test(1,2,3).foo.ttt(5). a :- b.");
-    while (parser.nextSentence(reader) != null) {
+    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("test(1,2,3).foo.ttt(5). a :- b."), stubContext);
+    while (parser.hasNext()) {
+      parser.next();
     }
 
     assertEquals(4, detectedStructures.size());

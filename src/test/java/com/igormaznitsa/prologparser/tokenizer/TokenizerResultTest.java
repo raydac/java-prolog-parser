@@ -3,8 +3,6 @@ package com.igormaznitsa.prologparser.tokenizer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
-import com.igormaznitsa.prologparser.tokenizer.TokenizerState;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
