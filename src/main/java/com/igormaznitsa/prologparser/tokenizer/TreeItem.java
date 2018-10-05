@@ -13,12 +13,12 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 
 final class TreeItem {
 
+  private final AbstractPrologTerm savedTerm;
+  private final PrologParser parser;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
   private TreeItem parentItem;
   private boolean insideBrakes;
-  private final AbstractPrologTerm savedTerm;
-  private final PrologParser parser;
 
   TreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
     this.parser = parser;

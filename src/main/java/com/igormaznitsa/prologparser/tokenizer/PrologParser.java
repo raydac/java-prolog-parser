@@ -92,11 +92,9 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
     OPERATORS_SUBBLOCK = new SingleCharOperatorContainerMap(OPERATOR_RIGHTBRACKET);
   }
 
+  protected final ParserContext context;
   private final ArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ArrayListCache<>();
   private final Tokenizer tokenizer;
-
-  protected final ParserContext context;
-
   private AbstractPrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {

@@ -19,23 +19,18 @@ final class Tokenizer {
 
   private final StrBuffer strBuf = new StrBuffer(128);
   private final StrBuffer specCharBuf = new StrBuffer(128);
-
-  TokenizerResult lastPushedTerm;
-
   private final StrBuffer insideCharBuffer = new StrBuffer(32);
-
+  private final Reader reader;
+  private final PrologParser parser;
+  TokenizerResult lastPushedTerm;
   private int prevTokenLine;
   private int prevTokenPos;
   private int lastTokenLine;
   private int lastTokenPos;
-
   private int prevStrPos;
   private int prevLineNum;
   private int strPos;
   private int lineNum;
-
-  private final Reader reader;
-  private final PrologParser parser;
 
   Tokenizer(final PrologParser parser, final Reader reader) {
     super();

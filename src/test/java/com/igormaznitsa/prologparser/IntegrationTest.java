@@ -14,7 +14,6 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
