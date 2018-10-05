@@ -580,9 +580,8 @@ public class IntegrationTest {
   }
 
   @Test
-  @Disabled
   public void testVeryLongList() {
-    final int ELEMENTS = 1000000;
+    final int ELEMENTS = 100000;
 
     final StringBuilder buffer = new StringBuilder();
 
@@ -618,9 +617,8 @@ public class IntegrationTest {
   }
 
   @Test
-  @Disabled
   public void testVeryLongStructure() {
-    final int ELEMENTS = 1000000;
+    final int ELEMENTS = 100000;
 
     final StringBuilder buffer = new StringBuilder();
     buffer.append("test(");
