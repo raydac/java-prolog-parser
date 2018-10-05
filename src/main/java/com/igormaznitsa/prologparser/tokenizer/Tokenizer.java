@@ -38,14 +38,10 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
       final String operatorNameStartSubstring,
       final AbstractPrologParser parser) {
 
-    // check for system
-    if (AbstractPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
-      return true;
-    }
-
-    // check only context
     boolean result = false;
-    if (parser != null) {
+    if (AbstractPrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
+      result = true;
+    } else if (parser != null) {
       final ParserContext ctx = parser.getContext();
       if (ctx != null) {
         result = ctx.hasOperatorStartsWith(parser, operatorNameStartSubstring);
@@ -87,14 +83,14 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  public void push(final TokenizerResult object) {
+  void push(final TokenizerResult object) {
     if (this.lastPushedTerm != null) {
       throw new IllegalStateException("There is already pushed term");
     }
     this.lastPushedTerm = object;
   }
 
-  public TokenizerResult peek(final CharSource reader, final AbstractPrologParser parser) throws IOException {
+  TokenizerResult peek(final CharSource reader, final AbstractPrologParser parser) throws IOException {
     TokenizerResult result;
     if (lastPushedTerm == null) {
       result = nextToken(reader, parser);
@@ -105,23 +101,23 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
     return result;
   }
 
-  public int getLastTokenStrPos() {
+  int getLastTokenStrPos() {
     return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
   }
 
-  public int getLastTokenLineNum() {
+  int getLastTokenLineNum() {
     return lastPushedTerm == null ? lastTokenLine
         : prevTokenLine;
   }
 
-  public void fixPosition(final CharSource reader) {
+  void fixPosition(final CharSource reader) {
     prevTokenLine = lastTokenLine;
     prevTokenPos = lastTokenPos;
     lastTokenLine = reader.getLineNum();
     lastTokenPos = reader.getStrPos() - 1;
   }
 
-  public void skipUntilNextString(final CharSource reader)
+  void skipUntilNextString(final CharSource reader)
       throws IOException {
     while (true) {
       final int readchar = reader.read();
@@ -131,7 +127,7 @@ public final class Tokenizer implements Supplier<TokenizerResult> {
     }
   }
 
-  public TokenizerResult nextToken(final CharSource reader, final AbstractPrologParser parser) throws IOException {
+  TokenizerResult nextToken(final CharSource reader, final AbstractPrologParser parser) throws IOException {
 
     if (lastPushedTerm != null) {
       try {
