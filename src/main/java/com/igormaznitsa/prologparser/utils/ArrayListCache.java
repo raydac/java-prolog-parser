@@ -16,7 +16,7 @@ public final class ArrayListCache<T> {
   public ArrayListCache() {
     insideList = (List<T>[]) new List<?>[MAX_CACHED_NUMBER];
     IntStream.range(0, MAX_CACHED_NUMBER)
-        .forEach(x -> this.insideList[x] = new ArrayList<T>(INITIAL_ARRAY_LIST_SIZE));
+        .forEach(x -> this.insideList[x] = new ArrayList<>(INITIAL_ARRAY_LIST_SIZE));
   }
 
   @SuppressWarnings("unchecked")

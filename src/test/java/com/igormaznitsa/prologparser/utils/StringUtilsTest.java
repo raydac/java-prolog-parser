@@ -6,95 +6,61 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 
 public class StringUtilsTest {
+
+  private void assertUnescaped(char expectedChar, String testString) {
+    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StrBuffer(testString));
+    assertFalse(result.isError());
+    assertFalse(result.doesNeedMore());
+    assertEquals(expectedChar, result.getDecoded());
+  }
+
+  private void assertErrorUnescaped(String testString) {
+    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StrBuffer(testString));
+    assertTrue(result.isError());
+  }
+
+  private void assertNotFullData(String testString) {
+    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StrBuffer(testString));
+    assertFalse(result.isError());
+    assertTrue(result.doesNeedMore());
+  }
 
   @Test
   public void testUnescapeCharacter() {
 
     final AtomicReference<Character> container = new AtomicReference<>();
 
-    assertThrows(NullPointerException.class,()->StringUtils.unescapeCharacter("Test", null));
+    assertUnescaped((char) 7, "a");
+    assertUnescaped((char) 8, "b");
+    assertUnescaped((char) 27, "e");
+    assertUnescaped((char) 11, "v");
+    assertUnescaped('\r', "r");
+    assertUnescaped('\n', "n");
+    assertUnescaped('\\', "\\");
+    assertUnescaped('\'', "\'");
+    assertUnescaped('\t', "t");
+    assertUnescaped(' ', "s");
+    assertUnescaped((char) 32, "x20\\");
+    assertUnescaped((char) 0xFF00, "uFF00");
+    assertUnescaped((char) 0xFF0A, "uFF0a");
+    assertUnescaped((char) 0xFF0A, "ufF0A");
+    assertUnescaped((char) 0xBBBB, "ubbbb");
 
-    assertFalse(StringUtils.unescapeCharacter(null, container));
-    assertNull(container.get());
+    assertNotFullData("x12234");
+    assertNotFullData("xa");
+    assertNotFullData("x2023");
+    assertNotFullData("uFF0");
 
-    assertTrue(StringUtils.unescapeCharacter("a", container));
-    assertEquals(Character.valueOf((char) 7), container.get());
+    assertErrorUnescaped("xm");
 
-    assertTrue(StringUtils.unescapeCharacter("b", container));
-    assertEquals(Character.valueOf((char) 8), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("e", container));
-    assertEquals(Character.valueOf((char) 27), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("r", container));
-    assertEquals(Character.valueOf('\r'), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("n", container));
-    assertEquals(Character.valueOf('\n'), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("\\", container));
-    assertEquals(Character.valueOf('\\'), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("\'", container));
-    assertEquals(Character.valueOf('\''), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("t", container));
-    assertEquals(Character.valueOf('\t'), container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("z", container));
-    assertNull(container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("xa", container));
-    assertNull(container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("s", container));
-    assertEquals(Character.valueOf(' '), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("v", container));
-    assertEquals(Character.valueOf((char) 11), container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("xm", container));
-    assertNull(container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("x12234", container));
-    assertNull(container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("x20", container));
-    assertEquals(Character.valueOf((char) 32), container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("x2023", container));
-    assertNull(container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("Xff", container));
-    assertNull(container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("uFF0", container));
-    assertNull(container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("uFF00", container));
-    assertEquals(Character.valueOf((char) 0xFF00), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("uFF0a", container));
-    assertEquals(Character.valueOf((char) 0xFF0A), container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("ufF0A", container));
-    assertEquals(Character.valueOf((char) 0xFF0A), container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("ufF0AC2", container));
-    assertNull(container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("uFF0z", container));
-    assertNull(container.get());
-
-    assertTrue(StringUtils.unescapeCharacter("ubbbb", container));
-    assertEquals(Character.valueOf((char) 0xBBBB), container.get());
-
-    assertFalse(StringUtils.unescapeCharacter("Ubbbb", container));
-    assertNull(container.get());
+    assertErrorUnescaped("z");
+    assertErrorUnescaped("Xff");
+    assertErrorUnescaped("ufF0AC2");
+    assertErrorUnescaped("uFF0z");
+    assertErrorUnescaped("uFF0z");
+    assertErrorUnescaped("Ubbbb");
   }
 
   @Test

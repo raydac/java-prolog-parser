@@ -1,7 +1,5 @@
 package com.igormaznitsa.prologparser.utils;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 @SuppressWarnings("serial")
 public final class StringUtils {
 

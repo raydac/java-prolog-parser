@@ -4,12 +4,10 @@ import com.igormaznitsa.prologparser.operators.OpType;
 
 import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
 
-import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
-
 public class EdinburghPrologParser extends GenericPrologParser {
 
   static {
-    registerAsSystemOperators(of(1200, OpType.XFX, ":-", "-->"),
+    registerSysOp(of(1200, OpType.XFX, ":-", "-->"),
         of(1200, OpType.FX, "?-", ":-"),
         of(1100, OpType.XFY, ";"),
         of(1150, OpType.XFY, "->"),
@@ -23,7 +21,7 @@ public class EdinburghPrologParser extends GenericPrologParser {
         of(200, OpType.FY, "\\"));
   }
 
-  public EdinburghPrologParser(final ParserContext context) {
-    super(context);
+  public EdinburghPrologParser(final CharSource source, final ParserContext context) {
+    super(source, context);
   }
 }

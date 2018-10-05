@@ -3,25 +3,18 @@ package com.igormaznitsa.prologparser.terms;
 import com.igormaznitsa.prologparser.CharSource;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
-import org.junit.jupiter.api.BeforeEach;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-
 public class PrologTermTest {
 
-  final ParserContext mock = mock(ParserContext.class);
-  final GenericPrologParser parser = new EdinburghPrologParser(mock);
-
-  @BeforeEach
-  public void beforeTest() {
-    reset(mock);
+  private AbstractPrologParser parserFor(final String str) {
+    return new EdinburghPrologParser(CharSource.of(str), mock(ParserContext.class));
   }
+
 
   @Test
   public void testToString() {
@@ -75,22 +68,22 @@ public class PrologTermTest {
 
   @Test
   public void testOperatorToString() throws Exception {
-    AbstractPrologTerm term = parser.nextSentence("a+b*c.");
+    AbstractPrologTerm term = parserFor("a+b*c.").next();
     assertEquals("'a' + 'b' * 'c'", term.toString());
 
-    term = parser.nextSentence("X is a+b.");
+    term = parserFor("X is a+b.").next();
     assertEquals("X is 'a' + 'b'", term.toString());
 
-    term = parser.nextSentence("hello:-world.");
+    term = parserFor("hello:-world.").next();
     assertEquals("'hello' :- 'world'", term.toString());
 
-    term = parser.nextSentence(":-hello(world).");
+    term = parserFor(":-hello(world).").next();
     assertEquals(":- 'hello'('world')", term.toString());
 
-    term = parser.nextSentence("[1,2,3,4,5]=[1,2,3,4|[5]].");
+    term = parserFor("[1,2,3,4,5]=[1,2,3,4|[5]].").next();
     assertEquals("[1, 2, 3, 4, 5] = [1, 2, 3, 4, 5]", term.toString());
 
-    term = parser.nextSentence("[1,2,3,4,5]\\==[1,2,3,4|X].");
+    term = parserFor("[1,2,3,4,5]\\==[1,2,3,4|X].").next();
     assertEquals("[1, 2, 3, 4, 5] \\== [1, 2, 3, 4|X]", term.toString());
   }
 }

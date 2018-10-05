@@ -1,6 +1,6 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-public enum TokenizerState {
+enum TokenizerState {
 
   LOOKFOR,
   ATOM,

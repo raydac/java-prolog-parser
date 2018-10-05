@@ -17,11 +17,11 @@ final class TermWrapper extends AbstractPrologTerm implements SoftCacheItem {
     super("termWrapper");
   }
 
-  public AbstractPrologTerm getWrappedTerm() {
+  AbstractPrologTerm getWrappedTerm() {
     return this.wrappedTerm;
   }
 
-  public void setWrappedTerm(final AbstractPrologTerm term) {
+  void setWrappedTerm(final AbstractPrologTerm term) {
     this.wrappedTerm = term;
   }
 

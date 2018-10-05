@@ -13,8 +13,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class PrologCharDataSourceTest {
 
   @Test
@@ -71,7 +69,7 @@ public class PrologCharDataSourceTest {
 
     inStreamToClose.close();
 
-    assertThrows(IOException.class, () -> reader2.read());
+    assertThrows(IOException.class, reader2::read);
   }
 
   @Test
@@ -196,7 +194,7 @@ public class PrologCharDataSourceTest {
 
     reader.close();
 
-    assertThrows(IOException.class, () -> reader.read());
+    assertThrows(IOException.class, reader::read);
 
     reader.close();
     reader.close();

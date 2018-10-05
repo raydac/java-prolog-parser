@@ -4,9 +4,9 @@ import com.igormaznitsa.prologparser.CharSource;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
@@ -16,9 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.igormaznitsa.prologparser.operators.OperatorContainer.newOpCont;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -40,7 +37,7 @@ public class TokenizerTest {
     final TokenizerResult tokenizerResult = new TokenizerResult(
         new PrologAtom("test"), TokenizerState.ATOM, 1, 2);
     tokenizer.push(tokenizerResult);
-    assertSame(tokenizerResult, tokenizer.nextToken(
+    assertSame(tokenizerResult, tokenizer.readNextToken(
         mock(CharSource.class), mockPrologParser));
   }
 
@@ -57,21 +54,21 @@ public class TokenizerTest {
     assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
     assertEquals("hello", tokenizer.peek(reader, null).getResult().getText());
 
-    assertEquals("hello", tokenizer.nextToken(reader, null).getResult().getText());
-    assertEquals("world", tokenizer.nextToken(reader, null).getResult().getText());
+    assertEquals("hello", tokenizer.readNextToken(reader, null).getResult().getText());
+    assertEquals("world", tokenizer.readNextToken(reader, null).getResult().getText());
 
-    assertNull(tokenizer.nextToken(reader, null));
+    assertNull(tokenizer.readNextToken(reader, null));
   }
 
   @Test
   public void testGetLastTokenStrPos() throws Exception {
     final CharSource reader = CharSource.of(
         "aaa%it's a comment string nd we must skip it until the next string char \n     123 \'hello\'");
-    assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNotNull(tokenizer.readNextToken(reader, mockPrologParser));
     assertEquals(1, tokenizer.getLastTokenStrPos());
-    assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNotNull(tokenizer.readNextToken(reader, mockPrologParser));
     assertEquals(6, tokenizer.getLastTokenStrPos());
-    assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNotNull(tokenizer.readNextToken(reader, mockPrologParser));
     assertEquals(10, tokenizer.getLastTokenStrPos());
   }
 
@@ -79,11 +76,11 @@ public class TokenizerTest {
   public void testGetLastTokenLineNum() throws Exception {
     final CharSource reader = CharSource.of(
         "212\n%it's a comment string nd we must skip it until the next string char \n     123\n\'hello\'");
-    assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNotNull(tokenizer.readNextToken(reader, mockPrologParser));
     assertEquals(1, tokenizer.getLastTokenLineNum());
-    assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNotNull(tokenizer.readNextToken(reader, mockPrologParser));
     assertEquals(3, tokenizer.getLastTokenLineNum());
-    assertNotNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNotNull(tokenizer.readNextToken(reader, mockPrologParser));
     assertEquals(4, tokenizer.getLastTokenLineNum());
   }
 
@@ -109,7 +106,7 @@ public class TokenizerTest {
     tokenizer.skipUntilNextString(reader);
     assertEquals(2, reader.getLineNum());
     assertEquals(1, reader.getStrPos());
-    final TokenizerResult result = tokenizer.nextToken(reader, mockPrologParser);
+    final TokenizerResult result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals("123", result.getResult().getText());
   }
@@ -117,76 +114,76 @@ public class TokenizerTest {
   @Test
   public void testNextToken() throws Exception {
 
-    assertThrows(NullPointerException.class, () -> tokenizer.nextToken(null, mockPrologParser));
+    assertThrows(NullPointerException.class, () -> tokenizer.readNextToken(null, mockPrologParser));
 
     CharSource reader = CharSource.of(
         "     123 222.34 \n111.2e+4 \'string\' \n:- Variable _var _ :--");
 
-    TokenizerResult result = tokenizer.nextToken(reader, mockPrologParser);
+    TokenizerResult result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals(PrologTermType.ATOM, result.getResult().getType());
     assertEquals("123", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
     assertEquals(PrologTermType.ATOM, result.getResult().getType());
     assertEquals("222.34", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
     assertEquals(PrologTermType.ATOM, result.getResult().getType());
     assertEquals("1.112E+6", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.STRING, result.getTokenizerState());
     assertEquals(PrologTermType.ATOM, result.getResult().getType());
     assertEquals("string", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
     assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
     assertEquals(":-", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.VAR, result.getTokenizerState());
     assertEquals(PrologTermType.VAR, result.getResult().getType());
     assertEquals("Variable", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.VAR, result.getTokenizerState());
     assertEquals(PrologTermType.VAR, result.getResult().getType());
     assertEquals("_var", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.VAR, result.getTokenizerState());
     assertEquals(PrologTermType.VAR, result.getResult().getType());
     assertEquals("_", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
     assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
     assertEquals(":-", result.getResult().getText());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
     assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
     assertEquals("-", result.getResult().getText());
 
-    assertNull(tokenizer.nextToken(reader, mockPrologParser));
+    assertNull(tokenizer.readNextToken(reader, mockPrologParser));
 
     reader = CharSource.of(Long.toString(Long.MIN_VALUE + 1) + ' ' + Long.toString(Long.MAX_VALUE));
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals(Long.MAX_VALUE, ((PrologIntegerNumber) result.getResult()).getValue().longValue());
 
-    result = tokenizer.nextToken(reader, mockPrologParser);
+    result = tokenizer.readNextToken(reader, mockPrologParser);
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals(Long.MAX_VALUE, ((PrologIntegerNumber) result.getResult()).getValue().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
     try {
-      tokenizer.nextToken(CharSource.of("    \n    \'unclosed string"), null);
+      tokenizer.readNextToken(CharSource.of("    \n    \'unclosed string"), null);
     } catch (PrologParserException ex) {
       assertEquals(2, ex.getLineNumber());
       assertEquals(5, ex.getStringPosition());
@@ -269,7 +266,7 @@ public class TokenizerTest {
     assertThrows(NullPointerException.class, () -> Tokenizer.findOperatorForName(null, mockPrologParser));
     assertNull(Tokenizer.findOperatorForName("<------------------------------------------------------->", null));
 
-    final OperatorContainer operatorContainer = new OperatorContainer(Operator.makeOperator(1000, OpType.FX, "some_operator"));
+    final OperatorContainer operatorContainer = newOpCont(Operator.makeOperator(1000, OpType.FX, "some_operator"));
 
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 

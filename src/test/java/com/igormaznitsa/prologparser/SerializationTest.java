@@ -15,10 +15,8 @@ public class SerializationTest {
   public void testSerializationOperator() throws Exception {
     final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("a+b. c+d."), null);
 
-    final CharSource source = CharSource.of("a+b. c+d.");
-
-    final PrologStructure first = (PrologStructure) parser.nextSentence(source);
-    final PrologStructure second = (PrologStructure) parser.nextSentence(source);
+    final PrologStructure first = (PrologStructure) parser.next();
+    final PrologStructure second = (PrologStructure) parser.next();
 
     assertNotNull(first);
     assertNotNull(second);
@@ -46,8 +44,8 @@ public class SerializationTest {
 
   @Test
   public void testSerializationOfVariables() throws Exception {
-    final GenericPrologParser parser = new EdinburghPrologParser(null);
-    final PrologStructure structure = (PrologStructure) parser.nextSentence("a(A,A).");
+    final GenericPrologParser parser = new EdinburghPrologParser(CharSource.of("a(A,A)."), null);
+    final PrologStructure structure = (PrologStructure) parser.next();
 
     assertNotSame(structure.getElement(0), structure.getElement(1));
 

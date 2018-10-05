@@ -13,7 +13,7 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
-public final class TreeItem implements SoftCacheItem {
+final class TreeItem implements SoftCacheItem {
 
   private final AbstractPrologParser parser;
   private SoftCache<TreeItem> ringBuffer;

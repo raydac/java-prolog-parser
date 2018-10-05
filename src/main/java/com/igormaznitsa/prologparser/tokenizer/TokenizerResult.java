@@ -5,7 +5,7 @@ import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
-public final class TokenizerResult implements SoftCacheItem {
+final class TokenizerResult implements SoftCacheItem {
 
   private SoftCache<? extends SoftCacheItem> ringBuffer;
 
@@ -63,23 +63,23 @@ public final class TokenizerResult implements SoftCacheItem {
     this.parserState = parserState;
   }
 
-  public TokenizerState getTokenizerState() {
+  TokenizerState getTokenizerState() {
     return parserState;
   }
 
-  public AbstractPrologTerm getResult() {
+  AbstractPrologTerm getResult() {
     return resultTerm;
   }
 
-  public PrologTermType getTermType() {
+  PrologTermType getTermType() {
     return resultTerm.getType();
   }
 
-  public int getStringPosition() {
+  int getStringPosition() {
     return stringPosition;
   }
 
-  public int getLineNumber() {
+  int getLineNumber() {
     return lineNumber;
   }
 }

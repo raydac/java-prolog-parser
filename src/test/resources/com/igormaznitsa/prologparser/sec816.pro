@@ -186,7 +186,7 @@ test_atom_codes :-
 	test_val(atom_codes('', L), L, []),
         test_val(atom_codes([], M), M, [charcode('['), charcode(']')]),
         test_true(atom_codes('ant', [charcode('a'), charcode('n'), charcode('t')])),
-        test_true(atom_codes('abc\x20def', [97, 98, 99, 32, 100, 101, 102]) ),
+        test_true(atom_codes('abc\x20\def', [97, 98, 99, 32, 100, 101, 102]) ),
         test_false(atom_chars('soap', [charcode('s'), charcode('o'), charcode('p')])).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

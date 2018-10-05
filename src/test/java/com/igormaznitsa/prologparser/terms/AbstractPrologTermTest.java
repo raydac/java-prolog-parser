@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class AbstractPrologTermTest {
 
   @Test
@@ -75,21 +73,21 @@ public class AbstractPrologTermTest {
   }
 
   @Test
-  public void testSetLinkedObject() {
+  public void testSetPayload() {
     final StubAbstractPrologTermTest stub = new StubAbstractPrologTermTest("test");
-    assertNull(stub.linkedObject);
-    stub.setLinkedObject("test_linked");
-    assertEquals("test_linked", stub.linkedObject);
-    stub.setLinkedObject(null);
-    assertNull(stub.linkedObject);
+    assertNull(stub.getPayload());
+    stub.setPayload("test_linked");
+    assertEquals("test_linked", stub.getPayload());
+    stub.setPayload(null);
+    assertNull(stub.getPayload());
   }
 
   @Test
-  public void testGetLinkedObject() {
+  public void testGetPayload() {
     final StubAbstractPrologTermTest stub = new StubAbstractPrologTermTest("test");
-    assertNull(stub.getLinkedObject());
-    stub.linkedObject = "testObject";
-    assertEquals("testObject", stub.getLinkedObject());
+    assertNull(stub.getPayload());
+    stub.setPayload("testObject");
+    assertEquals("testObject", stub.getPayload());
   }
 
   private final static class StubAbstractPrologTermTest extends AbstractPrologTerm {

@@ -18,14 +18,23 @@ import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import static java.util.Arrays.stream;
+import static com.igormaznitsa.prologparser.operators.OperatorContainer.newOpCont;
+
+public abstract class AbstractPrologParser implements Iterator<AbstractPrologTerm>, Closeable {
 
   protected static final SingleCharOperatorContainerMap META_SYSTEM_OPERATORS = new SingleCharOperatorContainerMap();
 
@@ -584,6 +593,4 @@ import static java.util.Arrays.stream;
   public void close() throws IOException {
     this.charSource.close();
   }
-}
-
 }

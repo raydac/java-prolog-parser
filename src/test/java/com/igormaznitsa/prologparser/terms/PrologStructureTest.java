@@ -1,14 +1,12 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.Operator;
 import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,24 +38,24 @@ public class PrologStructureTest {
         new PrologAtom("first"), new PrologFloatNumber(123d),
         new PrologList(), new PrologVariable()}).toString());
 
-    final Map<String, OperatorContainer> systemOperators = GenericPrologParser.collectSystemOperators();
-    assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").getOperatorForType(OpType.XFX),
+    final Map<String, OperatorContainer> systemOperators = GenericPrologParser.findAllSystemOperators();
+    assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").findForType(OpType.XFX),
         new AbstractPrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
     assertEquals(":- 'hello'",
-        new PrologStructure(systemOperators.get(":-").getOperatorForType(OpType.FX),
+        new PrologStructure(systemOperators.get(":-").findForType(OpType.FX),
             new AbstractPrologTerm[] {new PrologAtom("hello")}).toString());
     assertEquals(
         "- 10 * (1 + 2)",
         new PrologStructure(
-            systemOperators.get("*").getOperatorForType(
+            systemOperators.get("*").findForType(
                 OpType.YFX),
             new AbstractPrologTerm[] {
                 new PrologStructure(
-                    systemOperators.get("-").getOperatorForType(
+                    systemOperators.get("-").findForType(
                         OpType.FY),
                     new AbstractPrologTerm[] {new PrologIntegerNumber("10")}),
-                new PrologStructure(systemOperators.get("+").getOperatorForType(OpType.YFX),
+                new PrologStructure(systemOperators.get("+").findForType(OpType.YFX),
                     new AbstractPrologTerm[] {
                         new PrologIntegerNumber("1"),
                         new PrologIntegerNumber("2")})}).toString());
@@ -65,10 +63,10 @@ public class PrologStructureTest {
     assertEquals(
         "- - 10",
         new PrologStructure(
-            systemOperators.get("-").getOperatorForType(
+            systemOperators.get("-").findForType(
                 OpType.FY),
             new AbstractPrologTerm[] {new PrologStructure(
-                systemOperators.get("-").getOperatorForType(
+                systemOperators.get("-").findForType(
                     OpType.FY),
                 new AbstractPrologTerm[] {new PrologIntegerNumber(
                     "10")})}).toString());
@@ -76,20 +74,20 @@ public class PrologStructureTest {
     assertEquals(
         "\\ (\\+ 10)",
         new PrologStructure(
-            systemOperators.get("\\").getOperatorForType(
+            systemOperators.get("\\").findForType(
                 OpType.FY),
             new AbstractPrologTerm[] {new PrologStructure(
-                systemOperators.get("\\+").getOperatorForType(
+                systemOperators.get("\\+").findForType(
                     OpType.FY),
                 new AbstractPrologTerm[] {new PrologIntegerNumber(
                     "10")})}).toString());
     assertEquals(
         "(10 .) .",
         new PrologStructure(
-            systemOperators.get(".").getOperatorForType(
+            systemOperators.get(".").findForType(
                 OpType.XF),
             new AbstractPrologTerm[] {new PrologStructure(
-                systemOperators.get(".").getOperatorForType(
+                systemOperators.get(".").findForType(
                     OpType.XF),
                 new AbstractPrologTerm[] {new PrologIntegerNumber(
                     "10")})}).toString());
