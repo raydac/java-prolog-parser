@@ -10,41 +10,25 @@ import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
-final class TreeItem implements SoftCacheItem {
+final class TreeItem {
 
-  private final PrologParser parser;
-  private SoftCache<TreeItem> ringBuffer;
-  private AbstractPrologTerm savedTerm;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
   private TreeItem parentItem;
   private boolean insideBrakes;
+  private final AbstractPrologTerm savedTerm;
+  private final PrologParser parser;
 
-  TreeItem(final PrologParser parser) {
+  TreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
     this.parser = parser;
-    this.setData(null, null, false, -1, -1);
-  }
 
-  @Override
-  public void reset() {
-    this.savedTerm = null;
-    this.insideBrakes = false;
-    this.leftBranch = null;
-    this.rightBranch = null;
-    this.parentItem = null;
-  }
-
-  void setData(final SoftCache<TermWrapper> prologTermWrapperCache, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
     if (term == null) {
       this.savedTerm = null;
     } else {
       final PrologTermType termType = term.getType();
       if (termType == PrologTermType.OPERATOR || termType == PrologTermType.OPERATORS) {
-        final TermWrapper termWrapper = prologTermWrapperCache.get();
-        termWrapper.setWrappedTerm(term);
+        final TermWrapper termWrapper = new TermWrapper(term);
         savedTerm = termWrapper;
       } else {
         savedTerm = term;
@@ -147,13 +131,13 @@ final class TreeItem implements SoftCacheItem {
   }
 
   OpType getOperatorType() {
-    return ((Operator) ((TermWrapper) savedTerm).getWrappedTerm()).getOperatorType();
+    return ((Operator) ((TermWrapper) savedTerm).getTerm()).getOperatorType();
   }
 
   private boolean validate() {
     if (savedTerm.getType() == PrologTermType.OPERATOR) {
       final int priority = getPriority();
-      final Operator wrappedOperator = (Operator) ((TermWrapper) savedTerm).getWrappedTerm();
+      final Operator wrappedOperator = (Operator) ((TermWrapper) savedTerm).getTerm();
       switch (wrappedOperator.getOperatorType()) {
         case FX:
           return leftBranch == null && (rightBranch != null && rightBranch.getPriority() < priority);
@@ -190,40 +174,37 @@ final class TreeItem implements SoftCacheItem {
       case OPERATOR: {
         final TermWrapper wrapper = (TermWrapper) savedTerm;
         PrologStructure operatorStruct;
-        try {
-          if (leftBranch == null && rightBranch == null) {
-            // it is an atom because it has not any arguments
-            return new PrologAtom(wrapper.getWrappedTerm().getText(), wrapper.getLineNumber(), wrapper.getStrPosition());
-          }
-
-          if (!validate()) {
-            throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(), wrapper.getStrPosition());
-          }
-
-          final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm();
-          final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
-          if (left == null && right == null) {
-            throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
-          }
-          // this code replaces '-'(number) to '-number'
-          if (right instanceof AbstractPrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
-            result = ((AbstractPrologNumericTerm) right).neg();
-            break;
-          }
-          if (left == null) {
-            operatorStruct = new PrologStructure(wrapper.getWrappedTerm(), new AbstractPrologTerm[] {right});
-          } else {
-            operatorStruct = new PrologStructure(wrapper.getWrappedTerm(), (right == null ? new AbstractPrologTerm[] {left} : new AbstractPrologTerm[] {left, right}));
-          }
-          operatorStruct.setStrPosition(wrapper.getStrPosition());
-          operatorStruct.setLineNumber(wrapper.getLineNumber());
-          if (ctxNotNull) {
-            ctx.processNewStructure(parser, operatorStruct);
-          }
-          result = operatorStruct;
-        } finally {
-          wrapper.release();
+        if (leftBranch == null && rightBranch == null) {
+          // it is an atom because it has not any arguments
+          return new PrologAtom(wrapper.getTerm().getText(), wrapper.getLineNumber(), wrapper.getStrPosition());
         }
+
+        if (!validate()) {
+          throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(), wrapper.getStrPosition());
+        }
+
+        final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm();
+        final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
+        if (left == null && right == null) {
+          throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
+        }
+        // this code replaces '-'(number) to '-number'
+        if (right instanceof AbstractPrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
+          result = ((AbstractPrologNumericTerm) right).neg();
+          break;
+        }
+        if (left == null) {
+          operatorStruct = new PrologStructure(wrapper.getTerm(), new AbstractPrologTerm[] {right});
+        } else {
+          operatorStruct = new PrologStructure(wrapper.getTerm(), (right == null ? new AbstractPrologTerm[] {left} : new AbstractPrologTerm[] {left, right}));
+        }
+        operatorStruct.setStrPosition(wrapper.getStrPosition());
+        operatorStruct.setLineNumber(wrapper.getLineNumber());
+        if (ctxNotNull) {
+          ctx.processNewStructure(parser, operatorStruct);
+        }
+        result = operatorStruct;
+
       }
       break;
       case STRUCT: {
@@ -239,21 +220,7 @@ final class TreeItem implements SoftCacheItem {
       break;
     }
 
-    release();
-
     return result;
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public void setCache(final SoftCache<?> owner) {
-    this.ringBuffer = (SoftCache<TreeItem>) owner;
-  }
-
-  @Override
-  public void release() {
-    if (this.ringBuffer != null) {
-      this.ringBuffer.tryPush(this);
-    }
-  }
 }

@@ -2,64 +2,44 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCacheItem;
 
-final class TermWrapper extends AbstractPrologTerm implements SoftCacheItem {
+final class TermWrapper extends AbstractPrologTerm {
 
-  private static final long serialVersionUID = 9106607815982718325L;
+  private static final long serialVersionUID = 9006607815982718325L;
 
-  private volatile AbstractPrologTerm wrappedTerm;
+  private volatile AbstractPrologTerm term;
 
-  private transient volatile SoftCache<TermWrapper> ringBuffer;
-
-  TermWrapper() {
+  TermWrapper(final AbstractPrologTerm term) {
     super("termWrapper");
+    this.term = term;
   }
 
-  AbstractPrologTerm getWrappedTerm() {
-    return this.wrappedTerm;
+  AbstractPrologTerm getTerm() {
+    return this.term;
   }
 
-  void setWrappedTerm(final AbstractPrologTerm term) {
-    this.wrappedTerm = term;
+  void setTerm(final AbstractPrologTerm term) {
+    this.term = term;
   }
 
   @Override
   public PrologTermType getType() {
-    return wrappedTerm.getType();
+    return term.getType();
   }
 
   @Override
   public String getText() {
-    return wrappedTerm.getText();
+    return term.getText();
   }
 
   @Override
   public int getPrecedence() {
-    return wrappedTerm.getPrecedence();
+    return term.getPrecedence();
   }
 
   @Override
   public String toString() {
-    return wrappedTerm.toString();
+    return term.toString();
   }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public void setCache(final SoftCache<? extends SoftCacheItem> ringBuffer) {
-    this.ringBuffer = (SoftCache<TermWrapper>) ringBuffer;
-  }
-
-  @Override
-  public void reset() {
-    this.wrappedTerm = null;
-  }
-
-  @Override
-  public void release() {
-    if (this.ringBuffer != null) {
-      this.ringBuffer.tryPush(this);
-    }
-  }
 }

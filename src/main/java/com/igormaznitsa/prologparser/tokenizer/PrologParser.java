@@ -13,7 +13,6 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.ArrayListCache;
 import com.igormaznitsa.prologparser.utils.StrBuffer;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -93,9 +92,7 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
     OPERATORS_SUBBLOCK = new SingleCharOperatorContainerMap(OPERATOR_RIGHTBRACKET);
   }
 
-  private final SoftCache<TermWrapper> cacheForTermWrappers = new SoftCache<>(TermWrapper::new, 256);
   private final ArrayListCache<AbstractPrologTerm> abstractPrologTermListCache = new ArrayListCache<>();
-  private final SoftCache<TreeItem> itemCache = new SoftCache<>(() -> new TreeItem(this), 128);
   private final Tokenizer tokenizer;
 
   protected final ParserContext context;
@@ -184,7 +181,6 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
         if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
           throw new PrologParserException("End operator is not found", this.tokenizer.getLineNum(), this.tokenizer.getStrPos());
         }
-        endAtom.release();
       }
       this.lastFoundTerm = found;
     }
@@ -219,7 +215,6 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
 
         final TokenizerResult nextAtom = this.tokenizer.readNextToken();
         final String nextText = nextAtom.getResult().getText();
-        nextAtom.release();
 
         switch (findFirstCharCodeInSingleCharStr(nextText)) {
           case ',': {
@@ -251,13 +246,10 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
 
     boolean doRead = true;
 
-    TokenizerResult nextAtom = null;
+    TokenizerResult nextAtom;
     while (doRead) {
       final AbstractPrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-      if (nextAtom != null) {
-        nextAtom.release();
-      }
       nextAtom = tokenizer.readNextToken();
       final String text = nextAtom.getResult().getText();
 
@@ -292,7 +284,6 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
                 tokenizer.getLastTokenStrPos(), null);
           }
 
-          nextAtom.release();
           nextAtom = tokenizer.readNextToken();
           if (!nextAtom.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
             throw new PrologParserException("Wrong end of the list tail", tokenizer.getLastTokenLineNum(), tokenizer.getLastTokenStrPos());
@@ -339,14 +330,9 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
     // atom or operator
     TreeItem currentTreeItem = null;
 
-    TokenizerResult readAtomContainer = null;
-
     while (true) {
       // read next atom from tokenizer
-      if (readAtomContainer != null) {
-        readAtomContainer.release();
-      }
-      readAtomContainer = tokenizer.readNextToken();
+      TokenizerResult readAtomContainer = tokenizer.readNextToken();
       boolean atBrakes = false;
 
       if (readAtomContainer == null) {
@@ -440,7 +426,6 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
 
                   final TokenizerResult token = tokenizer.readNextToken();
                   final AbstractPrologTerm closingAtom = token.getResult();
-                  token.release();
 
                   if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
                     throw new PrologParserException("Non-closed brakes", this.tokenizer.getLineNum(), this.tokenizer.getStrPos());
@@ -471,7 +456,6 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
 
             // it is a structure
             if (readAtom.getType() == PrologTermType.ATOM) {
-              nextToken.release();
               readAtom = readStruct(readAtom);
               if (readAtom == null) {
                 // we have met the empty brackets, it disallowed by Prolog
@@ -501,8 +485,7 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
         break;
       }
 
-      final TreeItem readAtomTreeItem = itemCache.get();
-      readAtomTreeItem.setData(cacheForTermWrappers, readAtom,
+      final TreeItem readAtomTreeItem = new TreeItem(this, readAtom,
           atBrakes,
           readAtomContainer.getLineNumber(),
           readAtomContainer.getStringPosition());

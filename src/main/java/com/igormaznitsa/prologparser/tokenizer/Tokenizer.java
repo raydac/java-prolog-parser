@@ -11,15 +11,12 @@ import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.StrBuffer;
 import com.igormaznitsa.prologparser.utils.StringUtils;
-import com.igormaznitsa.prologparser.utils.ringbuffer.SoftCache;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.function.Supplier;
 
-final class Tokenizer implements Supplier<TokenizerResult> {
+final class Tokenizer {
 
-  private final SoftCache<TokenizerResult> resultCache = new SoftCache<>(this, 32);
   private final StrBuffer strBuf = new StrBuffer(128);
   private final StrBuffer specCharBuf = new StrBuffer(128);
 
@@ -252,21 +249,19 @@ final class Tokenizer implements Supplier<TokenizerResult> {
                 // non-ended float then it is an integer number ened by the '.' operator
                 push('.');
                 // it is Integer
-                return makeResult(makeTermFromString(
+                return new TokenizerResult(makeTermFromString(
                     strBuffer.toStringExcludeLastChar(),
                     TokenizerState.INTEGER), TokenizerState.ATOM, getLastTokenStrPos(), getLastTokenLineNum());
               } else {
                 // it is just integer number or an atom
-                return makeResult(makeTermFromString(strBuffer.toString(), state),
-                    state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
               }
             }
             case VAR: {
               if (strBuffer.hasSingleChar('_')) {
-                return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
               } else {
-                return makeResult(new PrologVariable(strBuffer.toString()),
-                    state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
               }
             }
             case STRING: {
@@ -275,11 +270,11 @@ final class Tokenizer implements Supplier<TokenizerResult> {
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
-                return makeResult(makeTermFromString(strBuffer.toString(),
+                return new TokenizerResult(makeTermFromString(strBuffer.toString(),
                     state), state, getLastTokenStrPos(), getLastTokenLineNum());
               } else {
                 calcDiffAndPushResultBack(lastFoundFullOperator.getText(), strBuffer);
-                return makeResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
               }
             }
             default: {
@@ -343,14 +338,13 @@ final class Tokenizer implements Supplier<TokenizerResult> {
             if (chr == '_') {
               strBuffer.append(chr);
             } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-              return makeResult(makeTermFromString(
-                  strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+              return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
             } else if (chr == '\''
                 || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
                 || findOperatorForSingleChar(chr) != null) {
               push(chr);
 
-              return makeResult(makeTermFromString(
+              return new TokenizerResult(makeTermFromString(
                   strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
             } else {
               strBuffer.append(chr);
@@ -367,7 +361,7 @@ final class Tokenizer implements Supplier<TokenizerResult> {
               } else {
                 push(chr);
 
-                return makeResult(makeTermFromString(
+                return new TokenizerResult(makeTermFromString(
                     strBuffer.toString(), state),
                     TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
               }
@@ -383,7 +377,7 @@ final class Tokenizer implements Supplier<TokenizerResult> {
                   strBuffer.append(chr);
                 } else {
                   push(chr);
-                  return makeResult(makeTermFromString(strBuffer.toString(),
+                  return new TokenizerResult(makeTermFromString(strBuffer.toString(),
                       TokenizerState.FLOAT),
                       TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
                 }
@@ -392,7 +386,7 @@ final class Tokenizer implements Supplier<TokenizerResult> {
                   strBuffer.append('e');
                 } else {
                   push(chr);
-                  return makeResult(makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
+                  return new TokenizerResult(makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
                 }
               } else {
 
@@ -401,13 +395,13 @@ final class Tokenizer implements Supplier<TokenizerResult> {
                 if (strBuffer.isLastChar('.')) {
                   // it was an integer
                   push('.');
-                  return makeResult(makeTermFromString(
+                  return new TokenizerResult(makeTermFromString(
                       strBuffer.toStringExcludeLastChar(),
                       TokenizerState.INTEGER),
                       TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
                 } else {
                   // it is float
-                  return makeResult(makeTermFromString(
+                  return new TokenizerResult(makeTermFromString(
                       strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                 }
               }
@@ -419,10 +413,10 @@ final class Tokenizer implements Supplier<TokenizerResult> {
               push(chr);
 
               if (lastFoundFullOperator == null) {
-                return makeResult(makeTermFromString(
+                return new TokenizerResult(makeTermFromString(
                     strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
               } else {
-                return makeResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
               }
             } else {
               final OperatorContainer previousleDetectedOperator = lastFoundFullOperator;
@@ -450,7 +444,7 @@ final class Tokenizer implements Supplier<TokenizerResult> {
                     } else {
                       calcDiffAndPushResultBack(
                           previousleDetectedOperator.getText(), strBuffer);
-                      return makeResult(previousleDetectedOperator,
+                      return new TokenizerResult(previousleDetectedOperator,
                           state, getLastTokenStrPos(), getLastTokenLineNum());
                     }
                   }
@@ -458,7 +452,7 @@ final class Tokenizer implements Supplier<TokenizerResult> {
                   if (!hasOperatorStartsWith(operator)) {
                     calcDiffAndPushResultBack(
                         previousleDetectedOperator.getText(), strBuffer);
-                    return makeResult(previousleDetectedOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                    return new TokenizerResult(previousleDetectedOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
                   }
                 }
               }
@@ -483,7 +477,7 @@ final class Tokenizer implements Supplier<TokenizerResult> {
             } else {
               switch (chr) {
                 case '\'':
-                  return makeResult(makeTermFromString(
+                  return new TokenizerResult(makeTermFromString(
                       strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
                 case '\\':
                   specCharDetected = true;
@@ -499,15 +493,15 @@ final class Tokenizer implements Supplier<TokenizerResult> {
           case VAR: {
             if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
               if (strBuffer.hasSingleChar('_')) {
-                return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
               }
-              return makeResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+              return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
             } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
               push(chr);
               if (strBuffer.hasSingleChar('_')) {
-                return makeResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
               }
-              return makeResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+              return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
             } else {
               strBuffer.append(chr);
             }
@@ -522,11 +516,6 @@ final class Tokenizer implements Supplier<TokenizerResult> {
     }
   }
 
-  private TokenizerResult makeResult(final AbstractPrologTerm term, final TokenizerState state, final int strPos, final int lineNum) {
-    final TokenizerResult result = resultCache.get();
-    result.setData(term, state, strPos, lineNum);
-    return result;
-  }
 
   AbstractPrologTerm makeTermFromString(final String str, final TokenizerState state) {
     AbstractPrologTerm result;
@@ -559,11 +548,6 @@ final class Tokenizer implements Supplier<TokenizerResult> {
     }
 
     return result;
-  }
-
-  @Override
-  public TokenizerResult get() {
-    return new TokenizerResult();
   }
 
   int getLineNum() {

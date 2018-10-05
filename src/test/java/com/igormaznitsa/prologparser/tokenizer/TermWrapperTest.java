@@ -11,11 +11,7 @@ public class TermWrapperTest {
 
   final static Operator testWrapped = Operator.makeOperator(300, OpType.FX, "---");
 
-  final static TermWrapper testWrapper = new TermWrapper();
-
-  static {
-    testWrapper.setWrappedTerm(testWrapped);
-  }
+  final static TermWrapper testWrapper = new TermWrapper(testWrapped);
 
   @Test
   public void testGetText() {
@@ -39,6 +35,6 @@ public class TermWrapperTest {
 
   @Test
   public void testGetWrappedTerm() {
-    assertSame(testWrapped, testWrapper.getWrappedTerm());
+    assertSame(testWrapped, testWrapper.getTerm());
   }
 }
