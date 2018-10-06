@@ -1,10 +1,10 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.operators.Operator;
-import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.operators.OpContainer;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
@@ -49,7 +49,7 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
-        return OperatorContainer.newOpCont(Operator.makeOp(1000, OpType.XFX, "operator"));
+        return OpContainer.newOpCont(Op.makeOne(1000, OpType.XFX, "operator"));
       } else {
         return null;
       }
@@ -72,7 +72,7 @@ public class ParserContextTest {
 
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("foo."), mockContext);
 
-    final AbstractPrologTerm term = parser.next();
+    final PrologTerm term = parser.next();
     assertNotNull(term);
     assertEquals(PrologTermType.STRUCT, term.getType());
     assertEquals(0, ((PrologStructure) term).getArity());
@@ -87,8 +87,8 @@ public class ParserContextTest {
     final Map<String, PrologStructure> detectedStructures = new HashMap<>();
     final ParserContext stubContext = new ParserContext() {
       @Override
-      public void processNewStructure(final PrologParser source, final PrologStructure structure) {
-        detectedStructures.put(structure.getFunctor().getText(), structure);
+      public void onStructureCreated(final PrologParser source, final PrologStructure struct) {
+        detectedStructures.put(struct.getFunctor().getText(), struct);
       }
 
       @Override
@@ -102,7 +102,7 @@ public class ParserContextTest {
       }
 
       @Override
-      public OperatorContainer findOperatorForName(final PrologParser source, String operatorName) {
+      public OpContainer findOperatorForName(final PrologParser source, String operatorName) {
         return null;
       }
     };

@@ -1,6 +1,6 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.operators.OperatorContainer;
+import com.igormaznitsa.prologparser.operators.OpContainer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,15 +9,16 @@ import java.util.Map;
 
 import static java.util.Arrays.stream;
 
-final class SingleCharOpContainerMap {
+final class OneCharOpContainerMap {
 
-  private final Map<String, OperatorContainer> insideMap = new HashMap<>();
-  private final OperatorContainer[] charMap = new OperatorContainer[0x80];
+  private final Map<String, OpContainer> insideMap = new HashMap<>();
+  private final Map<String, OpContainer> unmodifableInsideMap = Collections.unmodifiableMap(this.insideMap);
+  private final OpContainer[] charMap = new OpContainer[0x80];
 
-  SingleCharOpContainerMap() {
+  OneCharOpContainerMap() {
   }
 
-  SingleCharOpContainerMap(final OperatorContainer... containers) {
+  OneCharOpContainerMap(final OpContainer... containers) {
     stream(containers).forEach(x -> put(x.getText(), x));
   }
 
@@ -29,9 +30,9 @@ final class SingleCharOpContainerMap {
     return chr < 0x80 && charMap[chr] != null;
   }
 
-  void put(final String key, final OperatorContainer container) {
+  void put(final String key, final OpContainer container) {
     if (key.length() != 1) {
-      throw new IllegalArgumentException("A Wrong key [" + key + ']');
+      throw new IllegalArgumentException("Wrong key [" + key + ']');
     }
 
     final int chr = key.charAt(0);
@@ -43,7 +44,7 @@ final class SingleCharOpContainerMap {
     insideMap.put(key, container);
   }
 
-  OperatorContainer get(final String key) {
+  OpContainer get(final String key) {
     if (key.length() != 1) {
       return null;
     }
@@ -56,12 +57,12 @@ final class SingleCharOpContainerMap {
     return charMap[code];
   }
 
-  OperatorContainer get(final char c) {
+  OpContainer get(final char c) {
     return c > 0x7F ? null : charMap[c];
   }
 
-  Map<String, OperatorContainer> getMap() {
-    return Collections.unmodifiableMap(insideMap);
+  Map<String, OpContainer> getMap() {
+    return this.unmodifableInsideMap;
   }
 
   void clear() {

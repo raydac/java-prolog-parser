@@ -12,12 +12,12 @@ public class TokenizerResultTest {
 
   @Test
   public void testTokenizerResult() {
-    assertThrows(NullPointerException.class, () -> new TokenizerResult(null, TokenizerState.ATOM, 1, 2));
-    assertThrows(NullPointerException.class, () -> new TokenizerResult(new PrologAtom("test"), null, 1, 2));
+    assertThrows(NullPointerException.class, () -> new TokenizerResult(null, TokenizerState.ATOM, 2, 1));
+    assertThrows(NullPointerException.class, () -> new TokenizerResult(new PrologAtom("test"), null, 2, 1));
 
     final PrologAtom testAtom = new PrologAtom("test");
     final TokenizerResult result = new TokenizerResult(testAtom,
-        TokenizerState.ATOM, 1, 2);
+        TokenizerState.ATOM, 2, 1);
     assertSame(testAtom, result.getResult());
     assertEquals(TokenizerState.ATOM, result.getTokenizerState());
 
@@ -27,7 +27,7 @@ public class TokenizerResultTest {
   public void testGetTokenizerState() {
     final PrologAtom testAtom = new PrologAtom("test");
     final TokenizerResult result = new TokenizerResult(testAtom,
-        TokenizerState.STRING, 1, 2);
+        TokenizerState.STRING, 2, 1);
     assertSame(testAtom, result.getResult());
     assertEquals(TokenizerState.STRING, result.getTokenizerState());
   }
@@ -36,7 +36,7 @@ public class TokenizerResultTest {
   public void testGetResult() {
     final PrologIntegerNumber testAtom = new PrologIntegerNumber("322323423");
     final TokenizerResult result = new TokenizerResult(testAtom,
-        TokenizerState.LOOKFOR, 1, 2);
+        TokenizerState.LOOKFOR, 2, 1);
     assertSame(testAtom, result.getResult());
     assertEquals(TokenizerState.LOOKFOR, result.getTokenizerState());
   }
@@ -45,20 +45,20 @@ public class TokenizerResultTest {
   public void testGetTermType() {
     final PrologIntegerNumber testAtom = new PrologIntegerNumber("322323423");
     final TokenizerResult result = new TokenizerResult(testAtom,
-        TokenizerState.LOOKFOR, 1, 2);
+        TokenizerState.LOOKFOR, 2, 1);
     assertSame(testAtom, result.getResult());
     assertEquals(PrologTermType.ATOM, result.getTermType());
   }
 
   @Test
   public void testGetStringPosition() {
-    final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOKFOR, 1, 2);
+    final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOKFOR, 2, 1);
     assertEquals(1, result.getStringPosition());
   }
 
   @Test
   public void testGetLineNumber() {
-    final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOKFOR, 1, 2);
-    assertEquals(2, result.getLineNumber());
+    final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOKFOR, 2, 1);
+    assertEquals(2, result.getLine());
   }
 }

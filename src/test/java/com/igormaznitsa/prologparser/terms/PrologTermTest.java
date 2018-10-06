@@ -36,7 +36,7 @@ public class PrologTermTest {
     assertEquals("_", new PrologVariable().toString());
 
     assertEquals("\'test\'(\'first\', 100, -1000.0)", new PrologStructure(
-        new PrologAtom("test"), new AbstractPrologTerm[] {
+        new PrologAtom("test"), new PrologTerm[] {
         new PrologAtom("first"),
         new PrologIntegerNumber("100"),
         new PrologFloatNumber(-1000d)}).toString());
@@ -55,10 +55,10 @@ public class PrologTermTest {
     list3.setTail(new PrologAtom("Test"));
     assertEquals("[X|'Test']", list3.toString());
 
-    final PrologList list4 = new PrologList(new AbstractPrologTerm[] {
-        new PrologList(new AbstractPrologTerm[] {
+    final PrologList list4 = new PrologList(new PrologTerm[] {
+        new PrologList(new PrologTerm[] {
             new PrologAtom("First"), new PrologVariable()}),
-        new PrologList(new AbstractPrologTerm[] {
+        new PrologList(new PrologTerm[] {
             new PrologAtom("hello"), new PrologAtom("world")})});
     assertEquals("[['First', _], ['hello', 'world']]", list4.toString());
 
@@ -69,7 +69,7 @@ public class PrologTermTest {
 
   @Test
   public void testOperatorToString() throws Exception {
-    AbstractPrologTerm term = parserFor("a+b*c.").next();
+    PrologTerm term = parserFor("a+b*c.").next();
     assertEquals("'a' + 'b' * 'c'", term.toString());
 
     term = parserFor("X is a+b.").next();

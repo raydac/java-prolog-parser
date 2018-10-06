@@ -55,25 +55,25 @@ public class PrologIntegerNumberTest {
   public void testPrologIntegerNumberStringIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologIntegerNumber((String) null, 0, 0));
 
-    final AbstractPrologTerm term = new PrologIntegerNumber("123", 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologIntegerNumber("123", 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 
   @Test
   public void testPrologIntegerNumberLongIntInt() {
-    final AbstractPrologTerm term = new PrologIntegerNumber(123L, 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologIntegerNumber(123L, 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 
   @Test
   public void testPrologIntegerNumberBigIntegerIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologIntegerNumber((BigInteger) null, 0, 0));
 
-    final AbstractPrologTerm term = new PrologIntegerNumber(BigInteger.ONE, 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologIntegerNumber(BigInteger.ONE, 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 
   @Test

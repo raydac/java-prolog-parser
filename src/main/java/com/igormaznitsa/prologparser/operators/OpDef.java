@@ -1,20 +1,20 @@
 package com.igormaznitsa.prologparser.operators;
 
+import com.igormaznitsa.prologparser.utils.AssertUtils;
+
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
-public final class OperatorDef {
+public final class OpDef {
 
   private final int precedence;
   private final OpType type;
   private final List<String> names;
 
-  private OperatorDef(final int precedence, final OpType type, final String... names) {
-    if (type == null) {
-      throw new NullPointerException("Type is null");
-    }
+  private OpDef(final int precedence, final OpType type, final String... names) {
+    AssertUtils.assertNotNull(type);
     if (precedence < 0 || precedence > 1200) {
       throw new IllegalArgumentException("Precedence must be in 0..1200");
     }
@@ -23,8 +23,8 @@ public final class OperatorDef {
     this.names = unmodifiableList(asList(names));
   }
 
-  public static OperatorDef of(final int precedence, final OpType type, final String... names) {
-    return new OperatorDef(precedence, type, names);
+  public static OpDef of(final int precedence, final OpType type, final String... names) {
+    return new OpDef(precedence, type, names);
   }
 
   public int getPrecedence() {

@@ -4,7 +4,7 @@ import com.igormaznitsa.prologparser.operators.OpType;
 
 import java.io.Reader;
 
-import static com.igormaznitsa.prologparser.operators.OperatorDef.of;
+import static com.igormaznitsa.prologparser.operators.OpDef.of;
 
 public class EdinburghPrologParser extends GenericPrologParser {
 

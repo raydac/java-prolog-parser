@@ -10,51 +10,51 @@ public class AbstractPrologTermTest {
   public void testAbstractPrologTermString() {
     assertThrows(NullPointerException.class, () -> new StubAbstractPrologTermTest(null));
 
-    final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
-    assertEquals(-1, test.getStrPosition());
-    assertEquals(-1, test.getLineNumber());
+    final PrologTerm test = new StubAbstractPrologTermTest("test");
+    assertEquals(-1, test.getPos());
+    assertEquals(-1, test.getLine());
   }
 
   @Test
   public void testAbstractPrologTermStringIntInt() {
-    assertThrows(NullPointerException.class, () -> new StubAbstractPrologTermTest(null, 1, 2));
-    final AbstractPrologTerm test = new StubAbstractPrologTermTest("test", 1, 2);
-    assertEquals(1, test.getStrPosition());
-    assertEquals(2, test.getLineNumber());
+    assertThrows(NullPointerException.class, () -> new StubAbstractPrologTermTest(null, 2, 1));
+    final PrologTerm test = new StubAbstractPrologTermTest("test", 2, 1);
+    assertEquals(1, test.getPos());
+    assertEquals(2, test.getLine());
   }
 
   @Test
   public void testSetStrPosition() {
-    final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
-    test.setStrPosition(101);
-    assertEquals(101, test.getStrPosition());
-    test.setStrPosition(0);
-    assertEquals(-1, test.getStrPosition());
-    test.setStrPosition(-10);
-    assertEquals(-1, test.getStrPosition());
+    final PrologTerm test = new StubAbstractPrologTermTest("test");
+    test.setPos(101);
+    assertEquals(101, test.getPos());
+    test.setPos(0);
+    assertEquals(-1, test.getPos());
+    test.setPos(-10);
+    assertEquals(-1, test.getPos());
   }
 
   @Test
   public void testGetStrPosition() {
-    final AbstractPrologTerm test = new StubAbstractPrologTermTest("test", 101, 202);
-    assertEquals(101, test.getStrPosition());
+    final PrologTerm test = new StubAbstractPrologTermTest("test", 202, 101);
+    assertEquals(101, test.getPos());
   }
 
   @Test
   public void testGetLineNumber() {
-    final AbstractPrologTerm test = new StubAbstractPrologTermTest("test", 101, 202);
-    assertEquals(202, test.getLineNumber());
+    final PrologTerm test = new StubAbstractPrologTermTest("test", 202, 101);
+    assertEquals(202, test.getLine());
   }
 
   @Test
   public void testSetLineNumber() {
-    final AbstractPrologTerm test = new StubAbstractPrologTermTest("test");
-    test.setLineNumber(101);
-    assertEquals(101, test.getLineNumber());
-    test.setLineNumber(0);
-    assertEquals(-1, test.getLineNumber());
-    test.setStrPosition(-10);
-    assertEquals(-1, test.getLineNumber());
+    final PrologTerm test = new StubAbstractPrologTermTest("test");
+    test.setLine(101);
+    assertEquals(101, test.getLine());
+    test.setLine(0);
+    assertEquals(-1, test.getLine());
+    test.setPos(-10);
+    assertEquals(-1, test.getLine());
   }
 
   @Test
@@ -90,15 +90,15 @@ public class AbstractPrologTermTest {
     assertEquals("testObject", stub.getPayload());
   }
 
-  private final static class StubAbstractPrologTermTest extends AbstractPrologTerm {
+  private final static class StubAbstractPrologTermTest extends PrologTerm {
     private static final long serialVersionUID = 2578516387208704688L;
 
     public StubAbstractPrologTermTest(final String text) {
       super(text);
     }
 
-    public StubAbstractPrologTermTest(final String text, final int strPos, final int lineNum) {
-      super(text, strPos, lineNum);
+    public StubAbstractPrologTermTest(final String text, final int line, final int pos) {
+      super(text, line, pos);
     }
 
     @Override

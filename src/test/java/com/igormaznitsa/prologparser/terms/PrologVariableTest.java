@@ -23,10 +23,10 @@ public class PrologVariableTest {
 
   @Test
   public void testPrologVariableIntInt() {
-    final PrologVariable var = new PrologVariable(1, 2);
+    final PrologVariable var = new PrologVariable(2, 1);
     assertTrue(var.isAnonymous());
-    assertEquals(1, var.getStrPosition());
-    assertEquals(2, var.getLineNumber());
+    assertEquals(1, var.getPos());
+    assertEquals(2, var.getLine());
   }
 
   @Test
@@ -55,15 +55,15 @@ public class PrologVariableTest {
 
   @Test
   public void testPrologVariableStringIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologVariable(null, 1, 2));
-    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("", 1, 2));
-    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("привет", 1, 2));
-    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("abc", 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologVariable(null, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("", 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("привет", 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologVariable("abc", 2, 1));
 
-    PrologVariable var = new PrologVariable("X", 1, 2);
+    PrologVariable var = new PrologVariable("X", 2, 1);
 
-    assertEquals(1, var.getStrPosition());
-    assertEquals(2, var.getLineNumber());
+    assertEquals(1, var.getPos());
+    assertEquals(2, var.getLine());
   }
 
   @Test

@@ -1,45 +1,41 @@
 package com.igormaznitsa.prologparser.terms;
 
-public final class PrologVariable extends AbstractPrologTerm {
-  private static final long serialVersionUID = 1058349084517573220L;
-  private final boolean is_anonymous;
+import com.igormaznitsa.prologparser.utils.AssertUtils;
+
+public final class PrologVariable extends PrologTerm {
+  private static final long serialVersionUID = 1158349084517573220L;
+  private final boolean anonymous;
 
   public PrologVariable() {
     this("_");
   }
 
-  public PrologVariable(final int strPosition, final int lineNumber) {
+  public PrologVariable(final int line, final int pos) {
     this();
-    setStrPosition(strPosition);
-    setLineNumber(lineNumber);
+    setPos(pos);
+    setLine(line);
   }
 
   public PrologVariable(final String text) {
     super(text);
 
-    if (text.isEmpty()) {
-      throw new IllegalArgumentException("Variable name is empty");
+    final char startWith = AssertUtils.assertStringNotNullAndNotEmpty(text).charAt(0);
+
+    if (!Character.isUpperCase(startWith) && startWith != '_') {
+      throw new IllegalArgumentException("Var must start with upper case char or '_' [" + text + ']');
     }
 
-    final char firstLetter = text.charAt(0);
-
-    if (!Character.isUpperCase(firstLetter) && firstLetter != '_') {
-      throw new IllegalArgumentException(
-          "The variable name must be started from an upper case letter or '_' ["
-              + text + ']');
-    }
-
-    is_anonymous = text.length() == 1 && firstLetter == '_';
+    this.anonymous = text.length() == 1 && startWith == '_';
   }
 
-  public PrologVariable(final String text, final int strPosition, final int lineNumber) {
+  public PrologVariable(final String text, final int line, final int pos) {
     this(text);
-    setStrPosition(strPosition);
-    setLineNumber(lineNumber);
+    setPos(pos);
+    setLine(line);
   }
 
   public boolean isAnonymous() {
-    return is_anonymous;
+    return anonymous;
   }
 
   @Override

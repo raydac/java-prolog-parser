@@ -1,6 +1,6 @@
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
@@ -13,20 +13,20 @@ public class OperatorTest {
 
   @Test
   public void testGetPriority() {
-    final Operator op = Operator.makeOp(243, OpType.FX, "<>");
+    final Op op = Op.makeOne(243, OpType.FX, "<>");
     assertEquals(243, op.getPrecedence());
   }
 
   @Test
   public void testToString() {
-    assertEquals("op(231,xfy,'<>').", Operator.makeOp(231, OpType.XFY, "<>").toString());
-    assertEquals("op(100,fy,'><').", Operator.makeOp(100, OpType.FY, "><").toString());
+    assertEquals("op(231,xfy,'<>').", Op.makeOne(231, OpType.XFY, "<>").toString());
+    assertEquals("op(100,fy,'><').", Op.makeOne(100, OpType.FY, "><").toString());
   }
 
   @Test
   public void testGetType() {
-    final Operator op = Operator.makeOp(243, OpType.FX, "<>");
-    final Operator op2 = Operator.makeOp(243, OpType.XFX, "><");
+    final Op op = Op.makeOne(243, OpType.FX, "<>");
+    final Op op2 = Op.makeOne(243, OpType.XFX, "><");
     assertEquals(PrologTermType.OPERATOR, op.getType());
     assertEquals(PrologTermType.OPERATOR, op2.getType());
   }
@@ -35,16 +35,16 @@ public class OperatorTest {
   public void testMakeOperators() {
     final String[] names = new String[] {"op1", "op2", "op3", "op4"};
 
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOps(Operator.PRECEDENCE_MAX - 1, OpType.FX, names));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOps(Operator.PRECEDENCE_MIN + 1, OpType.FX, names));
-    assertThrows(NullPointerException.class, () -> Operator.makeOps(345, null, names));
-    assertThrows(NullPointerException.class, () -> Operator.makeOps(345, OpType.FX, null));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MAX - 1, OpType.FX, names));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MIN + 1, OpType.FX, names));
+    assertThrows(NullPointerException.class, () -> Op.make(345, null, names));
+    assertThrows(NullPointerException.class, () -> Op.make(345, OpType.FX, null));
 
-    final Operator[] operators = Operator.makeOps(321, OpType.XFX, names);
+    final Op[] operators = Op.make(321, OpType.XFX, names);
     assertEquals(names.length, operators.length);
 
     for (int li = 0; li < names.length; li++) {
-      final Operator op = operators[li];
+      final Op op = operators[li];
       assertNotNull(op);
       assertEquals(names[li], op.getText());
       assertEquals(321, op.getPrecedence());
@@ -54,16 +54,16 @@ public class OperatorTest {
 
   @Test
   public void testOperatorIntOperatorTypeString() {
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOp(-1, OpType.FX, "<>"));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOp(1201, OpType.FX, "<>"));
-    assertThrows(NullPointerException.class, () -> Operator.makeOp(333, OpType.FX, null));
-    assertThrows(NullPointerException.class, () -> Operator.makeOp(333, null, "<>"));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOp(333, OpType.FX, "Hello"));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOp(333, OpType.FX, " <>"));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOp(333, OpType.FX, ""));
-    assertThrows(IllegalArgumentException.class, () -> Operator.makeOp(333, OpType.FX, "_hello"));
+    assertThrows(IllegalArgumentException.class, () -> Op.makeOne(-1, OpType.FX, "<>"));
+    assertThrows(IllegalArgumentException.class, () -> Op.makeOne(1201, OpType.FX, "<>"));
+    assertThrows(NullPointerException.class, () -> Op.makeOne(333, OpType.FX, null));
+    assertThrows(NullPointerException.class, () -> Op.makeOne(333, null, "<>"));
+    assertThrows(IllegalArgumentException.class, () -> Op.makeOne(333, OpType.FX, "Hello"));
+    assertThrows(IllegalArgumentException.class, () -> Op.makeOne(333, OpType.FX, " <>"));
+    assertThrows(IllegalArgumentException.class, () -> Op.makeOne(333, OpType.FX, ""));
+    assertThrows(IllegalArgumentException.class, () -> Op.makeOne(333, OpType.FX, "_hello"));
 
-    final Operator operator = Operator.makeOp(100, OpType.XFY, "<>");
+    final Op operator = Op.makeOne(100, OpType.XFY, "<>");
     assertEquals(100, operator.getPrecedence());
     assertEquals(OpType.XFY, operator.getOpType());
     assertEquals("<>", operator.getText());
@@ -71,28 +71,28 @@ public class OperatorTest {
 
   @Test
   public void testGetOperatorType() {
-    final Operator op = Operator.makeOp(243, OpType.FX, "<>");
-    final Operator op2 = Operator.makeOp(243, OpType.XFX, "><");
+    final Op op = Op.makeOne(243, OpType.FX, "<>");
+    final Op op2 = Op.makeOne(243, OpType.XFX, "><");
     assertEquals(OpType.FX, op.getOpType());
     assertEquals(OpType.XFX, op2.getOpType());
   }
 
   @Test
   public void testCompatibleWith() {
-    final Operator opFX = Operator.makeOp(100, OpType.FX, "><");
-    final Operator opFY = Operator.makeOp(200, OpType.FY, "><");
-    final Operator opYFX = Operator.makeOp(300, OpType.YFX, "><");
-    final Operator opXFX = Operator.makeOp(400, OpType.XFX, "><");
-    final Operator opXFY = Operator.makeOp(500, OpType.XFY, "><");
-    final Operator opYF = Operator.makeOp(600, OpType.YF, "><");
-    final Operator opXF = Operator.makeOp(700, OpType.XF, "><");
+    final Op opFX = Op.makeOne(100, OpType.FX, "><");
+    final Op opFY = Op.makeOne(200, OpType.FY, "><");
+    final Op opYFX = Op.makeOne(300, OpType.YFX, "><");
+    final Op opXFX = Op.makeOne(400, OpType.XFX, "><");
+    final Op opXFY = Op.makeOne(500, OpType.XFY, "><");
+    final Op opYF = Op.makeOne(600, OpType.YF, "><");
+    final Op opXF = Op.makeOne(700, OpType.XF, "><");
 
     final PrologStructure empty = new PrologStructure("empty");
     final PrologStructure one = new PrologStructure(new PrologAtom(
         "functor"),
-        new AbstractPrologTerm[] {new PrologAtom("first")});
+        new PrologTerm[] {new PrologAtom("first")});
     final PrologStructure two = new PrologStructure(new PrologAtom(
-        "functor"), new AbstractPrologTerm[] {new PrologAtom("first"),
+        "functor"), new PrologTerm[] {new PrologAtom("first"),
         new PrologAtom("second")});
 
     assertFalse(opFX.isCompatibleWith(empty));
@@ -137,9 +137,9 @@ public class OperatorTest {
 
   @Test
   public void testEquals() {
-    final Operator opFX = Operator.makeOp(100, OpType.FX, "><");
-    final Operator opFX2 = Operator.makeOp(100, OpType.FX, "><");
-    final Operator opFY = Operator.makeOp(100, OpType.FX, ">*<");
+    final Op opFX = Op.makeOne(100, OpType.FX, "><");
+    final Op opFX2 = Op.makeOne(100, OpType.FX, "><");
+    final Op opFY = Op.makeOne(100, OpType.FX, ">*<");
 
     assertFalse(opFX.equals("><"));
     assertFalse(opFX.equals(null));
@@ -150,8 +150,8 @@ public class OperatorTest {
 
   @Test
   public void testHashCode() {
-    final Operator opFX = Operator.makeOp(100, OpType.FX, "><");
-    final Operator opFX2 = Operator.makeOp(100, OpType.FX, "><");
+    final Op opFX = Op.makeOne(100, OpType.FX, "><");
+    final Op opFX2 = Op.makeOne(100, OpType.FX, "><");
 
     assertFalse("><".hashCode() == opFX.hashCode());
     assertEquals(opFX.hashCode(), opFX2.hashCode());
@@ -160,7 +160,7 @@ public class OperatorTest {
 
   @Test
   public void testGetText() {
-    assertEquals("<>", Operator.makeOp(121, OpType.FX, "<>").getText());
-    assertEquals("><", Operator.makeOp(121, OpType.XFX, "><").getText());
+    assertEquals("<>", Op.makeOne(121, OpType.FX, "<>").getText());
+    assertEquals("><", Op.makeOne(121, OpType.XFX, "><").getText());
   }
 }

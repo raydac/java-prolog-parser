@@ -2,19 +2,24 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.utils.AssertUtils;
 
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
-public final class Operator extends AbstractPrologTerm {
-  public static final Operator METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
-  public static final Operator METAOPERATOR_RIGHT_BRACKET = makeMeta(-1, OpType.XF, ")");
-  public static final Operator METAOPERATOR_LEFT_SQUARE_BRACKET = makeMeta(-1, OpType.FX, "[");
-  public static final Operator METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMeta(-1, OpType.XF, "]");
-  public static final Operator METAOPERATOR_DOT = makeMeta(Integer.MAX_VALUE, OpType.XF, ".");
-  public static final Operator METAOPERATOR_VERTICAL_BAR = makeMeta(Integer.MAX_VALUE - 1, OpType.XFY, "|");
+import static java.util.Arrays.*;
+
+public final class Op extends PrologTerm {
+  public static final Op METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
+  public static final Op METAOPERATOR_RIGHT_BRACKET = makeMeta(-1, OpType.XF, ")");
+  public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeMeta(-1, OpType.FX, "[");
+  public static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMeta(-1, OpType.XF, "]");
+  public static final Op METAOPERATOR_DOT = makeMeta(Integer.MAX_VALUE, OpType.XF, ".");
+  public static final Op METAOPERATOR_VERTICAL_BAR = makeMeta(Integer.MAX_VALUE - 1, OpType.XFY, "|");
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
   private static final long serialVersionUID = -5954313127778538548L;
@@ -22,7 +27,9 @@ public final class Operator extends AbstractPrologTerm {
   private final int precedence;
   private final int precalcHash;
 
-  private Operator(final int precedence, final OpType type, final String name) {
+  private static final Op[] EMPTY = new Op[0];
+
+  private Op(final int precedence, final OpType type, final String name) {
     super(name);
 
     assertOpValidOpName(name);
@@ -34,9 +41,7 @@ public final class Operator extends AbstractPrologTerm {
   }
 
   private static void assertOpValidOpName(final String name) {
-    if (name.isEmpty()) {
-      throw new IllegalArgumentException("Name must not be empty");
-    }
+    AssertUtils.assertStringNotNullAndNotEmpty(name);
 
     final char firstChar = name.charAt(0);
 
@@ -54,37 +59,31 @@ public final class Operator extends AbstractPrologTerm {
 
   }
 
-  public static Operator[] makeOps(final int precedence, final OpType type, final String[] names) {
+  public static Op[] make(final int precedence, final OpType type, final String[] names) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
-      throw new IllegalArgumentException(
-          "Precedence must be in 0..1200");
+      throw new IllegalArgumentException("Precedence must be in 0..1200");
     }
 
-    if (type == null) {
-      throw new NullPointerException("Type is null");
-    }
+    AssertUtils.assertNotNull(type);
+    AssertUtils.assertNotNull(names);
 
-    if (names == null) {
-      throw new NullPointerException("Name array is null");
-    }
+    final Op[] result = stream(names)
+        .map(x -> makeOne(precedence, type, x))
+        .collect(Collectors.toList()).toArray(EMPTY);
 
-    final Operator[] result = new Operator[names.length];
-    for (int li = 0; li < names.length; li++) {
-      result[li] = makeOp(precedence, type, names[li]);
-    }
     return result;
   }
 
-  public static Operator makeOp(final int precedence, final OpType type, final String name) {
+  public static Op makeOne(final int precedence, final OpType type, final String name) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException("Wrong precedence value");
     }
 
-    return new Operator(precedence, type, name);
+    return new Op(precedence, type, name);
   }
 
-  private static Operator makeMeta(final int precedence, final OpType type, final String name) {
-    return new Operator(precedence, type, name);
+  private static Op makeMeta(final int precedence, final OpType type, final String name) {
+    return new Op(precedence, type, name);
   }
 
   @Override
@@ -116,13 +115,13 @@ public final class Operator extends AbstractPrologTerm {
             break;
             case XF:
             case FX: {
-              final AbstractPrologTerm atom = struct.getElement(0);
+              final PrologTerm atom = struct.getElement(0);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
             case YF:
             case FY: {
-              final AbstractPrologTerm atom = struct.getElement(0);
+              final PrologTerm atom = struct.getElement(0);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
@@ -137,8 +136,8 @@ public final class Operator extends AbstractPrologTerm {
             case XFY:
             case XFX:
             case YFX: {
-              final AbstractPrologTerm elementLeft = struct.getElement(0);
-              final AbstractPrologTerm elementRight = struct.getElement(1);
+              final PrologTerm elementLeft = struct.getElement(0);
+              final PrologTerm elementRight = struct.getElement(1);
 
               if (elementLeft == null || elementRight == null) {
                 result = false;
@@ -168,14 +167,14 @@ public final class Operator extends AbstractPrologTerm {
 
             case XF:
             case FX: {
-              final AbstractPrologTerm atom = struct.getElement(this.opType == OpType.XF ? 0 : 1);
+              final PrologTerm atom = struct.getElement(this.opType == OpType.XF ? 0 : 1);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
 
             case YF:
             case FY: {
-              final AbstractPrologTerm atom = struct.getElement(this.opType == OpType.YF ? 0 : 1);
+              final PrologTerm atom = struct.getElement(this.opType == OpType.YF ? 0 : 1);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
@@ -208,8 +207,8 @@ public final class Operator extends AbstractPrologTerm {
 
     if (this == obj) {
       result = true;
-    } else if (obj instanceof Operator) {
-      final Operator op = (Operator) obj;
+    } else if (obj instanceof Op) {
+      final Op op = (Op) obj;
       if (this.precalcHash == op.precalcHash
           && this.precedence == op.precedence
           && this.opType == op.opType

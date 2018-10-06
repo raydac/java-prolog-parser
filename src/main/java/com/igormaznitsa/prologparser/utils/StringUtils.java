@@ -6,7 +6,7 @@ public final class StringUtils {
   private StringUtils() {
   }
 
-  public static UnescapeResult tryUnescapeCharacter(final StrBuffer stringAfterEscMarker) {
+  public static UnescapeResult tryUnescapeCharacter(final StringBuilderEx stringAfterEscMarker) {
     if (stringAfterEscMarker == null || stringAfterEscMarker.isEmpty()) {
       return new UnescapeResult('_', false, true);
     }

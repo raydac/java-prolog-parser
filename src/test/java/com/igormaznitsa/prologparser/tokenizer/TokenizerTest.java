@@ -3,10 +3,10 @@ package com.igormaznitsa.prologparser.tokenizer;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
+import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.operators.Operator;
-import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.operators.OpContainer;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 
-import static com.igormaznitsa.prologparser.operators.OperatorContainer.newOpCont;
+import static com.igormaznitsa.prologparser.operators.OpContainer.newOpCont;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -33,7 +33,7 @@ public class TokenizerTest {
   public void testPushTermBack() {
     Tokenizer tokenizer = tokenizeOf("");
     assertNull(tokenizer.lastPushedTerm);
-    final TokenizerResult tokenizerResult = new TokenizerResult(new PrologAtom("test"), TokenizerState.ATOM, 1, 2);
+    final TokenizerResult tokenizerResult = new TokenizerResult(new PrologAtom("test"), TokenizerState.ATOM, 2, 1);
     tokenizer.push(tokenizerResult);
     assertSame(tokenizerResult, tokenizer.readNextToken());
   }
@@ -56,25 +56,25 @@ public class TokenizerTest {
   }
 
   @Test
-  public void testGetLastTokenStrPos() throws Exception {
+  public void testGetLastTokenStr() throws Exception {
     Tokenizer tokenizer = tokenizeOf("aaa%it's a comment string nd we must skip it until the next string char \n     123 \'hello\'");
     assertNotNull(tokenizer.readNextToken());
-    assertEquals(1, tokenizer.getLastTokenStrPos());
+    assertEquals(1, tokenizer.getLastTokenPos());
     assertNotNull(tokenizer.readNextToken());
-    assertEquals(6, tokenizer.getLastTokenStrPos());
+    assertEquals(6, tokenizer.getLastTokenPos());
     assertNotNull(tokenizer.readNextToken());
-    assertEquals(10, tokenizer.getLastTokenStrPos());
+    assertEquals(10, tokenizer.getLastTokenPos());
   }
 
   @Test
-  public void testGetLastTokenLineNum() throws Exception {
+  public void testGetLastTokenLine() throws Exception {
     Tokenizer tokenizer = tokenizeOf("212\n%it's a comment string nd we must skip it until the next string char \n     123\n\'hello\'");
     assertNotNull(tokenizer.readNextToken());
-    assertEquals(1, tokenizer.getLastTokenLineNum());
+    assertEquals(1, tokenizer.getLastTokenLine());
     assertNotNull(tokenizer.readNextToken());
-    assertEquals(3, tokenizer.getLastTokenLineNum());
+    assertEquals(3, tokenizer.getLastTokenLine());
     assertNotNull(tokenizer.readNextToken());
-    assertEquals(4, tokenizer.getLastTokenLineNum());
+    assertEquals(4, tokenizer.getLastTokenLine());
   }
 
   @Test
@@ -149,7 +149,7 @@ public class TokenizerTest {
   @Test
   public void testMakeTermFromString() {
     final Tokenizer tokenizer = tokenizeOf("792394382");
-    AbstractPrologTerm term = tokenizer.makeTermFromString("792394382", TokenizerState.INTEGER);
+    PrologTerm term = tokenizer.makeTermFromString("792394382", TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(PrologTermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologIntegerNumber.class);
@@ -224,11 +224,11 @@ public class TokenizerTest {
     assertThrows(NullPointerException.class, () -> tokenizer.findOperatorForName(null));
     assertNull(tokenizer.findOperatorForName("<------------------------------------------------------->"));
 
-    final OperatorContainer operatorContainer = newOpCont(Operator.makeOp(1000, OpType.FX, "some_operator"));
+    final OpContainer operatorContainer = newOpCont(Op.makeOne(1000, OpType.FX, "some_operator"));
 
     when(context.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 
-    final OperatorContainer systemOne = tokenizer.findOperatorForName(":-");
+    final OpContainer systemOne = tokenizer.findOperatorForName(":-");
     assertNotNull(systemOne);
     assertEquals(":-", systemOne.getText());
 

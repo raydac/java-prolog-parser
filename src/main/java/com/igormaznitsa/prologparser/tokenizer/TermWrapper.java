@@ -1,24 +1,24 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 
-final class TermWrapper extends AbstractPrologTerm {
+final class TermWrapper extends PrologTerm {
 
   private static final long serialVersionUID = 9006607815982718325L;
 
-  private AbstractPrologTerm term;
+  private PrologTerm term;
 
-  TermWrapper(final AbstractPrologTerm term) {
+  TermWrapper(final PrologTerm term) {
     super("termWrapper");
     this.term = term;
   }
 
-  AbstractPrologTerm getTerm() {
+  PrologTerm getTerm() {
     return this.term;
   }
 
-  void setTerm(final AbstractPrologTerm term) {
+  void setTerm(final PrologTerm term) {
     this.term = term;
   }
 

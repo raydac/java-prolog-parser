@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
+public final class PrologIntegerNumber extends PrologNumericTerm {
 
   private static final long serialVersionUID = 6955747225309951985L;
   private static final Map<String, BigInteger> cachedValues = new HashMap<>(128);
@@ -23,16 +23,16 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
     value = valueOf(text);
   }
 
-  public PrologIntegerNumber(final String text, final int strPos, final int lineNum) {
-    this(valueOf(text), strPos, lineNum);
+  public PrologIntegerNumber(final String text, final int line, final int pos) {
+    this(valueOf(text), line, pos);
   }
 
   public PrologIntegerNumber(final long value) {
     this(BigInteger.valueOf(value));
   }
 
-  public PrologIntegerNumber(final long value, final int strPos, final int lineNumber) {
-    this(BigInteger.valueOf(value), strPos, lineNumber);
+  public PrologIntegerNumber(final long value, final int line, final int pos) {
+    this(BigInteger.valueOf(value), line, pos);
   }
 
   public PrologIntegerNumber(final BigInteger value) {
@@ -40,34 +40,30 @@ public final class PrologIntegerNumber extends AbstractPrologNumericTerm {
     this.value = AssertUtils.assertNotNull(value);
   }
 
-  public PrologIntegerNumber(final BigInteger value, final int strPosition, final int lineNumber) {
-    super(strPosition, lineNumber);
+  public PrologIntegerNumber(final BigInteger value, final int line, final int pos) {
+    super(line, pos);
     this.value = AssertUtils.assertNotNull(value);
   }
 
   private static BigInteger valueOf(final String text) {
-    final int len = text.length();
+    AssertUtils.assertStringNotNullAndNotEmpty(text);
     BigInteger result = null;
-    if (len == 0) {
-      throw new NumberFormatException("Empty string");
-    } else {
-      if (text.charAt(0) == '-') {
-        if (len < 4) {
-          result = cachedValues.get(text);
-        }
-      } else if (len < 3) {
+    if (text.charAt(0) == '-') {
+      if (text.length() < 4) {
         result = cachedValues.get(text);
       }
+    } else if (text.length() < 3) {
+      result = cachedValues.get(text);
+    }
 
-      if (result == null) {
-        result = new BigInteger(text, 10);
-      }
+    if (result == null) {
+      result = new BigInteger(text, 10);
     }
     return result;
   }
 
   @Override
-  public AbstractPrologNumericTerm neg() {
+  public PrologNumericTerm neg() {
     return new PrologIntegerNumber(value.negate());
   }
 

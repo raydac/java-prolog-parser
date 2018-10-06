@@ -1,26 +1,25 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.operators.Operator;
-import com.igormaznitsa.prologparser.terms.AbstractPrologNumericTerm;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologNumericTerm;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 
 final class TreeItem {
 
-  private final AbstractPrologTerm savedTerm;
+  private final PrologTerm savedTerm;
   private final PrologParser parser;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
   private TreeItem parentItem;
   private boolean insideBrakes;
 
-  TreeItem(final PrologParser parser, final AbstractPrologTerm term, final boolean insideBrakes, final int lineNum, final int strPos) {
+  TreeItem(final PrologParser parser, final PrologTerm term, final boolean inBrakes, final int line, final int pos) {
     this.parser = parser;
 
     if (term == null) {
@@ -33,10 +32,10 @@ final class TreeItem {
       } else {
         savedTerm = term;
       }
-      savedTerm.setStrPosition(strPos);
-      savedTerm.setLineNumber(lineNum);
+      savedTerm.setPos(pos);
+      savedTerm.setLine(line);
     }
-    this.insideBrakes = insideBrakes;
+    this.insideBrakes = inBrakes;
   }
 
   int getPriority() {
@@ -131,13 +130,13 @@ final class TreeItem {
   }
 
   OpType getOperatorType() {
-    return ((Operator) ((TermWrapper) savedTerm).getTerm()).getOpType();
+    return ((Op) ((TermWrapper) savedTerm).getTerm()).getOpType();
   }
 
   private boolean validate() {
     if (savedTerm.getType() == PrologTermType.OPERATOR) {
       final int priority = getPriority();
-      final Operator wrappedOperator = (Operator) ((TermWrapper) savedTerm).getTerm();
+      final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getTerm();
       switch (wrappedOperator.getOpType()) {
         case FX:
           return leftBranch == null && (rightBranch != null && rightBranch.getPriority() < priority);
@@ -166,56 +165,55 @@ final class TreeItem {
     return savedTerm.toString();
   }
 
-  AbstractPrologTerm convertTreeItemIntoTerm() throws PrologParserException {
-    AbstractPrologTerm result;
-    final ParserContext ctx = parser.getContext();
-    final boolean ctxNotNull = ctx != null;
+  PrologTerm convertTreeItemIntoTerm() throws PrologParserException {
+    PrologTerm result;
+
     switch (savedTerm.getType()) {
       case OPERATOR: {
-        final TermWrapper wrapper = (TermWrapper) savedTerm;
-        PrologStructure operatorStruct;
-        if (leftBranch == null && rightBranch == null) {
+        final TermWrapper wrapper = (TermWrapper) this.savedTerm;
+        if (this.leftBranch == null && this.rightBranch == null) {
           // it is an atom because it has not any arguments
-          return new PrologAtom(wrapper.getTerm().getText(), wrapper.getLineNumber(), wrapper.getStrPosition());
+          return new PrologAtom(wrapper.getTerm().getText(), wrapper.getPos(), wrapper.getLine());
         }
 
         if (!validate()) {
-          throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLineNumber(), wrapper.getStrPosition());
+          throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
         }
 
-        final AbstractPrologTerm left = leftBranch == null ? null : leftBranch.convertTreeItemIntoTerm();
-        final AbstractPrologTerm right = rightBranch == null ? null : rightBranch.convertTreeItemIntoTerm();
+        final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertTreeItemIntoTerm();
+        final PrologTerm right = this.rightBranch == null ? null : this.rightBranch.convertTreeItemIntoTerm();
         if (left == null && right == null) {
-          throw new PrologParserException("Operator without operands", wrapper.getLineNumber(), wrapper.getStrPosition());
+          throw new PrologParserException("Op without operands", wrapper.getLine(), wrapper.getPos());
         }
         // this code replaces '-'(number) to '-number'
-        if (right instanceof AbstractPrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
-          result = ((AbstractPrologNumericTerm) right).neg();
+        if (right instanceof PrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
+          result = ((PrologNumericTerm) right).neg();
           break;
         }
+
+        final PrologStructure operatorStruct;
         if (left == null) {
-          operatorStruct = new PrologStructure(wrapper.getTerm(), new AbstractPrologTerm[] {right});
+          operatorStruct = new PrologStructure(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
         } else {
-          operatorStruct = new PrologStructure(wrapper.getTerm(), (right == null ? new AbstractPrologTerm[] {left} : new AbstractPrologTerm[] {left, right}));
-        }
-        operatorStruct.setStrPosition(wrapper.getStrPosition());
-        operatorStruct.setLineNumber(wrapper.getLineNumber());
-        if (ctxNotNull) {
-          ctx.processNewStructure(parser, operatorStruct);
+          operatorStruct = new PrologStructure(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right},wrapper.getLine(), wrapper.getPos());
         }
         result = operatorStruct;
+
+        if (this.parser.getContext()!=null) {
+          this.parser.getContext().onStructureCreated(this.parser, operatorStruct);
+        }
 
       }
       break;
       case STRUCT: {
-        if (ctxNotNull) {
-          ctx.processNewStructure(parser, (PrologStructure) savedTerm);
+        if (this.parser.getContext()!=null) {
+          this.parser.getContext().onStructureCreated(parser, (PrologStructure) this.savedTerm);
         }
-        result = savedTerm;
+        result = this.savedTerm;
       }
       break;
       default: {
-        result = savedTerm;
+        result = this.savedTerm;
       }
       break;
     }

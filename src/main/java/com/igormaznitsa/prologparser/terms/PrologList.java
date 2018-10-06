@@ -1,66 +1,64 @@
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.StrBuffer;
+import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 public final class PrologList extends PrologStructure {
-  public static final AbstractPrologTerm LIST_FUNCTOR = new PrologAtom(".");
-  private static final long serialVersionUID = -3781638438477876869L;
+  public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".");
+  private static final long serialVersionUID = -3781631438477876869L;
 
   public PrologList() {
     super(LIST_FUNCTOR, 2);
-    elements[0] = null;
-    elements[1] = null;
+    this.elements[0] = null;
+    this.elements[1] = null;
   }
 
-  public PrologList(final int strPosition, final int lineNumber) {
+  public PrologList(final int line, final int pos) {
     this();
-    setStrPosition(strPosition);
-    setLineNumber(lineNumber);
+    setPos(pos);
+    setLine(line);
   }
 
-  public PrologList(final AbstractPrologTerm[] array) {
+  public PrologList(final PrologTerm[] array) {
     this();
 
     PrologList current = this;
 
-    for (final AbstractPrologTerm term : array) {
+    for (final PrologTerm term : array) {
       current = current.addAsNewListToEndOfListChain(term);
     }
   }
 
-  public PrologList(final AbstractPrologTerm[] array, final int strPos, final int lineNumber) {
+  public PrologList(final PrologTerm[] array, final int line, final int pos) {
     this(array);
-    setStrPosition(strPos);
-    setLineNumber(lineNumber);
+    setPos(pos);
+    setLine(line);
   }
 
-  public PrologList(final AbstractPrologTerm head) {
+  public PrologList(final PrologTerm head) {
     this();
     setHead(head);
     setTail(new PrologList());
   }
 
-  public PrologList(final AbstractPrologTerm head, final int strPosition, final int lineNumber) {
+  public PrologList(final PrologTerm head, final int line, final int pos) {
     this(head);
-    setStrPosition(strPosition);
-    setLineNumber(lineNumber);
+    setPos(pos);
+    setLine(line);
   }
 
-  public PrologList(final AbstractPrologTerm head,
-                    final AbstractPrologTerm tail) {
+  public PrologList(final PrologTerm head, final PrologTerm tail) {
     this();
     setHead(head);
     setTail(tail);
   }
 
-  public PrologList(final AbstractPrologTerm head, final AbstractPrologTerm tail, final int strPosition, final int lineNumber) {
+  public PrologList(final PrologTerm head, final PrologTerm tail, final int line, final int pos) {
     this(head, tail);
-    setStrPosition(strPosition);
-    setLineNumber(lineNumber);
+    setPos(pos);
+    setLine(line);
   }
 
-  public static PrologList setTermAsNewListTail(final PrologList list,
-                                                final AbstractPrologTerm term) {
+  public static PrologList setTermAsNewListTail(final PrologList list, final PrologTerm term) {
     PrologList result = list;
 
     if (list.isNullList()) {
@@ -78,22 +76,22 @@ public final class PrologList extends PrologStructure {
     return getHead() == null && getTail() == null;
   }
 
-  public AbstractPrologTerm getHead() {
+  public PrologTerm getHead() {
     return getElement(0);
   }
 
-  public void setHead(final AbstractPrologTerm term) {
+  public void setHead(final PrologTerm term) {
     this.setElement(0, term);
     if (getTail() == null) {
       setTail(new PrologList());
     }
   }
 
-  public AbstractPrologTerm getTail() {
+  public PrologTerm getTail() {
     return getElement(1);
   }
 
-  public void setTail(final AbstractPrologTerm term) {
+  public void setTail(final PrologTerm term) {
     this.setElement(1, term);
     if (getHead() == null) {
       setHead(EMPTY_ATOM);
@@ -101,7 +99,7 @@ public final class PrologList extends PrologStructure {
   }
 
   public PrologList addAsNewListToEndOfListChain(
-      final AbstractPrologTerm term) {
+      final PrologTerm term) {
 
     if (isNullList()) {
       setHead(term);
@@ -115,7 +113,7 @@ public final class PrologList extends PrologStructure {
           current.setTail(new PrologList());
           return current;
         } else {
-          final AbstractPrologTerm ltail = current.getTail();
+          final PrologTerm ltail = current.getTail();
           if (ltail.getType() == PrologTermType.LIST) {
             current = (PrologList) ltail;
           } else {
@@ -129,20 +127,19 @@ public final class PrologList extends PrologStructure {
     }
   }
 
-  public void replaceLastElement(
-      final AbstractPrologTerm elementToReplace) {
+  public void replaceTail(final PrologTerm newTailElement) {
 
     PrologList curList = this;
     while (true) {
-      final AbstractPrologTerm tail = curList.getTail();
+      final PrologTerm tail = curList.getTail();
       if (tail.getType() == PrologTermType.LIST) {
         final PrologList ltail = (PrologList) tail;
         if (ltail.isNullList()) {
-          curList.setTail(elementToReplace);
+          curList.setTail(newTailElement);
           break;
         }
       } else {
-        curList.setTail(elementToReplace);
+        curList.setTail(newTailElement);
         break;
       }
       curList = (PrologList) tail;
@@ -159,10 +156,10 @@ public final class PrologList extends PrologStructure {
     String result = "[]";
 
     if (!isNullList()) {
-      final StrBuffer builder = new StrBuffer("[");
+      final StringBuilderEx builder = new StringBuilderEx("[");
 
       boolean notfirst = false;
-      AbstractPrologTerm list = this;
+      PrologTerm list = this;
 
       while (true) {
         if (list.getType() == PrologTermType.LIST) {
@@ -176,7 +173,7 @@ public final class PrologList extends PrologStructure {
             builder.append(", ");
           }
 
-          final AbstractPrologTerm currentHead = asList.getHead();
+          final PrologTerm currentHead = asList.getHead();
           if (currentHead != null) {
             builder.append(currentHead.toString());
           }

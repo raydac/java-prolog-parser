@@ -89,24 +89,24 @@ public class PrologFloatNumberTest {
   public void testPrologFloatNumberStringIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologFloatNumber((String) null, 0, 0));
 
-    final AbstractPrologTerm term = new PrologFloatNumber("123.0", 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologFloatNumber("123.0", 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 
   @Test
   public void testPrologFloatNumberDoubleIntInt() {
-    final AbstractPrologTerm term = new PrologFloatNumber(123.0d, 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologFloatNumber(123.0d, 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 
   @Test
   public void testPrologFloatNumberBigDecimalIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((BigDecimal) null, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((BigDecimal) null, 2, 1));
 
-    final AbstractPrologTerm term = new PrologFloatNumber(BigDecimal.ONE, 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologFloatNumber(BigDecimal.ONE, 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 }

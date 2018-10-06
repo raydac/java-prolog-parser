@@ -33,7 +33,7 @@ public class PrologAtomTest {
 
   @Test
   public void testPrologAtom_Term_NPE() {
-    assertThrows(NullPointerException.class, () -> new PrologAtom((AbstractPrologTerm) null));
+    assertThrows(NullPointerException.class, () -> new PrologAtom((PrologTerm) null));
   }
 
   @Test
@@ -44,20 +44,20 @@ public class PrologAtomTest {
 
   @Test
   public void testPrologAtom_Term() {
-    final PrologAtom etalon = new PrologAtom("etal", 111, 222);
+    final PrologAtom etalon = new PrologAtom("etal", 222, 111);
 
     final PrologAtom atom = new PrologAtom(etalon);
     assertEquals("etal", atom.getText());
-    assertEquals(111, atom.getStrPosition());
-    assertEquals(222, atom.getLineNumber());
+    assertEquals(111, atom.getPos());
+    assertEquals(222, atom.getLine());
   }
 
   @Test
   public void testPrologAtomStringIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologAtom(null, 0, 0));
 
-    final AbstractPrologTerm term = new PrologAtom("test", 1, 2);
-    assertEquals(1, term.getStrPosition());
-    assertEquals(2, term.getLineNumber());
+    final PrologTerm term = new PrologAtom("test", 2, 1);
+    assertEquals(1, term.getPos());
+    assertEquals(2, term.getLine());
   }
 }

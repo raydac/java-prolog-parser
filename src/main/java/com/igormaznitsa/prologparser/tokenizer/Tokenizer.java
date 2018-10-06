@@ -3,13 +3,13 @@ package com.igormaznitsa.prologparser.tokenizer;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.OperatorContainer;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.operators.OpContainer;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
 import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
-import com.igormaznitsa.prologparser.utils.StrBuffer;
+import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.IOException;
@@ -17,9 +17,9 @@ import java.io.Reader;
 
 final class Tokenizer {
 
-  private final StrBuffer strBuf = new StrBuffer(128);
-  private final StrBuffer specCharBuf = new StrBuffer(128);
-  private final StrBuffer insideCharBuffer = new StrBuffer(32);
+  private final StringBuilderEx strBuf = new StringBuilderEx(128);
+  private final StringBuilderEx specCharBuf = new StringBuilderEx(128);
+  private final StringBuilderEx insideCharBuffer = new StringBuilderEx(32);
   private final Reader reader;
   private final PrologParser parser;
   TokenizerResult lastPushedTerm;
@@ -27,20 +27,20 @@ final class Tokenizer {
   private int prevTokenPos;
   private int lastTokenLine;
   private int lastTokenPos;
-  private int prevStrPos;
-  private int prevLineNum;
-  private int strPos;
-  private int lineNum;
+  private int prevPos;
+  private int prevLine;
+  private int pos;
+  private int line;
 
   Tokenizer(final PrologParser parser, final Reader reader) {
     super();
     this.reader = reader;
     this.parser = parser;
 
-    this.strPos = 1;
-    this.lineNum = 1;
-    this.prevStrPos = 1;
-    this.prevLineNum = 1;
+    this.pos = 1;
+    this.line = 1;
+    this.prevPos = 1;
+    this.prevLine = 1;
   }
 
   int readChar() throws IOException {
@@ -48,67 +48,67 @@ final class Tokenizer {
     if (this.insideCharBuffer.isEmpty()) {
       ch = this.reader.read();
     } else {
-      ch = this.insideCharBuffer.popChar();
+      ch = this.insideCharBuffer.pop();
     }
 
-    this.prevStrPos = this.strPos;
-    this.prevLineNum = this.lineNum;
+    this.prevPos = this.pos;
+    this.prevLine = this.line;
     if (ch == '\n') {
-      this.strPos = 1;
-      this.lineNum++;
+      this.pos = 1;
+      this.line++;
     } else {
       if (ch >= 0) {
-        this.strPos++;
+        this.pos++;
       }
     }
     return ch;
   }
 
-  void calcDiffAndPushResultBack(final String etalon, final StrBuffer buffer) {
+  void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
     int chars = buffer.length() - etalon.length();
     int pos = buffer.length() - 1;
 
-    int lstrpos = this.strPos;
-    int lstrposprev = this.prevStrPos;
-    int llinenum = this.lineNum;
-    int llinenumprev = this.prevLineNum;
+    int lpos = this.pos;
+    int lposPrev = this.prevPos;
+    int lline = this.line;
+    int llinePrev = this.prevLine;
 
     while (chars > 0) {
       final char ch = buffer.charAt(pos--);
-      this.insideCharBuffer.pushChar(ch);
+      this.insideCharBuffer.push(ch);
       chars--;
-      lstrpos--;
-      if (lstrpos < 1) {
-        lstrpos = 1;
+      lpos--;
+      if (lpos < 1) {
+        lpos = 1;
       }
-      lstrposprev = lstrpos;
+      lposPrev = lpos;
       if (ch == '\n') {
-        llinenum--;
-        if (llinenum < 1) {
-          llinenum = 1;
+        lline--;
+        if (lline < 1) {
+          lline = 1;
         }
-        llinenumprev = llinenum;
+        llinePrev = lline;
       }
     }
 
-    this.strPos = lstrpos;
-    this.prevStrPos = lstrposprev;
-    this.lineNum = llinenum;
-    this.prevLineNum = llinenumprev;
+    this.pos = lpos;
+    this.prevPos = lposPrev;
+    this.line = lline;
+    this.prevLine = llinePrev;
   }
 
   void push(final char ch) {
-    this.insideCharBuffer.pushChar(ch);
+    this.insideCharBuffer.push(ch);
     if (ch == '\n') {
-      this.strPos = 1;
-      this.lineNum--;
-      if (this.lineNum <= 0) {
-        this.lineNum = 1;
+      this.pos = 1;
+      this.line--;
+      if (this.line <= 0) {
+        this.line = 1;
       }
     } else {
-      this.strPos--;
-      if (this.strPos <= 0) {
-        this.strPos = 1;
+      this.pos--;
+      if (this.pos <= 0) {
+        this.pos = 1;
       }
     }
   }
@@ -132,8 +132,8 @@ final class Tokenizer {
     return result;
   }
 
-  OperatorContainer findOperatorForName(final String operatorName) {
-    OperatorContainer result = null;
+  OpContainer findOperatorForName(final String operatorName) {
+    OpContainer result = null;
 
     // check metaoperators as the first ones
     if (operatorName.length() == 1) {
@@ -155,8 +155,8 @@ final class Tokenizer {
     return result;
   }
 
-  OperatorContainer findOperatorForSingleChar(final char c) {
-    OperatorContainer result = PrologParser.META_SYSTEM_OPERATORS.get(c);
+  OpContainer findOperatorForSingleChar(final char c) {
+    OpContainer result = PrologParser.META_SYSTEM_OPERATORS.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c));
     }
@@ -181,20 +181,19 @@ final class Tokenizer {
     return result;
   }
 
-  int getLastTokenStrPos() {
+  int getLastTokenPos() {
     return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
   }
 
-  int getLastTokenLineNum() {
-    return lastPushedTerm == null ? lastTokenLine
-        : prevTokenLine;
+  int getLastTokenLine() {
+    return this.lastPushedTerm == null ? this.lastTokenLine : this.prevTokenLine;
   }
 
   void fixPosition() {
-    prevTokenLine = lastTokenLine;
-    prevTokenPos = lastTokenPos;
-    lastTokenLine = this.lineNum;
-    lastTokenPos = this.strPos - 1;
+    this.prevTokenLine = this.lastTokenLine;
+    this.prevTokenPos = this.lastTokenPos;
+    this.lastTokenLine = this.line;
+    this.lastTokenPos = this.pos - 1;
   }
 
   void skipUntilNextString() throws IOException {
@@ -222,10 +221,10 @@ final class Tokenizer {
     strBuf.clear();
     specCharBuf.clear();
 
-    final StrBuffer strBuffer = this.strBuf;
-    final StrBuffer specCharBuffer = this.specCharBuf;
+    final StringBuilderEx strBuffer = this.strBuf;
+    final StringBuilderEx specCharBuffer = this.specCharBuf;
 
-    OperatorContainer lastFoundFullOperator = null;
+    OpContainer lastFoundFullOperator = null;
 
     boolean letterOrDigitOnly = false;
 
@@ -246,17 +245,17 @@ final class Tokenizer {
                 // it is Integer
                 return new TokenizerResult(makeTermFromString(
                     strBuffer.toStringExcludeLastChar(),
-                    TokenizerState.INTEGER), TokenizerState.ATOM, getLastTokenStrPos(), getLastTokenLineNum());
+                    TokenizerState.INTEGER), TokenizerState.ATOM, getLastTokenLine(), getLastTokenPos());
               } else {
                 // it is just integer number or an atom
-                return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
               }
             }
             case VAR: {
-              if (strBuffer.hasSingleChar('_')) {
-                return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+              if (strBuffer.isSingleChar('_')) {
+                return new TokenizerResult(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
               } else {
-                return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
               }
             }
             case STRING: {
@@ -266,10 +265,10 @@ final class Tokenizer {
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
                 return new TokenizerResult(makeTermFromString(strBuffer.toString(),
-                    state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                    state), state, getLastTokenLine(), getLastTokenPos());
               } else {
                 calcDiffAndPushResultBack(lastFoundFullOperator.getText(), strBuffer);
-                return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(lastFoundFullOperator, state, getLastTokenLine(), getLastTokenPos());
               }
             }
             default: {
@@ -333,14 +332,14 @@ final class Tokenizer {
             if (chr == '_') {
               strBuffer.append(chr);
             } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-              return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+              return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
             } else if (chr == '\''
                 || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
                 || findOperatorForSingleChar(chr) != null) {
               push(chr);
 
               return new TokenizerResult(makeTermFromString(
-                  strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                  strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
             } else {
               strBuffer.append(chr);
             }
@@ -358,7 +357,7 @@ final class Tokenizer {
 
                 return new TokenizerResult(makeTermFromString(
                     strBuffer.toString(), state),
-                    TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
+                    TokenizerState.INTEGER, getLastTokenLine(), getLastTokenPos());
               }
             }
           }
@@ -374,14 +373,14 @@ final class Tokenizer {
                   push(chr);
                   return new TokenizerResult(makeTermFromString(strBuffer.toString(),
                       TokenizerState.FLOAT),
-                      TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
+                      TokenizerState.FLOAT, getLastTokenLine(), getLastTokenPos());
                 }
               } else if (chr == 'e' || chr == 'E') {
-                if (strBuffer.lastIndexOf("e") < 0) {
+                if (strBuffer.lastIndexOf('e') < 0) {
                   strBuffer.append('e');
                 } else {
                   push(chr);
-                  return new TokenizerResult(makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenStrPos(), getLastTokenLineNum());
+                  return new TokenizerResult(makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.FLOAT), TokenizerState.FLOAT, getLastTokenLine(), getLastTokenPos());
                 }
               } else {
 
@@ -393,11 +392,11 @@ final class Tokenizer {
                   return new TokenizerResult(makeTermFromString(
                       strBuffer.toStringExcludeLastChar(),
                       TokenizerState.INTEGER),
-                      TokenizerState.INTEGER, getLastTokenStrPos(), getLastTokenLineNum());
+                      TokenizerState.INTEGER, getLastTokenLine(), getLastTokenPos());
                 } else {
                   // it is float
                   return new TokenizerResult(makeTermFromString(
-                      strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                      strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
                 }
               }
             }
@@ -409,12 +408,12 @@ final class Tokenizer {
 
               if (lastFoundFullOperator == null) {
                 return new TokenizerResult(makeTermFromString(
-                    strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                    strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
               } else {
-                return new TokenizerResult(lastFoundFullOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                return new TokenizerResult(lastFoundFullOperator, state, getLastTokenLine(), getLastTokenPos());
               }
             } else {
-              final OperatorContainer previousleDetectedOperator = lastFoundFullOperator;
+              final OpContainer previousleDetectedOperator = lastFoundFullOperator;
               strBuffer.append(chr);
               final String operator = strBuffer.toString();
               lastFoundFullOperator = findOperatorForName(operator);
@@ -424,7 +423,7 @@ final class Tokenizer {
                     // next char can be the start char of an
                     // operator so we need get back it into the
                     // buffer
-                    strBuffer.popChar();
+                    strBuffer.pop();
                     push(chr);
                   }
                   state = TokenizerState.ATOM;
@@ -440,14 +439,14 @@ final class Tokenizer {
                       calcDiffAndPushResultBack(
                           previousleDetectedOperator.getText(), strBuffer);
                       return new TokenizerResult(previousleDetectedOperator,
-                          state, getLastTokenStrPos(), getLastTokenLineNum());
+                          state, getLastTokenLine(), getLastTokenPos());
                     }
                   }
                 } else {
                   if (!hasOperatorStartsWith(operator)) {
                     calcDiffAndPushResultBack(
                         previousleDetectedOperator.getText(), strBuffer);
-                    return new TokenizerResult(previousleDetectedOperator, state, getLastTokenStrPos(), getLastTokenLineNum());
+                    return new TokenizerResult(previousleDetectedOperator, state, getLastTokenLine(), getLastTokenPos());
                   }
                 }
               }
@@ -463,7 +462,7 @@ final class Tokenizer {
                 specCharBuffer.append(chr);
                 final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(specCharBuffer);
                 if (result.isError()) {
-                  throw new PrologParserException("Detected wrong escape char: \\" + specCharBuffer.toString(), this.prevLineNum, this.prevStrPos);
+                  throw new PrologParserException("Detected wrong escape char: \\" + specCharBuffer.toString(), this.prevLine, this.prevPos);
                 } else if (!result.doesNeedMore()) {
                   strBuffer.append(result.getDecoded());
                   specCharDetected = false;
@@ -473,7 +472,7 @@ final class Tokenizer {
               switch (chr) {
                 case '\'':
                   return new TokenizerResult(makeTermFromString(
-                      strBuffer.toString(), state), state, getLastTokenStrPos(), getLastTokenLineNum());
+                      strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
                 case '\\':
                   specCharDetected = true;
                   specCharBuffer.clear();
@@ -487,16 +486,16 @@ final class Tokenizer {
           break;
           case VAR: {
             if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
-              if (strBuffer.hasSingleChar('_')) {
-                return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+              if (strBuffer.isSingleChar('_')) {
+                return new TokenizerResult(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
               }
-              return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+              return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
             } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
               push(chr);
-              if (strBuffer.hasSingleChar('_')) {
-                return new TokenizerResult(new PrologVariable(), state, getLastTokenStrPos(), getLastTokenLineNum());
+              if (strBuffer.isSingleChar('_')) {
+                return new TokenizerResult(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
               }
-              return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenStrPos(), getLastTokenLineNum());
+              return new TokenizerResult(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
             } else {
               strBuffer.append(chr);
             }
@@ -507,13 +506,13 @@ final class Tokenizer {
         }
       }
     } catch (IOException ex) {
-      throw new PrologParserException("IO exception during read char", this.prevLineNum, this.prevStrPos, ex);
+      throw new PrologParserException("IO exception during read char", this.prevLine, this.prevPos, ex);
     }
   }
 
 
-  AbstractPrologTerm makeTermFromString(final String str, final TokenizerState state) {
-    AbstractPrologTerm result;
+  PrologTerm makeTermFromString(final String str, final TokenizerState state) {
+    PrologTerm result;
 
     switch (state) {
       case INTEGER: {
@@ -545,11 +544,11 @@ final class Tokenizer {
     return result;
   }
 
-  int getLineNum() {
-    return this.lineNum;
+  int getLine() {
+    return this.line;
   }
 
-  int getStrPos() {
-    return this.strPos;
+  int getPos() {
+    return this.pos;
   }
 }

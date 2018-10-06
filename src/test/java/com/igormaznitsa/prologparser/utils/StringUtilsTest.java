@@ -10,19 +10,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public class StringUtilsTest {
 
   private void assertUnescaped(char expectedChar, String testString) {
-    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StrBuffer(testString));
+    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertFalse(result.isError());
     assertFalse(result.doesNeedMore());
     assertEquals(expectedChar, result.getDecoded());
   }
 
   private void assertErrorUnescaped(String testString) {
-    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StrBuffer(testString));
+    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertTrue(result.isError());
   }
 
   private void assertNotFullData(String testString) {
-    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StrBuffer(testString));
+    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertFalse(result.isError());
     assertTrue(result.doesNeedMore());
   }

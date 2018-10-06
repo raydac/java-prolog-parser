@@ -1,32 +1,31 @@
 package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.StrBuffer;
+import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
-public final class OperatorContainer extends AbstractPrologTerm {
+public final class OpContainer extends PrologTerm {
 
   private static final long serialVersionUID = 4946799717661204529L;
 
-  private Operator opFZ;
-  private Operator opZF;
-  private Operator opZFZ;
+  private Op opFZ;
+  private Op opZF;
+  private Op opZFZ;
   private int numberAtContainer;
 
-  private OperatorContainer(final Operator operator) {
+  private OpContainer(final Op operator) {
     super(operator.getText());
     addOp(operator);
   }
 
-  public static OperatorContainer newOpCont(final Operator operator) {
-    return new OperatorContainer(operator);
+  public static OpContainer newOpCont(final Op operator) {
+    return new OpContainer(operator);
   }
 
-  public boolean addOp(final Operator operator) {
+  public boolean addOp(final Op operator) {
     if (!getText().equals(operator.getText())) {
-      throw new IllegalArgumentException(
-          "Wrong operator name for the container");
+      throw new IllegalArgumentException("Illegal operator name, must be '"+getText()+"'");
     }
 
     switch (operator.getOpType()) {
@@ -68,8 +67,8 @@ public final class OperatorContainer extends AbstractPrologTerm {
     numberAtContainer = 0;
   }
 
-  public Operator findForArity(final int arity) {
-    Operator result;
+  public Op findForArity(final int arity) {
+    Op result;
     switch (arity) {
       case 1: {
         if (opFZ != null) {
@@ -90,7 +89,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  public boolean remove(final Operator op) {
+  public boolean remove(final Op op) {
     if (!getText().equals(op.getText())) {
       throw new IllegalArgumentException(
           "Wrong operator name for the container");
@@ -123,7 +122,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return numberAtContainer;
   }
 
-  public Operator getOperatorIfSingle() {
+  public Op getOperatorIfSingle() {
     if (numberAtContainer == 1) {
       if (opZFZ != null) {
         return opZFZ;
@@ -137,8 +136,8 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return null;
   }
 
-  public Operator findSimilar(final boolean hasLeftArg, final boolean hasRightArg) {
-    final Operator result;
+  public Op findSimilar(final boolean hasLeftArg, final boolean hasRightArg) {
+    final Op result;
     if (hasLeftArg) {
       if (hasRightArg) {
         if (opZFZ != null) {
@@ -169,8 +168,8 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return result;
   }
 
-  public Operator findForType(final OpType type) {
-    Operator result = null;
+  public Op findForType(final OpType type) {
+    Op result = null;
     switch (type) {
       case FY:
       case FX:
@@ -201,8 +200,8 @@ public final class OperatorContainer extends AbstractPrologTerm {
     return null;
   }
 
-  public Operator findSimilar(final OpType type) {
-    Operator result;
+  public Op findSimilar(final OpType type) {
+    Op result;
     switch (type) {
       case FX:
       case FY:
@@ -261,11 +260,11 @@ public final class OperatorContainer extends AbstractPrologTerm {
 
   @Override
   public String toString() {
-    final StrBuffer result = new StrBuffer("OpContainer [");
+    final StringBuilderEx result = new StringBuilderEx("OpContainer [");
 
     boolean added = false;
-    final Operator[] ops = new Operator[] {opFZ, opZF, opZFZ};
-    for (final Operator op : ops) {
+    final Op[] ops = new Op[] {opFZ, opZF, opZFZ};
+    for (final Op op : ops) {
       if (op != null) {
         if (added) {
           result.append(' ');

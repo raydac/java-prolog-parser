@@ -1,18 +1,18 @@
 package com.igormaznitsa.prologparser.utils;
 
-public final class StrBuffer {
+public final class StringBuilderEx {
 
   private final StringBuilder stringBuilder;
 
-  public StrBuffer(final String initialString) {
+  public StringBuilderEx(final String initialString) {
     this.stringBuilder = new StringBuilder(initialString);
   }
 
-  public StrBuffer(final int capacity) {
+  public StringBuilderEx(final int capacity) {
     this.stringBuilder = new StringBuilder(capacity);
   }
 
-  public StrBuffer append(final char chr) {
+  public StringBuilderEx append(final char chr) {
     this.stringBuilder.append(chr);
     return this;
   }
@@ -25,11 +25,16 @@ public final class StrBuffer {
     return this.stringBuilder.charAt(position);
   }
 
-  public int lastIndexOf(final String str) {
-    return this.stringBuilder.lastIndexOf(str);
+  public int lastIndexOf(final char chr) {
+    for (int i = this.stringBuilder.length() - 1; i >= 0; i--) {
+      if (this.stringBuilder.charAt(i) == chr) {
+        return i;
+      }
+    }
+    return -1;
   }
 
-  public boolean hasSingleChar(final char chr) {
+  public boolean isSingleChar(final char chr) {
     return this.stringBuilder.length() == 1 && this.stringBuilder.charAt(0) == chr;
   }
 
@@ -58,7 +63,7 @@ public final class StrBuffer {
     return this.stringBuilder.substring(start, end);
   }
 
-  public StrBuffer append(final String str) {
+  public StringBuilderEx append(final String str) {
     this.stringBuilder.append(str);
     return this;
   }
@@ -72,11 +77,11 @@ public final class StrBuffer {
     return this.stringBuilder.toString();
   }
 
-  public void pushChar(final char chr) {
+  public void push(final char chr) {
     this.stringBuilder.append(chr);
   }
 
-  public char popChar() {
+  public char pop() {
     final char chr = this.stringBuilder.charAt(this.stringBuilder.length() - 1);
     this.stringBuilder.setLength(this.stringBuilder.length() - 1);
     return chr;

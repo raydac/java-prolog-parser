@@ -13,7 +13,7 @@ public class PrologListTest {
 
     String[] atoms = new String[] {"test1", "test2", "test3", "test4"};
     StringBuilder builder = new StringBuilder();
-    AbstractPrologTerm[] terms = new AbstractPrologTerm[atoms.length];
+    PrologTerm[] terms = new PrologTerm[atoms.length];
     int index = 0;
     for (final String atom : atoms) {
       terms[index++] = new PrologAtom(atom);
@@ -64,17 +64,17 @@ public class PrologListTest {
 
   @Test
   public void testPrologListIntInt() {
-    final PrologList list = new PrologList(1, 2);
-    assertEquals(1, list.getStrPosition());
-    assertEquals(2, list.getLineNumber());
+    final PrologList list = new PrologList(2, 1);
+    assertEquals(1, list.getPos());
+    assertEquals(2, list.getLine());
   }
 
   @Test
   public void testPrologListAbstractPrologTermArray() {
-    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm[]) null));
+    assertThrows(NullPointerException.class, () -> new PrologList((PrologTerm[]) null));
 
     String[] atoms = new String[] {"test1", "test2", "test3", "test4"};
-    AbstractPrologTerm[] terms = new AbstractPrologTerm[atoms.length];
+    PrologTerm[] terms = new PrologTerm[atoms.length];
     int index = 0;
     for (final String atom : atoms) {
       terms[index++] = new PrologAtom(atom);
@@ -88,29 +88,29 @@ public class PrologListTest {
     assertTrue(list.isNullList());
 
     atoms = new String[] {"test1", null, "test3", "test4"};
-    terms = new AbstractPrologTerm[atoms.length];
+    terms = new PrologTerm[atoms.length];
     index = 0;
     for (final String atom : atoms) {
       terms[index++] = atom == null ? null : new PrologAtom(atom);
     }
 
-    final AbstractPrologTerm[] finalTerms = terms;
+    final PrologTerm[] finalTerms = terms;
     assertThrows(NullPointerException.class, () -> new PrologList(finalTerms));
   }
 
   @Test
   public void testPrologListAbstractPrologTermArrayIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm[]) null, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologList((PrologTerm[]) null, 2, 1));
 
-    final PrologList list = new PrologList(new AbstractPrologTerm[] {new PrologAtom("test")}, 1, 2);
-    assertEquals(1, list.getStrPosition());
-    assertEquals(2, list.getLineNumber());
+    final PrologList list = new PrologList(new PrologTerm[] {new PrologAtom("test")}, 2, 1);
+    assertEquals(1, list.getPos());
+    assertEquals(2, list.getLine());
 
   }
 
   @Test
   public void testPrologListAbstractPrologTerm() {
-    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm) null));
+    assertThrows(NullPointerException.class, () -> new PrologList((PrologTerm) null));
 
     final PrologAtom atom = new PrologAtom("test");
     final PrologList list = new PrologList(atom);
@@ -123,13 +123,13 @@ public class PrologListTest {
 
   @Test
   public void testPrologListAbstractPrologTermIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologList((AbstractPrologTerm) null, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologList((PrologTerm) null, 2, 1));
 
     final PrologAtom atom = new PrologAtom("test");
-    final PrologList list = new PrologList(atom, 1, 2);
+    final PrologList list = new PrologList(atom, 2, 1);
 
-    assertEquals(1, list.getStrPosition());
-    assertEquals(2, list.getLineNumber());
+    assertEquals(1, list.getPos());
+    assertEquals(2, list.getLine());
   }
 
   @Test
@@ -147,15 +147,15 @@ public class PrologListTest {
 
   @Test
   public void testPrologListAbstractPrologTermAbstractPrologTermIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologList(null, null, 1, 2));
-    assertThrows(NullPointerException.class, () -> new PrologList(null, new PrologAtom("test"), 1, 2));
-    assertThrows(NullPointerException.class, () -> new PrologList(new PrologAtom("test"), null, 1, 2));
+    assertThrows(NullPointerException.class, () -> new PrologList(null, null, 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologList(null, new PrologAtom("test"), 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologList(new PrologAtom("test"), null, 2, 1));
 
     final PrologAtom atom1 = new PrologAtom("test");
     final PrologAtom atom2 = new PrologAtom("test2");
-    final PrologList list = new PrologList(atom1, atom2, 1, 2);
-    assertEquals(1, list.getStrPosition());
-    assertEquals(2, list.getLineNumber());
+    final PrologList list = new PrologList(atom1, atom2, 2, 1);
+    assertEquals(1, list.getPos());
+    assertEquals(2, list.getLine());
   }
 
   @Test
@@ -290,12 +290,12 @@ public class PrologListTest {
 
     final PrologAtom atom = new PrologAtom("hello");
 
-    list.replaceLastElement(atom);
+    list.replaceTail(atom);
     assertSame(atom, list3.getTail());
 
     list3.setTail(new PrologVariable());
     final PrologAtom third = new PrologAtom("third");
-    list.replaceLastElement(third);
+    list.replaceTail(third);
     assertSame(third, list3.getTail());
   }
 }

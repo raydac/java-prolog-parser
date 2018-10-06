@@ -1,7 +1,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.operators.Operator;
+import com.igormaznitsa.prologparser.operators.Op;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TermWrapperTest {
 
-  final static Operator testWrapped = Operator.makeOp(300, OpType.FX, "---");
+  final static Op testWrapped = Op.makeOne(300, OpType.FX, "---");
 
   final static TermWrapper testWrapper = new TermWrapper(testWrapped);
 

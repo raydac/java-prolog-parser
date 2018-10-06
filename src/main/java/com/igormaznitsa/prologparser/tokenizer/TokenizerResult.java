@@ -1,36 +1,27 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.terms.AbstractPrologTerm;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 final class TokenizerResult {
   private final TokenizerState parserState;
-  private final AbstractPrologTerm resultTerm;
-  private final int stringPosition;
-  private final int lineNumber;
+  private final PrologTerm resultTerm;
+  private final int pos;
+  private final int line;
 
-  TokenizerResult(final AbstractPrologTerm term,
-                  final TokenizerState parserState,
-                  final int stringPosition,
-                  final int lineNumber) {
-    if (term == null) {
-      throw new NullPointerException("Term is null");
-    }
-    if (parserState == null) {
-      throw new NullPointerException("Parser state is null");
-    }
-
-    this.stringPosition = stringPosition;
-    this.lineNumber = lineNumber;
-    this.resultTerm = term;
-    this.parserState = parserState;
+  TokenizerResult(final PrologTerm term, final TokenizerState parserState, final int line, final int pos) {
+    this.resultTerm = AssertUtils.assertNotNull(term);
+    this.parserState = AssertUtils.assertNotNull(parserState);
+    this.pos = pos;
+    this.line = line;
   }
 
   TokenizerState getTokenizerState() {
     return parserState;
   }
 
-  AbstractPrologTerm getResult() {
+  PrologTerm getResult() {
     return resultTerm;
   }
 
@@ -39,10 +30,10 @@ final class TokenizerResult {
   }
 
   int getStringPosition() {
-    return stringPosition;
+    return pos;
   }
 
-  int getLineNumber() {
-    return lineNumber;
+  int getLine() {
+    return line;
   }
 }
