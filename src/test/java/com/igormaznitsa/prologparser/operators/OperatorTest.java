@@ -2,8 +2,8 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologStructure;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -27,8 +27,8 @@ public class OperatorTest {
   public void testGetType() {
     final Op op = Op.makeOne(243, OpType.FX, "<>");
     final Op op2 = Op.makeOne(243, OpType.XFX, "><");
-    assertEquals(PrologTermType.OPERATOR, op.getType());
-    assertEquals(PrologTermType.OPERATOR, op2.getType());
+    assertEquals(TermType.OPERATOR, op.getType());
+    assertEquals(TermType.OPERATOR, op2.getType());
   }
 
   @Test
@@ -87,11 +87,11 @@ public class OperatorTest {
     final Op opYF = Op.makeOne(600, OpType.YF, "><");
     final Op opXF = Op.makeOne(700, OpType.XF, "><");
 
-    final PrologStructure empty = new PrologStructure("empty");
-    final PrologStructure one = new PrologStructure(new PrologAtom(
+    final PrologStruct empty = new PrologStruct("empty");
+    final PrologStruct one = new PrologStruct(new PrologAtom(
         "functor"),
         new PrologTerm[] {new PrologAtom("first")});
-    final PrologStructure two = new PrologStructure(new PrologAtom(
+    final PrologStruct two = new PrologStruct(new PrologAtom(
         "functor"), new PrologTerm[] {new PrologAtom("first"),
         new PrologAtom("second")});
 
@@ -119,7 +119,7 @@ public class OperatorTest {
     assertTrue(opYF.isCompatibleWith(two));
     assertTrue(opXF.isCompatibleWith(two));
 
-    final PrologStructure nullElementStructure = Mockito.mock(PrologStructure.class);
+    final PrologStruct nullElementStructure = Mockito.mock(PrologStruct.class);
     Mockito.when(nullElementStructure.getArity()).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(1).thenReturn(1);
 
     assertFalse(opFX.isCompatibleWith(nullElementStructure));

@@ -2,7 +2,7 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
-public final class PrologList extends PrologStructure {
+public final class PrologList extends PrologStruct {
   public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".");
   private static final long serialVersionUID = -3781631438477876869L;
 
@@ -114,7 +114,7 @@ public final class PrologList extends PrologStructure {
           return current;
         } else {
           final PrologTerm ltail = current.getTail();
-          if (ltail.getType() == PrologTermType.LIST) {
+          if (ltail.getType() == TermType.LIST) {
             current = (PrologList) ltail;
           } else {
             final PrologList newOne = new PrologList(term,
@@ -132,7 +132,7 @@ public final class PrologList extends PrologStructure {
     PrologList curList = this;
     while (true) {
       final PrologTerm tail = curList.getTail();
-      if (tail.getType() == PrologTermType.LIST) {
+      if (tail.getType() == TermType.LIST) {
         final PrologList ltail = (PrologList) tail;
         if (ltail.isNullList()) {
           curList.setTail(newTailElement);
@@ -147,8 +147,8 @@ public final class PrologList extends PrologStructure {
   }
 
   @Override
-  public PrologTermType getType() {
-    return PrologTermType.LIST;
+  public TermType getType() {
+    return TermType.LIST;
   }
 
   @Override
@@ -162,7 +162,7 @@ public final class PrologList extends PrologStructure {
       PrologTerm list = this;
 
       while (true) {
-        if (list.getType() == PrologTermType.LIST) {
+        if (list.getType() == TermType.LIST) {
           final PrologList asList = (PrologList) list;
 
           if (asList.isNullList()) {

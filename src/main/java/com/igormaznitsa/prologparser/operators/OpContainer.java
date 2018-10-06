@@ -2,7 +2,7 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 public final class OpContainer extends PrologTerm {
@@ -114,8 +114,8 @@ public final class OpContainer extends PrologTerm {
   }
 
   @Override
-  public PrologTermType getType() {
-    return PrologTermType.OPERATORS;
+  public TermType getType() {
+    return TermType.OPERATORS;
   }
 
   public int size() {

@@ -39,7 +39,7 @@ public final class PrologVariable extends PrologTerm {
   }
 
   @Override
-  public PrologTermType getType() {
-    return PrologTermType.VAR;
+  public TermType getType() {
+    return TermType.VAR;
   }
 }

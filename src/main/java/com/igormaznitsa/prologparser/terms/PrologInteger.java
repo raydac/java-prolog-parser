@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-public final class PrologIntegerNumber extends PrologNumericTerm {
+public final class PrologInteger extends PrologNumeric {
 
   private static final long serialVersionUID = 6955747225309951985L;
   private static final Map<String, BigInteger> cachedValues = new HashMap<>(128);
@@ -18,29 +18,29 @@ public final class PrologIntegerNumber extends PrologNumericTerm {
 
   private final BigInteger value;
 
-  public PrologIntegerNumber(final String text) {
+  public PrologInteger(final String text) {
     super();
     value = valueOf(text);
   }
 
-  public PrologIntegerNumber(final String text, final int line, final int pos) {
+  public PrologInteger(final String text, final int line, final int pos) {
     this(valueOf(text), line, pos);
   }
 
-  public PrologIntegerNumber(final long value) {
+  public PrologInteger(final long value) {
     this(BigInteger.valueOf(value));
   }
 
-  public PrologIntegerNumber(final long value, final int line, final int pos) {
+  public PrologInteger(final long value, final int line, final int pos) {
     this(BigInteger.valueOf(value), line, pos);
   }
 
-  public PrologIntegerNumber(final BigInteger value) {
+  public PrologInteger(final BigInteger value) {
     super();
     this.value = AssertUtils.assertNotNull(value);
   }
 
-  public PrologIntegerNumber(final BigInteger value, final int line, final int pos) {
+  public PrologInteger(final BigInteger value, final int line, final int pos) {
     super(line, pos);
     this.value = AssertUtils.assertNotNull(value);
   }
@@ -63,8 +63,8 @@ public final class PrologIntegerNumber extends PrologNumericTerm {
   }
 
   @Override
-  public PrologNumericTerm neg() {
-    return new PrologIntegerNumber(value.negate());
+  public PrologNumeric neg() {
+    return new PrologInteger(value.negate());
   }
 
   @Override

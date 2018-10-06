@@ -62,5 +62,5 @@ public abstract class PrologTerm implements Serializable {
     this.payload = obj;
   }
 
-  public abstract PrologTermType getType();
+  public abstract TermType getType();
 }

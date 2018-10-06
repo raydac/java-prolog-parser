@@ -1,7 +1,6 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 final class TokenizerResult {
@@ -18,22 +17,18 @@ final class TokenizerResult {
   }
 
   TokenizerState getTokenizerState() {
-    return parserState;
+    return this.parserState;
   }
 
   PrologTerm getResult() {
-    return resultTerm;
+    return this.resultTerm;
   }
 
-  PrologTermType getTermType() {
-    return resultTerm.getType();
-  }
-
-  int getStringPosition() {
-    return pos;
+  int getPos() {
+    return this.pos;
   }
 
   int getLine() {
-    return line;
+    return this.line;
   }
 }

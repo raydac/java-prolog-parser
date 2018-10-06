@@ -20,8 +20,8 @@ public final class PrologAtom extends PrologTerm {
   }
 
   @Override
-  public PrologTermType getType() {
-    return PrologTermType.ATOM;
+  public TermType getType() {
+    return TermType.ATOM;
   }
 
   @Override

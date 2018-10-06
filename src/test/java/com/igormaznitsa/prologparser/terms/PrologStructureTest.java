@@ -14,82 +14,82 @@ public class PrologStructureTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(new PrologStructure("hello").getPrecedence(), 0);
+    assertEquals(new PrologStruct("hello").getPrecedence(), 0);
     assertEquals(0,
-        new PrologStructure(new PrologAtom("hello")).getPrecedence());
+        new PrologStruct(new PrologAtom("hello")).getPrecedence());
 
     final Op testOperator = Op.makeOne(666, OpType.FX, ":::");
 
     assertEquals(666,
-        new PrologStructure(testOperator,
+        new PrologStruct(testOperator,
             new PrologTerm[] {new PrologAtom("test")}).getPrecedence());
   }
 
   @Test
   public void testToString() {
-    assertEquals("\'Hello World\'()", new PrologStructure(new PrologAtom(
+    assertEquals("\'Hello World\'()", new PrologStruct(new PrologAtom(
         "Hello World")).toString());
-    assertEquals("!", new PrologStructure(new PrologAtom("!")).toString());
+    assertEquals("!", new PrologStruct(new PrologAtom("!")).toString());
 
-    assertEquals("'test'('', '', '')", new PrologStructure(new PrologAtom(
+    assertEquals("'test'('', '', '')", new PrologStruct(new PrologAtom(
         "test"), 3).toString());
-    assertEquals("'123'('first', 123.0, [], _)", new PrologStructure(
+    assertEquals("'123'('first', 123.0, [], _)", new PrologStruct(
         new PrologAtom("123"), new PrologTerm[] {
-        new PrologAtom("first"), new PrologFloatNumber(123d),
+        new PrologAtom("first"), new PrologFloat(123d),
         new PrologList(), new PrologVariable()}).toString());
 
     final Map<String, OpContainer> systemOperators = GenericPrologParser.findAllSystemOperators();
-    assertEquals("'hello' :- 'world'", new PrologStructure(systemOperators.get(":-").findForType(OpType.XFX),
+    assertEquals("'hello' :- 'world'", new PrologStruct(systemOperators.get(":-").findForType(OpType.XFX),
         new PrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
     assertEquals(":- 'hello'",
-        new PrologStructure(systemOperators.get(":-").findForType(OpType.FX),
+        new PrologStruct(systemOperators.get(":-").findForType(OpType.FX),
             new PrologTerm[] {new PrologAtom("hello")}).toString());
     assertEquals(
         "- 10 * (1 + 2)",
-        new PrologStructure(
+        new PrologStruct(
             systemOperators.get("*").findForType(
                 OpType.YFX),
             new PrologTerm[] {
-                new PrologStructure(
+                new PrologStruct(
                     systemOperators.get("-").findForType(
                         OpType.FY),
-                    new PrologTerm[] {new PrologIntegerNumber("10")}),
-                new PrologStructure(systemOperators.get("+").findForType(OpType.YFX),
+                    new PrologTerm[] {new PrologInteger("10")}),
+                new PrologStruct(systemOperators.get("+").findForType(OpType.YFX),
                     new PrologTerm[] {
-                        new PrologIntegerNumber("1"),
-                        new PrologIntegerNumber("2")})}).toString());
+                        new PrologInteger("1"),
+                        new PrologInteger("2")})}).toString());
 
     assertEquals(
         "- - 10",
-        new PrologStructure(
+        new PrologStruct(
             systemOperators.get("-").findForType(
                 OpType.FY),
-            new PrologTerm[] {new PrologStructure(
+            new PrologTerm[] {new PrologStruct(
                 systemOperators.get("-").findForType(
                     OpType.FY),
-                new PrologTerm[] {new PrologIntegerNumber(
+                new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());
 
     assertEquals(
         "\\ (\\+ 10)",
-        new PrologStructure(
+        new PrologStruct(
             systemOperators.get("\\").findForType(
                 OpType.FY),
-            new PrologTerm[] {new PrologStructure(
+            new PrologTerm[] {new PrologStruct(
                 systemOperators.get("\\+").findForType(
                     OpType.FY),
-                new PrologTerm[] {new PrologIntegerNumber(
+                new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());
     assertEquals(
         "(10 .) .",
-        new PrologStructure(
+        new PrologStruct(
             systemOperators.get(".").findForType(
                 OpType.XF),
-            new PrologTerm[] {new PrologStructure(
+            new PrologTerm[] {new PrologStruct(
                 systemOperators.get(".").findForType(
                     OpType.XF),
-                new PrologTerm[] {new PrologIntegerNumber(
+                new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());
 
     final Op operatorYF = Op.makeOne(800, OpType.YF, "!");
@@ -97,50 +97,50 @@ public class PrologStructureTest {
 
     assertEquals(
         "(10 !!) !",
-        new PrologStructure(
+        new PrologStruct(
             operatorYF,
-            new PrologTerm[] {new PrologStructure(
+            new PrologTerm[] {new PrologStruct(
                 operatorYF2,
-                new PrologTerm[] {new PrologIntegerNumber(
+                new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());
 
     final Op operatorXFX = Op.makeOne(800, OpType.XFX, "$");
     final Op operatorXFX2 = Op.makeOne(1000, OpType.XFX, "$$");
 
     assertEquals("(10 $$ 20) $ (5 $ 30)",
-        new PrologStructure(operatorXFX, new PrologTerm[] {
-            new PrologStructure(operatorXFX2,
+        new PrologStruct(operatorXFX, new PrologTerm[] {
+            new PrologStruct(operatorXFX2,
                 new PrologTerm[] {
-                    new PrologIntegerNumber("10"),
-                    new PrologIntegerNumber("20")}),
-            new PrologStructure(operatorXFX,
+                    new PrologInteger("10"),
+                    new PrologInteger("20")}),
+            new PrologStruct(operatorXFX,
                 new PrologTerm[] {
-                    new PrologIntegerNumber("5"),
-                    new PrologIntegerNumber("30")})}).toString());
+                    new PrologInteger("5"),
+                    new PrologInteger("30")})}).toString());
 
     final Op operatorXFY = Op.makeOne(800, OpType.XFY, "$");
     final Op operatorXFY2 = Op.makeOne(1000, OpType.XFY, "$$");
 
     assertEquals("10 $ 20 $$ 5 $ 30",
-        new PrologStructure(operatorXFY2, new PrologTerm[] {
-            new PrologStructure(operatorXFY,
+        new PrologStruct(operatorXFY2, new PrologTerm[] {
+            new PrologStruct(operatorXFY,
                 new PrologTerm[] {
-                    new PrologIntegerNumber("10"),
-                    new PrologIntegerNumber("20")}),
-            new PrologStructure(operatorXFY,
+                    new PrologInteger("10"),
+                    new PrologInteger("20")}),
+            new PrologStruct(operatorXFY,
                 new PrologTerm[] {
-                    new PrologIntegerNumber("5"),
-                    new PrologIntegerNumber("30")})}).toString());
+                    new PrologInteger("5"),
+                    new PrologInteger("30")})}).toString());
   }
 
   @Test
   public void testGetType() {
-    assertEquals(PrologTermType.STRUCT,
-        new PrologStructure("hello").getType());
-    assertEquals(PrologTermType.STRUCT, new PrologStructure(new PrologAtom(
+    assertEquals(TermType.STRUCT,
+        new PrologStruct("hello").getType());
+    assertEquals(TermType.STRUCT, new PrologStruct(new PrologAtom(
         "hello")).getType());
     final Op testOperator = Op.makeOne(666, OpType.FX, ":::");
-    assertEquals(PrologTermType.STRUCT, new PrologStructure(testOperator,
+    assertEquals(TermType.STRUCT, new PrologStruct(testOperator,
         new PrologTerm[] {new PrologAtom("test")}).getType());
   }
 
@@ -152,19 +152,19 @@ public class PrologStructureTest {
     final PrologTerm[] testtermswithnull = new PrologTerm[] {
         new PrologAtom("test1"), null, new PrologAtom("test3")};
 
-    assertThrows(NullPointerException.class, () -> new PrologStructure(null, testterms));
-    assertThrows(NullPointerException.class, () -> new PrologStructure(new PrologAtom("hello"), null));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d), testtermswithnull));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), testtermswithnull));
+    assertThrows(NullPointerException.class, () -> new PrologStruct(null, testterms));
+    assertThrows(NullPointerException.class, () -> new PrologStruct(new PrologAtom("hello"), null));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d), testtermswithnull));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), testtermswithnull));
 
     final PrologAtom functoratom = new PrologAtom("functor");
-    PrologStructure struct = new PrologStructure(functoratom, testterms);
+    PrologStruct struct = new PrologStruct(functoratom, testterms);
     assertSame(functoratom, struct.getFunctor());
     assertEquals(testterms.length, struct.getArity());
 
     final Op functoroperator = Op.makeOne(222, OpType.XFX,
         ">>>");
-    struct = new PrologStructure(functoroperator, testterms);
+    struct = new PrologStruct(functoroperator, testterms);
     assertSame(functoroperator, struct.getFunctor());
     assertEquals(testterms.length, struct.getArity());
 
@@ -181,40 +181,40 @@ public class PrologStructureTest {
     final PrologTerm[] testtermswithnull = new PrologTerm[] {
         new PrologAtom("test1"), null, new PrologAtom("test3")};
 
-    assertThrows(NullPointerException.class, () -> new PrologStructure(null, testterms, 2, 1));
-    assertThrows(NullPointerException.class, () -> new PrologStructure(new PrologAtom("hello"), null, 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologStruct(null, testterms, 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologStruct(new PrologAtom("hello"), null, 2, 1));
 
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d), testtermswithnull, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), testtermswithnull, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d), testtermswithnull, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), testtermswithnull, 2, 1));
 
     final PrologAtom functoratom = new PrologAtom("functor");
-    PrologStructure struct = new PrologStructure(functoratom, testterms, 2, 1);
+    PrologStruct struct = new PrologStruct(functoratom, testterms, 2, 1);
     assertEquals(1, struct.getPos());
     assertEquals(2, struct.getLine());
   }
 
   @Test
   public void testPrologStructureString() {
-    assertThrows(NullPointerException.class, () -> new PrologStructure((String) null));
+    assertThrows(NullPointerException.class, () -> new PrologStruct((String) null));
 
-    final PrologStructure struct = new PrologStructure("Hello World");
+    final PrologStruct struct = new PrologStruct("Hello World");
     assertNotNull(struct.getFunctor());
-    assertEquals(PrologTermType.ATOM, struct.getFunctor().getType());
+    assertEquals(TermType.ATOM, struct.getFunctor().getType());
     assertEquals("Hello World", struct.getFunctor().getText());
 
-    final PrologStructure struct2 = new PrologStructure("1111");
+    final PrologStruct struct2 = new PrologStruct("1111");
     assertNotNull(struct2.getFunctor());
-    assertEquals(PrologTermType.ATOM, struct2.getFunctor().getType());
-    assertFalse(struct2.getFunctor() instanceof PrologNumericTerm);
+    assertEquals(TermType.ATOM, struct2.getFunctor().getType());
+    assertFalse(struct2.getFunctor() instanceof PrologNumeric);
     assertEquals("1111", struct2.getFunctor().getText());
 
   }
 
   @Test
   public void testPrologStructureStringIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologStructure((String) null, 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologStruct((String) null, 2, 1));
 
-    final PrologStructure struct = new PrologStructure("Hello World", 2, 1);
+    final PrologStruct struct = new PrologStruct("Hello World", 2, 1);
     assertEquals(1, struct.getPos());
     assertEquals(2, struct.getLine());
   }
@@ -224,22 +224,22 @@ public class PrologStructureTest {
     final PrologAtom atom = new PrologAtom("atom1");
     final Op operator = Op.makeOne(6, OpType.FX, "...");
 
-    assertThrows(NullPointerException.class, () -> new PrologStructure((PrologTerm) null));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d)));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList()));
+    assertThrows(NullPointerException.class, () -> new PrologStruct((PrologTerm) null));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d)));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList()));
 
-    assertSame(atom, new PrologStructure(atom).getFunctor());
-    assertSame(operator, new PrologStructure(operator).getFunctor());
+    assertSame(atom, new PrologStruct(atom).getFunctor());
+    assertSame(operator, new PrologStruct(operator).getFunctor());
   }
 
   @Test
   public void testPrologStructureAbstractPrologTermIntInt() {
     final PrologAtom atom = new PrologAtom("atom1");
-    assertThrows(NullPointerException.class, () -> new PrologStructure((PrologTerm) null, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d), 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologStruct((PrologTerm) null, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d), 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 2, 1));
 
-    final PrologStructure test = new PrologStructure(atom, 2, 1);
+    final PrologStruct test = new PrologStruct(atom, 2, 1);
 
     assertEquals(1, test.getPos());
     assertEquals(2, test.getLine());
@@ -247,17 +247,17 @@ public class PrologStructureTest {
 
   @Test
   public void testPrologStructureAbstractPrologTermInt() {
-    assertThrows(NullPointerException.class, () -> new PrologStructure(null, 4));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologAtom("test"), -1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologVariable(), 10));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 10));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologIntegerNumber("5"), 10));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(5.0d), 10));
+    assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVariable(), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInteger("5"), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10));
 
     final PrologAtom testAtom = new PrologAtom("test");
-    assertEquals(0, new PrologStructure(testAtom, 0).getArity());
+    assertEquals(0, new PrologStruct(testAtom, 0).getArity());
 
-    final PrologStructure struct = new PrologStructure(testAtom, 10);
+    final PrologStruct struct = new PrologStruct(testAtom, 10);
     for (int index = 0; index < 10; index++) {
       assertEquals("", struct.getElement(index).getText());
     }
@@ -265,16 +265,16 @@ public class PrologStructureTest {
 
   @Test
   public void testPrologStructureAbstractPrologTermIntIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologStructure(null, 4, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologAtom("test"), -1, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologVariable(), 10, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologList(), 10, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologIntegerNumber("5"), 10, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(5.0d), 10, 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVariable(), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInteger("5"), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10, 2, 1));
 
     final PrologAtom testAtom = new PrologAtom("test");
 
-    final PrologStructure struct = new PrologStructure(testAtom, 10, 2, 1);
+    final PrologStruct struct = new PrologStruct(testAtom, 10, 2, 1);
 
     assertEquals(1, struct.getPos());
     assertEquals(2, struct.getLine());
@@ -286,10 +286,10 @@ public class PrologStructureTest {
         new PrologAtom("test1"), new PrologAtom("test2"),
         new PrologAtom("test3")};
 
-    assertEquals(testterms.length, new PrologStructure(new PrologAtom(
+    assertEquals(testterms.length, new PrologStruct(new PrologAtom(
         "hello"), testterms).getArity());
     assertEquals(8,
-        new PrologStructure(new PrologAtom("test"), 8).getArity());
+        new PrologStruct(new PrologAtom("test"), 8).getArity());
   }
 
   @Test
@@ -301,7 +301,7 @@ public class PrologStructureTest {
       terms[i] = new PrologAtom(strings[i]);
     }
 
-    final PrologStructure structure = new PrologStructure(new PrologAtom(
+    final PrologStruct structure = new PrologStruct(new PrologAtom(
         "functor"), terms);
     for (int li = 0; li < strings.length; li++) {
       assertEquals(strings[li], structure.getElement(li).getText());
@@ -320,7 +320,7 @@ public class PrologStructureTest {
       terms[i] = new PrologAtom(strings[i]);
     }
 
-    final PrologStructure structure = new PrologStructure(new PrologAtom(
+    final PrologStruct structure = new PrologStruct(new PrologAtom(
         "functor"), terms.length);
     for (int li = 0; li < terms.length; li++) {
       structure.setElement(li, terms[li]);
@@ -340,19 +340,19 @@ public class PrologStructureTest {
     final Op functoroperator = Op.makeOne(666, OpType.FX,
         ":::");
 
-    assertEquals(functoratom, new PrologStructure(functoratom).getFunctor());
+    assertEquals(functoratom, new PrologStruct(functoratom).getFunctor());
     assertEquals(functoratom,
-        new PrologStructure(functoratom, 3).getFunctor());
-    assertEquals(new PrologStructure(functoroperator).getFunctor(),
+        new PrologStruct(functoratom, 3).getFunctor());
+    assertEquals(new PrologStruct(functoroperator).getFunctor(),
         functoroperator);
   }
 
   @Test
   public void testGetText() {
-    assertEquals("test", new PrologStructure("test").getText());
+    assertEquals("test", new PrologStruct("test").getText());
     assertEquals("test",
-        new PrologStructure(new PrologAtom("test"), 5).getText());
-    assertEquals("<<<", new PrologStructure(Op.makeOne(222,
+        new PrologStruct(new PrologAtom("test"), 5).getText());
+    assertEquals("<<<", new PrologStruct(Op.makeOne(222,
         OpType.FY, "<<<"), 5).getText());
   }
 
@@ -360,10 +360,10 @@ public class PrologStructureTest {
   public void testCopyWithAnotherFunctor() {
     final PrologAtom functor = new PrologAtom("hello");
     final PrologAtom element = new PrologAtom("world");
-    final PrologStructure struct = new PrologStructure(functor, new PrologTerm[] {element}, 20, 10);
+    final PrologStruct struct = new PrologStruct(functor, new PrologTerm[] {element}, 20, 10);
 
     final PrologAtom newFunctor = new PrologAtom("haha", 4, 3);
-    final PrologStructure copy = struct.copyWithAnotherFunctor(newFunctor);
+    final PrologStruct copy = struct.copyWithAnotherFunctor(newFunctor);
 
     assertEquals(newFunctor, copy.getFunctor());
     assertEquals(1, copy.getArity());

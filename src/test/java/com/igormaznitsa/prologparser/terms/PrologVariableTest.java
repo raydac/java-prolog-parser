@@ -9,10 +9,10 @@ public class PrologVariableTest {
   @Test
   public void testGetType() {
     final PrologVariable var = new PrologVariable("X");
-    assertEquals(PrologTermType.VAR, var.getType());
+    assertEquals(TermType.VAR, var.getType());
 
     final PrologVariable var2 = new PrologVariable();
-    assertEquals(PrologTermType.VAR, var2.getType());
+    assertEquals(TermType.VAR, var2.getType());
   }
 
   @Test

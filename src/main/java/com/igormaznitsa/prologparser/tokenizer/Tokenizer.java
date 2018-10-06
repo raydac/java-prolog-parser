@@ -6,8 +6,8 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
-import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
+import com.igormaznitsa.prologparser.terms.PrologFloat;
+import com.igormaznitsa.prologparser.terms.PrologInteger;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import com.igormaznitsa.prologparser.utils.StringUtils;
@@ -66,7 +66,7 @@ final class Tokenizer {
 
   void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
     int chars = buffer.length() - etalon.length();
-    int pos = buffer.length() - 1;
+    int bufferPosition = buffer.length() - 1;
 
     int lpos = this.pos;
     int lposPrev = this.prevPos;
@@ -74,7 +74,7 @@ final class Tokenizer {
     int llinePrev = this.prevLine;
 
     while (chars > 0) {
-      final char ch = buffer.charAt(pos--);
+      final char ch = buffer.charAt(bufferPosition--);
       this.insideCharBuffer.push(ch);
       chars--;
       lpos--;
@@ -517,7 +517,7 @@ final class Tokenizer {
     switch (state) {
       case INTEGER: {
         try {
-          result = new PrologIntegerNumber(str);
+          result = new PrologInteger(str);
         } catch (NumberFormatException ex) {
           result = null;
         }
@@ -525,7 +525,7 @@ final class Tokenizer {
       break;
       case FLOAT: {
         try {
-          result = new PrologFloatNumber(str);
+          result = new PrologFloat(str);
         } catch (NumberFormatException ex) {
           result = null;
         }

@@ -9,16 +9,16 @@ import java.util.Map;
 
 import static java.util.Arrays.stream;
 
-final class OneCharOpContainerMap {
+final class OneCharOpMap {
 
   private final Map<String, OpContainer> insideMap = new HashMap<>();
   private final Map<String, OpContainer> unmodifableInsideMap = Collections.unmodifiableMap(this.insideMap);
   private final OpContainer[] charMap = new OpContainer[0x80];
 
-  OneCharOpContainerMap() {
+  OneCharOpMap() {
   }
 
-  OneCharOpContainerMap(final OpContainer... containers) {
+  OneCharOpMap(final OpContainer... containers) {
     stream(containers).forEach(x -> put(x.getText(), x));
   }
 

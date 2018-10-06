@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
-public class PrologStructure extends PrologTerm {
+public class PrologStruct extends PrologTerm {
 
   public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
   private static final long serialVersionUID = 9000641998734217154L;
@@ -17,13 +17,13 @@ public class PrologStructure extends PrologTerm {
   protected final PrologTerm functor;
   protected final PrologTerm[] elements;
 
-  public PrologStructure(final PrologTerm functor, final PrologTerm[] elements) {
+  public PrologStruct(final PrologTerm functor, final PrologTerm[] elements) {
     super(functor.getText());
 
-    if (functor.getType() != PrologTermType.ATOM && functor.getType() != PrologTermType.OPERATOR) {
+    if (functor.getType() != TermType.ATOM && functor.getType() != TermType.OPERATOR) {
       throw new IllegalArgumentException("Functor must be either atom or operator");
     }
-    if (functor instanceof PrologNumericTerm) {
+    if (functor instanceof PrologNumeric) {
       throw new IllegalArgumentException("Functor can't be number");
     }
 
@@ -31,42 +31,42 @@ public class PrologStructure extends PrologTerm {
     this.functor = functor;
   }
 
-  public PrologStructure(final PrologTerm functor, final PrologTerm[] elements, final int line, final int pos) {
+  public PrologStruct(final PrologTerm functor, final PrologTerm[] elements, final int line, final int pos) {
     this(functor, elements);
     setPos(pos);
     setLine(line);
   }
 
-  public PrologStructure(final String text) {
+  public PrologStruct(final String text) {
     this(new PrologAtom(text), 0);
   }
 
-  public PrologStructure(final String text, final int line, final int pos) {
+  public PrologStruct(final String text, final int line, final int pos) {
     this(text);
     setPos(pos);
     setLine(line);
   }
 
-  public PrologStructure(final PrologTerm functor) {
+  public PrologStruct(final PrologTerm functor) {
     this(functor, 0);
   }
 
-  public PrologStructure(final PrologTerm functor, final int line, final int pos) {
+  public PrologStruct(final PrologTerm functor, final int line, final int pos) {
     this(functor);
     setPos(pos);
     setLine(line);
   }
 
-  protected PrologStructure(final PrologTerm functor, final int arity) {
+  protected PrologStruct(final PrologTerm functor, final int arity) {
     super(functor.getText());
 
-    if (functor.getType() != PrologTermType.ATOM
-        && functor.getType() != PrologTermType.OPERATOR
-        && functor.getType() != PrologTermType.OPERATORS) {
+    if (functor.getType() != TermType.ATOM
+        && functor.getType() != TermType.OPERATOR
+        && functor.getType() != TermType.OPERATORS) {
       throw new IllegalArgumentException("Functor type must be either atom or operator");
     }
 
-    if (functor instanceof PrologNumericTerm) {
+    if (functor instanceof PrologNumeric) {
       throw new IllegalArgumentException("Numeric term as functor");
     }
 
@@ -79,15 +79,15 @@ public class PrologStructure extends PrologTerm {
     Arrays.fill(elements, EMPTY_ATOM);
   }
 
-  protected PrologStructure(final PrologTerm functor, final int arity, final int line, final int pos) {
+  protected PrologStruct(final PrologTerm functor, final int arity, final int line, final int pos) {
     this(functor, arity);
     setPos(pos);
     setLine(line);
   }
 
   @Override
-  public PrologTermType getType() {
-    return PrologTermType.STRUCT;
+  public TermType getType() {
+    return TermType.STRUCT;
   }
 
   public int getArity() {
@@ -111,22 +111,22 @@ public class PrologStructure extends PrologTerm {
 
   @Override
   public int getPrecedence() {
-    if (functor.getType() == PrologTermType.OPERATOR) {
+    if (functor.getType() == TermType.OPERATOR) {
       return functor.getPrecedence();
     } else {
       return 0;
     }
   }
 
-  public PrologStructure copyWithAnotherFunctor(final PrologTerm newFunctor) {
-    return new PrologStructure(newFunctor, elements);
+  public PrologStruct copyWithAnotherFunctor(final PrologTerm newFunctor) {
+    return new PrologStruct(newFunctor, elements);
   }
 
   @Override
   public String toString() {
     final StringBuilderEx builder = new StringBuilderEx(64);
 
-    if (functor.getType() == PrologTermType.OPERATOR) {
+    if (functor.getType() == TermType.OPERATOR) {
 
       final Op operatorFunctor = (Op) functor;
       final String opName = operatorFunctor.getText();

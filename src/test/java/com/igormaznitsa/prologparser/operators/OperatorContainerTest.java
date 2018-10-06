@@ -1,6 +1,6 @@
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 
 import static com.igormaznitsa.prologparser.operators.Op.makeOne;
@@ -28,7 +28,7 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetType() {
-    assertEquals(PrologTermType.OPERATORS, newOpCont(
+    assertEquals(TermType.OPERATORS, newOpCont(
         makeOne(1000, OpType.FX, "<>")).getType());
   }
 

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractPrologTermTest {
+public class PrologBaseTermTest {
 
   @Test
   public void testAbstractPrologTermString() {
@@ -102,7 +102,7 @@ public class AbstractPrologTermTest {
     }
 
     @Override
-    public PrologTermType getType() {
+    public TermType getType() {
       throw new UnsupportedOperationException("It's a stub");
     }
   }

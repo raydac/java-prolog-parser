@@ -1,7 +1,7 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologStructure;
+import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 public interface ParserContext {
@@ -12,5 +12,5 @@ public interface ParserContext {
 
   boolean hasZeroArityPredicate(PrologParser source, String name);
 
-  void onStructureCreated(PrologParser source, PrologStructure struct);
+  void onStructureCreated(PrologParser source, PrologStruct struct);
 }

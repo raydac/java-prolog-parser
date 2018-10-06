@@ -1,6 +1,6 @@
 package com.igormaznitsa.prologparser.terms;
 
-public enum PrologTermType {
+public enum TermType {
 
   ATOM,
   STRUCT,

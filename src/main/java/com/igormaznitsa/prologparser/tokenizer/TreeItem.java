@@ -4,11 +4,11 @@ import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.terms.PrologNumericTerm;
+import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologStructure;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.TermType;
 
 final class TreeItem {
 
@@ -25,8 +25,8 @@ final class TreeItem {
     if (term == null) {
       this.savedTerm = null;
     } else {
-      final PrologTermType termType = term.getType();
-      if (termType == PrologTermType.OPERATOR || termType == PrologTermType.OPERATORS) {
+      final TermType termType = term.getType();
+      if (termType == TermType.OPERATOR || termType == TermType.OPERATORS) {
         final TermWrapper termWrapper = new TermWrapper(term);
         savedTerm = termWrapper;
       } else {
@@ -51,7 +51,7 @@ final class TreeItem {
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
     TreeItem result = this;
-    if (item.getType() == PrologTermType.OPERATOR && item.getPriority() != 0) {
+    if (item.getType() == TermType.OPERATOR && item.getPriority() != 0) {
       result = item;
     }
     return result;
@@ -85,7 +85,7 @@ final class TreeItem {
     }
   }
 
-  PrologTermType getType() {
+  TermType getType() {
     return savedTerm.getType();
   }
 
@@ -134,7 +134,7 @@ final class TreeItem {
   }
 
   private boolean validate() {
-    if (savedTerm.getType() == PrologTermType.OPERATOR) {
+    if (savedTerm.getType() == TermType.OPERATOR) {
       final int priority = getPriority();
       final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getTerm();
       switch (wrappedOperator.getOpType()) {
@@ -165,7 +165,7 @@ final class TreeItem {
     return savedTerm.toString();
   }
 
-  PrologTerm convertTreeItemIntoTerm() throws PrologParserException {
+  PrologTerm convertTreeItemIntoTerm() {
     PrologTerm result;
 
     switch (savedTerm.getType()) {
@@ -186,16 +186,16 @@ final class TreeItem {
           throw new PrologParserException("Op without operands", wrapper.getLine(), wrapper.getPos());
         }
         // this code replaces '-'(number) to '-number'
-        if (right instanceof PrologNumericTerm && "-".equals(wrapper.getText()) && left == null && right.getType() == PrologTermType.ATOM) {
-          result = ((PrologNumericTerm) right).neg();
+        if (right instanceof PrologNumeric && "-".equals(wrapper.getText()) && left == null && right.getType() == TermType.ATOM) {
+          result = ((PrologNumeric) right).neg();
           break;
         }
 
-        final PrologStructure operatorStruct;
+        final PrologStruct operatorStruct;
         if (left == null) {
-          operatorStruct = new PrologStructure(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
+          operatorStruct = new PrologStruct(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
         } else {
-          operatorStruct = new PrologStructure(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right},wrapper.getLine(), wrapper.getPos());
+          operatorStruct = new PrologStruct(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right},wrapper.getLine(), wrapper.getPos());
         }
         result = operatorStruct;
 
@@ -207,7 +207,7 @@ final class TreeItem {
       break;
       case STRUCT: {
         if (this.parser.getContext()!=null) {
-          this.parser.getContext().onStructureCreated(parser, (PrologStructure) this.savedTerm);
+          this.parser.getContext().onStructureCreated(parser, (PrologStruct) this.savedTerm);
         }
         result = this.savedTerm;
       }

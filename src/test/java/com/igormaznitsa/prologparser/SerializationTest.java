@@ -1,6 +1,6 @@
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.terms.PrologStructure;
+import com.igormaznitsa.prologparser.terms.PrologStruct;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,8 +16,8 @@ public class SerializationTest {
   public void testSerializationOperator() throws Exception {
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a+b. c+d."), null);
 
-    final PrologStructure first = (PrologStructure) parser.next();
-    final PrologStructure second = (PrologStructure) parser.next();
+    final PrologStruct first = (PrologStruct) parser.next();
+    final PrologStruct second = (PrologStruct) parser.next();
 
     assertNotNull(first);
     assertNotNull(second);
@@ -34,8 +34,8 @@ public class SerializationTest {
 
     final ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
 
-    final PrologStructure firstClone = (PrologStructure) inStream.readObject();
-    final PrologStructure secondClone = (PrologStructure) inStream.readObject();
+    final PrologStruct firstClone = (PrologStruct) inStream.readObject();
+    final PrologStruct secondClone = (PrologStruct) inStream.readObject();
 
     assertNotSame(first, second);
     assertSame(firstClone.getFunctor(), secondClone.getFunctor());
@@ -46,7 +46,7 @@ public class SerializationTest {
   @Test
   public void testSerializationOfVariables() throws Exception {
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a(A,A)."), null);
-    final PrologStructure structure = (PrologStructure) parser.next();
+    final PrologStruct structure = (PrologStruct) parser.next();
 
     assertNotSame(structure.getElement(0), structure.getElement(1));
 
@@ -58,7 +58,7 @@ public class SerializationTest {
 
     final ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
 
-    final PrologStructure structureClone = (PrologStructure) inStream.readObject();
+    final PrologStruct structureClone = (PrologStruct) inStream.readObject();
 
     assertNotSame(structure, structureClone);
     assertNotSame(structureClone.getElement(0), structureClone.getElement(1));

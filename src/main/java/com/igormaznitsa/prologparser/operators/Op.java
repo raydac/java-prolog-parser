@@ -3,8 +3,8 @@ package com.igormaznitsa.prologparser.operators;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.PrologStructure;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Locale;
@@ -66,11 +66,9 @@ public final class Op extends PrologTerm {
     AssertUtils.assertNotNull(type);
     AssertUtils.assertNotNull(names);
 
-    final Op[] result = stream(names)
+    return stream(names)
         .map(x -> makeOne(precedence, type, x))
         .collect(Collectors.toList()).toArray(EMPTY);
-
-    return result;
   }
 
   public static Op makeOne(final int precedence, final OpType type, final String name) {
@@ -86,8 +84,8 @@ public final class Op extends PrologTerm {
   }
 
   @Override
-  public PrologTermType getType() {
-    return PrologTermType.OPERATOR;
+  public TermType getType() {
+    return TermType.OPERATOR;
   }
 
   public OpType getOpType() {
@@ -99,7 +97,7 @@ public final class Op extends PrologTerm {
     return this.precedence;
   }
 
-  public boolean isCompatibleWith(final PrologStructure struct) {
+  public boolean isCompatibleWith(final PrologStruct struct) {
     final boolean result;
 
     if (struct != null) {

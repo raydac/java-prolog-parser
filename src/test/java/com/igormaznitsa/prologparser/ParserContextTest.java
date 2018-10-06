@@ -6,8 +6,8 @@ import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologStructure;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -74,8 +74,8 @@ public class ParserContextTest {
 
     final PrologTerm term = parser.next();
     assertNotNull(term);
-    assertEquals(PrologTermType.STRUCT, term.getType());
-    assertEquals(0, ((PrologStructure) term).getArity());
+    assertEquals(TermType.STRUCT, term.getType());
+    assertEquals(0, ((PrologStruct) term).getArity());
     assertEquals("foo", term.getText());
     assertFalse(parser.hasNext());
 
@@ -84,10 +84,10 @@ public class ParserContextTest {
 
   @Test
   public void testProcessNewStructure() {
-    final Map<String, PrologStructure> detectedStructures = new HashMap<>();
+    final Map<String, PrologStruct> detectedStructures = new HashMap<>();
     final ParserContext stubContext = new ParserContext() {
       @Override
-      public void onStructureCreated(final PrologParser source, final PrologStructure struct) {
+      public void onStructureCreated(final PrologParser source, final PrologStruct struct) {
         detectedStructures.put(struct.getFunctor().getText(), struct);
       }
 

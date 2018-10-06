@@ -8,9 +8,9 @@ import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologFloatNumber;
-import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.PrologFloat;
+import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -83,52 +83,52 @@ public class TokenizerTest {
 
     TokenizerResult result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-    assertEquals(PrologTermType.ATOM, result.getResult().getType());
+    assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("123", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
-    assertEquals(PrologTermType.ATOM, result.getResult().getType());
+    assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("222.34", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.FLOAT, result.getTokenizerState());
-    assertEquals(PrologTermType.ATOM, result.getResult().getType());
+    assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("1.112E+6", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.STRING, result.getTokenizerState());
-    assertEquals(PrologTermType.ATOM, result.getResult().getType());
+    assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("string", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
+    assertEquals(TermType.OPERATORS, result.getResult().getType());
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.VAR, result.getTokenizerState());
-    assertEquals(PrologTermType.VAR, result.getResult().getType());
+    assertEquals(TermType.VAR, result.getResult().getType());
     assertEquals("Variable", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.VAR, result.getTokenizerState());
-    assertEquals(PrologTermType.VAR, result.getResult().getType());
+    assertEquals(TermType.VAR, result.getResult().getType());
     assertEquals("_var", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.VAR, result.getTokenizerState());
-    assertEquals(PrologTermType.VAR, result.getResult().getType());
+    assertEquals(TermType.VAR, result.getResult().getType());
     assertEquals("_", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
+    assertEquals(TermType.OPERATORS, result.getResult().getType());
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(PrologTermType.OPERATORS, result.getResult().getType());
+    assertEquals(TermType.OPERATORS, result.getResult().getType());
     assertEquals("-", result.getResult().getText());
 
     assertNull(tokenizer.readNextToken());
@@ -139,11 +139,11 @@ public class TokenizerTest {
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-    assertEquals(Long.MAX_VALUE, ((PrologIntegerNumber) result.getResult()).getValue().longValue());
+    assertEquals(Long.MAX_VALUE, ((PrologInteger) result.getResult()).getValue().longValue());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-    assertEquals(Long.MAX_VALUE, ((PrologIntegerNumber) result.getResult()).getValue().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
+    assertEquals(Long.MAX_VALUE, ((PrologInteger) result.getResult()).getValue().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
   }
 
   @Test
@@ -151,55 +151,55 @@ public class TokenizerTest {
     final Tokenizer tokenizer = tokenizeOf("792394382");
     PrologTerm term = tokenizer.makeTermFromString("792394382", TokenizerState.INTEGER);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
-    assertSame(term.getClass(), PrologIntegerNumber.class);
+    assertEquals(TermType.ATOM, term.getType());
+    assertSame(term.getClass(), PrologInteger.class);
     assertEquals("792394382", term.getText());
 
     term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), TokenizerState.INTEGER);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
-    assertSame(term.getClass(), PrologIntegerNumber.class);
+    assertEquals(TermType.ATOM, term.getType());
+    assertSame(term.getClass(), PrologInteger.class);
     assertEquals(Long.toString(Long.MIN_VALUE), term.getText());
 
     term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), TokenizerState.INTEGER);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
-    assertSame(term.getClass(), PrologIntegerNumber.class);
+    assertEquals(TermType.ATOM, term.getType());
+    assertSame(term.getClass(), PrologInteger.class);
     assertEquals(Long.toString(Long.MAX_VALUE), term.getText());
 
     term = tokenizer.makeTermFromString("0.003422", TokenizerState.FLOAT);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
-    assertSame(term.getClass(), PrologFloatNumber.class);
+    assertEquals(TermType.ATOM, term.getType());
+    assertSame(term.getClass(), PrologFloat.class);
     assertEquals("0.003422", term.getText());
 
     term = tokenizer.makeTermFromString("a0.003422b", TokenizerState.FLOAT);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
+    assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a0.003422b", term.getText());
 
     term = tokenizer.makeTermFromString("a12345b", TokenizerState.INTEGER);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
+    assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a12345b", term.getText());
 
     term = tokenizer.makeTermFromString("123", TokenizerState.ATOM);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
+    assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123", term.getText());
 
     term = tokenizer.makeTermFromString("123.123", TokenizerState.ATOM);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
+    assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123.123", term.getText());
 
     term = tokenizer.makeTermFromString("abcd", TokenizerState.ATOM);
     assertNotNull(term);
-    assertEquals(PrologTermType.ATOM, term.getType());
+    assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("abcd", term.getText());
   }

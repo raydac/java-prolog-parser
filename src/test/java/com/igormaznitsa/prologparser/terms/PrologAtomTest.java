@@ -23,7 +23,7 @@ public class PrologAtomTest {
 
   @Test
   public void testGetType() {
-    assertEquals(PrologTermType.ATOM, new PrologAtom("Hello Prolog").getType());
+    assertEquals(TermType.ATOM, new PrologAtom("Hello Prolog").getType());
   }
 
   @Test

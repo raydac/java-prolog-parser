@@ -11,17 +11,17 @@ public class PrologFloatNumberTest {
 
   @Test
   public void testToString() {
-    assertEquals("0.0", new PrologFloatNumber(-0.0d).toString());
-    assertEquals("0.0", new PrologFloatNumber("-0.0").toString());
-    assertEquals("-21.0", new PrologFloatNumber(-21.0d).toString());
-    assertEquals("231.2218979873946", new PrologFloatNumber("231.2218979873946").toString());
+    assertEquals("0.0", new PrologFloat(-0.0d).toString());
+    assertEquals("0.0", new PrologFloat("-0.0").toString());
+    assertEquals("-21.0", new PrologFloat(-21.0d).toString());
+    assertEquals("231.2218979873946", new PrologFloat("231.2218979873946").toString());
   }
 
   @Test
   public void testNeg() {
-    assertEquals(345.223d, ((PrologFloatNumber) new PrologFloatNumber(
+    assertEquals(345.223d, ((PrologFloat) new PrologFloat(
         -345.223d).neg()).getValue().doubleValue(), Double.MIN_NORMAL);
-    assertEquals(-0.0003d, ((PrologFloatNumber) new PrologFloatNumber(
+    assertEquals(-0.0003d, ((PrologFloat) new PrologFloat(
         0.0003d).neg()).getValue().doubleValue(), Double.MIN_NORMAL);
   }
 
@@ -30,82 +30,82 @@ public class PrologFloatNumberTest {
     final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
     final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
 
-    assertEquals(test1, new PrologFloatNumber(test1).getValue());
-    assertEquals(test2, new PrologFloatNumber(test2).getValue());
+    assertEquals(test1, new PrologFloat(test1).getValue());
+    assertEquals(test2, new PrologFloat(test2).getValue());
   }
 
   @Test
   public void testGetType() {
-    assertEquals(PrologTermType.ATOM,
-        new PrologFloatNumber(234.23d).getType());
-    assertEquals(PrologTermType.ATOM,
-        new PrologFloatNumber("234").getType());
+    assertEquals(TermType.ATOM,
+        new PrologFloat(234.23d).getType());
+    assertEquals(TermType.ATOM,
+        new PrologFloat("234").getType());
   }
 
   @Test
   public void testGetText() {
-    assertEquals("234.2329834912938", new PrologFloatNumber("234.2329834912938").getText());
-    assertEquals("-0.00000242324324", new PrologFloatNumber("-00000.00000242324324").getText());
-    assertEquals("0.00000", new PrologFloatNumber("00000.00000").getText());
-    assertEquals("0.0", new PrologFloatNumber("0").getText());
-    assertEquals("123.0", new PrologFloatNumber("123").getText());
-    assertEquals("0.123", new PrologFloatNumber(".123").getText());
-    assertEquals("0.00123", new PrologFloatNumber(".00123").getText());
+    assertEquals("234.2329834912938", new PrologFloat("234.2329834912938").getText());
+    assertEquals("-0.00000242324324", new PrologFloat("-00000.00000242324324").getText());
+    assertEquals("0.00000", new PrologFloat("00000.00000").getText());
+    assertEquals("0.0", new PrologFloat("0").getText());
+    assertEquals("123.0", new PrologFloat("123").getText());
+    assertEquals("0.123", new PrologFloat(".123").getText());
+    assertEquals("0.00123", new PrologFloat(".00123").getText());
   }
 
   @Test
   public void testGetPriority() {
-    assertEquals(0, new PrologFloatNumber(23412213.002131d).getPrecedence());
-    assertEquals(0, new PrologFloatNumber(-000.002131d).getPrecedence());
+    assertEquals(0, new PrologFloat(23412213.002131d).getPrecedence());
+    assertEquals(0, new PrologFloat(-000.002131d).getPrecedence());
   }
 
   @Test
   public void testPrologFloatNumberString() {
-    assertEquals("0.1234221179298734", new PrologFloatNumber("0.123422117929873388").getText());
-    assertEquals("-2.987234987239848", new PrologFloatNumber("-2.9872349872398479").getText());
+    assertEquals("0.1234221179298734", new PrologFloat("0.123422117929873388").getText());
+    assertEquals("-2.987234987239848", new PrologFloat("-2.9872349872398479").getText());
 
-    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((String) null));
-    assertThrows(NumberFormatException.class, () -> new PrologFloatNumber("wrong number"));
+    assertThrows(NullPointerException.class, () -> new PrologFloat((String) null));
+    assertThrows(NumberFormatException.class, () -> new PrologFloat("wrong number"));
   }
 
   @Test
   public void testPrologFloatNumberDouble() {
-    assertEquals(0.1234221d, new PrologFloatNumber(0.1234221d).getValue().doubleValue(), Double.MIN_NORMAL);
-    assertEquals(-0.00021234221d, new PrologFloatNumber(-0.00021234221d).getValue().doubleValue(), Double.MIN_NORMAL);
+    assertEquals(0.1234221d, new PrologFloat(0.1234221d).getValue().doubleValue(), Double.MIN_NORMAL);
+    assertEquals(-0.00021234221d, new PrologFloat(-0.00021234221d).getValue().doubleValue(), Double.MIN_NORMAL);
   }
 
   @Test
   public void testPrologFloatNumberBigDecimal() {
-    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((BigDecimal) null));
+    assertThrows(NullPointerException.class, () -> new PrologFloat((BigDecimal) null));
 
     final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
     final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
 
-    assertEquals(test1, new PrologFloatNumber(test1).getValue());
-    assertEquals(test2, new PrologFloatNumber(test2).getValue());
+    assertEquals(test1, new PrologFloat(test1).getValue());
+    assertEquals(test2, new PrologFloat(test2).getValue());
   }
 
   @Test
   public void testPrologFloatNumberStringIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((String) null, 0, 0));
+    assertThrows(NullPointerException.class, () -> new PrologFloat((String) null, 0, 0));
 
-    final PrologTerm term = new PrologFloatNumber("123.0", 2, 1);
+    final PrologTerm term = new PrologFloat("123.0", 2, 1);
     assertEquals(1, term.getPos());
     assertEquals(2, term.getLine());
   }
 
   @Test
   public void testPrologFloatNumberDoubleIntInt() {
-    final PrologTerm term = new PrologFloatNumber(123.0d, 2, 1);
+    final PrologTerm term = new PrologFloat(123.0d, 2, 1);
     assertEquals(1, term.getPos());
     assertEquals(2, term.getLine());
   }
 
   @Test
   public void testPrologFloatNumberBigDecimalIntInt() {
-    assertThrows(NullPointerException.class, () -> new PrologFloatNumber((BigDecimal) null, 2, 1));
+    assertThrows(NullPointerException.class, () -> new PrologFloat((BigDecimal) null, 2, 1));
 
-    final PrologTerm term = new PrologFloatNumber(BigDecimal.ONE, 2, 1);
+    final PrologTerm term = new PrologFloat(BigDecimal.ONE, 2, 1);
     assertEquals(1, term.getPos());
     assertEquals(2, term.getLine());
   }

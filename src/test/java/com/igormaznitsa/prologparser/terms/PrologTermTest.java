@@ -16,35 +16,34 @@ public class PrologTermTest {
     return new EdinburghPrologParser(new StringReader(str), mock(ParserContext.class));
   }
 
-
   @Test
   public void testToString() {
 
     assertEquals("\'Hello\\nWorld\'",
         new PrologAtom("Hello\nWorld").toString());
     assertEquals("-9823742321",
-        new PrologIntegerNumber("-9823742321").toString());
-    assertEquals("23232", new PrologIntegerNumber("23232").toString());
-    assertEquals("0", new PrologIntegerNumber("0").toString());
-    assertEquals("0", new PrologIntegerNumber("0").toString());
-    assertEquals("-1002.0", new PrologFloatNumber("-1002").toString());
-    assertEquals("9823423.0", new PrologFloatNumber("9823423").toString());
-    assertEquals("0.0", new PrologFloatNumber("0").toString());
-    assertEquals("0.0", new PrologFloatNumber("-0.0").toString());
+        new PrologInteger("-9823742321").toString());
+    assertEquals("23232", new PrologInteger("23232").toString());
+    assertEquals("0", new PrologInteger("0").toString());
+    assertEquals("0", new PrologInteger("0").toString());
+    assertEquals("-1002.0", new PrologFloat("-1002").toString());
+    assertEquals("9823423.0", new PrologFloat("9823423").toString());
+    assertEquals("0.0", new PrologFloat("0").toString());
+    assertEquals("0.0", new PrologFloat("-0.0").toString());
 
     assertEquals("X", new PrologVariable("X").toString());
     assertEquals("_", new PrologVariable().toString());
 
-    assertEquals("\'test\'(\'first\', 100, -1000.0)", new PrologStructure(
+    assertEquals("\'test\'(\'first\', 100, -1000.0)", new PrologStruct(
         new PrologAtom("test"), new PrologTerm[] {
         new PrologAtom("first"),
-        new PrologIntegerNumber("100"),
-        new PrologFloatNumber(-1000d)}).toString());
+        new PrologInteger("100"),
+        new PrologFloat(-1000d)}).toString());
 
     assertEquals(new PrologList().toString(), "[]");
 
     final PrologList list = new PrologList(new PrologAtom("head"));
-    list.addAsNewListToEndOfListChain(new PrologIntegerNumber("1006")).addAsNewListToEndOfListChain(new PrologVariable("Var"));
+    list.addAsNewListToEndOfListChain(new PrologInteger("1006")).addAsNewListToEndOfListChain(new PrologVariable("Var"));
     assertEquals("['head', 1006, Var]", list.toString());
 
     final PrologList list2 = new PrologList(new PrologVariable("X"));
@@ -68,7 +67,7 @@ public class PrologTermTest {
   }
 
   @Test
-  public void testOperatorToString() throws Exception {
+  public void testOperatorToString() {
     PrologTerm term = parserFor("a+b*c.").next();
     assertEquals("'a' + 'b' * 'c'", term.toString());
 

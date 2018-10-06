@@ -1,7 +1,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.TermType;
 
 final class TermWrapper extends PrologTerm {
 
@@ -23,7 +23,7 @@ final class TermWrapper extends PrologTerm {
   }
 
   @Override
-  public PrologTermType getType() {
+  public TermType getType() {
     return term.getType();
   }
 

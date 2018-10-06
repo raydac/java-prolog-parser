@@ -1,8 +1,8 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologIntegerNumber;
-import com.igormaznitsa.prologparser.terms.PrologTermType;
+import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +34,7 @@ public class TokenizerResultTest {
 
   @Test
   public void testGetResult() {
-    final PrologIntegerNumber testAtom = new PrologIntegerNumber("322323423");
+    final PrologInteger testAtom = new PrologInteger("322323423");
     final TokenizerResult result = new TokenizerResult(testAtom,
         TokenizerState.LOOKFOR, 2, 1);
     assertSame(testAtom, result.getResult());
@@ -43,17 +43,17 @@ public class TokenizerResultTest {
 
   @Test
   public void testGetTermType() {
-    final PrologIntegerNumber testAtom = new PrologIntegerNumber("322323423");
+    final PrologInteger testAtom = new PrologInteger("322323423");
     final TokenizerResult result = new TokenizerResult(testAtom,
         TokenizerState.LOOKFOR, 2, 1);
     assertSame(testAtom, result.getResult());
-    assertEquals(PrologTermType.ATOM, result.getTermType());
+    assertEquals(TermType.ATOM, result.getResult().getType());
   }
 
   @Test
   public void testGetStringPosition() {
     final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOKFOR, 2, 1);
-    assertEquals(1, result.getStringPosition());
+    assertEquals(1, result.getPos());
   }
 
   @Test

@@ -44,13 +44,13 @@ public class PrologListTest {
   @Test
   public void testGetType() {
     PrologList list = new PrologList();
-    assertEquals(PrologTermType.LIST, list.getType());
+    assertEquals(TermType.LIST, list.getType());
 
     list = new PrologList(new PrologAtom("Test"));
-    assertEquals(PrologTermType.LIST, list.getType());
+    assertEquals(TermType.LIST, list.getType());
 
     list = new PrologList(new PrologAtom("Test"), new PrologAtom("Test2"));
-    assertEquals(PrologTermType.LIST, list.getType());
+    assertEquals(TermType.LIST, list.getType());
   }
 
   @Test
