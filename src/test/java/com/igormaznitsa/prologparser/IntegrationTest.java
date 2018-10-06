@@ -136,7 +136,7 @@ public class IntegrationTest {
     checkParseAtomWithoutPPE("test012", "test012");
     checkParseAtomWithoutPPE("x______y", "x______y");
     checkParseAtomWithoutPPE("alpha_beta_procedure", "alpha_beta_procedure");
-    // test of non-latin chars, "hello" in russian
+    // test op non-latin chars, "hello" in russian
     checkParseAtomWithoutPPE("привет", "привет");
     checkParseAtomWithoutPPE("miss_Jones", "miss_Jones");
     checkParseAtomWithoutPPE("\'Jones\'", "Jones");

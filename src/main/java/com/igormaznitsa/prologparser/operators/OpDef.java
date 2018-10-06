@@ -23,7 +23,7 @@ public final class OpDef {
     this.names = unmodifiableList(asList(names));
   }
 
-  public static OpDef of(final int precedence, final OpType type, final String... names) {
+  public static OpDef op(final int precedence, final OpType type, final String... names) {
     return new OpDef(precedence, type, names);
   }
 

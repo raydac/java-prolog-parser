@@ -420,7 +420,7 @@ final class Tokenizer {
               if (previousleDetectedOperator == null) {
                 if (!hasOperatorStartsWith(operator)) {
                   if (hasOperatorStartsWith(String.valueOf(chr))) {
-                    // next char can be the start char of an
+                    // next char can be the start char op an
                     // operator so we need get back it into the
                     // buffer
                     strBuffer.pop();

@@ -1,8 +1,7 @@
 package com.igormaznitsa.prologparser.operators;
 
 import java.util.Optional;
-
-import static java.util.Arrays.stream;
+import java.util.stream.Stream;
 
 public enum OpType {
 
@@ -24,7 +23,7 @@ public enum OpType {
   }
 
   public static Optional<OpType> getForName(final String str) {
-    return stream(values()).filter(x -> x.text.equals(str)).findFirst();
+    return Stream.of(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 
   public int getArity() {

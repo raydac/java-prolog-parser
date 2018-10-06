@@ -18,7 +18,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -76,7 +75,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     OPERATOR_VERTICALBAR = newOpCont(Op.METAOPERATOR_VERTICAL_BAR);
     META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_VERTICAL_BAR.getText(), OPERATOR_VERTICALBAR);
 
-    registerSysOp(OpDef.of(1000, OpType.XFY, ","));
+    registerSysOp(OpDef.op(1000, OpType.XFY, ","));
 
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_DOT.getText());
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_LEFT_BRACKET.getText());
@@ -106,7 +105,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   protected static void registerSysOp(final OpDef... operators) {
     final StringBuilderEx buff = new StringBuilderEx(10);
 
-    Arrays.stream(operators).filter(Objects::nonNull).forEach(x -> x.getNames().forEach(n -> {
+    Stream.of(operators).filter(Objects::nonNull).forEach(x -> x.getNames().forEach(n -> {
       if (SYSTEM_OPERATORS.containsKey(n)) {
         final OpContainer container = SYSTEM_OPERATORS.get(n);
         container.addOp(Op.makeOne(x.getPrecedence(), x.getType(), n));
@@ -279,7 +278,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
 
           nextAtom = tokenizer.readNextToken();
           if (!nextAtom.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
-            throw new PrologParserException("Wrong end of the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
+            throw new PrologParserException("Wrong end op the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
           }
           doRead = false;
           continue;
@@ -410,7 +409,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
                   atBrakes = true;
                   readAtom = readBlock(OPERATORS_SUBBLOCK);
                   if (readAtom == null) {
-                    throw new PrologParserException("Illegal start of term",
+                    throw new PrologParserException("Illegal start op term",
                         readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
                   readAtom.setPos(readAtomContainer.getPos());
@@ -452,7 +451,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
               readAtom = readStruct(readAtom);
               if (readAtom == null) {
                 // we have met the empty brackets, it disallowed by Prolog
-                throw new PrologParserException("Illegal start of term",
+                throw new PrologParserException("Illegal start op term",
                     nextTokenLineNumber, nextTokenStrPosition);
               }
             } else {

@@ -9,6 +9,7 @@ import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Op extends PrologTerm {
   public static final Op METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
@@ -63,7 +64,7 @@ public final class Op extends PrologTerm {
     AssertUtils.assertNotNull(type);
     AssertUtils.assertNotNull(names);
 
-    return stream(names)
+    return Stream.of(names)
         .map(x -> makeOne(precedence, type, x))
         .collect(Collectors.toList()).toArray(EMPTY);
   }
