@@ -15,6 +15,10 @@ public class SoftObjectPool<T> {
     this.size = 0;
   }
 
+  public int size(){
+    return this.size;
+  }
+
   public void fill() {
     while (this.size < this.maxSize) {
       this.push(this.factory.get());
