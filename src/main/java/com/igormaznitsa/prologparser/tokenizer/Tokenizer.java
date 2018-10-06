@@ -23,6 +23,7 @@ final class Tokenizer {
   private final StringBuilderEx insideCharBuffer = new StringBuilderEx(8);
   private final Reader reader;
   private final PrologParser parser;
+  private final SoftObjectPool<TokenizerResult> tokenizerResultPool;
   private TokenizerResult lastPushedTerm;
   private int prevTokenLine;
   private int prevTokenPos;
@@ -32,8 +33,6 @@ final class Tokenizer {
   private int prevLine;
   private int pos;
   private int line;
-
-  private final SoftObjectPool<TokenizerResult> tokenizerResultPool;
 
   Tokenizer(final PrologParser parser, final Reader reader) {
     super();
@@ -432,7 +431,7 @@ final class Tokenizer {
                   push(chr);
                   return this.tokenizerResultPool.get().setData(
                       makeTermFromString(strBuffer.toString(),
-                      TokenizerState.FLOAT),
+                          TokenizerState.FLOAT),
                       TokenizerState.FLOAT,
                       getLastTokenLine(),
                       getLastTokenPos());
@@ -464,7 +463,7 @@ final class Tokenizer {
                   // it was an integer
                   push('.');
                   return this.tokenizerResultPool.get().setData(
-                      makeTermFromString(strBuffer.toStringExcludeLastChar(),TokenizerState.INTEGER),
+                      makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.INTEGER),
                       TokenizerState.INTEGER,
                       getLastTokenLine(),
                       getLastTokenPos());

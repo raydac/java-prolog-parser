@@ -508,8 +508,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
                 }
               }
             }
-          }finally {
-            if (nextToken!=null) nextToken.release();
+          } finally {
+            if (nextToken != null) {
+              nextToken.release();
+            }
           }
         }
         break;

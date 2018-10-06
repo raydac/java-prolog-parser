@@ -16,13 +16,12 @@ final class TreeItem {
   private final SoftObjectPool<TreeItem> pool;
 
   private final PrologParser parser;
+  private final SoftObjectPool<TermWrapper> termWrapperPool;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
   private TreeItem parentItem;
   private boolean insideBrakes;
   private PrologTerm savedTerm;
-
-  private final SoftObjectPool<TermWrapper> termWrapperPool;
 
   TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
     this.parser = parser;
@@ -50,7 +49,7 @@ final class TreeItem {
 
   private void replaceSavedTerm(final PrologTerm newValue) {
     if (this.savedTerm instanceof TermWrapper) {
-      ((TermWrapper)this.savedTerm).release();
+      ((TermWrapper) this.savedTerm).release();
     }
     this.savedTerm = newValue;
   }

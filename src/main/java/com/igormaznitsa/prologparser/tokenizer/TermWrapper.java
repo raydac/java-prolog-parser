@@ -7,10 +7,8 @@ import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 final class TermWrapper extends PrologTerm {
 
   private static final long serialVersionUID = 9006607815982718325L;
-
-  private PrologTerm term;
-
   private final SoftObjectPool<TermWrapper> pool;
+  private PrologTerm term;
 
   TermWrapper(final SoftObjectPool<TermWrapper> pool) {
     super("termWrapper");

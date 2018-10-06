@@ -5,12 +5,11 @@ import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 final class TokenizerResult {
+  private final SoftObjectPool<TokenizerResult> pool;
   private TokenizerState parserState;
   private PrologTerm resultTerm;
   private int pos;
   private int line;
-
-  private final SoftObjectPool<TokenizerResult> pool;
 
   TokenizerResult(final SoftObjectPool<TokenizerResult> pool) {
     this.pool = pool;
