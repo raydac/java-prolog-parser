@@ -2,15 +2,13 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Locale;
 import java.util.stream.Collectors;
-
-import static java.util.Arrays.*;
 
 public final class Op extends PrologTerm {
   public static final Op METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
@@ -22,11 +20,10 @@ public final class Op extends PrologTerm {
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
   private static final long serialVersionUID = -5954313127778538548L;
+  private static final Op[] EMPTY = new Op[0];
   private final OpType opType;
   private final int precedence;
   private final int preparedHash;
-
-  private static final Op[] EMPTY = new Op[0];
 
   private Op(final int precedence, final OpType type, final String name) {
     super(name);

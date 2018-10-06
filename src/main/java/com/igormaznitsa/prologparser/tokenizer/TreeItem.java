@@ -4,10 +4,10 @@ import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.terms.PrologNumeric;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
+import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 
 final class TreeItem {
@@ -195,18 +195,18 @@ final class TreeItem {
         if (left == null) {
           operatorStruct = new PrologStruct(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
         } else {
-          operatorStruct = new PrologStruct(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right},wrapper.getLine(), wrapper.getPos());
+          operatorStruct = new PrologStruct(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
         }
         result = operatorStruct;
 
-        if (this.parser.getContext()!=null) {
+        if (this.parser.getContext() != null) {
           this.parser.getContext().onStructureCreated(this.parser, operatorStruct);
         }
 
       }
       break;
       case STRUCT: {
-        if (this.parser.getContext()!=null) {
+        if (this.parser.getContext() != null) {
           this.parser.getContext().onStructureCreated(parser, (PrologStruct) this.savedTerm);
         }
         result = this.savedTerm;

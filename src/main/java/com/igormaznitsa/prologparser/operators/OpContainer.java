@@ -25,7 +25,7 @@ public final class OpContainer extends PrologTerm {
 
   public boolean addOp(final Op operator) {
     if (!getText().equals(operator.getText())) {
-      throw new IllegalArgumentException("Illegal operator name, must be '"+getText()+"'");
+      throw new IllegalArgumentException("Illegal operator name, must be '" + getText() + "'");
     }
 
     switch (operator.getOpType()) {

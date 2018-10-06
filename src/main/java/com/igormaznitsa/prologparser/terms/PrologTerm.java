@@ -1,6 +1,7 @@
 package com.igormaznitsa.prologparser.terms;
 
 import java.io.Serializable;
+import java.util.stream.Stream;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
@@ -63,4 +64,8 @@ public abstract class PrologTerm implements Serializable {
   }
 
   public abstract TermType getType();
+
+  public Stream<PrologTerm> stream() {
+    return Stream.of(this);
+  }
 }

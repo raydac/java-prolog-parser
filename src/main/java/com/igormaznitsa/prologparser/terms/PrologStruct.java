@@ -6,6 +6,7 @@ import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
@@ -255,5 +256,10 @@ public class PrologStruct extends PrologTerm {
 
     }
     return builder.toString();
+  }
+
+  @Override
+  public Stream<PrologTerm> stream() {
+    return Stream.of(this.elements);
   }
 }

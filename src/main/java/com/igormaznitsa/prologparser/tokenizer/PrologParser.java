@@ -53,6 +53,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   private static final OneCharOpMap OPERATORS_END_LIST;
   private static final OneCharOpMap OPERATORS_INSIDE_STRUCT;
   private static final OneCharOpMap OPERATORS_SUBBLOCK;
+  private static final PrologTerm[] EMPTY = new PrologTerm[0];
 
   static {
     META_SYSTEM_OPERATORS.clear();
@@ -96,8 +97,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   protected final ParserContext context;
   private final Tokenizer tokenizer;
   private PrologTerm lastFoundTerm;
-
-  private static final PrologTerm [] EMPTY = new PrologTerm[0];
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context;
@@ -222,7 +221,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
           active = false;
         }
         break;
-        default: throw new PrologParserException("Unexpected term in structure: "+nextText, nextAtom.getLine(), nextAtom.getPos());
+        default:
+          throw new PrologParserException("Unexpected term in structure: " + nextText, nextAtom.getLine(), nextAtom.getPos());
       }
     }
 
