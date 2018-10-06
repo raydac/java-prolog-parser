@@ -29,7 +29,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
           "Wrong operator name for the container");
     }
 
-    switch (operator.getOperatorType()) {
+    switch (operator.getOpType()) {
       case FX:
       case FY:
         if (opFZ != null) {
@@ -195,7 +195,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
         throw new CriticalUnexpectedError();
     }
 
-    if (result != null && result.getOperatorType() == type) {
+    if (result != null && result.getOpType() == type) {
       return result;
     }
     return null;
@@ -228,14 +228,14 @@ public final class OperatorContainer extends AbstractPrologTerm {
     switch (type) {
       case FX:
       case FY:
-        if (opFZ != null && opFZ.getOperatorType() == type) {
+        if (opFZ != null && opFZ.getOpType() == type) {
           opFZ = null;
           result = true;
         }
         break;
       case XF:
       case YF:
-        if (opZF != null && opZF.getOperatorType() == type) {
+        if (opZF != null && opZF.getOpType() == type) {
           opZF = null;
           result = true;
         }
@@ -243,7 +243,7 @@ public final class OperatorContainer extends AbstractPrologTerm {
       case XFX:
       case YFX:
       case XFY:
-        if (opZFZ != null && opZFZ.getOperatorType() == type) {
+        if (opZFZ != null && opZFZ.getOpType() == type) {
           opZFZ = null;
           result = true;
         }

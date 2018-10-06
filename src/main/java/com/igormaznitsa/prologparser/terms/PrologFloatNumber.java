@@ -1,5 +1,7 @@
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.utils.AssertUtils;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -27,16 +29,12 @@ public final class PrologFloatNumber extends AbstractPrologNumericTerm {
 
   public PrologFloatNumber(final BigDecimal value) {
     super();
-    if (value == null) {
-      throw new NullPointerException("Value is null");
-    }
-    this.value = value;
+    this.value = AssertUtils.assertNotNull(value);
   }
 
   public PrologFloatNumber(final BigDecimal value, final int strPosition, final int lineNumber) {
-    this(value);
-    setStrPosition(strPosition);
-    setLineNumber(lineNumber);
+    super(strPosition, lineNumber);
+    this.value = AssertUtils.assertNotNull(value);
   }
 
   @Override

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TermWrapperTest {
 
-  final static Operator testWrapped = Operator.makeOperator(300, OpType.FX, "---");
+  final static Operator testWrapped = Operator.makeOp(300, OpType.FX, "---");
 
   final static TermWrapper testWrapper = new TermWrapper(testWrapped);
 

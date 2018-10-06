@@ -49,7 +49,7 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
-        return OperatorContainer.newOpCont(Operator.makeOperator(1000, OpType.XFX, "operator"));
+        return OperatorContainer.newOpCont(Operator.makeOp(1000, OpType.XFX, "operator"));
       } else {
         return null;
       }

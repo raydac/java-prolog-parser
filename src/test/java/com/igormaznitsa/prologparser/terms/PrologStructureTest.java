@@ -18,7 +18,7 @@ public class PrologStructureTest {
     assertEquals(0,
         new PrologStructure(new PrologAtom("hello")).getPrecedence());
 
-    final Operator testOperator = Operator.makeOperator(666, OpType.FX, ":::");
+    final Operator testOperator = Operator.makeOp(666, OpType.FX, ":::");
 
     assertEquals(666,
         new PrologStructure(testOperator,
@@ -92,8 +92,8 @@ public class PrologStructureTest {
                 new AbstractPrologTerm[] {new PrologIntegerNumber(
                     "10")})}).toString());
 
-    final Operator operatorYF = Operator.makeOperator(800, OpType.YF, "!");
-    final Operator operatorYF2 = Operator.makeOperator(1000, OpType.YF, "!!");
+    final Operator operatorYF = Operator.makeOp(800, OpType.YF, "!");
+    final Operator operatorYF2 = Operator.makeOp(1000, OpType.YF, "!!");
 
     assertEquals(
         "(10 !!) !",
@@ -104,8 +104,8 @@ public class PrologStructureTest {
                 new AbstractPrologTerm[] {new PrologIntegerNumber(
                     "10")})}).toString());
 
-    final Operator operatorXFX = Operator.makeOperator(800, OpType.XFX, "$");
-    final Operator operatorXFX2 = Operator.makeOperator(1000, OpType.XFX, "$$");
+    final Operator operatorXFX = Operator.makeOp(800, OpType.XFX, "$");
+    final Operator operatorXFX2 = Operator.makeOp(1000, OpType.XFX, "$$");
 
     assertEquals("(10 $$ 20) $ (5 $ 30)",
         new PrologStructure(operatorXFX, new AbstractPrologTerm[] {
@@ -118,8 +118,8 @@ public class PrologStructureTest {
                     new PrologIntegerNumber("5"),
                     new PrologIntegerNumber("30")})}).toString());
 
-    final Operator operatorXFY = Operator.makeOperator(800, OpType.XFY, "$");
-    final Operator operatorXFY2 = Operator.makeOperator(1000, OpType.XFY, "$$");
+    final Operator operatorXFY = Operator.makeOp(800, OpType.XFY, "$");
+    final Operator operatorXFY2 = Operator.makeOp(1000, OpType.XFY, "$$");
 
     assertEquals("10 $ 20 $$ 5 $ 30",
         new PrologStructure(operatorXFY2, new AbstractPrologTerm[] {
@@ -139,7 +139,7 @@ public class PrologStructureTest {
         new PrologStructure("hello").getType());
     assertEquals(PrologTermType.STRUCT, new PrologStructure(new PrologAtom(
         "hello")).getType());
-    final Operator testOperator = Operator.makeOperator(666, OpType.FX, ":::");
+    final Operator testOperator = Operator.makeOp(666, OpType.FX, ":::");
     assertEquals(PrologTermType.STRUCT, new PrologStructure(testOperator,
         new AbstractPrologTerm[] {new PrologAtom("test")}).getType());
   }
@@ -162,7 +162,7 @@ public class PrologStructureTest {
     assertSame(functoratom, struct.getFunctor());
     assertEquals(testterms.length, struct.getArity());
 
-    final Operator functoroperator = Operator.makeOperator(222, OpType.XFX,
+    final Operator functoroperator = Operator.makeOp(222, OpType.XFX,
         ">>>");
     struct = new PrologStructure(functoroperator, testterms);
     assertSame(functoroperator, struct.getFunctor());
@@ -222,7 +222,7 @@ public class PrologStructureTest {
   @Test
   public void testPrologStructureAbstractPrologTerm() {
     final PrologAtom atom = new PrologAtom("atom1");
-    final Operator operator = Operator.makeOperator(6, OpType.FX, "...");
+    final Operator operator = Operator.makeOp(6, OpType.FX, "...");
 
     assertThrows(NullPointerException.class, () -> new PrologStructure((AbstractPrologTerm) null));
     assertThrows(IllegalArgumentException.class, () -> new PrologStructure(new PrologFloatNumber(0.0d)));
@@ -337,7 +337,7 @@ public class PrologStructureTest {
   @Test
   public void testGetFunctor() {
     final PrologAtom functoratom = new PrologAtom("testfunctor");
-    final Operator functoroperator = Operator.makeOperator(666, OpType.FX,
+    final Operator functoroperator = Operator.makeOp(666, OpType.FX,
         ":::");
 
     assertEquals(functoratom, new PrologStructure(functoratom).getFunctor());
@@ -352,7 +352,7 @@ public class PrologStructureTest {
     assertEquals("test", new PrologStructure("test").getText());
     assertEquals("test",
         new PrologStructure(new PrologAtom("test"), 5).getText());
-    assertEquals("<<<", new PrologStructure(Operator.makeOperator(222,
+    assertEquals("<<<", new PrologStructure(Operator.makeOp(222,
         OpType.FY, "<<<"), 5).getText());
   }
 

@@ -144,7 +144,7 @@ public class PrologStructure extends AbstractPrologTerm {
       final String text2 = getArity() > 1 ? getElement(1).toString()
           : null;
 
-      switch (operatorFunctor.getOperatorType()) {
+      switch (operatorFunctor.getOpType()) {
         case FX: {
           builder.append(opName).append(' ');
 

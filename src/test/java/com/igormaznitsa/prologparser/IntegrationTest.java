@@ -107,7 +107,7 @@ public class IntegrationTest {
   }
 
   private void checkWrongSentenceReadingWithPPE(final String readSentence, final int stringPosition) {
-    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parserFor(readSentence).next()).getStringPosition());
+    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parserFor(readSentence).next()).getPos());
   }
 
   @Test
@@ -297,7 +297,7 @@ public class IntegrationTest {
     assertEquals(":-", struct.getFunctor().getText());
     assertEquals(2, struct.getArity());
     assertEquals(OpType.XFX,
-        ((Operator) struct.getFunctor()).getOperatorType());
+        ((Operator) struct.getFunctor()).getOpType());
     assertEquals("hello", struct.getElement(0).getText());
     assertEquals("world", struct.getElement(1).getText());
 
@@ -311,7 +311,7 @@ public class IntegrationTest {
     assertEquals(":-", struct.getFunctor().getText());
     assertEquals(1, struct.getArity());
     assertEquals(OpType.FX,
-        ((Operator) struct.getFunctor()).getOperatorType());
+        ((Operator) struct.getFunctor()).getOpType());
     assertEquals("test", struct.getElement(0).getText());
 
     parser = parserFor("X is X+1.");
@@ -324,12 +324,12 @@ public class IntegrationTest {
     assertEquals("is", struct.getFunctor().getText());
     assertEquals(2, struct.getArity());
     assertEquals(OpType.XFX,
-        ((Operator) struct.getFunctor()).getOperatorType());
+        ((Operator) struct.getFunctor()).getOpType());
     assertEquals("X", struct.getElement(0).getText());
     assertEquals(PrologTermType.STRUCT, struct.getElement(1).getType());
     assertEquals("+", ((PrologStructure) struct.getElement(1)).getFunctor().getText());
     assertEquals(OpType.YFX,
-        ((Operator) ((PrologStructure) struct.getElement(1)).getFunctor()).getOperatorType());
+        ((Operator) ((PrologStructure) struct.getElement(1)).getFunctor()).getOpType());
     assertEquals(2, ((PrologStructure) struct.getElement(1)).getArity());
     assertEquals("X", ((PrologStructure) struct.getElement(1)).getElement(0).getText());
     assertEquals("1", ((PrologStructure) struct.getElement(1)).getElement(1).getText());
@@ -351,9 +351,9 @@ public class IntegrationTest {
   @Test
   public void testSimilarOperatorInterpretation() {
     final Map<String, OperatorContainer> operators = new HashMap<>();
-    final Operator firstOperator = Operator.makeOperator(100, OpType.FY, "++++++");
-    final Operator secondOperator = Operator.makeOperator(100, OpType.FY, "+++");
-    final Operator thirdOperator = Operator.makeOperator(100, OpType.FY, "++");
+    final Operator firstOperator = Operator.makeOp(100, OpType.FY, "++++++");
+    final Operator secondOperator = Operator.makeOp(100, OpType.FY, "+++");
+    final Operator thirdOperator = Operator.makeOp(100, OpType.FY, "++");
 
     operators.put(firstOperator.getText(), newOpCont(firstOperator));
     operators.put(secondOperator.getText(), newOpCont(secondOperator));
@@ -386,7 +386,7 @@ public class IntegrationTest {
           final PrologStructure operatorstructure = (PrologStructure) structure.getElement(0);
 
           if (operatorstructure.getArity() == 3 && operatorstructure.getFunctor().getText().equals("op")) {
-            final Operator newoperator = Operator.makeOperator(
+            final Operator newoperator = Operator.makeOp(
                 ((PrologIntegerNumber) operatorstructure.getElement(0)).getValue().intValue(),
                 OpType.getForName(operatorstructure.getElement(1).getText()).get(),
                 operatorstructure.getElement(2).getText());
@@ -534,8 +534,8 @@ public class IntegrationTest {
   @Test
   public void testRecognizingUserOperatorsWhichSimilarMetaOperators() {
     final Map<String, OperatorContainer> operators = new HashMap<>();
-    operators.put("(((", newOpCont(Operator.makeOperator(1, OpType.FX, "(((")));
-    operators.put("...", newOpCont(Operator.makeOperator(1200, OpType.XF, "...")));
+    operators.put("(((", newOpCont(Operator.makeOp(1, OpType.FX, "(((")));
+    operators.put("...", newOpCont(Operator.makeOp(1200, OpType.XF, "...")));
     final StubContext stubContext = new StubContext(operators);
 
     final PrologStructure structure = (PrologStructure) new EdinburghPrologParser(new StringReader("(((hello...."), stubContext).next();
@@ -555,15 +555,15 @@ public class IntegrationTest {
   @Test
   public void testOperatorNameAsFunctor_EmptyBrackets() {
     final PrologParserException ex = assertThrows(PrologParserException.class, () -> parserFor("+().").next());
-    assertEquals(2, ex.getStringPosition());
-    assertEquals(1, ex.getLineNumber());
+    assertEquals(2, ex.getPos());
+    assertEquals(1, ex.getLine());
   }
 
   @Test
   public void testAtomAsFunctor_EmptyBrackets() {
     final PrologParserException ex = assertThrows(PrologParserException.class, () -> parserFor("'hello'().").next());
-    assertEquals(8, ex.getStringPosition());
-    assertEquals(1, ex.getLineNumber());
+    assertEquals(8, ex.getPos());
+    assertEquals(1, ex.getLine());
   }
 
   @Test

@@ -224,7 +224,7 @@ public class TokenizerTest {
     assertThrows(NullPointerException.class, () -> tokenizer.findOperatorForName(null));
     assertNull(tokenizer.findOperatorForName("<------------------------------------------------------->"));
 
-    final OperatorContainer operatorContainer = newOpCont(Operator.makeOperator(1000, OpType.FX, "some_operator"));
+    final OperatorContainer operatorContainer = newOpCont(Operator.makeOp(1000, OpType.FX, "some_operator"));
 
     when(context.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 

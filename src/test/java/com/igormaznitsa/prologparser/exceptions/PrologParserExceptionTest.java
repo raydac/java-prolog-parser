@@ -20,7 +20,7 @@ public class PrologParserExceptionTest {
     try {
       throw new PrologParserException("Hello world", 110, 32);
     } catch (PrologParserException ex) {
-      assertEquals(110, ex.getLineNumber());
+      assertEquals(110, ex.getLine());
     }
   }
 
@@ -29,7 +29,7 @@ public class PrologParserExceptionTest {
     try {
       throw new PrologParserException("Hello world", 110, 32);
     } catch (PrologParserException ex) {
-      assertEquals(32, ex.getStringPosition());
+      assertEquals(32, ex.getPos());
     }
   }
 
@@ -38,31 +38,31 @@ public class PrologParserExceptionTest {
     try {
       throw new PrologParserException("Hello world", -1, 0);
     } catch (PrologParserException ex) {
-      assertFalse(ex.containsRightPositionData());
+      assertFalse(ex.hasValidPosition());
     }
 
     try {
       throw new PrologParserException("Hello world", -1, -1);
     } catch (PrologParserException ex) {
-      assertFalse(ex.containsRightPositionData());
+      assertFalse(ex.hasValidPosition());
     }
 
     try {
       throw new PrologParserException("Hello world", 0, 0);
     } catch (PrologParserException ex) {
-      assertFalse(ex.containsRightPositionData());
+      assertFalse(ex.hasValidPosition());
     }
 
     try {
       throw new PrologParserException("Hello world", 12, -1);
     } catch (PrologParserException ex) {
-      assertFalse(ex.containsRightPositionData());
+      assertFalse(ex.hasValidPosition());
     }
 
     try {
       throw new PrologParserException("Hello world", 1, 10);
     } catch (PrologParserException ex) {
-      assertTrue(ex.containsRightPositionData());
+      assertTrue(ex.hasValidPosition());
     }
   }
 

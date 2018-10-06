@@ -131,14 +131,14 @@ final class TreeItem {
   }
 
   OpType getOperatorType() {
-    return ((Operator) ((TermWrapper) savedTerm).getTerm()).getOperatorType();
+    return ((Operator) ((TermWrapper) savedTerm).getTerm()).getOpType();
   }
 
   private boolean validate() {
     if (savedTerm.getType() == PrologTermType.OPERATOR) {
       final int priority = getPriority();
       final Operator wrappedOperator = (Operator) ((TermWrapper) savedTerm).getTerm();
-      switch (wrappedOperator.getOperatorType()) {
+      switch (wrappedOperator.getOpType()) {
         case FX:
           return leftBranch == null && (rightBranch != null && rightBranch.getPriority() < priority);
         case FY:

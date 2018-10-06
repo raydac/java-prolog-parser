@@ -108,12 +108,12 @@ public abstract class PrologParser implements Iterator<AbstractPrologTerm>, Clos
   protected static void registerSysOp(final OperatorDef... operators) {
     final StrBuffer buff = new StrBuffer(10);
 
-    Arrays.stream(operators).filter(Objects::nonNull).forEach(x -> Arrays.stream(x.getNames()).forEach(n -> {
+    Arrays.stream(operators).filter(Objects::nonNull).forEach(x -> x.getNames().forEach(n -> {
       if (SYSTEM_OPERATORS.containsKey(n)) {
         final OperatorContainer container = SYSTEM_OPERATORS.get(n);
-        container.addOp(Operator.makeOperator(x.getPrecedence(), x.getType(), n));
+        container.addOp(Operator.makeOp(x.getPrecedence(), x.getType(), n));
       } else {
-        final OperatorContainer container = newOpCont(Operator.makeOperator(x.getPrecedence(), x.getType(), n));
+        final OperatorContainer container = newOpCont(Operator.makeOp(x.getPrecedence(), x.getType(), n));
         SYSTEM_OPERATORS.put(n, container);
       }
       buff.clear();

@@ -3,7 +3,7 @@ package com.igormaznitsa.prologparser.operators;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import org.junit.jupiter.api.Test;
 
-import static com.igormaznitsa.prologparser.operators.Operator.makeOperator;
+import static com.igormaznitsa.prologparser.operators.Operator.makeOp;
 import static com.igormaznitsa.prologparser.operators.OperatorContainer.newOpCont;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,16 +11,16 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(newOpCont(makeOperator(1000, OpType.FX,
+    assertEquals(newOpCont(makeOp(1000, OpType.FX,
         "<>")).getPrecedence(), 0);
   }
 
   @Test
   public void testToString() {
-    final Operator operator = makeOperator(100, OpType.FX, "<>");
+    final Operator operator = makeOp(100, OpType.FX, "<>");
     final OperatorContainer container = newOpCont(operator);
-    container.addOp(makeOperator(300, OpType.XFX, "<>"));
-    container.addOp(makeOperator(800, OpType.YF, "<>"));
+    container.addOp(makeOp(300, OpType.XFX, "<>"));
+    container.addOp(makeOp(800, OpType.YF, "<>"));
     assertEquals(
         "OpContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
         container.toString());
@@ -29,14 +29,14 @@ public class OperatorContainerTest {
   @Test
   public void testGetType() {
     assertEquals(PrologTermType.OPERATORS, newOpCont(
-        makeOperator(1000, OpType.FX, "<>")).getType());
+        makeOp(1000, OpType.FX, "<>")).getType());
   }
 
   @Test
   public void testOperatorContainer() {
     assertThrows(NullPointerException.class, () -> newOpCont(null));
 
-    final Operator operator = makeOperator(100, OpType.FX, "<>");
+    final Operator operator = makeOp(100, OpType.FX, "<>");
     final OperatorContainer container = newOpCont(operator);
     assertEquals(1, container.size());
     assertSame(operator, container.getOperatorIfSingle());
@@ -44,10 +44,10 @@ public class OperatorContainerTest {
 
   @Test
   public void testAddOperator() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
-    final Operator otheroperatorYF = makeOperator(300, OpType.YF,
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
+    final Operator otheroperatorYF = makeOp(300, OpType.YF,
         "><");
 
     final OperatorContainer container = newOpCont(operatorFX);
@@ -72,9 +72,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testRemoveAll() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
 
@@ -93,10 +93,10 @@ public class OperatorContainerTest {
 
   @Test
   public void testRemove() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
-    final Operator otheroperatorXFX = makeOperator(400, OpType.XFX,
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
+    final Operator otheroperatorXFX = makeOp(400, OpType.XFX,
         "><");
 
     final OperatorContainer container = newOpCont(operatorFX);
@@ -123,9 +123,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testSize() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
 
@@ -142,9 +142,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetOperatorIfSingle() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
 
@@ -162,9 +162,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testFindCompatibleOperator() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
 
@@ -200,9 +200,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetOperatorForType() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
 
@@ -223,9 +223,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetOperatorForSimilarType() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
     container.addOp(operatorXFX);
@@ -244,9 +244,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testRemoveOperatorForType() {
-    final Operator operatorFX = makeOperator(100, OpType.FX, "<>");
-    final Operator operatorXFX = makeOperator(400, OpType.XFX, "<>");
-    final Operator operatorYF = makeOperator(300, OpType.YF, "<>");
+    final Operator operatorFX = makeOp(100, OpType.FX, "<>");
+    final Operator operatorXFX = makeOp(400, OpType.XFX, "<>");
+    final Operator operatorYF = makeOp(300, OpType.YF, "<>");
 
     final OperatorContainer container = newOpCont(operatorFX);
     container.addOp(operatorXFX);
@@ -265,7 +265,7 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetText() {
-    assertEquals("<>", newOpCont(makeOperator(1000,
+    assertEquals("<>", newOpCont(makeOp(1000,
         OpType.FX, "<>")).getText());
   }
 }
