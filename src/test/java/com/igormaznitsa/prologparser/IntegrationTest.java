@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.igormaznitsa.prologparser.operators.OpContainer.newOpCont;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -45,7 +46,7 @@ public class IntegrationTest {
     final PrologParser parser = parserFor("'\u0008Hello\\\nWorld\u0021\\r'.'\\xFF\\Another String\u0007'.");
     PrologTerm term = parser.next();
 
-    assertEquals(TermType.ATOM, term.getType());
+    assertEquals(ATOM, term.getType());
     assertEquals("\\bHello\\nWorld!\\r",
         StringUtils.escapeString(term.getText()));
 
@@ -97,11 +98,11 @@ public class IntegrationTest {
     final PrologParser parser = parserFor("hello.world.");
     PrologTerm term = parser.next();
 
-    assertEquals(TermType.ATOM, term.getType());
+    assertEquals(ATOM, term.getType());
     assertEquals("hello", term.getText());
 
     term = parser.next();
-    assertEquals(TermType.ATOM, term.getType());
+    assertEquals(ATOM, term.getType());
     assertEquals("world", term.getText());
 
     assertThrows(NoSuchElementException.class, () -> parser.next());
@@ -126,7 +127,7 @@ public class IntegrationTest {
 
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) {
     final PrologTerm atom = parserFor(atomToBeChecked + '.').next();
-    assertEquals(TermType.ATOM, atom.getType(), "Type: " + atom.getType());
+    assertEquals(ATOM, atom.getType(), "Type: " + atom.getType());
     assertEquals(PrologAtom.class, atom.getClass(), "Class: " + atom.getClass());
     assertEquals(expectedAtomText, atom.getText(), "Text: " + atom.getText());
   }
@@ -147,7 +148,7 @@ public class IntegrationTest {
 
   private void checkIntegerWithoutPPE(final String atomToBeChecked, final long expectedNumber) {
     PrologTerm atom = parserFor(atomToBeChecked + '.').next();
-    assertEquals(TermType.ATOM, atom.getType(), "Type: " + atom.getType());
+    assertEquals(ATOM, atom.getType(), "Type: " + atom.getType());
     assertEquals(PrologInteger.class, atom.getClass(), "Class: " + atom.getClass());
     assertEquals(expectedNumber, ((PrologInteger) atom).getValue().longValue(), "Number: " + ((PrologInteger) atom).getValue().longValue());
     assertEquals(Long.toString(expectedNumber), atom.getText(), "Text: " + atom.getText());
@@ -165,14 +166,14 @@ public class IntegrationTest {
     checkIntegerWithoutPPE(Long.toString(Long.MIN_VALUE), Long.MIN_VALUE);
 
     final PrologTerm val = parserFor("'298723987'.").next();
-    assertEquals(TermType.ATOM, val.getType());
+    assertEquals(ATOM, val.getType());
     assertEquals(PrologAtom.class, val.getClass());
     assertEquals("298723987", val.getText());
   }
 
   private void checkFloatWithoutPPE(final String atomToBeChecked, final double expectedNumber) {
     PrologTerm atom = parserFor(atomToBeChecked + '.').next();
-    assertEquals(TermType.ATOM, atom.getType());
+    assertEquals(ATOM, atom.getType());
     assertEquals(PrologFloat.class, atom.getClass());
     assertEquals(expectedNumber, ((PrologFloat) atom).getValue().doubleValue(), Double.MIN_NORMAL, String.format("%e <> %e", expectedNumber, ((PrologFloat) atom).getValue().doubleValue()));
     assertEquals(BigDecimal.valueOf(expectedNumber).toEngineeringString(), atom.getText());
@@ -186,11 +187,11 @@ public class IntegrationTest {
     checkFloatWithoutPPE("2000.0", 2.0e+3d);
 
     final PrologTerm val = parserFor("298723987493287423423.00002342342300043324234324E+75.").next();
-    assertEquals(TermType.ATOM, val.getType());
+    assertEquals(ATOM, val.getType());
     assertEquals(PrologFloat.class, val.getClass());
 
     final PrologTerm valAtom = parserFor("2.0E.").next();
-    assertEquals(TermType.ATOM, valAtom.getType());
+    assertEquals(ATOM, valAtom.getType());
     assertEquals(PrologAtom.class, valAtom.getClass());
   }
 
@@ -242,14 +243,14 @@ public class IntegrationTest {
     assertEquals(TermType.STRUCT, term.getType());
 
     PrologStruct struct = (PrologStruct) term;
-    assertEquals(TermType.ATOM, struct.getFunctor().getType());
+    assertEquals(ATOM, struct.getFunctor().getType());
     assertEquals("date", struct.getFunctor().getText());
     assertEquals(3, struct.getArity());
     assertEquals(TermType.VAR, struct.getElement(0).getType());
     assertEquals("Day", struct.getElement(0).getText());
-    assertEquals(TermType.ATOM, struct.getElement(1).getType());
+    assertEquals(ATOM, struct.getElement(1).getType());
     assertEquals("may", struct.getElement(1).getText());
-    assertEquals(TermType.ATOM, struct.getElement(2).getType());
+    assertEquals(ATOM, struct.getElement(2).getType());
     assertEquals(2001L,
         ((PrologInteger) struct.getElement(2)).getValue().longValue());
   }
@@ -526,9 +527,9 @@ public class IntegrationTest {
   public void testSingleOperatorAsAtom() {
     final PrologStruct structure = (PrologStruct) parserFor("not/stream.").next();
     assertEquals("/", structure.getFunctor().getText());
-    assertEquals(TermType.ATOM, structure.getElement(0).getType());
+    assertEquals(ATOM, structure.getElement(0).getType());
     assertEquals("not", structure.getElement(0).getText());
-    assertEquals(TermType.ATOM, structure.getElement(1).getType());
+    assertEquals(ATOM, structure.getElement(1).getType());
     assertEquals("stream", structure.getElement(1).getText());
   }
 

@@ -3,6 +3,7 @@ package com.igormaznitsa.prologparser.tokenizer;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
+import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.operators.OpType;
@@ -12,6 +13,7 @@ import com.igormaznitsa.prologparser.terms.PrologInteger;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.StringReader;
 
@@ -144,6 +146,35 @@ public class TokenizerTest {
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
     assertEquals(Long.MAX_VALUE, ((PrologInteger) result.getResult()).getValue().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
+  }
+
+  private void assertParserExceptionAt(final int line, final int pos, final Executable executable) {
+    final PrologParserException ex = assertThrows(PrologParserException.class, executable);
+    assertEquals(line, ex.getLine(), "Wrong line");
+    assertEquals(pos, ex.getPos(), "Wrong pos");
+  }
+
+
+  @Test
+  public void testUnderscoreInNumbers_Error() {
+    assertParserExceptionAt(1, 4, () -> tokenizeOf("12__34.").readNextToken());
+    assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34_.").readNextToken());
+    assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34__.").readNextToken());
+    assertParserExceptionAt(1, 9, () -> tokenizeOf("12_34.3__4.").readNextToken());
+    assertParserExceptionAt(1, 11, () -> tokenizeOf("12_34.3_4_.").readNextToken());
+    assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34._34.").readNextToken());
+    assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34_.34.").readNextToken());
+  }
+
+  @Test
+  public void testUnderscoreInNumbers_Normal() {
+    assertEquals(12345, ((PrologInteger) tokenizeOf("12_345.").readNextToken().getResult()).getValue().intValue());
+    assertEquals(12345, ((PrologInteger) tokenizeOf("12_34_5.").readNextToken().getResult()).getValue().intValue());
+    assertEquals(12345, ((PrologInteger) tokenizeOf("1_2_34_5.").readNextToken().getResult()).getValue().intValue());
+
+    assertEquals(123.45f, ((PrologFloat) tokenizeOf("12_3.45.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
+    assertEquals(123.45f, ((PrologFloat) tokenizeOf("12_3.4_5.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
+    assertEquals(123.45f, ((PrologFloat) tokenizeOf("1_2_3.4_5.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test

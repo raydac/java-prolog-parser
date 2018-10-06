@@ -221,6 +221,8 @@ final class Tokenizer {
 
     boolean letterOrDigitOnly = false;
 
+    boolean detectedlowLineInNumeric = false;
+
     try {
       while (true) {
         final int readChar = this.readChar();
@@ -232,16 +234,28 @@ final class Tokenizer {
             case FLOAT:
             case INTEGER:
             case ATOM: {
+              if (detectedlowLineInNumeric) {
+                throw new PrologParserException("Unexpected low line", this.prevLine, this.prevPos);
+              }
+
               if (state == TokenizerState.FLOAT && strBuffer.isLastChar('.')) {
                 // non-ended float then it is an integer number ened by the '.' operator
                 push('.');
                 // it is Integer
-                return new TokenizerResult(makeTermFromString(
-                    strBuffer.toStringExcludeLastChar(),
-                    TokenizerState.INTEGER), TokenizerState.ATOM, getLastTokenLine(), getLastTokenPos());
+                return new TokenizerResult(
+                    makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.INTEGER),
+                    TokenizerState.ATOM,
+                    getLastTokenLine(),
+                    getLastTokenPos()
+                );
               } else {
                 // it is just integer number or an atom
-                return new TokenizerResult(makeTermFromString(strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
+                return new TokenizerResult(
+                    makeTermFromString(strBuffer.toString(), state),
+                    state,
+                    getLastTokenLine(),
+                    getLastTokenPos()
+                );
               }
             }
             case VAR: {
@@ -340,12 +354,27 @@ final class Tokenizer {
           break;
           case INTEGER: {
             if (Character.isDigit(chr)) {
+              detectedlowLineInNumeric = false;
               strBuffer.append(chr);
+            } else if (chr == '_') {
+              if (detectedlowLineInNumeric) {
+                throw new PrologParserException("Duplicated low line in integer", this.prevLine, this.prevPos);
+              } else {
+                detectedlowLineInNumeric = true;
+              }
             } else {
               if (chr == '.' || chr == 'e' || chr == 'E') {
+                if (detectedlowLineInNumeric) {
+                  throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                }
+
                 strBuffer.append(chr);
                 state = TokenizerState.FLOAT;
               } else {
+                if (detectedlowLineInNumeric) {
+                  throw new PrologParserException("Unexpected low line", this.prevLine, this.prevPos);
+                }
+
                 push(chr);
 
                 return new TokenizerResult(makeTermFromString(
@@ -357,7 +386,14 @@ final class Tokenizer {
           break;
           case FLOAT: {
             if (Character.isDigit(chr)) {
+              detectedlowLineInNumeric = false;
               strBuffer.append(chr);
+            } else if (chr == '_') {
+              if (detectedlowLineInNumeric || strBuffer.isLastChar('.')) {
+                throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+              } else {
+                detectedlowLineInNumeric = true;
+              }
             } else {
               if (chr == '-' || chr == '+') {
                 if (strBuffer.isLastChar('e')) {
@@ -369,6 +405,10 @@ final class Tokenizer {
                       TokenizerState.FLOAT, getLastTokenLine(), getLastTokenPos());
                 }
               } else if (chr == 'e' || chr == 'E') {
+                if (detectedlowLineInNumeric) {
+                  throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                }
+
                 if (strBuffer.lastIndexOf('e') < 0) {
                   strBuffer.append('e');
                 } else {
@@ -379,6 +419,10 @@ final class Tokenizer {
 
                 push(chr);
 
+                if (detectedlowLineInNumeric) {
+                  throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                }
+
                 if (strBuffer.isLastChar('.')) {
                   // it was an integer
                   push('.');
@@ -388,8 +432,12 @@ final class Tokenizer {
                       TokenizerState.INTEGER, getLastTokenLine(), getLastTokenPos());
                 } else {
                   // it is float
-                  return new TokenizerResult(makeTermFromString(
-                      strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
+                  return new TokenizerResult(
+                      makeTermFromString(strBuffer.toString(), state),
+                      state,
+                      getLastTokenLine(),
+                      getLastTokenPos()
+                  );
                 }
               }
             }
