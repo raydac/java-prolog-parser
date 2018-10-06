@@ -2,6 +2,7 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 final class TermWrapper extends PrologTerm {
 
@@ -9,17 +10,25 @@ final class TermWrapper extends PrologTerm {
 
   private PrologTerm term;
 
-  TermWrapper(final PrologTerm term) {
+  private final SoftObjectPool<TermWrapper> pool;
+
+  TermWrapper(final SoftObjectPool<TermWrapper> pool) {
     super("termWrapper");
-    this.term = term;
+    this.pool = pool;
+  }
+
+  void release() {
+    this.term = null;
+    this.pool.push(this);
   }
 
   PrologTerm getTerm() {
     return this.term;
   }
 
-  void setTerm(final PrologTerm term) {
+  TermWrapper setTerm(final PrologTerm term) {
     this.term = term;
+    return this;
   }
 
   @Override

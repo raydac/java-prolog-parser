@@ -12,6 +12,7 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
+import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.io.Closeable;
@@ -36,10 +37,9 @@ import static com.igormaznitsa.prologparser.operators.OpContainer.newOpCont;
 public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
 
   protected static final OneCharOpMap META_SYSTEM_OPERATORS = new OneCharOpMap();
-
   protected static final Map<String, OpContainer> SYSTEM_OPERATORS = new HashMap<>();
   protected static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<>();
-
+  private static final int INTERNAL_POOL_SIZE = 64;
   private final static OpContainer OPERATOR_COMMA;
   private final static OpContainer OPERATOR_LEFTBRACKET;
   private final static OpContainer OPERATOR_RIGHTBRACKET;
@@ -94,12 +94,26 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   }
 
   protected final ParserContext context;
+  private final SoftObjectPool<TreeItem> treeItemPool;
+  private final SoftObjectPool<TermWrapper> termWrapperPool;
+  private final SoftObjectPool<List<PrologTerm>> termArrayListPool;
   private final Tokenizer tokenizer;
   private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
+
+    this.termArrayListPool = new SoftObjectPool<>(INTERNAL_POOL_SIZE);
+    this.termArrayListPool.setFactory(() -> new ArrayList<>());
+
+    this.termWrapperPool = new SoftObjectPool<>(INTERNAL_POOL_SIZE);
+    this.termWrapperPool.setFactory(() -> new TermWrapper(this.termWrapperPool));
+    this.termWrapperPool.fill();
+
+    this.treeItemPool = new SoftObjectPool<>(INTERNAL_POOL_SIZE);
+    this.treeItemPool.setFactory(() -> new TreeItem(this, this.treeItemPool, this.termWrapperPool));
+    this.treeItemPool.fill();
   }
 
   protected static void registerSysOp(final OpDef... operators) {
@@ -174,6 +188,9 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
       if (found != null) {
         final TokenizerResult endAtom = tokenizer.readNextToken();
         if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
+          if (endAtom != null) {
+            endAtom.release();
+          }
           throw new PrologParserException("End operator is not found", this.tokenizer.getLine(), this.tokenizer.getPos());
         }
       }
@@ -197,36 +214,45 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   }
 
   private PrologStruct readStruct(final PrologTerm functor) {
-    final List<PrologTerm> listOfAtoms = new ArrayList<>();
-    PrologStruct result;
-    boolean active = true;
-    while (active) {
-      final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
+    final List<PrologTerm> listOfAtoms = this.termArrayListPool.get();
+    try {
+      PrologStruct result;
+      boolean active = true;
+      while (active) {
+        final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
-      if (block == null) {
-        return null;
+        if (block == null) {
+          return null;
+        }
+
+        final TokenizerResult nextAtom = this.tokenizer.readNextToken();
+        try {
+          final String nextText = nextAtom.getResult().getText();
+
+          switch (findFirstCharCode(nextText)) {
+            case ',': {
+              listOfAtoms.add(block);
+            }
+            break;
+            case ')': {
+              listOfAtoms.add(block);
+              active = false;
+            }
+            break;
+            default:
+              throw new PrologParserException("Unexpected term in structure: " + nextText, nextAtom.getLine(), nextAtom.getPos());
+          }
+        } finally {
+          nextAtom.release();
+        }
       }
 
-      final TokenizerResult nextAtom = this.tokenizer.readNextToken();
-      final String nextText = nextAtom.getResult().getText();
-
-      switch (findFirstCharCode(nextText)) {
-        case ',': {
-          listOfAtoms.add(block);
-        }
-        break;
-        case ')': {
-          listOfAtoms.add(block);
-          active = false;
-        }
-        break;
-        default:
-          throw new PrologParserException("Unexpected term in structure: " + nextText, nextAtom.getLine(), nextAtom.getPos());
-      }
+      result = new PrologStruct(functor, listOfAtoms.toArray(EMPTY));
+      return result;
+    } finally {
+      listOfAtoms.clear();
+      this.termArrayListPool.push(listOfAtoms);
     }
-
-    result = new PrologStruct(functor, listOfAtoms.toArray(EMPTY));
-    return result;
   }
 
   private PrologTerm readList(final TokenizerResult openingBracket) {
@@ -238,66 +264,73 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
 
     boolean doRead = true;
 
-    TokenizerResult nextAtom;
     while (doRead) {
       final PrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-      nextAtom = tokenizer.readNextToken();
-      final String text = nextAtom.getResult().getText();
+      final TokenizerResult nextAtom = tokenizer.readNextToken();
+      try {
+        final String text = nextAtom.getResult().getText();
 
-      switch (findFirstCharCode(text)) {
-        case ']': {
-          doRead = false;
-          if (block == null) {
+        switch (findFirstCharCode(text)) {
+          case ']': {
+            doRead = false;
+            if (block == null) {
+              continue;
+            }
+          }
+          break;
+          case '|': {
+            // we have found the list tail, so we need read it as one block
+            // until the ']' atom
+            checkForNull(block, "There is not any list element", openingBracket);
+            if (leftPartFirst.isNullList()) {
+              leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
+            } else {
+              PrologList.setTermAsNewListTail(leftPart, block);
+            }
+
+            hasSeparator = true;
+
+            rightPart = readBlock(OPERATORS_END_LIST);
+
+            if (rightPart != null
+                && rightPart.getType() == TermType.STRUCT
+                && ((PrologStruct) rightPart).getFunctor().getText().equals(OPERATOR_VERTICALBAR.getText())) {
+              throw new PrologParserException(
+                  "Duplicated list tail definition",
+                  tokenizer.getLastTokenLine(),
+                  tokenizer.getLastTokenPos(), null);
+            }
+
+            final TokenizerResult nextAtom2 = tokenizer.readNextToken();
+            try {
+              if (!nextAtom2.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
+                throw new PrologParserException("Wrong end op the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
+              }
+            } finally {
+              nextAtom2.release();
+            }
+            doRead = false;
             continue;
           }
-        }
-        break;
-        case '|': {
-          // we have found the list tail, so we need read it as one block
-          // until the ']' atom
-          checkForNull(block, "There is not any list element", openingBracket);
-          if (leftPartFirst.isNullList()) {
-            leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
-          } else {
-            PrologList.setTermAsNewListTail(leftPart, block);
+          case ',': {
+            // all good and we read next block
+            checkForNull(block, "List element not found", nextAtom);
           }
-
-          hasSeparator = true;
-
-          rightPart = readBlock(OPERATORS_END_LIST);
-
-          if (rightPart != null
-              && rightPart.getType() == TermType.STRUCT
-              && ((PrologStruct) rightPart).getFunctor().getText().equals(OPERATOR_VERTICALBAR.getText())) {
-            throw new PrologParserException(
-                "Duplicated list tail definition",
-                tokenizer.getLastTokenLine(),
-                tokenizer.getLastTokenPos(), null);
+          break;
+          default: {
+            throw new CriticalUnexpectedError();
           }
+        }
 
-          nextAtom = tokenizer.readNextToken();
-          if (!nextAtom.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
-            throw new PrologParserException("Wrong end op the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
-          }
-          doRead = false;
-          continue;
+        if (leftPartFirst.isNullList()) {
+          leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
+          leftPart = leftPartFirst;
+        } else {
+          leftPart = PrologList.setTermAsNewListTail(leftPart, block);
         }
-        case ',': {
-          // all good and we read next block
-          checkForNull(block, "List element not found", nextAtom);
-        }
-        break;
-        default: {
-          throw new CriticalUnexpectedError();
-        }
-      }
-
-      if (leftPartFirst.isNullList()) {
-        leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
-        leftPart = leftPartFirst;
-      } else {
-        leftPart = PrologList.setTermAsNewListTail(leftPart, block);
+      } finally {
+        nextAtom.release();
       }
     }
 
@@ -418,6 +451,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
 
                   final TokenizerResult token = tokenizer.readNextToken();
                   final PrologTerm closingAtom = token.getResult();
+                  token.release();
 
                   if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
                     throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
@@ -441,43 +475,47 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
         }
         break;
         default: {
-          final TokenizerResult nextToken = tokenizer.readNextToken();
-          if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
-            final int nextTokenLineNumber = nextToken.getLine();
-            final int nextTokenStrPosition = nextToken.getPos();
+          TokenizerResult nextToken = tokenizer.readNextToken();
+          try {
+            if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
+              final int nextTokenLineNumber = nextToken.getLine();
+              final int nextTokenStrPosition = nextToken.getPos();
 
-            // it is a structure
-            if (readAtom.getType() == TermType.ATOM) {
-              readAtom = readStruct(readAtom);
-              if (readAtom == null) {
-                // we have met the empty brackets, it disallowed by Prolog
-                throw new PrologParserException("Illegal start op term",
+              // it is a structure
+              if (readAtom.getType() == TermType.ATOM) {
+                readAtom = readStruct(readAtom);
+                if (readAtom == null) {
+                  // we have met the empty brackets, it disallowed by Prolog
+                  throw new PrologParserException("Illegal start op term",
+                      nextTokenLineNumber, nextTokenStrPosition);
+                }
+              } else {
+                tokenizer.push(nextToken);
+                nextToken = null;
+                throw new PrologParserException("You must have an atom as the structure functor",
                     nextTokenLineNumber, nextTokenStrPosition);
               }
             } else {
+              // push back the next atom
               tokenizer.push(nextToken);
-              throw new PrologParserException("You must have an atom as the structure functor",
-                  nextTokenLineNumber, nextTokenStrPosition);
-            }
-          } else {
-            // push back the next atom
-            tokenizer.push(nextToken);
-
-            // check read atom to be zero-struct
-            if (readAtomContainer.getResult().getType() == TermType.ATOM) {
-              if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getText().equals("!")) {
-                readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-              } else if (context != null && context.hasZeroArityPredicate(this, readAtom.getText())) {
-                readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
+              nextToken = null;
+              // check read atom to be zero-struct
+              if (readAtomContainer.getResult().getType() == TermType.ATOM) {
+                if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getText().equals("!")) {
+                  readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
+                } else if (context != null && context.hasZeroArityPredicate(this, readAtom.getText())) {
+                  readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
+                }
               }
             }
+          }finally {
+            if (nextToken!=null) nextToken.release();
           }
-
         }
         break;
       }
 
-      final TreeItem readAtomTreeItem = new TreeItem(this, readAtom,
+      final TreeItem readAtomTreeItem = this.treeItemPool.get().setData(readAtom,
           atBrakes,
           readAtomContainer.getLine(),
           readAtomContainer.getPos());
@@ -548,7 +586,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     if (currentTreeItem == null) {
       return null;
     } else {
-      return currentTreeItem.findRoot().convertTreeItemIntoTerm();
+      return currentTreeItem.findRoot().convertToTermAndRelease();
     }
   }
 

@@ -12,6 +12,7 @@ import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -32,10 +33,11 @@ public class TokenizerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void testPushTermBack() {
     Tokenizer tokenizer = tokenizeOf("");
     assertNull(tokenizer.getLastPushed());
-    final TokenizerResult tokenizerResult = new TokenizerResult(new PrologAtom("test"), TokenizerState.ATOM, 2, 1);
+    final TokenizerResult tokenizerResult = new TokenizerResult(mock(SoftObjectPool.class)).setData(new PrologAtom("test"), TokenizerState.ATOM, 2, 1);
     tokenizer.push(tokenizerResult);
     assertSame(tokenizerResult, tokenizer.readNextToken());
   }

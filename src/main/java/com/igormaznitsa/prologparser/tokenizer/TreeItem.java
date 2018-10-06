@@ -9,33 +9,61 @@ import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 final class TreeItem {
 
-  private final PrologTerm savedTerm;
+  private final SoftObjectPool<TreeItem> pool;
+
   private final PrologParser parser;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
   private TreeItem parentItem;
   private boolean insideBrakes;
+  private PrologTerm savedTerm;
 
-  TreeItem(final PrologParser parser, final PrologTerm term, final boolean inBrakes, final int line, final int pos) {
+  private final SoftObjectPool<TermWrapper> termWrapperPool;
+
+  TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
     this.parser = parser;
+    this.pool = pool;
+    this.termWrapperPool = termWrapperPool;
+  }
 
+  TreeItem setData(final PrologTerm term, final boolean inBrakes, final int line, final int pos) {
     if (term == null) {
-      this.savedTerm = null;
+      this.replaceSavedTerm(null);
     } else {
       final TermType termType = term.getType();
       if (termType == TermType.OPERATOR || termType == TermType.OPERATORS) {
-        final TermWrapper termWrapper = new TermWrapper(term);
-        savedTerm = termWrapper;
+        final TermWrapper termWrapper = this.termWrapperPool.get().setTerm(term);
+        this.replaceSavedTerm(termWrapper);
       } else {
-        savedTerm = term;
+        this.replaceSavedTerm(term);
       }
-      savedTerm.setPos(pos);
-      savedTerm.setLine(line);
+      this.savedTerm.setPos(pos);
+      this.savedTerm.setLine(line);
     }
     this.insideBrakes = inBrakes;
+    return this;
+  }
+
+  private void replaceSavedTerm(final PrologTerm newValue) {
+    if (this.savedTerm instanceof TermWrapper) {
+      ((TermWrapper)this.savedTerm).release();
+    }
+    this.savedTerm = newValue;
+  }
+
+  void release() {
+    this.leftBranch = null;
+    this.rightBranch = null;
+    this.insideBrakes = false;
+    this.parentItem = null;
+
+    this.replaceSavedTerm(null);
+
+    this.pool.push(this);
   }
 
   int getPriority() {
@@ -165,60 +193,66 @@ final class TreeItem {
     return savedTerm.toString();
   }
 
-  PrologTerm convertTreeItemIntoTerm() {
-    PrologTerm result;
+  PrologTerm convertToTermAndRelease() {
+    try {
+      PrologTerm result;
 
-    switch (savedTerm.getType()) {
-      case OPERATOR: {
-        final TermWrapper wrapper = (TermWrapper) this.savedTerm;
-        if (this.leftBranch == null && this.rightBranch == null) {
-          // it is an atom because it has not any arguments
-          return new PrologAtom(wrapper.getTerm().getText(), wrapper.getPos(), wrapper.getLine());
-        }
+      switch (savedTerm.getType()) {
+        case OPERATOR: {
+          final TermWrapper wrapper = (TermWrapper) this.savedTerm;
+          if (this.leftBranch == null && this.rightBranch == null) {
+            // it is an atom because it has not any arguments
+            return new PrologAtom(wrapper.getTerm().getText(), wrapper.getPos(), wrapper.getLine());
+          }
 
-        if (!validate()) {
-          throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
-        }
+          if (!validate()) {
+            throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
+          }
 
-        final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertTreeItemIntoTerm();
-        final PrologTerm right = this.rightBranch == null ? null : this.rightBranch.convertTreeItemIntoTerm();
-        if (left == null && right == null) {
-          throw new PrologParserException("Op without operands", wrapper.getLine(), wrapper.getPos());
-        }
-        // this code replaces '-'(number) to '-number'
-        if (right instanceof PrologNumeric && "-".equals(wrapper.getText()) && left == null && right.getType() == TermType.ATOM) {
-          result = ((PrologNumeric) right).neg();
-          break;
-        }
+          final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
+          final PrologTerm right = this.rightBranch == null ? null : this.rightBranch.convertToTermAndRelease();
 
-        final PrologStruct operatorStruct;
-        if (left == null) {
-          operatorStruct = new PrologStruct(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
-        } else {
-          operatorStruct = new PrologStruct(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
-        }
-        result = operatorStruct;
+          if (left == null && right == null) {
+            throw new PrologParserException("Op without operands", wrapper.getLine(), wrapper.getPos());
+          }
 
-        if (this.parser.getContext() != null) {
-          this.parser.getContext().onStructureCreated(this.parser, operatorStruct);
-        }
+          // this code replaces '-'(number) to '-number'
+          if (right instanceof PrologNumeric && "-".equals(wrapper.getText()) && left == null && right.getType() == TermType.ATOM) {
+            result = ((PrologNumeric) right).neg();
+            break;
+          }
 
+          final PrologStruct operatorStruct;
+          if (left == null) {
+            operatorStruct = new PrologStruct(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
+          } else {
+            operatorStruct = new PrologStruct(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
+          }
+          result = operatorStruct;
+
+          if (this.parser.getContext() != null) {
+            this.parser.getContext().onStructureCreated(this.parser, operatorStruct);
+          }
+
+        }
+        break;
+        case STRUCT: {
+          if (this.parser.getContext() != null) {
+            this.parser.getContext().onStructureCreated(parser, (PrologStruct) this.savedTerm);
+          }
+          result = this.savedTerm;
+        }
+        break;
+        default: {
+          result = this.savedTerm;
+        }
+        break;
       }
-      break;
-      case STRUCT: {
-        if (this.parser.getContext() != null) {
-          this.parser.getContext().onStructureCreated(parser, (PrologStruct) this.savedTerm);
-        }
-        result = this.savedTerm;
-      }
-      break;
-      default: {
-        result = this.savedTerm;
-      }
-      break;
+
+      return result;
+    } finally {
+      this.release();
     }
-
-    return result;
   }
 
 }
