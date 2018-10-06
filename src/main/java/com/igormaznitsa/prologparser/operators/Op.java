@@ -7,7 +7,6 @@ import com.igormaznitsa.prologparser.terms.PrologStructure;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public final class Op extends PrologTerm {
   private static final long serialVersionUID = -5954313127778538548L;
   private final OpType opType;
   private final int precedence;
-  private final int precalcHash;
+  private final int preparedHash;
 
   private static final Op[] EMPTY = new Op[0];
 
@@ -37,7 +36,7 @@ public final class Op extends PrologTerm {
     this.opType = type;
     this.precedence = precedence;
 
-    this.precalcHash = (name + '/' + this.opType.name() + '/' + this.precedence).hashCode();
+    this.preparedHash = (name + '/' + this.opType.name() + '/' + this.precedence).hashCode();
   }
 
   private static void assertOpValidOpName(final String name) {
@@ -198,7 +197,7 @@ public final class Op extends PrologTerm {
 
   @Override
   public int hashCode() {
-    return this.precalcHash;
+    return this.preparedHash;
   }
 
   @Override
@@ -209,7 +208,7 @@ public final class Op extends PrologTerm {
       result = true;
     } else if (obj instanceof Op) {
       final Op op = (Op) obj;
-      if (this.precalcHash == op.precalcHash
+      if (this.preparedHash == op.preparedHash
           && this.precedence == op.precedence
           && this.opType == op.opType
           && this.text.equals(op.text)) {

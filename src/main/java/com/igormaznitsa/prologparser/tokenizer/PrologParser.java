@@ -4,20 +4,20 @@ import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.operators.OpDef;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStructure;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologTermType;
-import com.igormaznitsa.prologparser.utils.ArrayListCache;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,9 +94,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   }
 
   protected final ParserContext context;
-  private final ArrayListCache<PrologTerm> abstractPrologTermListCache = new ArrayListCache<>();
   private final Tokenizer tokenizer;
   private PrologTerm lastFoundTerm;
+
+  private static final PrologTerm [] EMPTY = new PrologTerm[0];
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context;
@@ -198,38 +199,33 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   }
 
   private PrologStructure readStruct(final PrologTerm functor) {
-    final List<PrologTerm> listOfAtoms = abstractPrologTermListCache.getListFromCache();
+    final List<PrologTerm> listOfAtoms = new ArrayList<>();
     PrologStructure result;
-    try {
-      boolean active = true;
-      while (active) {
-        final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
+    boolean active = true;
+    while (active) {
+      final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
-        if (block == null) {
-          return null;
-        }
-
-        final TokenizerResult nextAtom = this.tokenizer.readNextToken();
-        final String nextText = nextAtom.getResult().getText();
-
-        switch (findFirstCharCode(nextText)) {
-          case ',': {
-            listOfAtoms.add(block);
-          }
-          break;
-          case ')': {
-            listOfAtoms.add(block);
-            active = false;
-          }
-          break;
-        }
+      if (block == null) {
+        return null;
       }
 
-      result = new PrologStructure(functor,
-          listOfAtoms.toArray(new PrologTerm[listOfAtoms.size()]));
-    } finally {
-      abstractPrologTermListCache.putListToCache(listOfAtoms);
+      final TokenizerResult nextAtom = this.tokenizer.readNextToken();
+      final String nextText = nextAtom.getResult().getText();
+
+      switch (findFirstCharCode(nextText)) {
+        case ',': {
+          listOfAtoms.add(block);
+        }
+        break;
+        case ')': {
+          listOfAtoms.add(block);
+          active = false;
+        }
+        break;
+      }
     }
+
+    result = new PrologStructure(functor, listOfAtoms.toArray(EMPTY));
     return result;
   }
 

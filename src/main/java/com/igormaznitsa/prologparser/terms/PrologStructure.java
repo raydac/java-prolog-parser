@@ -11,7 +11,6 @@ import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
 public class PrologStructure extends PrologTerm {
 
-  public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
   public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
   private static final long serialVersionUID = 9000641998734217154L;
 
