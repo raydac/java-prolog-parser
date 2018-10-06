@@ -17,12 +17,12 @@ import java.io.Reader;
 
 final class Tokenizer {
 
-  private final StringBuilderEx strBuf = new StringBuilderEx(128);
-  private final StringBuilderEx specCharBuf = new StringBuilderEx(128);
-  private final StringBuilderEx insideCharBuffer = new StringBuilderEx(32);
+  private final StringBuilderEx strBuf = new StringBuilderEx(32);
+  private final StringBuilderEx specCharBuf = new StringBuilderEx(8);
+  private final StringBuilderEx insideCharBuffer = new StringBuilderEx(8);
   private final Reader reader;
   private final PrologParser parser;
-  TokenizerResult lastPushedTerm;
+  private TokenizerResult lastPushedTerm;
   private int prevTokenLine;
   private int prevTokenPos;
   private int lastTokenLine;
@@ -41,6 +41,10 @@ final class Tokenizer {
     this.line = 1;
     this.prevPos = 1;
     this.prevLine = 1;
+  }
+
+  TokenizerResult getLastPushed(){
+    return this.lastPushedTerm;
   }
 
   int readChar() throws IOException {
@@ -77,16 +81,11 @@ final class Tokenizer {
       final char ch = buffer.charAt(bufferPosition--);
       this.insideCharBuffer.push(ch);
       chars--;
-      lpos--;
-      if (lpos < 1) {
-        lpos = 1;
-      }
+      lpos = Math.max(1, lpos - 1);
+
       lposPrev = lpos;
       if (ch == '\n') {
-        lline--;
-        if (lline < 1) {
-          lline = 1;
-        }
+        lline = Math.max(1, lline - 1);
         llinePrev = lline;
       }
     }
@@ -101,15 +100,9 @@ final class Tokenizer {
     this.insideCharBuffer.push(ch);
     if (ch == '\n') {
       this.pos = 1;
-      this.line--;
-      if (this.line <= 0) {
-        this.line = 1;
-      }
+      this.line = Math.max(1, this.line - 1);
     } else {
-      this.pos--;
-      if (this.pos <= 0) {
-        this.pos = 1;
-      }
+      this.pos = Math.max(1, this.pos - 1);
     }
   }
 

@@ -32,7 +32,7 @@ public class TokenizerTest {
   @Test
   public void testPushTermBack() {
     Tokenizer tokenizer = tokenizeOf("");
-    assertNull(tokenizer.lastPushedTerm);
+    assertNull(tokenizer.getLastPushed());
     final TokenizerResult tokenizerResult = new TokenizerResult(new PrologAtom("test"), TokenizerState.ATOM, 2, 1);
     tokenizer.push(tokenizerResult);
     assertSame(tokenizerResult, tokenizer.readNextToken());
