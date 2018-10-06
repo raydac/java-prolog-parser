@@ -2,16 +2,16 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
-import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
+import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.igormaznitsa.prologparser.operators.OpContainer.newOpCont;
 import static org.junit.jupiter.api.Assertions.*;
@@ -639,6 +640,61 @@ public class IntegrationTest {
     for (int i = 0; i < ELEMENTS; i++) {
       assertEquals(i, ((PrologInteger) struct.getElement(i)).getValue().intValue());
     }
+  }
+
+  @Test
+  public void testParserStream() {
+    PrologParser parser = new EdinburghPrologParser(new StringReader("z(some).a(X):-[X].b('\\'hello world\\'').list([_|Tail]) :- list(Tail)."));
+    final String joined = parser.stream().map(x -> x.toString()).collect(Collectors.joining(". ", "", "."));
+    parser = new EdinburghPrologParser(new StringReader(joined));
+    assertEquals(joined, parser.stream().map(x -> x.toString()).collect(Collectors.joining(". ", "", ".")));
+    assertEquals("'z'('some'). 'a'(X) :- [X]. 'b'('\\'hello world\\''). 'list'([_|Tail]) :- 'list'(Tail).", joined);
+  }
+
+  @Test
+  public void testStructStream() {
+    PrologParser parser = new EdinburghPrologParser(new StringReader("s(1,2,3,4,5,6,7,8)."));
+    assertEquals("1\n" +
+        "2\n" +
+        "3\n" +
+        "4\n" +
+        "5\n" +
+        "6\n" +
+        "7\n" +
+        "8", parser.next().stream().map(x -> x.toString()).collect(Collectors.joining("\n")));
+  }
+
+  @Test
+  public void testListStream() {
+    PrologParser parser = new EdinburghPrologParser(new StringReader("[1,2,3,4,5,6,7,8|_]."));
+    assertEquals("1\n" +
+        "2\n" +
+        "3\n" +
+        "4\n" +
+        "5\n" +
+        "6\n" +
+        "7\n" +
+        "8\n" +
+        "_", parser.next().stream().map(x -> x.toString()).collect(Collectors.joining("\n")));
+  }
+
+
+  @Test
+  public void testTermStreamFlat() {
+    PrologParser parser = new EdinburghPrologParser(new StringReader("some(hello,world,[1,2,3|X],end)."));
+    final String joined = parser.stream()
+        .flatMap(PrologTerm::stream)
+        .flatMap(PrologTerm::stream)
+        .map(PrologTerm::toString)
+        .collect(Collectors.joining("\n"));
+
+    assertEquals("'hello'\n" +
+        "'world'\n" +
+        "1\n" +
+        "2\n" +
+        "3\n" +
+        "X\n" +
+        "'end'", joined);
   }
 
   private static class StubContext implements ParserContext {

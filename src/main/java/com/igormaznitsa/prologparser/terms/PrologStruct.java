@@ -6,11 +6,16 @@ import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
-public class PrologStruct extends PrologTerm {
+public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
 
   public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
   private static final long serialVersionUID = 9000641998734217154L;
@@ -258,8 +263,35 @@ public class PrologStruct extends PrologTerm {
     return builder.toString();
   }
 
+
   @Override
   public Stream<PrologTerm> stream() {
-    return Stream.of(this.elements);
+    return StreamSupport.stream(
+        Spliterators.spliterator(
+            this.elements,
+            Spliterator.ORDERED | Spliterator.NONNULL
+        ), false);
+  }
+
+  @Override
+  public Iterator<PrologTerm> iterator() {
+    return new Iterator<PrologTerm>() {
+      PrologTerm[] terms = elements.clone();
+      int index = 0;
+
+      @Override
+      public boolean hasNext() {
+        return index < this.terms.length;
+      }
+
+      @Override
+      public PrologTerm next() {
+        if (this.index < this.terms.length) {
+          return this.terms[this.index++];
+        } else {
+          throw new NoSuchElementException();
+        }
+      }
+    };
   }
 }

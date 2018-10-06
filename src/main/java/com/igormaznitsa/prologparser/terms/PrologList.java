@@ -2,7 +2,15 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
-public final class PrologList extends PrologStruct {
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+public final class PrologList extends PrologStruct implements Iterable<PrologTerm> {
   public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".");
   private static final long serialVersionUID = -3781631438477876869L;
 
@@ -193,5 +201,56 @@ public final class PrologList extends PrologStruct {
 
     }
     return result;
+  }
+
+  @Override
+  public Iterator<PrologTerm> iterator() {
+    if (this.isNullList()) {
+      return Collections.emptyIterator();
+    } else {
+      return new Iterator<PrologTerm>() {
+
+        private PrologTerm head = elements[0];
+        private PrologTerm tail = elements[1];
+
+        @Override
+        public boolean hasNext() {
+          return head != null;
+        }
+
+        @Override
+        public PrologTerm next() {
+          if (this.head == null) {
+            throw new NoSuchElementException();
+          }
+          final PrologTerm result = this.head;
+
+          if (this.tail == null) {
+            this.head = null;
+          } else {
+            if (this.tail instanceof PrologList) {
+              final PrologList nextList = (PrologList) this.tail;
+              this.head = nextList.getHead();
+              this.tail = nextList.getTail();
+            } else {
+              this.head = this.tail;
+              this.tail = null;
+            }
+          }
+
+          return result;
+        }
+      };
+    }
+  }
+
+  @Override
+  public Stream<PrologTerm> stream() {
+    return StreamSupport
+        .stream(Spliterators
+            .spliteratorUnknownSize(
+                this.iterator(),
+                Spliterator.ORDERED | Spliterator.NONNULL),
+            false);
   }
 }

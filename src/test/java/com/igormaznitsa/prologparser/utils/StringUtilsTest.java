@@ -40,7 +40,9 @@ public class StringUtilsTest {
     assertUnescaped('\n', "n");
     assertUnescaped('\\', "\\");
     assertUnescaped('\'', "\'");
+    assertUnescaped('\f', "f");
     assertUnescaped('\t', "t");
+    assertUnescaped('`', "`");
     assertUnescaped(' ', "s");
     assertUnescaped((char) 32, "x20\\");
     assertUnescaped((char) 0xFF00, "uFF00");
@@ -53,10 +55,12 @@ public class StringUtilsTest {
     assertNotFullData("x2023");
     assertNotFullData("uFF0");
 
+    assertErrorUnescaped("uFFm");
     assertErrorUnescaped("xm");
 
     assertErrorUnescaped("z");
     assertErrorUnescaped("Xff");
+    assertErrorUnescaped("xffx\\");
     assertErrorUnescaped("ufF0AC2");
     assertErrorUnescaped("uFF0z");
     assertErrorUnescaped("uFF0z");
@@ -65,8 +69,8 @@ public class StringUtilsTest {
 
   @Test
   public void testEscapeString() {
-    final String test = "Hello\r\'World\'\nAnd Skolkovo too\t\u0007\u001b\u000b";
+    final String test = "Hello\r\'World\'\nAnd Skolkovo`\f too\t\u0007\u001b\u000b";
 
-    assertEquals(StringUtils.escapeString(test), "Hello\\r\\'World\\'\\nAnd Skolkovo too\\t\\a\\e\\v");
+    assertEquals(StringUtils.escapeString(test), "Hello\\r\\'World\\'\\nAnd Skolkovo\\`\\f too\\t\\a\\e\\v");
   }
 }
