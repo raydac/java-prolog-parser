@@ -9,6 +9,7 @@ public class GenericPrologParser extends PrologParser {
   public GenericPrologParser(final Reader reader, final ParserContext context) {
     super(reader, context);
   }
+
   public GenericPrologParser(final Reader reader) {
     this(reader, null);
   }

@@ -43,7 +43,7 @@ final class Tokenizer {
     this.prevLine = 1;
   }
 
-  TokenizerResult getLastPushed(){
+  TokenizerResult getLastPushed() {
     return this.lastPushedTerm;
   }
 

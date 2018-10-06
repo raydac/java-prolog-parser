@@ -248,9 +248,9 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public Stream<PrologTerm> stream() {
     return StreamSupport
         .stream(Spliterators
-            .spliteratorUnknownSize(
-                this.iterator(),
-                Spliterator.ORDERED | Spliterator.NONNULL),
+                .spliteratorUnknownSize(
+                    this.iterator(),
+                    Spliterator.ORDERED | Spliterator.NONNULL),
             false);
   }
 }

@@ -1,9 +1,9 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpContainer;
+import com.igormaznitsa.prologparser.operators.OpType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

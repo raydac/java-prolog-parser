@@ -1,8 +1,8 @@
 package com.igormaznitsa.prologparser.operators;
 
-import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

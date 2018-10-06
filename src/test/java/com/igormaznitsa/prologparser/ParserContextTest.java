@@ -2,11 +2,11 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;

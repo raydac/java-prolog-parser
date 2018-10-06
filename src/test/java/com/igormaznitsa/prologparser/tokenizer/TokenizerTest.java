@@ -4,12 +4,12 @@ import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +39,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void testPeekToken() throws Exception {
+  public void testPeekToken() {
     Tokenizer tokenizer = tokenizeOf("hello world");
 
     assertEquals("hello", tokenizer.peek().getResult().getText());
@@ -56,7 +56,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void testGetLastTokenStr() throws Exception {
+  public void testGetLastTokenStr() {
     Tokenizer tokenizer = tokenizeOf("aaa%it's a comment string nd we must skip it until the next string char \n     123 \'hello\'");
     assertNotNull(tokenizer.readNextToken());
     assertEquals(1, tokenizer.getLastTokenPos());
@@ -67,7 +67,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void testGetLastTokenLine() throws Exception {
+  public void testGetLastTokenLine() {
     Tokenizer tokenizer = tokenizeOf("212\n%it's a comment string nd we must skip it until the next string char \n     123\n\'hello\'");
     assertNotNull(tokenizer.readNextToken());
     assertEquals(1, tokenizer.getLastTokenLine());
@@ -78,7 +78,7 @@ public class TokenizerTest {
   }
 
   @Test
-  public void testNextToken() throws Exception {
+  public void testNextToken() {
     Tokenizer tokenizer = tokenizeOf("     123 222.34 \n111.2e+4 \'string\' \n:- Variable _var _ :--");
 
     TokenizerResult result = tokenizer.readNextToken();
