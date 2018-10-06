@@ -154,7 +154,6 @@ public class TokenizerTest {
     assertEquals(pos, ex.getPos(), "Wrong pos");
   }
 
-
   @Test
   public void testUnderscoreInNumbers_Error() {
     assertParserExceptionAt(1, 4, () -> tokenizeOf("12__34.").readNextToken());
@@ -164,6 +163,8 @@ public class TokenizerTest {
     assertParserExceptionAt(1, 11, () -> tokenizeOf("12_34.3_4_.").readNextToken());
     assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34._34.").readNextToken());
     assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34_.34.").readNextToken());
+    assertParserExceptionAt(1, 10, () -> tokenizeOf("12_34.34_e+10.").readNextToken());
+    assertParserExceptionAt(1, 14, () -> tokenizeOf("12_34.34e+10_.").readNextToken());
   }
 
   @Test
@@ -175,6 +176,9 @@ public class TokenizerTest {
     assertEquals(123.45f, ((PrologFloat) tokenizeOf("12_3.45.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
     assertEquals(123.45f, ((PrologFloat) tokenizeOf("12_3.4_5.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
     assertEquals(123.45f, ((PrologFloat) tokenizeOf("1_2_3.4_5.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
+    assertEquals(123.45e+10f, ((PrologFloat) tokenizeOf("1_2_3.4_5e+10.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
+    assertEquals(123.45e-10f, ((PrologFloat) tokenizeOf("1_2_3.4_5e-1_0.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
+    assertEquals(123.45e-10f, ((PrologFloat) tokenizeOf("1_2_3.4_5E-1_0.").readNextToken().getResult()).getValue().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test

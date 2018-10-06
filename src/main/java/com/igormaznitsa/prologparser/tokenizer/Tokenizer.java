@@ -266,8 +266,7 @@ final class Tokenizer {
               }
             }
             case STRING: {
-              throw new PrologParserException("Unclosed string found",
-                  lastTokenLine, lastTokenPos);
+              throw new PrologParserException("Non-closed string", this.lastTokenLine, this.lastTokenPos);
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
@@ -365,7 +364,7 @@ final class Tokenizer {
             } else {
               if (chr == '.' || chr == 'e' || chr == 'E') {
                 if (detectedlowLineInNumeric) {
-                  throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                  throw new PrologParserException("Low line is not allowed before E or dot", this.prevLine, this.prevPos);
                 }
 
                 strBuffer.append(chr);
@@ -390,7 +389,7 @@ final class Tokenizer {
               strBuffer.append(chr);
             } else if (chr == '_') {
               if (detectedlowLineInNumeric || strBuffer.isLastChar('.')) {
-                throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                throw new PrologParserException("Low line is not allowed before dot", this.prevLine, this.prevPos);
               } else {
                 detectedlowLineInNumeric = true;
               }
@@ -402,11 +401,13 @@ final class Tokenizer {
                   push(chr);
                   return new TokenizerResult(makeTermFromString(strBuffer.toString(),
                       TokenizerState.FLOAT),
-                      TokenizerState.FLOAT, getLastTokenLine(), getLastTokenPos());
+                      TokenizerState.FLOAT,
+                      getLastTokenLine(),
+                      getLastTokenPos());
                 }
               } else if (chr == 'e' || chr == 'E') {
                 if (detectedlowLineInNumeric) {
-                  throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                  throw new PrologParserException("Low line is not allowed before E", this.prevLine, this.prevPos);
                 }
 
                 if (strBuffer.lastIndexOf('e') < 0) {
@@ -429,7 +430,9 @@ final class Tokenizer {
                   return new TokenizerResult(makeTermFromString(
                       strBuffer.toStringExcludeLastChar(),
                       TokenizerState.INTEGER),
-                      TokenizerState.INTEGER, getLastTokenLine(), getLastTokenPos());
+                      TokenizerState.INTEGER,
+                      getLastTokenLine(),
+                      getLastTokenPos());
                 } else {
                   // it is float
                   return new TokenizerResult(
