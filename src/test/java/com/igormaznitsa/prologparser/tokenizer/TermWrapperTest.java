@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 public class TermWrapperTest {
 
   final Op testWrapped = Op.makeOne(300, OpType.FX, "---");
-  final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<TermWrapper>(32){
+  final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<TermWrapper>(32) {
     @Override
     public final TermWrapper get() {
       return new TermWrapper(this).setTerm(testWrapped).setTerm(testWrapped);

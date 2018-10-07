@@ -198,12 +198,15 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     if (this.lastFoundTerm == null) {
       final PrologTerm found = readBlock(OPERATORS_PHRASE);
       if (found != null) {
-        final TokenizerResult endAtom = tokenizer.readNextToken();
-        if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
+        final TokenizerResult endAtom = this.tokenizer.readNextToken();
+        try {
+          if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
+            throw new PrologParserException("End operator is not found", this.tokenizer.getLine(), this.tokenizer.getPos());
+          }
+        } finally {
           if (endAtom != null) {
             endAtom.release();
           }
-          throw new PrologParserException("End operator is not found", this.tokenizer.getLine(), this.tokenizer.getPos());
         }
       }
       this.lastFoundTerm = found;
@@ -314,13 +317,13 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
                   tokenizer.getLastTokenPos(), null);
             }
 
-            final TokenizerResult nextAtom2 = tokenizer.readNextToken();
+            final TokenizerResult nextAtomTwo = tokenizer.readNextToken();
             try {
-              if (!nextAtom2.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
+              if (!nextAtomTwo.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
                 throw new PrologParserException("Wrong end op the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
               }
             } finally {
-              nextAtom2.release();
+              nextAtomTwo.release();
             }
             doRead = false;
             continue;
@@ -370,230 +373,237 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     while (true) {
       // read next atom from tokenizer
       TokenizerResult readAtomContainer = this.tokenizer.readNextToken();
-      boolean atBrakes = false;
+      try {
+        boolean atBrakes = false;
 
-      if (readAtomContainer == null) {
-        if (currentTreeItem == null) {
-          // end_of_file
-          return null;
-        } else {
-          // non closed something
-          throw new PrologParserException("Not-ended sentence", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
-        }
-      }
-
-      PrologTerm readAtom = readAtomContainer.getResult();
-
-      // check the atom to be the end atom
-      if (isEndOperator(readAtom, endOperators)) {
-        // it's an end atom so we push it back and end the cycle
-        tokenizer.push(readAtomContainer);
-        break;
-      }
-
-      // the variable contains calculated atem priority (it can be not the
-      // same as the nature priority)
-      int readAtomPriority = 0; // we make it as zero (the highest
-      // priority) default
-
-      switch (readAtom.getType()) {
-        case OPERATORS: {
-          // it is operator list
-          // try to get the single operator from the list if the list
-          // contains only one
-          final Op readOperator = ((OpContainer) readAtom).getOperatorIfSingle();
-
-          // check that the operator is single
-          if (readOperator == null) {
-
-            // there are a few operators in the list so we need to
-            // select one
-            final OpContainer readOperators = (OpContainer) readAtom;
-
-            boolean leftPresented = false;
-
-            if (currentTreeItem != null) {
-              if (currentTreeItem.getType() == TermType.OPERATOR) {
-                if (currentTreeItem.getRightBranch() != null) {
-                  leftPresented = true;
-                }
-              } else {
-                leftPresented = true;
-              }
-            }
-
-            final boolean rightPresented = !isEndOperator(tokenizer.peek().getResult(), endOperators);
-
-            readAtom = readOperators.findSimilar(leftPresented, rightPresented);
-
-            if (readAtom == null) {
-              // we didn't get any operator for our criteria, so throw
-              // an exception
-
-              throw new PrologParserException("Incompatible operator type",
-                  readAtomContainer.getLine(), readAtomContainer.getPos());
-            }
-            // we have found needed operator so get its priority
-            readAtomPriority = readAtom.getPrecedence();
+        if (readAtomContainer == null) {
+          if (currentTreeItem == null) {
+            // end_of_file
+            return null;
           } else {
-            readAtom = readOperator;
-            final String operatorText = readOperator.getText();
-
-            if (operatorText.length() == 1) {
-              switch (findFirstCharCode(operatorText)) {
-                case '[': {
-                  // it's a list
-                  readAtom = readList(readAtomContainer);
-                  readAtom.setPos(readAtomContainer.getPos());
-                  readAtom.setLine(readAtomContainer.getLine());
-                  readAtomPriority = 0;
-                }
-                break;
-                case '(': {
-                  // read subblock
-                  atBrakes = true;
-                  readAtom = readBlock(OPERATORS_SUBBLOCK);
-                  if (readAtom == null) {
-                    throw new PrologParserException("Illegal start op term",
-                        readAtomContainer.getLine(), readAtomContainer.getPos());
-                  }
-                  readAtom.setPos(readAtomContainer.getPos());
-                  readAtom.setLine(readAtomContainer.getLine());
-                  readAtomPriority = 0;
-
-                  final TokenizerResult token = tokenizer.readNextToken();
-                  final PrologTerm closingAtom = token.getResult();
-                  token.release();
-
-                  if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
-                    throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
-                  }
-                }
-                break;
-                default: {
-                  readAtomPriority = readOperator.getPrecedence();
-                }
-                break;
-              }
-            } else {
-              readAtomPriority = readOperator.getPrecedence();
-            }
+            // non closed something
+            throw new PrologParserException("Not-ended sentence", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
           }
         }
-        break;
-        case VAR: {
-          // it's a variable
-          // do nothing
-        }
-        break;
-        default: {
-          TokenizerResult nextToken = tokenizer.readNextToken();
-          try {
-            if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
-              final int nextTokenLineNumber = nextToken.getLine();
-              final int nextTokenStrPosition = nextToken.getPos();
 
-              // it is a structure
-              if (readAtom.getType() == TermType.ATOM) {
-                readAtom = readStruct(readAtom);
-                if (readAtom == null) {
-                  // we have met the empty brackets, it disallowed by Prolog
-                  throw new PrologParserException("Illegal start op term",
+        PrologTerm readAtom = readAtomContainer.getResult();
+
+        // check the atom to be the end atom
+        if (isEndOperator(readAtom, endOperators)) {
+          // it's an end atom so we push it back and end the cycle
+          tokenizer.push(readAtomContainer);
+          readAtomContainer = null;
+          break;
+        }
+
+        // the variable contains calculated atem priority (it can be not the
+        // same as the nature priority)
+        int readAtomPriority = 0; // we make it as zero (the highest
+        // priority) default
+
+        switch (readAtom.getType()) {
+          case OPERATORS: {
+            // it is operator list
+            // try to get the single operator from the list if the list
+            // contains only one
+            final Op readOperator = ((OpContainer) readAtom).getOperatorIfSingle();
+
+            // check that the operator is single
+            if (readOperator == null) {
+
+              // there are a few operators in the list so we need to
+              // select one
+              final OpContainer readOperators = (OpContainer) readAtom;
+
+              boolean leftPresented = false;
+
+              if (currentTreeItem != null) {
+                if (currentTreeItem.getType() == TermType.OPERATOR) {
+                  if (currentTreeItem.getRightBranch() != null) {
+                    leftPresented = true;
+                  }
+                } else {
+                  leftPresented = true;
+                }
+              }
+
+              final boolean rightPresented = !isEndOperator(tokenizer.peek().getResult(), endOperators);
+
+              readAtom = readOperators.findSimilar(leftPresented, rightPresented);
+
+              if (readAtom == null) {
+                // we didn't get any operator for our criteria, so throw
+                // an exception
+
+                throw new PrologParserException("Incompatible operator type",
+                    readAtomContainer.getLine(), readAtomContainer.getPos());
+              }
+              // we have found needed operator so get its priority
+              readAtomPriority = readAtom.getPrecedence();
+            } else {
+              readAtom = readOperator;
+              final String operatorText = readOperator.getText();
+
+              if (operatorText.length() == 1) {
+                switch (findFirstCharCode(operatorText)) {
+                  case '[': {
+                    // it's a list
+                    readAtom = readList(readAtomContainer);
+                    readAtom.setPos(readAtomContainer.getPos());
+                    readAtom.setLine(readAtomContainer.getLine());
+                    readAtomPriority = 0;
+                  }
+                  break;
+                  case '(': {
+                    // read subblock
+                    atBrakes = true;
+                    readAtom = readBlock(OPERATORS_SUBBLOCK);
+                    if (readAtom == null) {
+                      throw new PrologParserException("Illegal start op term",
+                          readAtomContainer.getLine(), readAtomContainer.getPos());
+                    }
+                    readAtom.setPos(readAtomContainer.getPos());
+                    readAtom.setLine(readAtomContainer.getLine());
+                    readAtomPriority = 0;
+
+                    final TokenizerResult token = tokenizer.readNextToken();
+                    final PrologTerm closingAtom = token.getResult();
+                    token.release();
+
+                    if (closingAtom == null || !closingAtom.getText().equals(OPERATOR_RIGHTBRACKET.getText())) {
+                      throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
+                    }
+                  }
+                  break;
+                  default: {
+                    readAtomPriority = readOperator.getPrecedence();
+                  }
+                  break;
+                }
+              } else {
+                readAtomPriority = readOperator.getPrecedence();
+              }
+            }
+          }
+          break;
+          case VAR: {
+            // it's a variable
+            // do nothing
+          }
+          break;
+          default: {
+            TokenizerResult nextToken = tokenizer.readNextToken();
+            try {
+              if (nextToken != null && nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
+                final int nextTokenLineNumber = nextToken.getLine();
+                final int nextTokenStrPosition = nextToken.getPos();
+
+                // it is a structure
+                if (readAtom.getType() == TermType.ATOM) {
+                  readAtom = readStruct(readAtom);
+                  if (readAtom == null) {
+                    // we have met the empty brackets, it disallowed by Prolog
+                    throw new PrologParserException("Illegal start op term",
+                        nextTokenLineNumber, nextTokenStrPosition);
+                  }
+                } else {
+                  tokenizer.push(nextToken);
+                  nextToken = null;
+                  throw new PrologParserException("You must have an atom as the structure functor",
                       nextTokenLineNumber, nextTokenStrPosition);
                 }
               } else {
+                // push back the next atom
                 tokenizer.push(nextToken);
                 nextToken = null;
-                throw new PrologParserException("You must have an atom as the structure functor",
-                    nextTokenLineNumber, nextTokenStrPosition);
-              }
-            } else {
-              // push back the next atom
-              tokenizer.push(nextToken);
-              nextToken = null;
-              // check read atom to be zero-struct
-              if (readAtomContainer.getResult().getType() == TermType.ATOM) {
-                if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getText().equals("!")) {
-                  readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-                } else if (context != null && context.hasZeroArityPredicate(this, readAtom.getText())) {
-                  readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
+                // check read atom to be zero-struct
+                if (readAtomContainer.getResult().getType() == TermType.ATOM) {
+                  if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getText().equals("!")) {
+                    readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
+                  } else if (context != null && context.hasZeroArityPredicate(this, readAtom.getText())) {
+                    readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
+                  }
                 }
               }
-            }
-          } finally {
-            if (nextToken != null) {
-              nextToken.release();
-            }
-          }
-        }
-        break;
-      }
-
-      final TreeItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
-          atBrakes,
-          readAtomContainer.getLine(),
-          readAtomContainer.getPos());
-
-      if (currentTreeItem == null) {
-        // it's first
-        currentTreeItem = readAtomTreeItem;
-      } else {
-        // not first
-        if (currentTreeItem.getType() == TermType.OPERATOR) {
-          // it's an operator
-          if (currentTreeItem.getPriority() <= readAtomPriority) {
-            // new has low priority
-            // make its as an ascendent
-            final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPriority(readAtomPriority);
-            if (foundItem.getPriority() < readAtomPriority) {
-              // make as parent
-              currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
-            } else if (foundItem.getPriority() > readAtomPriority) {
-              // make new as right subbranch
-              currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
-            } else {
-              // equals priority
-              switch (foundItem.getOperatorType()) {
-                case XF:
-                case YF:
-                case FX:
-                case XFX:
-                case YFX:
-                  currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
-                  break;
-                case FY:
-                case XFY:
-                  currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
-                  break;
-                default:
-                  throw new CriticalUnexpectedError();
+            } finally {
+              if (nextToken != null) {
+                nextToken.release();
               }
             }
+          }
+          break;
+        }
 
-          } else if (currentTreeItem.getPriority() > readAtomPriority) {
-            // new has great priority
-            if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
-              // it's a ground atom and its right branch is not empty
+        final TreeItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
+            atBrakes,
+            readAtomContainer.getLine(),
+            readAtomContainer.getPos());
+
+        if (currentTreeItem == null) {
+          // it's first
+          currentTreeItem = readAtomTreeItem;
+        } else {
+          // not first
+          if (currentTreeItem.getType() == TermType.OPERATOR) {
+            // it's an operator
+            if (currentTreeItem.getPriority() <= readAtomPriority) {
+              // new has low priority
+              // make its as an ascendent
+              final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPriority(readAtomPriority);
+              if (foundItem.getPriority() < readAtomPriority) {
+                // make as parent
+                currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
+              } else if (foundItem.getPriority() > readAtomPriority) {
+                // make new as right subbranch
+                currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
+              } else {
+                // equals priority
+                switch (foundItem.getOperatorType()) {
+                  case XF:
+                  case YF:
+                  case FX:
+                  case XFX:
+                  case YFX:
+                    currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
+                    break;
+                  case FY:
+                  case XFY:
+                    currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
+                    break;
+                  default:
+                    throw new CriticalUnexpectedError();
+                }
+              }
+
+            } else if (currentTreeItem.getPriority() > readAtomPriority) {
+              // new has great priority
+              if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
+                // it's a ground atom and its right branch is not empty
+                throw new PrologParserException(
+                    "There is no any operator before the atom",
+                    readAtomContainer.getLine(),
+                    readAtomContainer.getPos());
+              }
+              // make it as right
+              currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);
+            }
+          } else {
+            // check that it is an operator
+            if (currentTreeItem.getType() != TermType.OPERATOR
+                && readAtomTreeItem.getType() != TermType.OPERATOR) {
               throw new PrologParserException(
-                  "There is no any operator before the atom",
+                  "There must be an operator between atoms or structures",
                   readAtomContainer.getLine(),
                   readAtomContainer.getPos());
             }
-            // make it as right
-            currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);
-          }
-        } else {
-          // check that it is an operator
-          if (currentTreeItem.getType() != TermType.OPERATOR
-              && readAtomTreeItem.getType() != TermType.OPERATOR) {
-            throw new PrologParserException(
-                "There must be an operator between atoms or structures",
-                readAtomContainer.getLine(),
-                readAtomContainer.getPos());
-          }
 
-          // make it as left branch
-          currentTreeItem = currentTreeItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
+            // make it as left branch
+            currentTreeItem = currentTreeItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
+          }
+        }
+      } finally {
+        if (readAtomContainer != null) {
+          readAtomContainer.release();
         }
       }
     }

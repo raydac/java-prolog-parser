@@ -44,7 +44,7 @@ final class Tokenizer {
     this.prevPos = 1;
     this.prevLine = 1;
 
-    this.tokenizerResultPool = new SoftObjectPool<TokenizerResult>(128){
+    this.tokenizerResultPool = new SoftObjectPool<TokenizerResult>(128) {
       @Override
       public final TokenizerResult get() {
         return new TokenizerResult(this);
@@ -179,7 +179,7 @@ final class Tokenizer {
       result = readNextToken();
       push(result);
     } else {
-      result = lastPushedTerm;
+      result = this.lastPushedTerm;
     }
     return result;
   }

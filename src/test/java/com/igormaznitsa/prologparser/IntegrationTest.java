@@ -584,7 +584,7 @@ public class IntegrationTest {
   public void testVeryLongList() {
     final int ELEMENTS = 100000;
 
-    final StringBuilder buffer = new StringBuilder();
+    final StringBuilder buffer = new StringBuilder(ELEMENTS);
 
     buffer.append('[');
     boolean nonFirst = false;
@@ -621,7 +621,7 @@ public class IntegrationTest {
   public void testVeryLongStructure() {
     final int ELEMENTS = 100000;
 
-    final StringBuilder buffer = new StringBuilder();
+    final StringBuilder buffer = new StringBuilder(ELEMENTS);
     buffer.append("test(");
     boolean nonfirst = false;
     for (int i = 0; i < ELEMENTS; i++) {

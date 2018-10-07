@@ -14,14 +14,13 @@ class SoftObjectPoolTest {
   public void testFindPush() {
     final AtomicInteger counter = new AtomicInteger();
 
-    final SoftObjectPool<Object> pool = new SoftObjectPool<Object>(64){
+    final SoftObjectPool<Object> pool = new SoftObjectPool<Object>(64) {
       @Override
       public Object get() {
         counter.incrementAndGet();
         return new Object();
       }
     };
-
 
     assertEquals(0, pool.size());
     assertEquals(0, counter.get());
