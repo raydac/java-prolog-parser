@@ -138,7 +138,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
         return new TermWrapper(this);
       }
     };
-    this.termWrapperPool.fill();
 
     this.treeItemPool = new SoftObjectPool<TreeItem>(INTERNAL_POOL_SIZE) {
       @Override
@@ -146,7 +145,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
         return new TreeItem(PrologParser.this, this, termWrapperPool);
       }
     };
-    this.treeItemPool.fill();
   }
 
   protected static void registerSysOp(final OpDef... operators) {
