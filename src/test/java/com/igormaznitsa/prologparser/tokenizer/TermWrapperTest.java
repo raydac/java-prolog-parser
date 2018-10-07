@@ -20,26 +20,26 @@ public class TermWrapperTest {
 
   @Test
   public void testGetText() {
-    assertEquals(testWrapped.getText(), pool.findCached().getText());
+    assertEquals(testWrapped.getText(), pool.find().getText());
   }
 
   @Test
   public void testGetPriority() {
-    assertEquals(testWrapped.getPrecedence(), pool.findCached().getPrecedence());
+    assertEquals(testWrapped.getPrecedence(), pool.find().getPrecedence());
   }
 
   @Test
   public void testToString() {
-    assertEquals(testWrapped.toString(), pool.findCached().toString());
+    assertEquals(testWrapped.toString(), pool.find().toString());
   }
 
   @Test
   public void testGetType() {
-    assertEquals(testWrapped.getType(), pool.findCached().getType());
+    assertEquals(testWrapped.getType(), pool.find().getType());
   }
 
   @Test
   public void testGetWrappedTerm() {
-    assertSame(testWrapped, pool.findCached().getTerm());
+    assertSame(testWrapped, pool.find().getTerm());
   }
 }

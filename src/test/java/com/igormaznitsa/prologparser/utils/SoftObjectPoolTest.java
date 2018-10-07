@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class SoftObjectPoolTest {
 
   @Test
-  public void testGetPush() {
+  public void testFindPush() {
     final AtomicInteger counter = new AtomicInteger();
 
     final SoftObjectPool<Object> pool = new SoftObjectPool<Object>(64){
@@ -28,14 +28,14 @@ class SoftObjectPoolTest {
     pool.fill();
     assertEquals(64, pool.size());
     assertEquals(64, counter.get());
-    Object obj = pool.findCached();
+    Object obj = pool.find();
     assertEquals(64, counter.get());
     assertEquals(63, pool.size());
     pool.push(obj);
     assertEquals(64, pool.size());
     assertEquals(64, counter.get());
 
-    IntStream.range(0, 128).forEach(x -> assertNotNull(pool.findCached()));
+    IntStream.range(0, 128).forEach(x -> assertNotNull(pool.find()));
     assertEquals(128, counter.get());
 
     assertEquals(0, pool.size());

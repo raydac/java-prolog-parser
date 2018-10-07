@@ -25,11 +25,11 @@ public abstract class SoftObjectPool<T> implements Supplier<T> {
     }
   }
 
-  public T findCached() {
+  public T find() {
     if (this.size == 0) {
       return this.get();
     } else {
-      return this.pool[--size];
+      return this.pool[--this.size];
     }
   }
 

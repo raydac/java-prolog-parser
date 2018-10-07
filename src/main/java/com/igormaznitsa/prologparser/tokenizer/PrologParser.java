@@ -226,7 +226,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   }
 
   private PrologStruct readStruct(final PrologTerm functor) {
-    final List<PrologTerm> listOfAtoms = this.termArrayListPool.findCached();
+    final List<PrologTerm> listOfAtoms = this.termArrayListPool.find();
     try {
       PrologStruct result;
       boolean active = true;
@@ -529,7 +529,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
         break;
       }
 
-      final TreeItem readAtomTreeItem = this.treeItemPool.findCached().setData(readAtom,
+      final TreeItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
           atBrakes,
           readAtomContainer.getLine(),
           readAtomContainer.getPos());
