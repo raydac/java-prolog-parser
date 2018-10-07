@@ -60,7 +60,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   protected static final OneCharOpMap META_SYSTEM_OPERATORS = new OneCharOpMap();
   protected static final Map<String, OpContainer> SYSTEM_OPERATORS = new HashMap<>();
   protected static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<>();
-  private static final int INTERNAL_POOL_SIZE = 64;
+  private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private final static OpContainer OPERATOR_COMMA;
   private final static OpContainer OPERATOR_LEFTBRACKET;
   private final static OpContainer OPERATOR_RIGHTBRACKET;
@@ -125,21 +125,21 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     this.context = context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
 
-    this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(INTERNAL_POOL_SIZE) {
+    this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {
       @Override
       public final List<PrologTerm> get() {
         return new ArrayList<>();
       }
     };
 
-    this.termWrapperPool = new SoftObjectPool<TermWrapper>(INTERNAL_POOL_SIZE) {
+    this.termWrapperPool = new SoftObjectPool<TermWrapper>(MAX_INTERNAL_POOL_SIZE) {
       @Override
       public final TermWrapper get() {
         return new TermWrapper(this);
       }
     };
 
-    this.treeItemPool = new SoftObjectPool<TreeItem>(INTERNAL_POOL_SIZE) {
+    this.treeItemPool = new SoftObjectPool<TreeItem>(MAX_INTERNAL_POOL_SIZE) {
       @Override
       public final TreeItem get() {
         return new TreeItem(PrologParser.this, this, termWrapperPool);
