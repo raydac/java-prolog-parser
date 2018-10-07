@@ -22,11 +22,15 @@
 package com.igormaznitsa.prologparser.terms;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.stream.Stream;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
-public abstract class PrologTerm implements Serializable {
+/**
+ * Base class for all prolog terms.
+ */
+public abstract class PrologTerm implements Serializable, Comparable<PrologTerm> {
 
   private static final long serialVersionUID = 1402429096900255841L;
 
@@ -63,7 +67,7 @@ public abstract class PrologTerm implements Serializable {
     this.line = line <= 0 ? -1 : line;
   }
 
-  public String getText() {
+  public String getTermText() {
     return this.text;
   }
 
@@ -84,9 +88,83 @@ public abstract class PrologTerm implements Serializable {
     this.payload = obj;
   }
 
-  public abstract TermType getType();
+  public abstract TermType getTermType();
 
   public Stream<PrologTerm> stream() {
     return Stream.of(this);
+  }
+
+  @Override
+  public int compareTo(final PrologTerm that) {
+    if (that instanceof PrologCompound
+        && !(that.getTermType() == TermType.STRUCT || that.getTermType() == TermType.LIST)) {
+      throw new IllegalArgumentException("Can't compare with special term type: " + that.getTermType());
+    }
+
+    final int result;
+    switch (this.getTermType()) {
+      case VAR: {
+        if (that.getTermType() == TermType.VAR) {
+          result = this.getTermText().compareTo(that.getTermText());
+        } else {
+          result = -1;
+        }
+      }
+      break;
+      case ATOM: {
+        if (that.getTermType() == TermType.ATOM) {
+          if (this instanceof PrologNumeric) {
+            if (that instanceof PrologNumeric) {
+              if (this instanceof PrologInteger) {
+                if (that instanceof PrologInteger) {
+                  result = ((PrologInteger) this).getIntValue().compareTo(((PrologInteger) this).getIntValue());
+                } else {
+                  result = new BigDecimal(((PrologInteger) this).getIntValue()).compareTo(((PrologFloat) this).getFloatValue());
+                }
+              } else if (that instanceof PrologInteger) {
+                result = ((PrologFloat) this).getFloatValue().compareTo((new BigDecimal(((PrologInteger) this).getIntValue())));
+              } else {
+                result = ((PrologFloat) this).getFloatValue().compareTo(((PrologFloat) this).getFloatValue());
+              }
+            } else {
+              result = -1;
+            }
+          } else if (that instanceof PrologNumeric) {
+            result = 1;
+          } else {
+            result = this.getTermText().compareTo(that.getTermText());
+          }
+        } else if (that.getTermType() == TermType.VAR) {
+          result = 1;
+        } else {
+          result = -1;
+        }
+      }
+      break;
+      case LIST:
+      case STRUCT: {
+        if (that instanceof PrologCompound) {
+          int lresult = Integer.compare(((PrologCompound) this).getArity(), ((PrologCompound) that).getArity());
+          if (lresult == 0) {
+            lresult = this.getTermText().compareTo(that.getTermText());
+          }
+          if (lresult == 0) {
+            for (int i = 0; i < ((PrologCompound) this).getArity(); i++) {
+              lresult = ((PrologCompound) this).getElementAt(i).compareTo(((PrologCompound) that).getElementAt(i));
+              if (lresult != 0) {
+                break;
+              }
+            }
+          }
+          result = lresult;
+        } else {
+          result = 1;
+        }
+      }
+      break;
+      default:
+        throw new UnsupportedOperationException("Term type can't be compared : " + this.getTermType());
+    }
+    return result;
   }
 }

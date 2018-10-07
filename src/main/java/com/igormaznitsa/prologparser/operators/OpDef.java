@@ -28,6 +28,9 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
+/**
+ * Definition of operators with same precedence and type but different names.
+ */
 public final class OpDef {
 
   private final int precedence;

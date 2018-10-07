@@ -21,30 +21,63 @@
 
 package com.igormaznitsa.prologparser.exceptions;
 
+/**
+ * Exception is thrown if any problem with parsion of prolog sources.
+ */
 public class PrologParserException extends RuntimeException {
   private static final long serialVersionUID = -4404323844125857006L;
 
   protected final int line;
   protected final int pos;
 
+  /**
+   * Constructor
+   *
+   * @param text text of parsing error
+   * @param line line where the error has been detected
+   * @param pos  line position where the error has been detected
+   */
   public PrologParserException(final String text, final int line, final int pos) {
     this(text, line, pos, null);
   }
 
+  /**
+   * Constructor
+   *
+   * @param text  text of parsing error
+   * @param line  line where the error has been detected
+   * @param pos   line position where the error has been detected
+   * @param cause the root exception
+   */
   public PrologParserException(final String text, final int line, final int pos, final Throwable cause) {
     super(text, cause);
     this.line = line;
     this.pos = pos;
   }
 
+  /**
+   * Get the error line
+   *
+   * @return the error line, -1 if the line is undefined
+   */
   public int getLine() {
     return this.line;
   }
 
+  /**
+   * Get the error line position
+   *
+   * @return the error line position, -1 if the position is undefined
+   */
   public int getPos() {
     return this.pos;
   }
 
+  /**
+   * Check that the exception contains valid position
+   *
+   * @return true if position and line have been defined in the exception
+   */
   public boolean hasValidPosition() {
     return this.line > 0 && this.pos > 0;
   }

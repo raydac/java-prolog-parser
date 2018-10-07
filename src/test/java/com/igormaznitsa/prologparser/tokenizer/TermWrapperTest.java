@@ -20,7 +20,7 @@ public class TermWrapperTest {
 
   @Test
   public void testGetText() {
-    assertEquals(testWrapped.getText(), pool.find().getText());
+    assertEquals(testWrapped.getTermText(), pool.find().getTermText());
   }
 
   @Test
@@ -35,7 +35,7 @@ public class TermWrapperTest {
 
   @Test
   public void testGetType() {
-    assertEquals(testWrapped.getType(), pool.find().getType());
+    assertEquals(testWrapped.getTermType(), pool.find().getTermType());
   }
 
   @Test

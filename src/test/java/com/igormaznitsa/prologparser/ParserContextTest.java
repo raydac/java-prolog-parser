@@ -49,7 +49,7 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
-        return OpContainer.newOpCont(Op.makeOne(1000, OpType.XFX, "operator"));
+        return OpContainer.make(Op.makeOne(1000, OpType.XFX, "operator"));
       } else {
         return null;
       }
@@ -59,7 +59,7 @@ public class ParserContextTest {
 
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("operator."), mockContext);
     final PrologAtom atom = (PrologAtom) parser.next();
-    assertEquals("operator", atom.getText());
+    assertEquals("operator", atom.getTermText());
 
     verify(mockContext).findOperatorForName(parser, "operator");
 
@@ -73,15 +73,15 @@ public class ParserContextTest {
 
     PrologTerm term = parser.next();
     assertNotNull(term);
-    assertEquals(TermType.STRUCT, term.getType());
+    assertEquals(TermType.STRUCT, term.getTermType());
     assertEquals(0, ((PrologStruct) term).getArity());
-    assertEquals("foo", term.getText());
+    assertEquals("foo", term.getTermText());
     assertTrue(parser.hasNext());
 
     term = parser.next();
     assertNotNull(term);
-    assertEquals(TermType.ATOM, term.getType());
-    assertEquals("faa", term.getText());
+    assertEquals(TermType.ATOM, term.getTermType());
+    assertEquals("faa", term.getTermText());
 
     assertFalse(parser.hasNext());
   }
@@ -92,7 +92,7 @@ public class ParserContextTest {
     final ParserContext stubContext = new ParserContext() {
       @Override
       public void onStructureCreated(final PrologParser source, final PrologStruct struct) {
-        detectedStructures.put(struct.getFunctor().getText(), struct);
+        detectedStructures.put(struct.getFunctor().getTermText(), struct);
       }
 
       @Override

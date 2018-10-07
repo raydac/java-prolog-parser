@@ -54,8 +54,8 @@ final class TreeItem {
     if (term == null) {
       this.replaceSavedTerm(null);
     } else {
-      final TermType termType = term.getType();
-      if (termType == TermType.OPERATOR || termType == TermType.OPERATORS) {
+      final TermType termType = term.getTermType();
+      if (termType == TermType.__OPERATOR__ || termType == TermType.__OPERATOR_CONTAINER__) {
         final TermWrapper termWrapper = this.termWrapperPool.find().setTerm(term);
         this.replaceSavedTerm(termWrapper);
       } else {
@@ -99,7 +99,7 @@ final class TreeItem {
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
     TreeItem result = this;
-    if (item.getType() == TermType.OPERATOR && item.getPriority() != 0) {
+    if (item.getType() == TermType.__OPERATOR__ && item.getPriority() != 0) {
       result = item;
     }
     return result;
@@ -134,7 +134,7 @@ final class TreeItem {
   }
 
   TermType getType() {
-    return savedTerm.getType();
+    return savedTerm.getTermType();
   }
 
   TreeItem findRoot() {
@@ -182,7 +182,7 @@ final class TreeItem {
   }
 
   private boolean validate() {
-    if (savedTerm.getType() == TermType.OPERATOR) {
+    if (savedTerm.getTermType() == TermType.__OPERATOR__) {
       final int priority = getPriority();
       final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getTerm();
       switch (wrappedOperator.getOpType()) {
@@ -217,16 +217,16 @@ final class TreeItem {
     try {
       PrologTerm result;
 
-      switch (savedTerm.getType()) {
-        case OPERATOR: {
+      switch (savedTerm.getTermType()) {
+        case __OPERATOR__: {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any arguments
-            return new PrologAtom(wrapper.getTerm().getText(), wrapper.getPos(), wrapper.getLine());
+            return new PrologAtom(wrapper.getTerm().getTermText(), wrapper.getPos(), wrapper.getLine());
           }
 
           if (!validate()) {
-            throw new PrologParserException("Wrong operator [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
+            throw new PrologParserException("Wrong operator [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 
           final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
@@ -237,7 +237,7 @@ final class TreeItem {
           }
 
           // this code replaces '-'(number) to '-number'
-          if (right instanceof PrologNumeric && "-".equals(wrapper.getText()) && left == null && right.getType() == TermType.ATOM) {
+          if (right instanceof PrologNumeric && "-".equals(wrapper.getTermText()) && left == null && right.getTermType() == TermType.ATOM) {
             result = ((PrologNumeric) right).neg();
             break;
           }

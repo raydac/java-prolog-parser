@@ -48,7 +48,7 @@ public class SerializationTest {
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a(A,A)."), null);
     final PrologStruct structure = (PrologStruct) parser.next();
 
-    assertNotSame(structure.getElement(0), structure.getElement(1));
+    assertNotSame(structure.getElementAt(0), structure.getElementAt(1));
 
     final ByteArrayOutputStream buffer = new ByteArrayOutputStream(16384);
     final ObjectOutputStream objectStream = new ObjectOutputStream(buffer);
@@ -61,7 +61,7 @@ public class SerializationTest {
     final PrologStruct structureClone = (PrologStruct) inStream.readObject();
 
     assertNotSame(structure, structureClone);
-    assertNotSame(structureClone.getElement(0), structureClone.getElement(1));
+    assertNotSame(structureClone.getElementAt(0), structureClone.getElementAt(1));
 
   }
 }

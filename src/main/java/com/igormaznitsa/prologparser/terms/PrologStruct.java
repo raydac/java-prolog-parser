@@ -36,7 +36,10 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
-public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
+/**
+ * Representation of prolog structure term.
+ */
+public class PrologStruct extends PrologCompound implements Iterable<PrologTerm> {
 
   public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
   private static final long serialVersionUID = 9000641998734217154L;
@@ -45,9 +48,9 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
   protected final PrologTerm[] elements;
 
   public PrologStruct(final PrologTerm functor, final PrologTerm[] elements) {
-    super(functor.getText());
+    super(functor.getTermText());
 
-    if (functor.getType() != TermType.ATOM && functor.getType() != TermType.OPERATOR) {
+    if (functor.getTermType() != TermType.ATOM && functor.getTermType() != TermType.__OPERATOR__) {
       throw new IllegalArgumentException("Functor must be either atom or operator");
     }
     if (functor instanceof PrologNumeric) {
@@ -85,11 +88,11 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
   }
 
   protected PrologStruct(final PrologTerm functor, final int arity) {
-    super(functor.getText());
+    super(functor.getTermText());
 
-    if (functor.getType() != TermType.ATOM
-        && functor.getType() != TermType.OPERATOR
-        && functor.getType() != TermType.OPERATORS) {
+    if (functor.getTermType() != TermType.ATOM
+        && functor.getTermType() != TermType.__OPERATOR__
+        && functor.getTermType() != TermType.__OPERATOR_CONTAINER__) {
       throw new IllegalArgumentException("Functor type must be either atom or operator");
     }
 
@@ -113,23 +116,25 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
   }
 
   @Override
-  public TermType getType() {
+  public TermType getTermType() {
     return TermType.STRUCT;
   }
 
+  @Override
   public int getArity() {
-    return elements.length;
+    return this.elements.length;
   }
 
-  public PrologTerm getElement(final int index) {
-    return elements[index];
+  @Override
+  public PrologTerm getElementAt(final int index) {
+    return this.elements[index];
   }
 
-  public void setElement(final int index, final PrologTerm term) {
+  public void setElementAt(final int index, final PrologTerm term) {
     if (index < 0 || index >= getArity()) {
       throw new ArrayIndexOutOfBoundsException();
     }
-    elements[index] = AssertUtils.assertNotNull(term);
+    this.elements[index] = AssertUtils.assertNotNull(term);
   }
 
   public PrologTerm getFunctor() {
@@ -138,7 +143,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
 
   @Override
   public int getPrecedence() {
-    if (functor.getType() == TermType.OPERATOR) {
+    if (functor.getTermType() == TermType.__OPERATOR__) {
       return functor.getPrecedence();
     } else {
       return 0;
@@ -153,21 +158,21 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
   public String toString() {
     final StringBuilderEx builder = new StringBuilderEx(64);
 
-    if (functor.getType() == TermType.OPERATOR) {
+    if (functor.getTermType() == TermType.__OPERATOR__) {
 
       final Op operatorFunctor = (Op) functor;
-      final String opName = operatorFunctor.getText();
+      final String opName = operatorFunctor.getTermText();
       final int priority = operatorFunctor.getPrecedence();
 
-      final String text1 = getElement(0).toString();
-      final String text2 = getArity() > 1 ? getElement(1).toString()
+      final String text1 = getElementAt(0).toString();
+      final String text2 = getArity() > 1 ? getElementAt(1).toString()
           : null;
 
       switch (operatorFunctor.getOpType()) {
         case FX: {
           builder.append(opName).append(' ');
 
-          if (getElement(0).getPrecedence() >= priority) {
+          if (getElementAt(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -178,7 +183,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
           builder.append(opName);
           builder.append(' ');
 
-          if (getElement(0).getPrecedence() > priority) {
+          if (getElementAt(0).getPrecedence() > priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -186,7 +191,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
         }
         break;
         case XF: {
-          if (getElement(0).getPrecedence() >= priority) {
+          if (getElementAt(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -196,7 +201,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
         }
         break;
         case YF: {
-          if (getElement(0).getPrecedence() > priority) {
+          if (getElementAt(0).getPrecedence() > priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -206,7 +211,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
         }
         break;
         case XFX: {
-          if (getElement(0).getPrecedence() >= priority) {
+          if (getElementAt(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -214,7 +219,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
 
           builder.append(' ').append(opName).append(' ');
 
-          if (getElement(1).getPrecedence() >= priority) {
+          if (getElementAt(1).getPrecedence() >= priority) {
             builder.append('(').append(text2).append(')');
           } else {
             builder.append(text2);
@@ -222,7 +227,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
         }
         break;
         case YFX: {
-          if (getElement(0).getPrecedence() > priority) {
+          if (getElementAt(0).getPrecedence() > priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -230,7 +235,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
 
           builder.append(' ').append(opName).append(' ');
 
-          if (getElement(1).getPrecedence() >= priority) {
+          if (getElementAt(1).getPrecedence() >= priority) {
             builder.append('(').append(text2).append(')');
           } else {
             builder.append(text2);
@@ -238,7 +243,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
         }
         break;
         case XFY: {
-          if (getElement(0).getPrecedence() >= priority) {
+          if (getElementAt(0).getPrecedence() >= priority) {
             builder.append('(').append(text1).append(')');
           } else {
             builder.append(text1);
@@ -246,7 +251,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
 
           builder.append(' ').append(opName).append(' ');
 
-          if (getElement(1).getPrecedence() > priority) {
+          if (getElementAt(1).getPrecedence() > priority) {
             builder.append('(').append(text2).append(')');
           } else {
             builder.append(text2);
@@ -258,7 +263,7 @@ public class PrologStruct extends PrologTerm implements Iterable<PrologTerm> {
       }
 
     } else {
-      String functorText = functor.getText();
+      String functorText = functor.getTermText();
 
       if ("!".equals(functorText) && getArity() == 0) {
         // special structure detected

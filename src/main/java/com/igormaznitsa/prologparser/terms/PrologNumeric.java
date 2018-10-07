@@ -21,6 +21,9 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+/**
+ * Base class for all numeric terms.
+ */
 public abstract class PrologNumeric extends PrologTerm {
 
   private static final long serialVersionUID = -1815562758090770438L;
@@ -33,13 +36,15 @@ public abstract class PrologNumeric extends PrologTerm {
     super("", line, pos);
   }
 
+  public abstract Number getNumber();
+
   @Override
-  public final TermType getType() {
+  public final TermType getTermType() {
     return TermType.ATOM;
   }
 
   @Override
-  public String getText() {
+  public String getTermText() {
     return toString();
   }
 

@@ -27,8 +27,8 @@ public class OperatorTest {
   public void testGetType() {
     final Op op = Op.makeOne(243, OpType.FX, "<>");
     final Op op2 = Op.makeOne(243, OpType.XFX, "><");
-    assertEquals(TermType.OPERATOR, op.getType());
-    assertEquals(TermType.OPERATOR, op2.getType());
+    assertEquals(TermType.__OPERATOR__, op.getTermType());
+    assertEquals(TermType.__OPERATOR__, op2.getTermType());
   }
 
   @Test
@@ -46,7 +46,7 @@ public class OperatorTest {
     for (int li = 0; li < names.length; li++) {
       final Op op = operators[li];
       assertNotNull(op);
-      assertEquals(names[li], op.getText());
+      assertEquals(names[li], op.getTermText());
       assertEquals(321, op.getPrecedence());
       assertEquals(OpType.XFX, op.getOpType());
     }
@@ -66,7 +66,7 @@ public class OperatorTest {
     final Op operator = Op.makeOne(100, OpType.XFY, "<>");
     assertEquals(100, operator.getPrecedence());
     assertEquals(OpType.XFY, operator.getOpType());
-    assertEquals("<>", operator.getText());
+    assertEquals("<>", operator.getTermText());
   }
 
   @Test
@@ -160,7 +160,7 @@ public class OperatorTest {
 
   @Test
   public void testGetText() {
-    assertEquals("<>", Op.makeOne(121, OpType.FX, "<>").getText());
-    assertEquals("><", Op.makeOne(121, OpType.XFX, "><").getText());
+    assertEquals("<>", Op.makeOne(121, OpType.FX, "<>").getTermText());
+    assertEquals("><", Op.makeOne(121, OpType.XFX, "><").getTermText());
   }
 }

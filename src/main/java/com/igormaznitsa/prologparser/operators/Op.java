@@ -23,6 +23,7 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
+import com.igormaznitsa.prologparser.terms.PrologCompound;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
@@ -32,7 +33,10 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class Op extends PrologTerm {
+/**
+ * Prolog operator definition.
+ */
+public final class Op extends PrologCompound {
   public static final Op METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
   public static final Op METAOPERATOR_RIGHT_BRACKET = makeMeta(-1, OpType.XF, ")");
   public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeMeta(-1, OpType.FX, "[");
@@ -47,6 +51,13 @@ public final class Op extends PrologTerm {
   private final int precedence;
   private final int preparedHash;
 
+  /**
+   * Constructor
+   *
+   * @param precedence priority of the operator
+   * @param type       type of the operator
+   * @param name       name of the operator
+   */
   private Op(final int precedence, final OpType type, final String name) {
     super(name);
 
@@ -77,6 +88,15 @@ public final class Op extends PrologTerm {
 
   }
 
+  /**
+   * Gemerate operators for names.
+   *
+   * @param precedence the priority
+   * @param type       the type of operators
+   * @param names      names of operators to generate
+   * @return array of generated operators
+   * @see OpType
+   */
   public static Op[] make(final int precedence, final OpType type, final String[] names) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException("Precedence must be in 0..1200");
@@ -90,6 +110,15 @@ public final class Op extends PrologTerm {
         .collect(Collectors.toList()).toArray(EMPTY);
   }
 
+  /**
+   * Gemerate operator for names.
+   *
+   * @param precedence the priority
+   * @param type       the type of operators
+   * @param name       name of operator to generate
+   * @return generated operator
+   * @see OpType
+   */
   public static Op makeOne(final int precedence, final OpType type, final String name) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException("Wrong precedence value");
@@ -103,8 +132,18 @@ public final class Op extends PrologTerm {
   }
 
   @Override
-  public TermType getType() {
-    return TermType.OPERATOR;
+  public int getArity() {
+    return this.opType.getArity();
+  }
+
+  @Override
+  public PrologTerm getElementAt(int position) {
+    throw new UnsupportedOperationException("Can't get element from operator");
+  }
+
+  @Override
+  public TermType getTermType() {
+    return TermType.__OPERATOR__;
   }
 
   public OpType getOpType() {
@@ -131,13 +170,13 @@ public final class Op extends PrologTerm {
             break;
             case XF:
             case FX: {
-              final PrologTerm atom = struct.getElement(0);
+              final PrologTerm atom = struct.getElementAt(0);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
             case YF:
             case FY: {
-              final PrologTerm atom = struct.getElement(0);
+              final PrologTerm atom = struct.getElementAt(0);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
@@ -152,8 +191,8 @@ public final class Op extends PrologTerm {
             case XFY:
             case XFX:
             case YFX: {
-              final PrologTerm elementLeft = struct.getElement(0);
-              final PrologTerm elementRight = struct.getElement(1);
+              final PrologTerm elementLeft = struct.getElementAt(0);
+              final PrologTerm elementRight = struct.getElementAt(1);
 
               if (elementLeft == null || elementRight == null) {
                 result = false;
@@ -183,14 +222,14 @@ public final class Op extends PrologTerm {
 
             case XF:
             case FX: {
-              final PrologTerm atom = struct.getElement(this.opType == OpType.XF ? 0 : 1);
+              final PrologTerm atom = struct.getElementAt(this.opType == OpType.XF ? 0 : 1);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
 
             case YF:
             case FY: {
-              final PrologTerm atom = struct.getElement(this.opType == OpType.YF ? 0 : 1);
+              final PrologTerm atom = struct.getElementAt(this.opType == OpType.YF ? 0 : 1);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
@@ -238,7 +277,7 @@ public final class Op extends PrologTerm {
 
   @Override
   public String toString() {
-    return String.format("op(%d,%s,'%s').", getPrecedence(), getOpType().toString().toLowerCase(Locale.ENGLISH), getText());
+    return String.format("op(%d,%s,'%s').", getPrecedence(), getOpType().toString().toLowerCase(Locale.ENGLISH), getTermText());
   }
 
   private Object readResolve() {

@@ -51,13 +51,13 @@ final class TermWrapper extends PrologTerm {
   }
 
   @Override
-  public TermType getType() {
-    return term.getType();
+  public TermType getTermType() {
+    return term.getTermType();
   }
 
   @Override
-  public String getText() {
-    return term.getText();
+  public String getTermText() {
+    return term.getTermText();
   }
 
   @Override

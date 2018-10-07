@@ -23,7 +23,7 @@ public class PrologAtomTest {
 
   @Test
   public void testGetType() {
-    assertEquals(TermType.ATOM, new PrologAtom("Hello Prolog").getType());
+    assertEquals(TermType.ATOM, new PrologAtom("Hello Prolog").getTermType());
   }
 
   @Test
@@ -39,7 +39,7 @@ public class PrologAtomTest {
   @Test
   public void testPrologAtom_String() {
     final PrologAtom atom = new PrologAtom("test");
-    assertEquals("test", atom.getText());
+    assertEquals("test", atom.getTermText());
   }
 
   @Test
@@ -47,7 +47,7 @@ public class PrologAtomTest {
     final PrologAtom etalon = new PrologAtom("etal", 222, 111);
 
     final PrologAtom atom = new PrologAtom(etalon);
-    assertEquals("etal", atom.getText());
+    assertEquals("etal", atom.getTermText());
     assertEquals(111, atom.getPos());
     assertEquals(222, atom.getLine());
   }

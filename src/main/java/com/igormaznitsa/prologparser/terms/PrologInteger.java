@@ -28,6 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+/**
+ * Representation of integer numeric term.
+ */
 public final class PrologInteger extends PrologNumeric {
 
   private static final long serialVersionUID = 6955747225309951985L;
@@ -94,11 +97,16 @@ public final class PrologInteger extends PrologNumeric {
   }
 
   @Override
-  public String getText() {
+  public String getTermText() {
     return toString();
   }
 
-  public BigInteger getValue() {
-    return value;
+  @Override
+  public Number getNumber() {
+    return this.value;
+  }
+
+  public BigInteger getIntValue() {
+    return this.value;
   }
 }

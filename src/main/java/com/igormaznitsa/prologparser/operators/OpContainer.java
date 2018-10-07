@@ -22,11 +22,15 @@
 package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
+import com.igormaznitsa.prologparser.terms.PrologCompound;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
-public final class OpContainer extends PrologTerm {
+/**
+ * Container of operators with the same name.
+ */
+public final class OpContainer extends PrologCompound {
 
   private static final long serialVersionUID = 4946799717661204529L;
 
@@ -36,17 +40,30 @@ public final class OpContainer extends PrologTerm {
   private int numberAtContainer;
 
   private OpContainer(final Op operator) {
-    super(operator.getText());
-    addOp(operator);
+    super(operator.getTermText());
+    add(operator);
   }
 
-  public static OpContainer newOpCont(final Op operator) {
+  /**
+   * Create new container based on operator name.
+   *
+   * @param operator operator which name will be used and which will be added to the new container
+   * @return generated container with the operator
+   */
+  public static OpContainer make(final Op operator) {
     return new OpContainer(operator);
   }
 
-  public boolean addOp(final Op operator) {
-    if (!getText().equals(operator.getText())) {
-      throw new IllegalArgumentException("Illegal operator name, must be '" + getText() + "'");
+  /**
+   * Add operator into the container.
+   *
+   * @param operator the operator to be added
+   * @return true if the operator has been added, false if it was impossible because similar operator already presented
+   * @throws IllegalArgumentException if operator has different name
+   */
+  public boolean add(final Op operator) {
+    if (!getTermText().equals(operator.getTermText())) {
+      throw new IllegalArgumentException("Illegal operator name, must be '" + getTermText() + "'");
     }
 
     switch (operator.getOpType()) {
@@ -88,7 +105,13 @@ public final class OpContainer extends PrologTerm {
     numberAtContainer = 0;
   }
 
-  public Op findForArity(final int arity) {
+  /**
+   * Find operator with arity in the container
+   *
+   * @param arity arity to be used (1..2)
+   * @return found operator or null
+   */
+  public Op findArity(final int arity) {
     Op result;
     switch (arity) {
       case 1: {
@@ -110,8 +133,15 @@ public final class OpContainer extends PrologTerm {
     return result;
   }
 
+  /**
+   * Remove operator from the container
+   *
+   * @param op operator to be removed
+   * @return true if operator was removed, false otherwise
+   * @throws IllegalArgumentException if operator name is not compatible with the container
+   */
   public boolean remove(final Op op) {
-    if (!getText().equals(op.getText())) {
+    if (!getTermText().equals(op.getTermText())) {
       throw new IllegalArgumentException(
           "Wrong operator name for the container");
     }
@@ -135,14 +165,34 @@ public final class OpContainer extends PrologTerm {
   }
 
   @Override
-  public TermType getType() {
-    return TermType.OPERATORS;
+  public TermType getTermType() {
+    return TermType.__OPERATOR_CONTAINER__;
   }
 
+  @Override
+  public int getArity() {
+    return 2;
+  }
+
+  @Override
+  public PrologTerm getElementAt(int position) {
+    throw new UnsupportedOperationException("Can't get element from operator container");
+  }
+
+  /**
+   * Get current size of the container.
+   *
+   * @return size of the container
+   */
   public int size() {
-    return numberAtContainer;
+    return this.numberAtContainer;
   }
 
+  /**
+   * Get operator if it is only one in the container
+   *
+   * @return the found only operator, null if there are severe operators
+   */
   public Op getOperatorIfSingle() {
     if (numberAtContainer == 1) {
       if (opZFZ != null) {
@@ -157,6 +207,13 @@ public final class OpContainer extends PrologTerm {
     return null;
   }
 
+  /**
+   * Find operator for presented arguments.
+   *
+   * @param hasLeftArg  should have left argument
+   * @param hasRightArg should have ritgh argument
+   * @return operator for needed condition, null if not found
+   */
   public Op findSimilar(final boolean hasLeftArg, final boolean hasRightArg) {
     final Op result;
     if (hasLeftArg) {
@@ -189,6 +246,12 @@ public final class OpContainer extends PrologTerm {
     return result;
   }
 
+  /**
+   * Find operator for its type
+   *
+   * @param type type of needed operator
+   * @return found operator, null if not found
+   */
   public Op findForType(final OpType type) {
     Op result = null;
     switch (type) {
@@ -221,6 +284,12 @@ public final class OpContainer extends PrologTerm {
     return null;
   }
 
+  /**
+   * Find operator with similar type. For instance FX is similar to FY and XF is similar to YF.
+   *
+   * @param type type of operator to find
+   * @return operator with similar type or null if not found
+   */
   public Op findSimilar(final OpType type) {
     Op result;
     switch (type) {
@@ -243,6 +312,12 @@ public final class OpContainer extends PrologTerm {
     return result;
   }
 
+  /**
+   * Remove operator for type
+   *
+   * @param type type of removing operator
+   * @return true if removed, false if not found
+   */
   public boolean removeForType(final OpType type) {
     boolean result = false;
     switch (type) {

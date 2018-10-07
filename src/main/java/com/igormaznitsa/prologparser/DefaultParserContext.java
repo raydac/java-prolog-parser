@@ -55,13 +55,13 @@ public class DefaultParserContext implements ParserContext {
 
   public DefaultParserContext addOperators(final Op... operators) {
     for (final Op op : operators) {
-      fillPrefixes(op.getText());
-      OpContainer container = this.opContainers.get(op.getText());
+      fillPrefixes(op.getTermText());
+      OpContainer container = this.opContainers.get(op.getTermText());
       if (container == null) {
-        container = OpContainer.newOpCont(op);
-        this.opContainers.put(op.getText(), container);
+        container = OpContainer.make(op);
+        this.opContainers.put(op.getTermText(), container);
       } else {
-        container.addOp(op);
+        container.add(op);
       }
     }
     return this;

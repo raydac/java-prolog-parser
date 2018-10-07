@@ -40,7 +40,7 @@ final class OneCharOpMap {
   }
 
   OneCharOpMap(final OpContainer... containers) {
-    stream(containers).forEach(x -> put(x.getText(), x));
+    stream(containers).forEach(x -> put(x.getTermText(), x));
   }
 
   boolean containsKey(final String key) {

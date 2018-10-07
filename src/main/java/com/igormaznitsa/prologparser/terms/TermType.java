@@ -21,12 +21,15 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+/**
+ * Type of prolog term.
+ */
 public enum TermType {
 
+  VAR,
   ATOM,
   STRUCT,
-  VAR,
-  OPERATOR,
-  OPERATORS,
-  LIST
+  LIST,
+  __OPERATOR__,
+  __OPERATOR_CONTAINER__
 }

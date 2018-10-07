@@ -31,6 +31,9 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Representation of prolog list term.
+ */
 public final class PrologList extends PrologStruct implements Iterable<PrologTerm> {
   public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".");
   private static final long serialVersionUID = -3781631438477876869L;
@@ -106,22 +109,22 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   }
 
   public PrologTerm getHead() {
-    return getElement(0);
+    return getElementAt(0);
   }
 
   public void setHead(final PrologTerm term) {
-    this.setElement(0, term);
+    this.setElementAt(0, term);
     if (getTail() == null) {
       setTail(new PrologList());
     }
   }
 
   public PrologTerm getTail() {
-    return getElement(1);
+    return getElementAt(1);
   }
 
   public void setTail(final PrologTerm term) {
-    this.setElement(1, term);
+    this.setElementAt(1, term);
     if (getHead() == null) {
       setHead(EMPTY_ATOM);
     }
@@ -143,7 +146,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
           return current;
         } else {
           final PrologTerm ltail = current.getTail();
-          if (ltail.getType() == TermType.LIST) {
+          if (ltail.getTermType() == TermType.LIST) {
             current = (PrologList) ltail;
           } else {
             final PrologList newOne = new PrologList(term,
@@ -161,7 +164,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     PrologList curList = this;
     while (true) {
       final PrologTerm tail = curList.getTail();
-      if (tail.getType() == TermType.LIST) {
+      if (tail.getTermType() == TermType.LIST) {
         final PrologList ltail = (PrologList) tail;
         if (ltail.isNullList()) {
           curList.setTail(newTailElement);
@@ -176,7 +179,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   }
 
   @Override
-  public TermType getType() {
+  public TermType getTermType() {
     return TermType.LIST;
   }
 
@@ -191,7 +194,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
       PrologTerm list = this;
 
       while (true) {
-        if (list.getType() == TermType.LIST) {
+        if (list.getTermType() == TermType.LIST) {
           final PrologList asList = (PrologList) list;
 
           if (asList.isNullList()) {

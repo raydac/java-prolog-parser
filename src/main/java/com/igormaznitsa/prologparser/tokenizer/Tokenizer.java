@@ -318,7 +318,7 @@ final class Tokenizer {
                     getLastTokenPos()
                 );
               } else {
-                calcDiffAndPushResultBack(lastFoundFullOperator.getText(), strBuffer);
+                calcDiffAndPushResultBack(lastFoundFullOperator.getTermText(), strBuffer);
                 return this.tokenizerResultPool.find().setData(
                     lastFoundFullOperator,
                     state,
@@ -549,7 +549,7 @@ final class Tokenizer {
                       state = TokenizerState.ATOM;
                     } else {
                       calcDiffAndPushResultBack(
-                          previousleDetectedOperator.getText(), strBuffer);
+                          previousleDetectedOperator.getTermText(), strBuffer);
                       return this.tokenizerResultPool.find().setData(
                           previousleDetectedOperator,
                           state, getLastTokenLine(),
@@ -560,7 +560,7 @@ final class Tokenizer {
                 } else {
                   if (!hasOperatorStartsWith(operator)) {
                     calcDiffAndPushResultBack(
-                        previousleDetectedOperator.getText(), strBuffer);
+                        previousleDetectedOperator.getTermText(), strBuffer);
                     return this.tokenizerResultPool.find().setData(
                         previousleDetectedOperator,
                         state,

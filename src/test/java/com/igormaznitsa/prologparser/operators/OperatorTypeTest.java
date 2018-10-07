@@ -8,13 +8,13 @@ public class OperatorTypeTest {
 
   @Test
   public void testGetForName() {
-    assertSame(OpType.XF, OpType.getForName("xf").get());
-    assertSame(OpType.FX, OpType.getForName("fx").get());
-    assertSame(OpType.XFX, OpType.getForName("xfx").get());
-    assertSame(OpType.XFY, OpType.getForName("xfy").get());
-    assertSame(OpType.YF, OpType.getForName("yf").get());
-    assertSame(OpType.YFX, OpType.getForName("yfx").get());
-    assertFalse(OpType.getForName("yfy").isPresent());
+    assertSame(OpType.XF, OpType.findForName("xf").get());
+    assertSame(OpType.FX, OpType.findForName("fx").get());
+    assertSame(OpType.XFX, OpType.findForName("xfx").get());
+    assertSame(OpType.XFY, OpType.findForName("xfy").get());
+    assertSame(OpType.YF, OpType.findForName("yf").get());
+    assertSame(OpType.YFX, OpType.findForName("yfx").get());
+    assertFalse(OpType.findForName("yfy").isPresent());
   }
 
   @Test

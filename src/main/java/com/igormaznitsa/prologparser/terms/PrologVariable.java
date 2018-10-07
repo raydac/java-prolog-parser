@@ -60,7 +60,7 @@ public final class PrologVariable extends PrologTerm {
   }
 
   @Override
-  public TermType getType() {
+  public TermType getTermType() {
     return TermType.VAR;
   }
 }

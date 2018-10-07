@@ -26,6 +26,9 @@ import com.igormaznitsa.prologparser.utils.AssertUtils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
+/**
+ * Representation for float numeric term.
+ */
 public final class PrologFloat extends PrologNumeric {
 
   public static final MathContext MATH_CONTEXT = MathContext.DECIMAL64;
@@ -63,7 +66,12 @@ public final class PrologFloat extends PrologNumeric {
     return new PrologFloat(value.negate());
   }
 
-  public BigDecimal getValue() {
+  public BigDecimal getFloatValue() {
+    return this.value;
+  }
+
+  @Override
+  public Number getNumber() {
     return this.value;
   }
 

@@ -50,7 +50,7 @@ public class TokenizerResultTest {
     final TokenizerResult result = new TokenizerResult(mock(SoftObjectPool.class)).setData(testAtom,
         TokenizerState.LOOKFOR, 2, 1);
     assertSame(testAtom, result.getResult());
-    assertEquals(TermType.ATOM, result.getResult().getType());
+    assertEquals(TermType.ATOM, result.getResult().getTermType());
   }
 
   @Test

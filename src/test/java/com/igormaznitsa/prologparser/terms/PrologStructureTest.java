@@ -136,12 +136,12 @@ public class PrologStructureTest {
   @Test
   public void testGetType() {
     assertEquals(TermType.STRUCT,
-        new PrologStruct("hello").getType());
+        new PrologStruct("hello").getTermType());
     assertEquals(TermType.STRUCT, new PrologStruct(new PrologAtom(
-        "hello")).getType());
+        "hello")).getTermType());
     final Op testOperator = Op.makeOne(666, OpType.FX, ":::");
     assertEquals(TermType.STRUCT, new PrologStruct(testOperator,
-        new PrologTerm[] {new PrologAtom("test")}).getType());
+        new PrologTerm[] {new PrologAtom("test")}).getTermType());
   }
 
   @Test
@@ -169,7 +169,7 @@ public class PrologStructureTest {
     assertEquals(testterms.length, struct.getArity());
 
     final PrologTerm etalon = testterms[1];
-    struct.setElement(1, new PrologAtom("new"));
+    struct.setElementAt(1, new PrologAtom("new"));
     assertSame(etalon, testterms[1]);
   }
 
@@ -199,14 +199,14 @@ public class PrologStructureTest {
 
     final PrologStruct struct = new PrologStruct("Hello World");
     assertNotNull(struct.getFunctor());
-    assertEquals(TermType.ATOM, struct.getFunctor().getType());
-    assertEquals("Hello World", struct.getFunctor().getText());
+    assertEquals(TermType.ATOM, struct.getFunctor().getTermType());
+    assertEquals("Hello World", struct.getFunctor().getTermText());
 
     final PrologStruct struct2 = new PrologStruct("1111");
     assertNotNull(struct2.getFunctor());
-    assertEquals(TermType.ATOM, struct2.getFunctor().getType());
+    assertEquals(TermType.ATOM, struct2.getFunctor().getTermType());
     assertFalse(struct2.getFunctor() instanceof PrologNumeric);
-    assertEquals("1111", struct2.getFunctor().getText());
+    assertEquals("1111", struct2.getFunctor().getTermText());
 
   }
 
@@ -259,7 +259,7 @@ public class PrologStructureTest {
 
     final PrologStruct struct = new PrologStruct(testAtom, 10);
     for (int index = 0; index < 10; index++) {
-      assertEquals("", struct.getElement(index).getText());
+      assertEquals("", struct.getElementAt(index).getTermText());
     }
   }
 
@@ -304,11 +304,11 @@ public class PrologStructureTest {
     final PrologStruct structure = new PrologStruct(new PrologAtom(
         "functor"), terms);
     for (int li = 0; li < strings.length; li++) {
-      assertEquals(strings[li], structure.getElement(li).getText());
+      assertEquals(strings[li], structure.getElementAt(li).getTermText());
     }
 
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElement(-1));
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElement(strings.length));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElementAt(-1));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElementAt(strings.length));
   }
 
   @Test
@@ -323,14 +323,14 @@ public class PrologStructureTest {
     final PrologStruct structure = new PrologStruct(new PrologAtom(
         "functor"), terms.length);
     for (int li = 0; li < terms.length; li++) {
-      structure.setElement(li, terms[li]);
+      structure.setElementAt(li, terms[li]);
     }
 
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElement(-1, new PrologList()));
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElement(terms.length, new PrologList()));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElementAt(-1, new PrologList()));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElementAt(terms.length, new PrologList()));
 
     for (int li = 0; li < terms.length; li++) {
-      assertSame(terms[li], structure.getElement(li));
+      assertSame(terms[li], structure.getElementAt(li));
     }
   }
 
@@ -349,11 +349,11 @@ public class PrologStructureTest {
 
   @Test
   public void testGetText() {
-    assertEquals("test", new PrologStruct("test").getText());
+    assertEquals("test", new PrologStruct("test").getTermText());
     assertEquals("test",
-        new PrologStruct(new PrologAtom("test"), 5).getText());
+        new PrologStruct(new PrologAtom("test"), 5).getTermText());
     assertEquals("<<<", new PrologStruct(Op.makeOne(222,
-        OpType.FY, "<<<"), 5).getText());
+        OpType.FY, "<<<"), 5).getTermText());
   }
 
   @Test
@@ -367,7 +367,7 @@ public class PrologStructureTest {
 
     assertEquals(newFunctor, copy.getFunctor());
     assertEquals(1, copy.getArity());
-    assertEquals(element, copy.getElement(0));
+    assertEquals(element, copy.getElementAt(0));
     assertEquals(-1, copy.getPos());
     assertEquals(-1, copy.getLine());
   }

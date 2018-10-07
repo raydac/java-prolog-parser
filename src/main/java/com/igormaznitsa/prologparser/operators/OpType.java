@@ -24,6 +24,9 @@ package com.igormaznitsa.prologparser.operators;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * Type of prolog operators.
+ */
 public enum OpType {
 
   XF("xf", 1),
@@ -43,7 +46,7 @@ public enum OpType {
     this.arity = arity;
   }
 
-  public static Optional<OpType> getForName(final String str) {
+  public static Optional<OpType> findForName(final String str) {
     return Stream.of(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 
