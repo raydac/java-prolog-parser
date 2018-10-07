@@ -22,15 +22,15 @@
 package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.terms.PrologCompound;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 /**
  * Container of operators with the same name.
  */
-public final class OpContainer extends PrologCompound {
+public final class OpContainer extends SpecServiceCompound {
 
   private static final long serialVersionUID = 4946799717661204529L;
 

@@ -23,9 +23,9 @@ package com.igormaznitsa.prologparser.operators;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.terms.PrologCompound;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 /**
  * Prolog operator definition.
  */
-public final class Op extends PrologCompound {
+public final class Op extends SpecServiceCompound {
   public static final Op METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
   public static final Op METAOPERATOR_RIGHT_BRACKET = makeMeta(-1, OpType.XF, ")");
   public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeMeta(-1, OpType.FX, "[");

@@ -21,6 +21,8 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.stream.Stream;
@@ -96,9 +98,8 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
 
   @Override
   public int compareTo(final PrologTerm that) {
-    if (that instanceof PrologCompound
-        && !(that.getTermType() == TermType.STRUCT || that.getTermType() == TermType.LIST)) {
-      throw new IllegalArgumentException("Can't compare with special term type: " + that.getTermType());
+    if (that instanceof SpecServiceCompound) {
+      return -1;
     }
 
     final int result;
@@ -163,7 +164,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       }
       break;
       default:
-        throw new UnsupportedOperationException("Term type can't be compared : " + this.getTermType());
+        throw new CriticalUnexpectedError();
     }
     return result;
   }

@@ -22,23 +22,29 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
-final class TermWrapper extends PrologTerm {
+final class TermWrapper extends SpecServiceCompound {
 
   private static final long serialVersionUID = 9006607815982718325L;
   private final SoftObjectPool<TermWrapper> pool;
   private PrologTerm term;
 
   TermWrapper(final SoftObjectPool<TermWrapper> pool) {
-    super("termWrapper");
+    super(".wrapper");
     this.pool = pool;
   }
 
   void release() {
     this.term = null;
     this.pool.push(this);
+  }
+
+  @Override
+  public int getArity() {
+    return 1;
   }
 
   PrologTerm getTerm() {
