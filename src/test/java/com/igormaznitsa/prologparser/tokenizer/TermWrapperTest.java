@@ -11,31 +11,35 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 public class TermWrapperTest {
 
   final Op testWrapped = Op.makeOne(300, OpType.FX, "---");
-  final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<>(32);
-  final TermWrapper testWrapper = new TermWrapper(pool).setTerm(testWrapped);
+  final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<TermWrapper>(32){
+    @Override
+    public final TermWrapper get() {
+      return new TermWrapper(this).setTerm(testWrapped).setTerm(testWrapped);
+    }
+  };
 
   @Test
   public void testGetText() {
-    assertEquals(testWrapped.getText(), testWrapper.getText());
+    assertEquals(testWrapped.getText(), pool.findCached().getText());
   }
 
   @Test
   public void testGetPriority() {
-    assertEquals(testWrapped.getPrecedence(), testWrapper.getPrecedence());
+    assertEquals(testWrapped.getPrecedence(), pool.findCached().getPrecedence());
   }
 
   @Test
   public void testToString() {
-    assertEquals(testWrapped.toString(), testWrapper.toString());
+    assertEquals(testWrapped.toString(), pool.findCached().toString());
   }
 
   @Test
   public void testGetType() {
-    assertEquals(testWrapped.getType(), testWrapper.getType());
+    assertEquals(testWrapped.getType(), pool.findCached().getType());
   }
 
   @Test
   public void testGetWrappedTerm() {
-    assertSame(testWrapped, testWrapper.getTerm());
+    assertSame(testWrapped, pool.findCached().getTerm());
   }
 }

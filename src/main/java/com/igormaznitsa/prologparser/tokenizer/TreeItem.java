@@ -35,7 +35,7 @@ final class TreeItem {
     } else {
       final TermType termType = term.getType();
       if (termType == TermType.OPERATOR || termType == TermType.OPERATORS) {
-        final TermWrapper termWrapper = this.termWrapperPool.get().setTerm(term);
+        final TermWrapper termWrapper = this.termWrapperPool.findCached().setTerm(term);
         this.replaceSavedTerm(termWrapper);
       } else {
         this.replaceSavedTerm(term);

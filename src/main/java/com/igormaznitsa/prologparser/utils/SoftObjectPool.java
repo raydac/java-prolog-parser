@@ -2,36 +2,32 @@ package com.igormaznitsa.prologparser.utils;
 
 import java.util.function.Supplier;
 
-public class SoftObjectPool<T> {
+public abstract class SoftObjectPool<T> implements Supplier<T> {
 
   private final T[] pool;
   private final int maxSize;
-  private Supplier<T> factory;
   private int size;
 
+  @SuppressWarnings("unchecked")
   public SoftObjectPool(final int size) {
     this.maxSize = size;
     this.pool = (T[]) new Object[size];
     this.size = 0;
   }
 
-  public int size(){
+  public int size() {
     return this.size;
   }
 
   public void fill() {
     while (this.size < this.maxSize) {
-      this.push(this.factory.get());
+      this.push(this.get());
     }
   }
 
-  public void setFactory(final Supplier<T> factory) {
-    this.factory = factory;
-  }
-
-  public T get() {
+  public T findCached() {
     if (this.size == 0) {
-      return this.factory.get();
+      return this.get();
     } else {
       return this.pool[--size];
     }

@@ -104,15 +104,27 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     this.context = context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
 
-    this.termArrayListPool = new SoftObjectPool<>(INTERNAL_POOL_SIZE);
-    this.termArrayListPool.setFactory(() -> new ArrayList<>());
+    this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(INTERNAL_POOL_SIZE) {
+      @Override
+      public final List<PrologTerm> get() {
+        return new ArrayList<>();
+      }
+    };
 
-    this.termWrapperPool = new SoftObjectPool<>(INTERNAL_POOL_SIZE);
-    this.termWrapperPool.setFactory(() -> new TermWrapper(this.termWrapperPool));
+    this.termWrapperPool = new SoftObjectPool<TermWrapper>(INTERNAL_POOL_SIZE) {
+      @Override
+      public final TermWrapper get() {
+        return new TermWrapper(this);
+      }
+    };
     this.termWrapperPool.fill();
 
-    this.treeItemPool = new SoftObjectPool<>(INTERNAL_POOL_SIZE);
-    this.treeItemPool.setFactory(() -> new TreeItem(this, this.treeItemPool, this.termWrapperPool));
+    this.treeItemPool = new SoftObjectPool<TreeItem>(INTERNAL_POOL_SIZE) {
+      @Override
+      public final TreeItem get() {
+        return new TreeItem(PrologParser.this, this, termWrapperPool);
+      }
+    };
     this.treeItemPool.fill();
   }
 
@@ -214,7 +226,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
   }
 
   private PrologStruct readStruct(final PrologTerm functor) {
-    final List<PrologTerm> listOfAtoms = this.termArrayListPool.get();
+    final List<PrologTerm> listOfAtoms = this.termArrayListPool.findCached();
     try {
       PrologStruct result;
       boolean active = true;
@@ -517,7 +529,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
         break;
       }
 
-      final TreeItem readAtomTreeItem = this.treeItemPool.get().setData(readAtom,
+      final TreeItem readAtomTreeItem = this.treeItemPool.findCached().setData(readAtom,
           atBrakes,
           readAtomContainer.getLine(),
           readAtomContainer.getPos());

@@ -44,8 +44,12 @@ final class Tokenizer {
     this.prevPos = 1;
     this.prevLine = 1;
 
-    this.tokenizerResultPool = new SoftObjectPool<>(128);
-    this.tokenizerResultPool.setFactory(() -> new TokenizerResult(this.tokenizerResultPool));
+    this.tokenizerResultPool = new SoftObjectPool<TokenizerResult>(128){
+      @Override
+      public final TokenizerResult get() {
+        return new TokenizerResult(this);
+      }
+    };
     this.tokenizerResultPool.fill();
   }
 
@@ -248,7 +252,7 @@ final class Tokenizer {
                 // non-ended float then it is an integer number ened by the '.' operator
                 push('.');
                 // it is Integer
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.INTEGER),
                     TokenizerState.ATOM,
                     getLastTokenLine(),
@@ -256,7 +260,7 @@ final class Tokenizer {
                 );
               } else {
                 // it is just integer number or an atom
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     makeTermFromString(strBuffer.toString(), state),
                     state,
                     getLastTokenLine(),
@@ -266,14 +270,14 @@ final class Tokenizer {
             }
             case VAR: {
               if (strBuffer.isSingleChar('_')) {
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     new PrologVariable(),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
               } else {
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     new PrologVariable(strBuffer.toString()),
                     state,
                     getLastTokenLine(),
@@ -286,7 +290,7 @@ final class Tokenizer {
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     makeTermFromString(strBuffer.toString(), state),
                     state,
                     getLastTokenLine(),
@@ -294,7 +298,7 @@ final class Tokenizer {
                 );
               } else {
                 calcDiffAndPushResultBack(lastFoundFullOperator.getText(), strBuffer);
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     lastFoundFullOperator,
                     state,
                     getLastTokenLine(),
@@ -363,13 +367,13 @@ final class Tokenizer {
             if (chr == '_') {
               strBuffer.append(chr);
             } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-              return this.tokenizerResultPool.get().setData(makeTermFromString(strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
+              return this.tokenizerResultPool.findCached().setData(makeTermFromString(strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
             } else if (chr == '\''
                 || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
                 || findOperatorForSingleChar(chr) != null) {
               push(chr);
 
-              return this.tokenizerResultPool.get().setData(
+              return this.tokenizerResultPool.findCached().setData(
                   makeTermFromString(strBuffer.toString(), state),
                   state,
                   getLastTokenLine(),
@@ -404,7 +408,7 @@ final class Tokenizer {
 
                 push(chr);
 
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     makeTermFromString(strBuffer.toString(), state),
                     TokenizerState.INTEGER,
                     getLastTokenLine(),
@@ -429,7 +433,7 @@ final class Tokenizer {
                   strBuffer.append(chr);
                 } else {
                   push(chr);
-                  return this.tokenizerResultPool.get().setData(
+                  return this.tokenizerResultPool.findCached().setData(
                       makeTermFromString(strBuffer.toString(),
                           TokenizerState.FLOAT),
                       TokenizerState.FLOAT,
@@ -445,7 +449,7 @@ final class Tokenizer {
                   strBuffer.append('e');
                 } else {
                   push(chr);
-                  return this.tokenizerResultPool.get().setData(
+                  return this.tokenizerResultPool.findCached().setData(
                       makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.FLOAT),
                       TokenizerState.FLOAT,
                       getLastTokenLine(),
@@ -462,14 +466,14 @@ final class Tokenizer {
                 if (strBuffer.isLastChar('.')) {
                   // it was an integer
                   push('.');
-                  return this.tokenizerResultPool.get().setData(
+                  return this.tokenizerResultPool.findCached().setData(
                       makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.INTEGER),
                       TokenizerState.INTEGER,
                       getLastTokenLine(),
                       getLastTokenPos());
                 } else {
                   // it is float
-                  return this.tokenizerResultPool.get().setData(
+                  return this.tokenizerResultPool.findCached().setData(
                       makeTermFromString(strBuffer.toString(), state),
                       state,
                       getLastTokenLine(),
@@ -485,14 +489,19 @@ final class Tokenizer {
               push(chr);
 
               if (lastFoundFullOperator == null) {
-                return this.tokenizerResultPool.get().setData(
+                return this.tokenizerResultPool.findCached().setData(
                     makeTermFromString(strBuffer.toString(), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
               } else {
-                return this.tokenizerResultPool.get().setData(lastFoundFullOperator, state, getLastTokenLine(), getLastTokenPos());
+                return this.tokenizerResultPool.findCached().setData(
+                    lastFoundFullOperator,
+                    state,
+                    getLastTokenLine(),
+                    getLastTokenPos()
+                );
               }
             } else {
               final OpContainer previousleDetectedOperator = lastFoundFullOperator;
@@ -520,7 +529,7 @@ final class Tokenizer {
                     } else {
                       calcDiffAndPushResultBack(
                           previousleDetectedOperator.getText(), strBuffer);
-                      return this.tokenizerResultPool.get().setData(
+                      return this.tokenizerResultPool.findCached().setData(
                           previousleDetectedOperator,
                           state, getLastTokenLine(),
                           getLastTokenPos()
@@ -531,7 +540,7 @@ final class Tokenizer {
                   if (!hasOperatorStartsWith(operator)) {
                     calcDiffAndPushResultBack(
                         previousleDetectedOperator.getText(), strBuffer);
-                    return this.tokenizerResultPool.get().setData(
+                    return this.tokenizerResultPool.findCached().setData(
                         previousleDetectedOperator,
                         state,
                         getLastTokenLine(),
@@ -560,7 +569,7 @@ final class Tokenizer {
             } else {
               switch (chr) {
                 case '\'':
-                  return this.tokenizerResultPool.get().setData(
+                  return this.tokenizerResultPool.findCached().setData(
                       makeTermFromString(strBuffer.toString(), state),
                       state,
                       getLastTokenLine(),
@@ -580,15 +589,15 @@ final class Tokenizer {
           case VAR: {
             if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
               if (strBuffer.isSingleChar('_')) {
-                return this.tokenizerResultPool.get().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
+                return this.tokenizerResultPool.findCached().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
               }
-              return this.tokenizerResultPool.get().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
+              return this.tokenizerResultPool.findCached().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
             } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
               push(chr);
               if (strBuffer.isSingleChar('_')) {
-                return this.tokenizerResultPool.get().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
+                return this.tokenizerResultPool.findCached().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
               }
-              return this.tokenizerResultPool.get().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
+              return this.tokenizerResultPool.findCached().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
             } else {
               strBuffer.append(chr);
             }
