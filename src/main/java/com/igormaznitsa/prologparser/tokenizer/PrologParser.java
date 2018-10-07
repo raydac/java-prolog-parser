@@ -520,7 +520,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
                 if (readAtomContainer.getResult().getType() == TermType.ATOM) {
                   if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getText().equals("!")) {
                     readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-                  } else if (context != null && context.hasZeroArityPredicate(this, readAtom.getText())) {
+                  } else if (context != null && context.hasZeroArityStruct(this, readAtom.getText())) {
                     readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
                 }

@@ -66,20 +66,24 @@ public class ParserContextTest {
   }
 
   @Test
-  public void testHasZeroArityPredicate() throws Exception {
-    final ParserContext mockContext = mock(ParserContext.class);
-    Mockito.when(mockContext.hasZeroArityPredicate(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "foo".equals(invocation.getArguments()[1]));
+  public void testHasZeroArityStruct() {
+    final ParserContext context = new DefaultParserContext().addZeroArityStructs("foo");
 
-    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("foo."), mockContext);
+    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("foo.faa."), context);
 
-    final PrologTerm term = parser.next();
+    PrologTerm term = parser.next();
     assertNotNull(term);
     assertEquals(TermType.STRUCT, term.getType());
     assertEquals(0, ((PrologStruct) term).getArity());
     assertEquals("foo", term.getText());
-    assertFalse(parser.hasNext());
+    assertTrue(parser.hasNext());
 
-    verify(mockContext).hasZeroArityPredicate(parser, "foo");
+    term = parser.next();
+    assertNotNull(term);
+    assertEquals(TermType.ATOM, term.getType());
+    assertEquals("faa", term.getText());
+
+    assertFalse(parser.hasNext());
   }
 
   @Test
@@ -92,8 +96,8 @@ public class ParserContextTest {
       }
 
       @Override
-      public boolean hasZeroArityPredicate(final PrologParser source, String predicateName) {
-        return "foo".equals(predicateName);
+      public boolean hasZeroArityStruct(final PrologParser source, String atomName) {
+        return "foo".equals(atomName);
       }
 
       @Override

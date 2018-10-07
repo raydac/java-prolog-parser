@@ -10,7 +10,7 @@ public interface ParserContext {
 
   OpContainer findOperatorForName(PrologParser source, String name);
 
-  boolean hasZeroArityPredicate(PrologParser source, String name);
+  boolean hasZeroArityStruct(PrologParser source, String atomName);
 
   void onStructureCreated(PrologParser source, PrologStruct struct);
 }

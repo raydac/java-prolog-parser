@@ -725,7 +725,7 @@ public class IntegrationTest {
     }
 
     @Override
-    public boolean hasZeroArityPredicate(final PrologParser source, final String predicateName) {
+    public boolean hasZeroArityStruct(final PrologParser source, final String atomName) {
       return false;
     }
 
