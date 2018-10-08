@@ -27,10 +27,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.igormaznitsa.prologparser.operators.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -646,9 +646,9 @@ public class IntegrationTest {
   @Test
   public void testParserStream() {
     PrologParser parser = new EdinburghPrologParser(new StringReader("z(some).a(X):-[X].b('\\'hello world\\'').list([_|Tail]) :- list(Tail)."));
-    final String joined = parser.stream().map(x -> x.toString()).collect(Collectors.joining(". ", "", "."));
+    final String joined = parser.stream().map(x -> x.toString()).collect(joining(". ", "", "."));
     parser = new EdinburghPrologParser(new StringReader(joined));
-    assertEquals(joined, parser.stream().map(x -> x.toString()).collect(Collectors.joining(". ", "", ".")));
+    assertEquals(joined, parser.stream().map(x -> x.toString()).collect(joining(". ", "", ".")));
     assertEquals("'z'('some'). 'a'(X) :- [X]. 'b'('\\'hello world\\''). 'list'([_|Tail]) :- 'list'(Tail).", joined);
   }
 
@@ -662,7 +662,7 @@ public class IntegrationTest {
         "5\n" +
         "6\n" +
         "7\n" +
-        "8", parser.next().stream().map(x -> x.toString()).collect(Collectors.joining("\n")));
+        "8", parser.next().stream().map(x -> x.toString()).collect(joining("\n")));
   }
 
   @Test
@@ -676,7 +676,7 @@ public class IntegrationTest {
         "6\n" +
         "7\n" +
         "8\n" +
-        "_", parser.next().stream().map(x -> x.toString()).collect(Collectors.joining("\n")));
+        "_", parser.next().stream().map(x -> x.toString()).collect(joining("\n")));
   }
 
 
@@ -687,7 +687,7 @@ public class IntegrationTest {
         .flatMap(PrologTerm::stream)
         .flatMap(PrologTerm::stream)
         .map(PrologTerm::toString)
-        .collect(Collectors.joining("\n"));
+        .collect(joining("\n"));
 
     assertEquals("'hello'\n" +
         "'world'\n" +
@@ -696,6 +696,18 @@ public class IntegrationTest {
         "3\n" +
         "X\n" +
         "'end'", joined);
+  }
+
+  private String parseSortAndJoin(final String text) {
+    return new EdinburghPrologParser(new StringReader(text)).stream().sorted().map(PrologTerm::toString).collect(joining("\n"));
+  }
+
+  @Test
+  public void testStandardTermOrder() {
+    assertEquals("1\n2\n3\n4\n5", parseSortAndJoin("5. 3. 1. 2. 4."));
+    assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23. 3.6. 1.3. 2. 4."));
+    assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23.3.6.1.3.2. 4."));
+    assertEquals("'a'\n'b'\n'c'\n'd'\n'e'", parseSortAndJoin("c.e.b.a.d."));
   }
 
   private static class StubContext implements ParserContext {
