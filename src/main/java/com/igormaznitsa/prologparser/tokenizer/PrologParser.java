@@ -317,7 +317,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
             // we have found the list tail, so we need read it as one block
             // until the ']' atom
             checkForNull(block, "There is not any list element", openingBracket);
-            if (leftPartFirst.isNullList()) {
+            if (leftPartFirst.isEmpty()) {
               leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
             } else {
               PrologList.setTermAsNewListTail(leftPart, block);
@@ -357,7 +357,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
           }
         }
 
-        if (leftPartFirst.isNullList()) {
+        if (leftPartFirst.isEmpty()) {
           leftPartFirst = PrologList.setTermAsNewListTail(leftPart, block);
           leftPart = leftPartFirst;
         } else {

@@ -56,10 +56,10 @@ public class PrologListTest {
   @Test
   public void testPrologList() {
     final PrologList list = new PrologList();
-    assertTrue(list.isNullList());
-    assertNull(list.getElementAt(0));
-    assertNull(list.getElementAt(1));
-    assertEquals(2, list.getArity());
+    assertTrue(list.isEmpty());
+    assertNotNull(list.getElementAt(0));
+    assertNotNull(list.getElementAt(1));
+    assertEquals(0, list.getArity());
   }
 
   @Test
@@ -85,7 +85,7 @@ public class PrologListTest {
       assertEquals(text, list.getHead().getTermText());
       list = (PrologList) list.getTail();
     }
-    assertTrue(list.isNullList());
+    assertTrue(list.isEmpty());
 
     atoms = new String[] {"test1", null, "test3", "test4"};
     terms = new PrologTerm[atoms.length];
@@ -115,10 +115,10 @@ public class PrologListTest {
     final PrologAtom atom = new PrologAtom("test");
     final PrologList list = new PrologList(atom);
 
-    assertFalse(list.isNullList());
+    assertFalse(list.isEmpty());
     assertEquals(atom, list.getHead());
     assertNotNull(list.getTail());
-    assertTrue(((PrologList) list.getTail()).isNullList());
+    assertTrue(((PrologList) list.getTail()).isEmpty());
   }
 
   @Test
@@ -161,7 +161,7 @@ public class PrologListTest {
   @Test
   public void testIsNullList() {
     final PrologList list = new PrologList();
-    assertTrue(list.isNullList());
+    assertTrue(list.isEmpty());
     assertNull(list.getHead());
     assertNull(list.getTail());
   }
@@ -170,7 +170,7 @@ public class PrologListTest {
   public void testGetHead() {
     final PrologAtom atom = new PrologAtom("test");
     final PrologList list = new PrologList(atom);
-    assertFalse(list.isNullList());
+    assertFalse(list.isEmpty());
     assertSame(atom, list.getHead());
   }
 
@@ -181,11 +181,11 @@ public class PrologListTest {
     final PrologList list1 = new PrologList(atom);
     final PrologList list2 = new PrologList(atom, tail);
 
-    assertFalse(list1.isNullList());
+    assertFalse(list1.isEmpty());
     assertNotNull(list1.getTail());
-    assertTrue(((PrologList) list1.getTail()).isNullList());
+    assertTrue(((PrologList) list1.getTail()).isEmpty());
 
-    assertFalse(list2.isNullList());
+    assertFalse(list2.isEmpty());
     assertNotNull(list2.getTail());
     assertSame(tail, list2.getTail());
   }
@@ -197,13 +197,13 @@ public class PrologListTest {
 
     assertThrows(NullPointerException.class, () -> list.setHead(null));
 
-    assertTrue(list.isNullList());
+    assertTrue(list.isEmpty());
     list.setHead(atom);
-    assertFalse(list.isNullList());
+    assertFalse(list.isEmpty());
     assertNotNull(list.getHead());
     assertSame(atom, list.getHead());
     assertNotNull(list.getTail());
-    assertTrue(((PrologList) list.getTail()).isNullList());
+    assertTrue(((PrologList) list.getTail()).isEmpty());
   }
 
   @Test
@@ -213,9 +213,9 @@ public class PrologListTest {
 
     assertThrows(NullPointerException.class, () -> list.setTail(null));
 
-    assertTrue(list.isNullList());
+    assertTrue(list.isEmpty());
     list.setTail(atom);
-    assertFalse(list.isNullList());
+    assertFalse(list.isEmpty());
     assertNotNull(list.getTail());
     assertSame(atom, list.getTail());
     assertSame(PrologList.EMPTY_ATOM, list.getHead());
@@ -226,21 +226,21 @@ public class PrologListTest {
     final PrologList list = new PrologList();
     final PrologAtom atom = new PrologAtom("test");
 
-    assertTrue(list.isNullList());
+    assertTrue(list.isEmpty());
     assertThrows(NullPointerException.class, () -> PrologList.setTermAsNewListTail(list, null));
 
     PrologList newList = PrologList.setTermAsNewListTail(list, atom);
-    assertFalse(list.isNullList());
+    assertFalse(list.isEmpty());
     assertSame(list, newList);
     assertSame(atom, list.getHead());
     assertNotNull(list.getTail());
-    assertTrue(((PrologList) list.getTail()).isNullList());
+    assertTrue(((PrologList) list.getTail()).isEmpty());
 
     newList = PrologList.setTermAsNewListTail(list, atom);
     assertNotSame(list, newList);
     assertSame(newList, list.getTail());
     assertSame(atom, newList.getHead());
-    assertTrue(((PrologList) newList.getTail()).isNullList());
+    assertTrue(((PrologList) newList.getTail()).isEmpty());
   }
 
   @Test
@@ -253,17 +253,17 @@ public class PrologListTest {
 
     assertSame(list2, list.getTail());
     assertSame(list3, list2.getTail());
-    assertTrue(((PrologList) list3.getTail()).isNullList());
+    assertTrue(((PrologList) list3.getTail()).isEmpty());
 
     final PrologAtom atom = new PrologAtom("hello");
 
     assertThrows(NullPointerException.class, () -> list.addAsNewListToEndOfListChain(null));
 
     list.addAsNewListToEndOfListChain(atom);
-    assertFalse(((PrologList) list3.getTail()).isNullList());
+    assertFalse(((PrologList) list3.getTail()).isEmpty());
     PrologList newlist = (PrologList) list3.getTail();
     assertSame(atom, newlist.getHead());
-    assertTrue(((PrologList) newlist.getTail()).isNullList());
+    assertTrue(((PrologList) newlist.getTail()).isEmpty());
 
     final PrologList listn = new PrologList(new PrologAtom("first"),
         new PrologAtom("second"));
@@ -272,7 +272,7 @@ public class PrologListTest {
     newlist = listn.addAsNewListToEndOfListChain(third);
     assertSame(newlist, listn.getTail());
     assertSame(third, newlist.getHead());
-    assertTrue(((PrologList) newlist.getTail()).isNullList());
+    assertTrue(((PrologList) newlist.getTail()).isEmpty());
 
   }
 
@@ -286,7 +286,7 @@ public class PrologListTest {
 
     assertSame(list2, list.getTail());
     assertSame(list3, list2.getTail());
-    assertTrue(((PrologList) list3.getTail()).isNullList());
+    assertTrue(((PrologList) list3.getTail()).isEmpty());
 
     final PrologAtom atom = new PrologAtom("hello");
 

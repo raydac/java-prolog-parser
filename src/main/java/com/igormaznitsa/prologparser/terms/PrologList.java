@@ -21,6 +21,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.util.Collections;
@@ -37,6 +38,8 @@ import java.util.stream.StreamSupport;
 public final class PrologList extends PrologStruct implements Iterable<PrologTerm> {
   public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".");
   private static final long serialVersionUID = -3781631438477876869L;
+
+  private static final PrologVariable EMPTY_ANONYMOUS_VAR = new PrologVariable("_");
 
   public PrologList() {
     super(LIST_FUNCTOR, 2);
@@ -93,7 +96,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public static PrologList setTermAsNewListTail(final PrologList list, final PrologTerm term) {
     PrologList result = list;
 
-    if (list.isNullList()) {
+    if (list.isEmpty()) {
       list.setHead(term);
       list.setTail(new PrologList());
     } else {
@@ -104,28 +107,34 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     return result;
   }
 
-  public boolean isNullList() {
-    return getHead() == null && getTail() == null;
+  @Override
+  public PrologTerm getElementAt(final int index) {
+    final PrologTerm result = super.getElementAt(index);
+    return result == null ? EMPTY_ANONYMOUS_VAR : result;
+  }
+
+  public boolean isEmpty() {
+    return this.elements[0] == null && this.elements[1] == null;
   }
 
   public PrologTerm getHead() {
-    return getElementAt(0);
+    return this.elements[0];
   }
 
   public void setHead(final PrologTerm term) {
     this.setElementAt(0, term);
-    if (getTail() == null) {
+    if (this.elements[1] == null) {
       setTail(new PrologList());
     }
   }
 
   public PrologTerm getTail() {
-    return getElementAt(1);
+    return this.elements[1];
   }
 
   public void setTail(final PrologTerm term) {
     this.setElementAt(1, term);
-    if (getHead() == null) {
+    if (this.elements[0] == null) {
       setHead(EMPTY_ATOM);
     }
   }
@@ -133,24 +142,23 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public PrologList addAsNewListToEndOfListChain(
       final PrologTerm term) {
 
-    if (isNullList()) {
+    if (isEmpty()) {
       setHead(term);
       setTail(new PrologList());
       return this;
     } else {
       PrologList current = this;
       while (true) {
-        if (current.isNullList()) {
+        if (current.isEmpty()) {
           current.setHead(term);
           current.setTail(new PrologList());
           return current;
         } else {
-          final PrologTerm ltail = current.getTail();
+          final PrologTerm ltail = current.elements[1];
           if (ltail.getTermType() == TermType.LIST) {
             current = (PrologList) ltail;
           } else {
-            final PrologList newOne = new PrologList(term,
-                new PrologList());
+            final PrologList newOne = new PrologList(term, new PrologList());
             current.setTail(newOne);
             return newOne;
           }
@@ -163,10 +171,10 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
     PrologList curList = this;
     while (true) {
-      final PrologTerm tail = curList.getTail();
+      final PrologTerm tail = curList.elements[1];
       if (tail.getTermType() == TermType.LIST) {
         final PrologList ltail = (PrologList) tail;
-        if (ltail.isNullList()) {
+        if (ltail.isEmpty()) {
           curList.setTail(newTailElement);
           break;
         }
@@ -179,6 +187,20 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   }
 
   @Override
+  public int getArity() {
+    return this.isEmpty() ? 0 : 2;
+  }
+
+  @Override
+  public void setElementAt(final int index, final PrologTerm term) {
+    if (index < 0 || index >= 2) {
+      throw new ArrayIndexOutOfBoundsException();
+    }
+    this.elements[index] = AssertUtils.assertNotNull(term);
+  }
+
+
+  @Override
   public TermType getTermType() {
     return TermType.LIST;
   }
@@ -187,7 +209,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public String toString() {
     String result = "[]";
 
-    if (!isNullList()) {
+    if (!isEmpty()) {
       final StringBuilderEx builder = new StringBuilderEx("[");
 
       boolean notfirst = false;
@@ -197,7 +219,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
         if (list.getTermType() == TermType.LIST) {
           final PrologList asList = (PrologList) list;
 
-          if (asList.isNullList()) {
+          if (asList.isEmpty()) {
             break;
           }
 
@@ -205,11 +227,11 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
             builder.append(", ");
           }
 
-          final PrologTerm currentHead = asList.getHead();
+          final PrologTerm currentHead = asList.elements[0];
           if (currentHead != null) {
             builder.append(currentHead.toString());
           }
-          list = asList.getTail();
+          list = asList.elements[1];
         } else {
           if (notfirst) {
             builder.append('|');
@@ -229,7 +251,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   @Override
   public Iterator<PrologTerm> iterator() {
-    if (this.isNullList()) {
+    if (this.isEmpty()) {
       return Collections.emptyIterator();
     } else {
       return new Iterator<PrologTerm>() {
@@ -254,8 +276,8 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
           } else {
             if (this.tail instanceof PrologList) {
               final PrologList nextList = (PrologList) this.tail;
-              this.head = nextList.getHead();
-              this.tail = nextList.getTail();
+              this.head = nextList.elements[0];
+              this.tail = nextList.elements[1];
             } else {
               this.head = this.tail;
               this.tail = null;
