@@ -710,7 +710,7 @@ public class IntegrationTest {
     assertEquals("'a'\n'b'\n'c'\n'd'\n'e'", parseSortAndJoin("c.e.b.a.d."));
     assertEquals("[]\n[1, 2]\n[1, 2, 3]\n[5, 6, 7]\n[8]", parseSortAndJoin("[1,2,3].[1,2].[].[5,6,7].[8]."));
     assertEquals("'u'(8)\n'l'(1, 2)\n'g'(5, 6, 7)\n'h'(1, 2, 3)", parseSortAndJoin("h(1,2,3).l(1,2).g(5,6,7).u(8)."));
-    assertEquals("X\nY\n_\n112\n[]\n'm'(34)\n[1, 2, 3]\n'a'(1, 2)", parseSortAndJoin("a(1,2).[1,2,3].X.112.Y.[].m(34)._."));
+    assertEquals("X\nY\n_\n34.112\n112\n'atm'\n[]\n'm'(34)\n[1, 2, 3]\n'a'(1, 2)", parseSortAndJoin("a(1,2).[1,2,3].X.112.Y.34.112. atm. [].m(34)._."));
   }
 
   private static class StubContext implements ParserContext {
