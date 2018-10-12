@@ -56,7 +56,7 @@ final class TreeItem {
     } else {
       final TermType termType = term.getTermType();
       if (termType == TermType.__OPERATOR__ || termType == TermType.__OPERATOR_CONTAINER__) {
-        final TermWrapper termWrapper = this.termWrapperPool.find().setTerm(term);
+        final TermWrapper termWrapper = this.termWrapperPool.find().setWrappedTerm(term);
         this.replaceSavedTerm(termWrapper);
       } else {
         this.replaceSavedTerm(term);
@@ -178,13 +178,13 @@ final class TreeItem {
   }
 
   OpType getOperatorType() {
-    return ((Op) ((TermWrapper) savedTerm).getTerm()).getOpType();
+    return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpType();
   }
 
   private boolean validate() {
     if (savedTerm.getTermType() == TermType.__OPERATOR__) {
       final int priority = getPriority();
-      final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getTerm();
+      final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getWrappedTerm();
       switch (wrappedOperator.getOpType()) {
         case FX:
           return leftBranch == null && (rightBranch != null && rightBranch.getPriority() < priority);
@@ -222,7 +222,7 @@ final class TreeItem {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any arguments
-            return new PrologAtom(wrapper.getTerm().getTermText(), wrapper.getPos(), wrapper.getLine());
+            return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getPos(), wrapper.getLine());
           }
 
           if (!validate()) {
@@ -244,9 +244,9 @@ final class TreeItem {
 
           final PrologStruct operatorStruct;
           if (left == null) {
-            operatorStruct = new PrologStruct(wrapper.getTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
+            operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
           } else {
-            operatorStruct = new PrologStruct(wrapper.getTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
+            operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
           }
           result = operatorStruct;
 

@@ -30,7 +30,7 @@ final class TermWrapper extends SpecServiceCompound {
 
   private static final long serialVersionUID = 9006607815982718325L;
   private final SoftObjectPool<TermWrapper> pool;
-  private PrologTerm term;
+  private PrologTerm wrappedTerm;
 
   TermWrapper(final SoftObjectPool<TermWrapper> pool) {
     super(".wrapper");
@@ -38,7 +38,7 @@ final class TermWrapper extends SpecServiceCompound {
   }
 
   void release() {
-    this.term = null;
+    this.wrappedTerm = null;
     this.pool.push(this);
   }
 
@@ -47,33 +47,33 @@ final class TermWrapper extends SpecServiceCompound {
     return 1;
   }
 
-  PrologTerm getTerm() {
-    return this.term;
+  PrologTerm getWrappedTerm() {
+    return this.wrappedTerm;
   }
 
-  TermWrapper setTerm(final PrologTerm term) {
-    this.term = term;
+  TermWrapper setWrappedTerm(final PrologTerm wrappedTerm) {
+    this.wrappedTerm = wrappedTerm;
     return this;
   }
 
   @Override
   public TermType getTermType() {
-    return term.getTermType();
+    return this.wrappedTerm.getTermType();
   }
 
   @Override
   public String getTermText() {
-    return term.getTermText();
+    return this.wrappedTerm.getTermText();
   }
 
   @Override
   public int getPrecedence() {
-    return term.getPrecedence();
+    return this.wrappedTerm.getPrecedence();
   }
 
   @Override
   public String toString() {
-    return term.toString();
+    return this.wrappedTerm.toString();
   }
 
 }

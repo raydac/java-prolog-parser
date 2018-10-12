@@ -99,7 +99,7 @@ final class Tokenizer {
     return ch;
   }
 
-  void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
+  private void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
     int chars = buffer.length() - etalon.length();
     int bufferPosition = buffer.length() - 1;
 
@@ -127,7 +127,7 @@ final class Tokenizer {
     this.prevLine = llinePrev;
   }
 
-  void push(final char ch) {
+  private void push(final char ch) {
     this.insideCharBuffer.push(ch);
     if (ch == '\n') {
       this.pos = 1;
@@ -179,7 +179,7 @@ final class Tokenizer {
     return result;
   }
 
-  OpContainer findOperatorForSingleChar(final char c) {
+  private OpContainer findOperatorForSingleChar(final char c) {
     OpContainer result = PrologParser.META_SYSTEM_OPERATORS.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c));
@@ -213,14 +213,14 @@ final class Tokenizer {
     return this.lastPushedTerm == null ? this.lastTokenLine : this.prevTokenLine;
   }
 
-  void fixPosition() {
+  private void fixPosition() {
     this.prevTokenLine = this.lastTokenLine;
     this.prevTokenPos = this.lastTokenPos;
     this.lastTokenLine = this.line;
     this.lastTokenPos = this.pos - 1;
   }
 
-  void skipUntilNextString() throws IOException {
+  private void skipUntilNextString() throws IOException {
     while (true) {
       final int readchar = this.readChar();
       if (readchar < 0 || readchar == '\n') {
@@ -601,7 +601,11 @@ final class Tokenizer {
                   specCharBuffer.clear();
                   break;
                 default:
-                  strBuffer.append(chr);
+                  if (Character.isISOControl(chr)) {
+                    strBuffer.append(StringUtils.isAllowedEscapeChar(chr) ? chr : '→');
+                  } else {
+                    strBuffer.append(chr);
+                  }
                   break;
               }
             }

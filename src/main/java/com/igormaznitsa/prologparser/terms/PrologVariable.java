@@ -23,6 +23,9 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
+/**
+ * Representation of prolog variable.
+ */
 public final class PrologVariable extends PrologTerm {
   private static final long serialVersionUID = 1158349084517573220L;
   private final boolean anonymous;

@@ -289,7 +289,6 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     return builder.toString();
   }
 
-
   @Override
   public Stream<PrologTerm> stream() {
     return StreamSupport.stream(

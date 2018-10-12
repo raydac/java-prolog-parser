@@ -24,6 +24,9 @@ package com.igormaznitsa.prologparser.terms;
 import java.io.Serializable;
 import java.util.stream.Stream;
 
+/**
+ * Base class for special serivce terms for use on level of parser.
+ */
 public abstract class SpecServiceCompound extends PrologCompound {
 
   private static final long serialVersionUID = 71286378126323213L;

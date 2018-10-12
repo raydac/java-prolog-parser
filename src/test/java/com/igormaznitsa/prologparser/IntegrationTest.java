@@ -703,6 +703,14 @@ public class IntegrationTest {
   }
 
   @Test
+  public void testStringWithIsoControl() {
+    assertEquals("'hello→world'", parseSortAndJoin("'hello\u0000world'."));
+    assertEquals("'hello→world'", parseSortAndJoin("'hello\u0001world'."));
+    assertEquals("'hello\\nworld'", parseSortAndJoin("'hello\\\nworld'."));
+    assertEquals("'hello\\nworld'", parseSortAndJoin("'hello\\\r\nworld'."));
+  }
+
+  @Test
   public void testStandardTermOrder() {
     assertEquals("1\n2\n3\n4\n5", parseSortAndJoin("5. 3. 1. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23. 3.6. 1.3. 2. 4."));

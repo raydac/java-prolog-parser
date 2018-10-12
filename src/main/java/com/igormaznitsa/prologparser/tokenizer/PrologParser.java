@@ -55,6 +55,9 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.operators.OpContainer.make;
 
+/**
+ * Abstract prolog parser.
+ */
 public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
 
   protected static final OneCharOpMap META_SYSTEM_OPERATORS = new OneCharOpMap();

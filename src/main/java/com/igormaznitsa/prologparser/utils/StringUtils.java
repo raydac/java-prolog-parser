@@ -21,6 +21,8 @@
 
 package com.igormaznitsa.prologparser.utils;
 
+import java.util.Locale;
+
 @SuppressWarnings("serial")
 public final class StringUtils {
 
@@ -130,6 +132,24 @@ public final class StringUtils {
     return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F');
   }
 
+  public static boolean isAllowedEscapeChar(final char chr) {
+    switch (chr) {
+      case 7:
+      case 8:
+      case '\f':
+      case '\n':
+      case '\r':
+      case '`':
+      case 27:
+      case '\t':
+      case '\'':
+      case 11:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   public static String escapeString(final String str) {
     final StringBuilder result = new StringBuilder(str.length() << 1);
 
@@ -168,7 +188,15 @@ public final class StringUtils {
           result.append("\\v");
           break;
         default:
-          result.append(chr);
+          if (Character.isISOControl(chr)) {
+            final String hex = Integer.toHexString(chr).toUpperCase(Locale.ENGLISH);
+            for (int c = 0; c < 4 - hex.length(); c++) {
+              result.append('0');
+            }
+            result.append(hex);
+          } else {
+            result.append(chr);
+          }
           break;
       }
     }

@@ -14,7 +14,7 @@ public class TermWrapperTest {
   final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<TermWrapper>(32) {
     @Override
     public final TermWrapper get() {
-      return new TermWrapper(this).setTerm(testWrapped).setTerm(testWrapped);
+      return new TermWrapper(this).setWrappedTerm(testWrapped).setWrappedTerm(testWrapped);
     }
   };
 
@@ -40,6 +40,6 @@ public class TermWrapperTest {
 
   @Test
   public void testGetWrappedTerm() {
-    assertSame(testWrapped, pool.find().getTerm());
+    assertSame(testWrapped, pool.find().getWrappedTerm());
   }
 }
