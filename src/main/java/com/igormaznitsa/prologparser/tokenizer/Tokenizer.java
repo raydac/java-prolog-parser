@@ -231,6 +231,7 @@ final class Tokenizer {
 
   /**
    * Read next token
+   *
    * @return next token or null if not found or thread interruption detected
    */
   TokenizerResult readNextToken() {

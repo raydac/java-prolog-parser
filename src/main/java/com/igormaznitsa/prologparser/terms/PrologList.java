@@ -36,8 +36,8 @@ import java.util.stream.StreamSupport;
  * Representation of prolog list term.
  */
 public final class PrologList extends PrologStruct implements Iterable<PrologTerm> {
-  public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".");
-  private static final long serialVersionUID = -3781631438477876869L;
+  public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".", PrologAtom.QuotingType.SINGLE_QUOTED);
+  private static final long serialVersionUID = -3781631438477816869L;
 
   private static final PrologVariable EMPTY_ANONYMOUS_VAR = new PrologVariable("_");
 

@@ -94,11 +94,11 @@ public class PrologBaseTermTest {
     private static final long serialVersionUID = 2578516387208704688L;
 
     public StubAbstractPrologTermTest(final String text) {
-      super(text);
+      super(text, QuotingType.NO_QUOTED);
     }
 
     public StubAbstractPrologTermTest(final String text, final int line, final int pos) {
-      super(text, line, pos);
+      super(text, QuotingType.NO_QUOTED, line, pos);
     }
 
     @Override

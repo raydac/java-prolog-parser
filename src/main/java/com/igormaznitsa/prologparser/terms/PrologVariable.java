@@ -41,7 +41,7 @@ public final class PrologVariable extends PrologTerm {
   }
 
   public PrologVariable(final String text) {
-    super(text);
+    super(text, QuotingType.NO_QUOTED);
 
     final char startWith = AssertUtils.assertStringNotNullAndNotEmpty(text).charAt(0);
 

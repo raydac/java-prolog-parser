@@ -10,6 +10,9 @@ import java.io.StringReader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+
 public class PrologTermTest {
 
   private PrologParser parserFor(final String str) {

@@ -36,6 +36,8 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
+import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
+
 /**
  * Representation of prolog structure term.
  */
