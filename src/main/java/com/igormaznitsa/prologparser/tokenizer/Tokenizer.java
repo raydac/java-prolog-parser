@@ -244,6 +244,8 @@ final class Tokenizer {
       }
     }
 
+    PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;
+
     TokenizerState state = TokenizerState.LOOKFOR;
     boolean specCharDetected = false;
 
@@ -279,15 +281,16 @@ final class Tokenizer {
                 push('.');
                 // it is Integer
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.INTEGER),
+                    makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.INTEGER),
                     TokenizerState.ATOM,
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
               } else {
                 // it is just integer number or an atom
+                final String text = strBuffer.toString();
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), state),
+                    makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -317,7 +320,7 @@ final class Tokenizer {
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), state),
+                    makeTermFromString(strBuffer.toString(), quoting, state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -359,6 +362,19 @@ final class Tokenizer {
               break;
               case '\'': {
                 fixPosition();
+                quoting = PrologTerm.QuotingType.SINGLE_QUOTED;
+                state = TokenizerState.STRING;
+              }
+              break;
+              case '\"': {
+                fixPosition();
+                quoting = PrologTerm.QuotingType.DOUBLE_QUOTED;
+                state = TokenizerState.STRING;
+              }
+              break;
+              case '`': {
+                fixPosition();
+                quoting = PrologTerm.QuotingType.BACK_QUOTED;
                 state = TokenizerState.STRING;
               }
               break;
@@ -393,14 +409,15 @@ final class Tokenizer {
             if (chr == '_') {
               strBuffer.append(chr);
             } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-              return this.tokenizerResultPool.find().setData(makeTermFromString(strBuffer.toString(), state), state, getLastTokenLine(), getLastTokenPos());
+              final String text = strBuffer.toString();
+              return this.tokenizerResultPool.find().setData(makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state), state, getLastTokenLine(), getLastTokenPos());
             } else if (chr == '\''
                 || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
                 || findOperatorForSingleChar(chr) != null) {
               push(chr);
-
+              final String text = strBuffer.toString();
               return this.tokenizerResultPool.find().setData(
-                  makeTermFromString(strBuffer.toString(), state),
+                  makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
                   state,
                   getLastTokenLine(),
                   getLastTokenPos());
@@ -435,7 +452,7 @@ final class Tokenizer {
                 push(chr);
 
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), state),
+                    makeTermFromString(strBuffer.toString(), quoting, state),
                     TokenizerState.INTEGER,
                     getLastTokenLine(),
                     getLastTokenPos());
@@ -460,8 +477,7 @@ final class Tokenizer {
                 } else {
                   push(chr);
                   return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toString(),
-                          TokenizerState.FLOAT),
+                      makeTermFromString(strBuffer.toString(), quoting, TokenizerState.FLOAT),
                       TokenizerState.FLOAT,
                       getLastTokenLine(),
                       getLastTokenPos());
@@ -476,7 +492,7 @@ final class Tokenizer {
                 } else {
                   push(chr);
                   return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.FLOAT),
+                      makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.FLOAT),
                       TokenizerState.FLOAT,
                       getLastTokenLine(),
                       getLastTokenPos());
@@ -493,14 +509,14 @@ final class Tokenizer {
                   // it was an integer
                   push('.');
                   return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toStringExcludeLastChar(), TokenizerState.INTEGER),
+                      makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.INTEGER),
                       TokenizerState.INTEGER,
                       getLastTokenLine(),
                       getLastTokenPos());
                 } else {
                   // it is float
                   return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toString(), state),
+                      makeTermFromString(strBuffer.toString(), quoting, state),
                       state,
                       getLastTokenLine(),
                       getLastTokenPos()
@@ -516,7 +532,7 @@ final class Tokenizer {
 
               if (lastFoundFullOperator == null) {
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), state),
+                    makeTermFromString(strBuffer.toString(), quoting, state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -595,12 +611,41 @@ final class Tokenizer {
             } else {
               switch (chr) {
                 case '\'':
-                  return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toString(), state),
-                      state,
-                      getLastTokenLine(),
-                      getLastTokenPos()
-                  );
+                  if (quoting == PrologTerm.QuotingType.SINGLE_QUOTED) {
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        state,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  } else {
+                    strBuffer.append(chr);
+                  }
+                  break;
+                case '`':
+                  if (quoting == PrologTerm.QuotingType.BACK_QUOTED) {
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        state,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  } else {
+                    strBuffer.append(chr);
+                  }
+                  break;
+                case '\"':
+                  if (quoting == PrologTerm.QuotingType.DOUBLE_QUOTED) {
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        state,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  } else {
+                    strBuffer.append(chr);
+                  }
+                  break;
                 case '\\':
                   specCharDetected = true;
                   specCharBuffer.clear();
@@ -644,7 +689,7 @@ final class Tokenizer {
   }
 
 
-  PrologTerm makeTermFromString(final String str, final TokenizerState state) {
+  PrologTerm makeTermFromString(final String str, final PrologTerm.QuotingType quotingType, final TokenizerState state) {
     PrologTerm result;
 
     switch (state) {
@@ -671,7 +716,7 @@ final class Tokenizer {
     }
 
     if (result == null) {
-      result = new PrologAtom(str);
+      result = new PrologAtom(str, quotingType);
     }
 
     return result;

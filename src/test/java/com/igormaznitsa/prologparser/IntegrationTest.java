@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static com.igormaznitsa.prologparser.operators.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +49,7 @@ public class IntegrationTest {
 
     assertEquals(ATOM, term.getTermType());
     assertEquals("\\bHello\\nWorld!\\r",
-        StringUtils.escapeString(term.getTermText()));
+        StringUtils.escapeString(term.getTermText(), SINGLE_QUOTED));
 
     term = parser.next();
     assertNotNull(term);
@@ -125,11 +126,35 @@ public class IntegrationTest {
     checkWrongSentenceReadingWithPPE(" 1,2,3].", 7);
   }
 
+  @Test
+  public void testQuoting_Wrong() {
+    checkWrongSentenceReadingWithPPE("\"abc'.", 1);
+    checkWrongSentenceReadingWithPPE("'abc\".", 1);
+    checkWrongSentenceReadingWithPPE("`abc\".", 1);
+    checkWrongSentenceReadingWithPPE("`abc'.", 1);
+  }
+
+  @Test
+  public void testQuoting() {
+    checkParseAtomQuoting("test.","test", NO_QUOTED);
+    checkParseAtomQuoting("\'t\"es`t\'.","'t\"es`t'", SINGLE_QUOTED);
+    checkParseAtomQuoting("`t'\\`e\'s\"t`.","`t'\\`e's\"t`", BACK_QUOTED);
+    checkParseAtomQuoting("\"t`e\'s\\\"\".","\"t`e's\\\"\"", DOUBLE_QUOTED);
+  }
+
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) {
     final PrologTerm atom = parserFor(atomToBeChecked + '.').next();
-    assertEquals(ATOM, atom.getTermType(), "Type: " + atom.getTermType());
-    assertEquals(PrologAtom.class, atom.getClass(), "Class: " + atom.getClass());
-    assertEquals(expectedAtomText, atom.getTermText(), "Text: " + atom.getTermText());
+    assertEquals(ATOM, atom.getTermType());
+    assertEquals(PrologAtom.class, atom.getClass());
+    assertEquals(expectedAtomText, atom.getTermText());
+  }
+
+  private void checkParseAtomQuoting(final String atomToBeChecked, final String expectedAtomText, final PrologTerm.QuotingType expectedType) {
+    final PrologTerm atom = parserFor(atomToBeChecked + '.').next();
+    assertEquals(ATOM, atom.getTermType());
+    assertEquals(expectedType, atom.getQuotingType());
+    assertEquals(PrologAtom.class, atom.getClass());
+    assertEquals(expectedAtomText, atom.toString());
   }
 
   @Test

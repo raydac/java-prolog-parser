@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.SINGLE_QUOTED;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -71,6 +72,6 @@ public class StringUtilsTest {
   public void testEscapeString() {
     final String test = "Hello\r\'World\'\nAnd Skolkovo`\f too\t\u0007\u001b\u000b";
 
-    assertEquals(StringUtils.escapeString(test), "Hello\\r\\'World\\'\\nAnd Skolkovo\\`\\f too\\t\\a\\e\\v");
+    assertEquals(StringUtils.escapeString(test, SINGLE_QUOTED), "Hello\\r\\'World\\'\\nAnd Skolkovo`\\f too\\t\\a\\e\\v");
   }
 }

@@ -41,6 +41,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   private volatile Serializable payload;
   private int line;
   private int pos;
+
   public PrologTerm(final String text, final QuotingType quotingType) {
     this.text = assertNotNull(text);
     this.pos = -1;
@@ -216,7 +217,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     }
 
     public String makeString(final String atomText) {
-      return this.quote + StringUtils.escapeString(atomText) + this.quote;
+      return this.quote + StringUtils.escapeString(atomText, this) + this.quote;
     }
   }
 

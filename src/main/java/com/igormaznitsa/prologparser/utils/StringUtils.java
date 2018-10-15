@@ -21,6 +21,8 @@
 
 package com.igormaznitsa.prologparser.utils;
 
+import com.igormaznitsa.prologparser.terms.PrologTerm;
+
 import java.util.Locale;
 
 @SuppressWarnings("serial")
@@ -72,6 +74,9 @@ public final class StringUtils {
           break;
         case '\'':
           result = '\'';
+          break;
+        case '\"':
+          result = '\"';
           break;
         case '`':
           result = '`';
@@ -140,6 +145,7 @@ public final class StringUtils {
       case '\n':
       case '\r':
       case '`':
+      case '"':
       case 27:
       case '\t':
       case '\'':
@@ -150,7 +156,7 @@ public final class StringUtils {
     }
   }
 
-  public static String escapeString(final String str) {
+  public static String escapeString(final String str, final PrologTerm.QuotingType quotingType) {
     final StringBuilder result = new StringBuilder(str.length() << 1);
 
     final int strLen = str.length();
@@ -173,7 +179,11 @@ public final class StringUtils {
           result.append("\\r");
           break;
         case '`':
-          result.append("\\`");
+          if (quotingType == PrologTerm.QuotingType.BACK_QUOTED) {
+            result.append("\\`");
+          } else {
+            result.append('`');
+          }
           break;
         case 27:
           result.append("\\e");
@@ -181,8 +191,19 @@ public final class StringUtils {
         case '\t':
           result.append("\\t");
           break;
+        case '\"':
+          if (quotingType == PrologTerm.QuotingType.DOUBLE_QUOTED) {
+            result.append("\\\"");
+          } else {
+            result.append('\"');
+          }
+          break;
         case '\'':
-          result.append("\\'");
+          if (quotingType == PrologTerm.QuotingType.SINGLE_QUOTED) {
+            result.append("\\'");
+          } else {
+            result.append('\'');
+          }
           break;
         case 11:
           result.append("\\v");
