@@ -463,6 +463,9 @@ public class IntegrationTest {
     assertReadTerms(26, "sec812.pro");
     assertReadTerms(25, "sec816.pro");
     assertReadTerms(32, "sec811.pro");
+    assertReadTerms(8, "einstein_puzzle.pro");
+    assertReadTerms(14, "simple.pl");
+    assertReadTerms(3, "hanoi.pl");
   }
 
   @Test
