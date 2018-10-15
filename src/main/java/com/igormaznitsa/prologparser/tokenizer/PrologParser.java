@@ -392,7 +392,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     // atom or operator
     TreeItem currentTreeItem = null;
 
-    while (true) {
+    while (!Thread.currentThread().isInterrupted()) {
       // read next atom from tokenizer
       TokenizerResult readAtomContainer = this.tokenizer.readNextToken();
       try {
