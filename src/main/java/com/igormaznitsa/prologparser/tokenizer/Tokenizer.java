@@ -255,7 +255,7 @@ final class Tokenizer {
     boolean foundUnderlineInNumeric = false;
 
     try {
-      while (true) {
+      while (!Thread.currentThread().isInterrupted()) {
         final int readChar = this.readChar();
 
         if (readChar < 0) {
@@ -632,6 +632,7 @@ final class Tokenizer {
             throw new CriticalUnexpectedError();
         }
       }
+      return null;
     } catch (IOException ex) {
       throw new PrologParserException("IO exception during read char", this.prevLine, this.prevPos, ex);
     }
