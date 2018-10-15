@@ -21,9 +21,6 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.StringBuilderEx;
-import com.igormaznitsa.prologparser.utils.StringUtils;
-
 /**
  * Prolog atom.
  */
@@ -65,9 +62,4 @@ public final class PrologAtom extends PrologTerm {
     return 0;
   }
 
-  @Override
-  public String toString() {
-    final String escaped = StringUtils.escapeString(text);
-    return new StringBuilderEx(escaped.length() + 2).append('\'').append(escaped).append('\'').toString();
-  }
 }

@@ -21,6 +21,7 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
@@ -54,6 +55,10 @@ final class TermWrapper extends SpecServiceCompound {
   TermWrapper setWrappedTerm(final PrologTerm wrappedTerm) {
     this.wrappedTerm = wrappedTerm;
     return this;
+  }
+
+  public PrologAtom.QuotingType getQuotingType() {
+    return this.wrappedTerm.getQuotingType();
   }
 
   @Override

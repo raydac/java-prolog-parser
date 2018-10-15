@@ -10,8 +10,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class PrologStructureTest {
 
   @Test
@@ -33,18 +31,18 @@ public class PrologStructureTest {
         "Hello World")).toString());
     assertEquals("!", new PrologStruct(new PrologAtom("!")).toString());
 
-    assertEquals("'test'('', '', '')", new PrologStruct(new PrologAtom(
+    assertEquals("test('', '', '')", new PrologStruct(new PrologAtom(
         "test"), 3).toString());
-    assertEquals("'123'('first', 123.0, [], _)", new PrologStruct(
+    assertEquals("'123'(first, 123.0, [], _)", new PrologStruct(
         new PrologAtom("123"), new PrologTerm[] {
         new PrologAtom("first"), new PrologFloat(123d),
         new PrologList(), new PrologVariable()}).toString());
 
     final Map<String, OpContainer> systemOperators = GenericPrologParser.findAllSystemOperators();
-    assertEquals("'hello' :- 'world'", new PrologStruct(systemOperators.get(":-").findForType(OpType.XFX),
+    assertEquals("hello :- world", new PrologStruct(systemOperators.get(":-").findForType(OpType.XFX),
         new PrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
-    assertEquals(":- 'hello'",
+    assertEquals(":- hello",
         new PrologStruct(systemOperators.get(":-").findForType(OpType.FX),
             new PrologTerm[] {new PrologAtom("hello")}).toString());
     assertEquals(

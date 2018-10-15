@@ -22,6 +22,7 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
+import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -35,22 +36,49 @@ import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 public abstract class PrologTerm implements Serializable, Comparable<PrologTerm> {
 
   private static final long serialVersionUID = 1402429096900255841L;
-
+  protected final QuotingType quotingType;
   protected final String text;
   private volatile Serializable payload;
   private int line;
   private int pos;
-
-  public PrologTerm(final String text) {
+  public PrologTerm(final String text, final QuotingType quotingType) {
     this.text = assertNotNull(text);
     this.pos = -1;
     this.line = -1;
+    this.quotingType = quotingType;
   }
 
-  public PrologTerm(final String text, final int line, final int pos) {
-    this(text);
+  public PrologTerm(final String text, final QuotingType quotingType, final int line, final int pos) {
+    this(text, quotingType);
     setLine(line);
     setPos(pos);
+  }
+
+  public static QuotingType findAppropriateQuoting(final String atomText) {
+    QuotingType result = QuotingType.NO_QUOTED;
+
+    if (atomText.length() == 0) {
+      result = QuotingType.SINGLE_QUOTED;
+    } else {
+      char chr = atomText.charAt(0);
+      if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr) || Character.isISOControl(chr) || Character.isWhitespace(chr)) {
+        result = QuotingType.SINGLE_QUOTED;
+      } else {
+
+        for (int i = 1; i < atomText.length(); i++) {
+          chr = atomText.charAt(i);
+          if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr)) || Character.isISOControl(chr)) {
+            result = QuotingType.SINGLE_QUOTED;
+            break;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  public QuotingType getQuotingType() {
+    return this.quotingType;
   }
 
   public final int getPos() {
@@ -79,7 +107,13 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
 
   @Override
   public String toString() {
-    return text;
+    final String result;
+    if (this.quotingType == QuotingType.NO_QUOTED) {
+      result = this.text;
+    } else {
+      result = this.quotingType.makeString(this.text);
+    }
+    return result;
   }
 
   public Serializable getPayload() {
@@ -168,4 +202,22 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     }
     return result;
   }
+
+  public enum QuotingType {
+    NO_QUOTED(""),
+    SINGLE_QUOTED("\'"),
+    DOUBLE_QUOTED("\""),
+    BACK_QUOTED("`");
+
+    private final String quote;
+
+    QuotingType(final String quote) {
+      this.quote = quote;
+    }
+
+    public String makeString(final String atomText) {
+      return this.quote + StringUtils.escapeString(atomText) + this.quote;
+    }
+  }
+
 }

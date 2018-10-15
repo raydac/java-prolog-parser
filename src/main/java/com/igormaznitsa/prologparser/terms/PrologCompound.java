@@ -28,11 +28,11 @@ public abstract class PrologCompound extends PrologTerm {
   private static final long serialVersionUID = 723482637840123123L;
 
   public PrologCompound(final String text) {
-    super(text);
+    super(text, QuotingType.NO_QUOTED);
   }
 
   public PrologCompound(final String text, final int line, final int pos) {
-    super(text, line, pos);
+    super(text, QuotingType.NO_QUOTED, line, pos);
   }
 
   public abstract int getArity();

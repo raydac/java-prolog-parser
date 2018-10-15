@@ -10,9 +10,6 @@ import java.io.StringReader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-
 public class PrologTermTest {
 
   private PrologParser parserFor(final String str) {
@@ -37,7 +34,7 @@ public class PrologTermTest {
     assertEquals("X", new PrologVariable("X").toString());
     assertEquals("_", new PrologVariable().toString());
 
-    assertEquals("\'test\'(\'first\', 100, -1000.0)", new PrologStruct(
+    assertEquals("test(first, 100, -1000.0)", new PrologStruct(
         new PrologAtom("test"), new PrologTerm[] {
         new PrologAtom("first"),
         new PrologInteger("100"),
@@ -47,7 +44,7 @@ public class PrologTermTest {
 
     final PrologList list = new PrologList(new PrologAtom("head"));
     list.addAsNewListToEndOfListChain(new PrologInteger("1006")).addAsNewListToEndOfListChain(new PrologVariable("Var"));
-    assertEquals("['head', 1006, Var]", list.toString());
+    assertEquals("[head, 1006, Var]", list.toString());
 
     final PrologList list2 = new PrologList(new PrologVariable("X"));
     list2.setTail(new PrologVariable());
@@ -62,7 +59,7 @@ public class PrologTermTest {
             new PrologAtom("First"), new PrologVariable()}),
         new PrologList(new PrologTerm[] {
             new PrologAtom("hello"), new PrologAtom("world")})});
-    assertEquals("[['First', _], ['hello', 'world']]", list4.toString());
+    assertEquals("[['First', _], [hello, world]]", list4.toString());
 
     final PrologList list5 = new PrologList(new PrologVariable("A"));
     list5.setTail(new PrologList(new PrologVariable("B")));
@@ -71,17 +68,21 @@ public class PrologTermTest {
 
   @Test
   public void testOperatorToString() {
+
     PrologTerm term = parserFor("a+b*c.").next();
-    assertEquals("'a' + 'b' * 'c'", term.toString());
+    assertEquals("a + b * c", term.toString());
 
     term = parserFor("X is a+b.").next();
-    assertEquals("X is 'a' + 'b'", term.toString());
+    assertEquals("X is a + b", term.toString());
 
     term = parserFor("hello:-world.").next();
-    assertEquals("'hello' :- 'world'", term.toString());
+    assertEquals("hello :- world", term.toString());
 
     term = parserFor(":-hello(world).").next();
-    assertEquals(":- 'hello'('world')", term.toString());
+    assertEquals(":- hello(world)", term.toString());
+
+    term = parserFor(":-hello('some world').").next();
+    assertEquals(":- hello('some world')", term.toString());
 
     term = parserFor("[1,2,3,4,5]=[1,2,3,4|[5]].").next();
     assertEquals("[1, 2, 3, 4, 5] = [1, 2, 3, 4, 5]", term.toString());

@@ -58,7 +58,7 @@ import static com.igormaznitsa.prologparser.operators.OpContainer.make;
 /**
  * Abstract prolog parser.
  */
-public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
+public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
   protected static final OneCharOpMap META_SYSTEM_OPERATORS = new OneCharOpMap();
   protected static final Map<String, OpContainer> SYSTEM_OPERATORS = new HashMap<>();
@@ -634,6 +634,11 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Closeable {
     } else {
       return currentTreeItem.findRoot().convertToTermAndRelease();
     }
+  }
+
+  @Override
+  public Iterator<PrologTerm> iterator() {
+    return this;
   }
 
   public Stream<PrologTerm> stream() {

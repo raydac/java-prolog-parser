@@ -276,15 +276,15 @@ public class IntegrationTest {
 
     list = (PrologList) parserFor("[a|[b,c]].").next();
     assertFalse(list.isEmpty());
-    assertEquals("['a', 'b', 'c']", list.toString());
+    assertEquals("[a, b, c]", list.toString());
 
     list = (PrologList) parserFor("[a,b|[c]].").next();
     assertFalse(list.isEmpty());
-    assertEquals("['a', 'b', 'c']", list.toString());
+    assertEquals("[a, b, c]", list.toString());
 
     list = (PrologList) parserFor("[a,b,c|[]].").next();
     assertFalse(list.isEmpty());
-    assertEquals("['a', 'b', 'c']", list.toString());
+    assertEquals("[a, b, c]", list.toString());
   }
 
   @Test
@@ -343,8 +343,8 @@ public class IntegrationTest {
     PrologTerm term = parser.next();
     PrologTerm term2 = parser.next();
 
-    assertEquals("'hello' :- 'world'", term.toString());
-    assertEquals(":- 'test'", term2.toString());
+    assertEquals("hello :- world", term.toString());
+    assertEquals(":- test", term2.toString());
 
     assertFalse(parser.hasNext());
   }
@@ -652,7 +652,7 @@ public class IntegrationTest {
     final String joined = parser.stream().map(x -> x.toString()).collect(joining(". ", "", "."));
     parser = new EdinburghPrologParser(new StringReader(joined));
     assertEquals(joined, parser.stream().map(x -> x.toString()).collect(joining(". ", "", ".")));
-    assertEquals("'z'('some'). 'a'(X) :- [X]. 'b'('\\'hello world\\''). 'list'([_|Tail]) :- 'list'(Tail).", joined);
+    assertEquals("z(some). a(X) :- [X]. b('\\'hello world\\''). list([_|Tail]) :- list(Tail).", joined);
   }
 
   @Test
@@ -692,13 +692,13 @@ public class IntegrationTest {
         .map(PrologTerm::toString)
         .collect(joining("\n"));
 
-    assertEquals("'hello'\n" +
-        "'world'\n" +
+    assertEquals("hello\n" +
+        "world\n" +
         "1\n" +
         "2\n" +
         "3\n" +
         "X\n" +
-        "'end'", joined);
+        "end", joined);
   }
 
   private String parseSortAndJoin(final String text) {
@@ -718,10 +718,10 @@ public class IntegrationTest {
     assertEquals("1\n2\n3\n4\n5", parseSortAndJoin("5. 3. 1. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23. 3.6. 1.3. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23.3.6.1.3.2. 4."));
-    assertEquals("'a'\n'b'\n'c'\n'd'\n'e'", parseSortAndJoin("c.e.b.a.d."));
+    assertEquals("a\nb\nc\nd\ne", parseSortAndJoin("c.e.b.a.d."));
     assertEquals("[]\n[1, 2]\n[1, 2, 3]\n[5, 6, 7]\n[8]", parseSortAndJoin("[1,2,3].[1,2].[].[5,6,7].[8]."));
-    assertEquals("'u'(8)\n'l'(1, 2)\n'g'(5, 6, 7)\n'h'(1, 2, 3)", parseSortAndJoin("h(1,2,3).l(1,2).g(5,6,7).u(8)."));
-    assertEquals("X\nY\n_\n34.112\n112\n'atm'\n[]\n'm'(34)\n[1, 2, 3]\n'a'(1, 2)", parseSortAndJoin("a(1,2).[1,2,3].X.112.Y.34.112. atm. [].m(34)._."));
+    assertEquals("u(8)\nl(1, 2)\ng(5, 6, 7)\nh(1, 2, 3)", parseSortAndJoin("h(1,2,3).l(1,2).g(5,6,7).u(8)."));
+    assertEquals("X\nY\n_\n34.112\n112\natm\n[]\nm(34)\n[1, 2, 3]\na(1, 2)", parseSortAndJoin("a(1,2).[1,2,3].X.112.Y.34.112. atm. [].m(34)._."));
   }
 
   private static class StubContext implements ParserContext {

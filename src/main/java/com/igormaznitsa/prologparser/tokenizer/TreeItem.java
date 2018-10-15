@@ -222,7 +222,7 @@ final class TreeItem {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any arguments
-            return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getPos(), wrapper.getLine());
+            return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getQuotingType(), wrapper.getPos(), wrapper.getLine());
           }
 
           if (!validate()) {

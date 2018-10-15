@@ -36,14 +36,12 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
-import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
-
 /**
  * Representation of prolog structure term.
  */
 public class PrologStruct extends PrologCompound implements Iterable<PrologTerm> {
 
-  public static final PrologAtom EMPTY_ATOM = new PrologAtom("");
+  public static final PrologAtom EMPTY_ATOM = new PrologAtom("", PrologAtom.QuotingType.SINGLE_QUOTED);
   private static final long serialVersionUID = 9000641998734217154L;
 
   protected final PrologTerm functor;

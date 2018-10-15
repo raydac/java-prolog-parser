@@ -4,14 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class PrologListTest {
 
   @Test
   public void testToString() {
     assertEquals(new PrologList(new PrologAtom("test")).toString(),
-        "[\'test\']");
+        "[test]");
 
     String[] atoms = new String[] {"test1", "test2", "test3", "test4"};
     StringBuilder builder = new StringBuilder();
@@ -22,25 +20,25 @@ public class PrologListTest {
       if (builder.length() > 0) {
         builder.append(", ");
       }
-      builder.append('\'' + atom + '\'');
+      builder.append(atom);
     }
 
     assertEquals('[' + builder.toString() + ']',
         new PrologList(terms).toString());
 
     assertEquals(new PrologList(new PrologAtom("hello"),
-        new PrologVariable("X")).toString(), "[\'hello\'|X]");
+        new PrologVariable("X")).toString(), "[hello|X]");
     assertEquals(new PrologList(new PrologAtom("hello"), new PrologList(
-        new PrologVariable("X"))).toString(), "[\'hello\', X]");
+        new PrologVariable("X"))).toString(), "[hello, X]");
     assertEquals(new PrologList().toString(), "[]");
 
     PrologList list = new PrologList();
     list.setTail(new PrologAtom("test"));
-    assertEquals("[\'\'|\'test\']", list.toString());
+    assertEquals("[\'\'|test]", list.toString());
 
     list = new PrologList();
     list.setHead(new PrologAtom("test"));
-    assertEquals("[\'test\']", list.toString());
+    assertEquals("[test]", list.toString());
   }
 
   @Test
