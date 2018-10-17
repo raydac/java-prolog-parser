@@ -34,4 +34,6 @@ public interface ParserContext {
   boolean hasZeroArityStruct(PrologParser source, String atomName);
 
   void onStructureCreated(PrologParser source, PrologStruct struct);
+
+  boolean isBlockCommentAllowed();
 }

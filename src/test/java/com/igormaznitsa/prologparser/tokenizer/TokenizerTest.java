@@ -10,6 +10,8 @@ import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.PrologList;
+import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
@@ -21,6 +23,7 @@ import java.io.StringReader;
 import static com.igormaznitsa.prologparser.operators.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.NO_QUOTED;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.SINGLE_QUOTED;
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -28,6 +31,12 @@ public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str) {
     return this.tokenizeOf(str, mock(ParserContext.class));
+  }
+
+  private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
+    ParserContext context = mock(ParserContext.class);
+    when(context.isBlockCommentAllowed()).thenReturn(allowBlockComment);
+    return this.tokenizeOf(str, context);
   }
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
@@ -39,14 +48,55 @@ public class TokenizerTest {
   public void testPushTermBack() {
     Tokenizer tokenizer = tokenizeOf("");
     assertNull(tokenizer.getLastPushed());
-    final TokenizerResult tokenizerResult = new TokenizerResult(mock(SoftObjectPool.class)).setData(new PrologAtom("test"), TokenizerState.ATOM, 2, 1);
+    final TokenizerResult tokenizerResult = new TokenizerResult(mock(SoftObjectPool.class)).setData(new PrologAtom("test"), ATOM, 2, 1);
     tokenizer.push(tokenizerResult);
     assertSame(tokenizerResult, tokenizer.readNextToken());
   }
 
   @Test
+  public void testBlockComment_TermBetweenComments() {
+    Tokenizer tokenizer = tokenizeOf("/* some text */hryam/*other*/.", true);
+    TokenizerResult result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, result.getResult().getTermType());
+    assertEquals("hryam", result.getResult().getTermText());
+    assertEquals(1, result.getLine());
+    assertEquals(16, result.getPos());
+
+    tokenizer = tokenizeOf("/* some text */ 12345/*other*/.", true);
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, result.getResult().getTermType());
+    assertEquals(12345, ((PrologNumeric)result.getResult()).getNumber().intValue());
+    assertEquals(1, result.getLine());
+    assertEquals(17, result.getPos());
+
+    tokenizer = tokenizeOf("/* some text */12.345/*other*/.", true);
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, result.getResult().getTermType());
+    assertEquals(12.345d, ((PrologNumeric)result.getResult()).getNumber().doubleValue(),Double.MIN_NORMAL);
+    assertEquals(1, result.getLine());
+    assertEquals(16, result.getPos());
+
+    tokenizer = tokenizeOf("/* some text */[]/*other*/.", true);
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getTermType());
+    assertEquals("[", result.getResult().getTermText());
+    assertEquals(1, result.getLine());
+    assertEquals(16, result.getPos());
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getTermType());
+    assertEquals("]", result.getResult().getTermText());
+    assertEquals(1, result.getLine());
+    assertEquals(17, result.getPos());
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getTermType());
+    assertEquals(".", result.getResult().getTermText());
+    assertEquals(1, result.getLine());
+    assertEquals(27, result.getPos());
+  }
+
+  @Test
   public void testPeekToken() {
-    Tokenizer tokenizer = tokenizeOf("hello world");
+    final Tokenizer tokenizer = tokenizeOf("hello world");
 
     assertEquals("hello", tokenizer.peek().getResult().getTermText());
     assertEquals("hello", tokenizer.peek().getResult().getTermText());
@@ -232,19 +282,19 @@ public class TokenizerTest {
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a12345b", term.getTermText());
 
-    term = tokenizer.makeTermFromString("123", SINGLE_QUOTED, TokenizerState.ATOM);
+    term = tokenizer.makeTermFromString("123", SINGLE_QUOTED, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123", term.getTermText());
 
-    term = tokenizer.makeTermFromString("123.123", SINGLE_QUOTED, TokenizerState.ATOM);
+    term = tokenizer.makeTermFromString("123.123", SINGLE_QUOTED, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123.123", term.getTermText());
 
-    term = tokenizer.makeTermFromString("abcd", NO_QUOTED, TokenizerState.ATOM);
+    term = tokenizer.makeTermFromString("abcd", NO_QUOTED, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);

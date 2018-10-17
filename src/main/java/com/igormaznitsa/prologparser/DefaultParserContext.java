@@ -37,7 +37,15 @@ public class DefaultParserContext implements ParserContext {
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
   protected final Set<String> zeroArityStructs = new HashSet<>();
 
-  public DefaultParserContext() {
+  protected final boolean blockCommentAllowed;
+
+  public DefaultParserContext(final boolean blockCommentAllowed) {
+    this.blockCommentAllowed = blockCommentAllowed;
+  }
+
+  @Override
+  public boolean isBlockCommentAllowed() {
+    return this.blockCommentAllowed;
   }
 
   protected void fillPrefixes(final String name) {

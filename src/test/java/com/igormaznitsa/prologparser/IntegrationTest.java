@@ -136,10 +136,10 @@ public class IntegrationTest {
 
   @Test
   public void testQuoting() {
-    checkParseAtomQuoting("test.","test", NO_QUOTED);
-    checkParseAtomQuoting("\'t\"es`t\'.","'t\"es`t'", SINGLE_QUOTED);
-    checkParseAtomQuoting("`t'\\`e\'s\"t`.","`t'\\`e's\"t`", BACK_QUOTED);
-    checkParseAtomQuoting("\"t`e\'s\\\"\".","\"t`e's\\\"\"", DOUBLE_QUOTED);
+    checkParseAtomQuoting("test.", "test", NO_QUOTED);
+    checkParseAtomQuoting("\'t\"es`t\'.", "'t\"es`t'", SINGLE_QUOTED);
+    checkParseAtomQuoting("`t'\\`e\'s\"t`.", "`t'\\`e's\"t`", BACK_QUOTED);
+    checkParseAtomQuoting("\"t`e\'s\\\"\".", "\"t`e's\\\"\"", DOUBLE_QUOTED);
   }
 
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) {
@@ -475,7 +475,9 @@ public class IntegrationTest {
 
   private void assertReadTerms(final int expected, final String resource) {
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
-      final PrologParser parser = new EdinburghPrologParser(reader, mock(ParserContext.class));
+      final ParserContext context = mock(ParserContext.class);
+      when(context.isBlockCommentAllowed()).thenReturn(true);
+      final PrologParser parser = new EdinburghPrologParser(reader, context);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
       ex.printStackTrace();
@@ -484,13 +486,16 @@ public class IntegrationTest {
   }
 
   @Test
-  public void testParseFileAsChannel() {
+  public void testParseSourceFiles() {
     assertReadTerms(26, "sec812.pro");
     assertReadTerms(25, "sec816.pro");
     assertReadTerms(32, "sec811.pro");
     assertReadTerms(8, "einstein_puzzle.pro");
     assertReadTerms(14, "simple.pl");
     assertReadTerms(3, "hanoi.pl");
+    assertReadTerms(16, "likes.pl");
+    assertReadTerms(7, "dmalloc.pl");
+    assertReadTerms(24, "xref_packages.pl");
   }
 
   @Test
@@ -755,6 +760,11 @@ public class IntegrationTest {
 
     public StubContext(final Map<String, OpContainer> operators) {
       this.operators = operators;
+    }
+
+    @Override
+    public boolean isBlockCommentAllowed() {
+      return false;
     }
 
     @Override

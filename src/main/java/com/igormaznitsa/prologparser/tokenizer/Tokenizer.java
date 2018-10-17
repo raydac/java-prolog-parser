@@ -37,11 +37,15 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 import java.io.IOException;
 import java.io.Reader;
 
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOKFOR;
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
+
 final class Tokenizer {
 
   private final StringBuilderEx strBuf = new StringBuilderEx(32);
   private final StringBuilderEx specCharBuf = new StringBuilderEx(8);
   private final StringBuilderEx insideCharBuffer = new StringBuilderEx(8);
+  private final boolean blockCommentsAllowed;
   private final Reader reader;
   private final PrologParser parser;
   private final SoftObjectPool<TokenizerResult> tokenizerResultPool;
@@ -59,6 +63,8 @@ final class Tokenizer {
     super();
     this.reader = reader;
     this.parser = parser;
+    final ParserContext context = parser.context;
+    this.blockCommentsAllowed = context != null && context.isBlockCommentAllowed();
 
     this.pos = 1;
     this.line = 1;
@@ -220,8 +226,24 @@ final class Tokenizer {
     this.lastTokenPos = this.pos - 1;
   }
 
+  private void skipUntilBlockCommentEnd() throws IOException {
+    boolean star = false;
+    while (!Thread.currentThread().isInterrupted()) {
+      final int readchar = this.readChar();
+      if (readchar < 0) {
+        break;
+      } else if (readchar == '/' && star) {
+        break;
+      } else if (readchar == '*') {
+        star = true;
+      } else {
+        star = false;
+      }
+    }
+  }
+
   private void skipUntilNextString() throws IOException {
-    while (true) {
+    while (!Thread.currentThread().isInterrupted()) {
       final int readchar = this.readChar();
       if (readchar < 0 || readchar == '\n') {
         break;
@@ -246,7 +268,7 @@ final class Tokenizer {
 
     PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;
 
-    TokenizerState state = TokenizerState.LOOKFOR;
+    TokenizerState state = LOOKFOR;
     boolean specCharDetected = false;
 
     strBuf.clear();
@@ -343,343 +365,351 @@ final class Tokenizer {
 
         final char chr = (char) readChar;
 
-        switch (state) {
-          case LOOKFOR: {
-            if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
-              continue;
-            }
+        if (state != STRING && this.blockCommentsAllowed && chr == '*' && this.strBuf.isLastChar('/')) {
+          if (this.strBuf.isSingleChar('/')) {
+            this.strBuf.pop();
+            state = this.strBuf.isEmpty() ? LOOKFOR : state;
+          }
+          skipUntilBlockCommentEnd();
+        } else {
+          switch (state) {
+            case LOOKFOR: {
+              if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
+                continue;
+              }
 
-            switch (chr) {
-              case '%': {
-                skipUntilNextString();
-              }
-              break;
-              case '_': {
-                fixPosition();
-                strBuffer.append(chr);
-                state = TokenizerState.VAR;
-              }
-              break;
-              case '\'': {
-                fixPosition();
-                quoting = PrologTerm.QuotingType.SINGLE_QUOTED;
-                state = TokenizerState.STRING;
-              }
-              break;
-              case '\"': {
-                fixPosition();
-                quoting = PrologTerm.QuotingType.DOUBLE_QUOTED;
-                state = TokenizerState.STRING;
-              }
-              break;
-              case '`': {
-                fixPosition();
-                quoting = PrologTerm.QuotingType.BACK_QUOTED;
-                state = TokenizerState.STRING;
-              }
-              break;
-
-              default: {
-                fixPosition();
-
-                strBuffer.append(chr);
-
-                if (Character.isUpperCase(chr)) {
+              switch (chr) {
+                case '%': {
+                  skipUntilNextString();
+                }
+                break;
+                case '_': {
+                  fixPosition();
+                  strBuffer.append(chr);
                   state = TokenizerState.VAR;
-                } else {
-                  letterOrDigitOnly = Character.isLetterOrDigit(chr);
-                  final String operator = String.valueOf(chr);
-                  if (hasOperatorStartsWith(operator)) {
-                    lastFoundFullOperator = findOperatorForName(operator);
-                    state = TokenizerState.OPERATOR;
+                }
+                break;
+                case '\'': {
+                  fixPosition();
+                  quoting = PrologTerm.QuotingType.SINGLE_QUOTED;
+                  state = TokenizerState.STRING;
+                }
+                break;
+                case '\"': {
+                  fixPosition();
+                  quoting = PrologTerm.QuotingType.DOUBLE_QUOTED;
+                  state = TokenizerState.STRING;
+                }
+                break;
+                case '`': {
+                  fixPosition();
+                  quoting = PrologTerm.QuotingType.BACK_QUOTED;
+                  state = TokenizerState.STRING;
+                }
+                break;
+
+                default: {
+                  fixPosition();
+
+                  strBuffer.append(chr);
+
+                  if (Character.isUpperCase(chr)) {
+                    state = TokenizerState.VAR;
                   } else {
-                    if (Character.isDigit(chr)) {
-                      state = TokenizerState.INTEGER;
+                    letterOrDigitOnly = Character.isLetterOrDigit(chr);
+                    final String operator = String.valueOf(chr);
+                    if (hasOperatorStartsWith(operator)) {
+                      lastFoundFullOperator = findOperatorForName(operator);
+                      state = TokenizerState.OPERATOR;
                     } else {
-                      state = TokenizerState.ATOM;
+                      if (Character.isDigit(chr)) {
+                        state = TokenizerState.INTEGER;
+                      } else {
+                        state = TokenizerState.ATOM;
+                      }
                     }
                   }
                 }
+                break;
               }
-              break;
             }
-          }
-          break;
-          case ATOM: {
-            if (chr == '_') {
-              strBuffer.append(chr);
-            } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-              final String text = strBuffer.toString();
-              return this.tokenizerResultPool.find().setData(makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state), state, getLastTokenLine(), getLastTokenPos());
-            } else if (chr == '\''
-                || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
-                || findOperatorForSingleChar(chr) != null) {
-              push(chr);
-              final String text = strBuffer.toString();
-              return this.tokenizerResultPool.find().setData(
-                  makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
-                  state,
-                  getLastTokenLine(),
-                  getLastTokenPos());
-            } else {
-              strBuffer.append(chr);
-            }
-          }
-          break;
-          case INTEGER: {
-            if (Character.isDigit(chr)) {
-              foundUnderlineInNumeric = false;
-              strBuffer.append(chr);
-            } else if (chr == '_') {
-              if (foundUnderlineInNumeric) {
-                throw new PrologParserException("Duplicated low line in integer", this.prevLine, this.prevPos);
-              } else {
-                foundUnderlineInNumeric = true;
-              }
-            } else {
-              if (chr == '.' || chr == 'e' || chr == 'E') {
-                if (foundUnderlineInNumeric) {
-                  throw new PrologParserException("Low line is not allowed before E or dot", this.prevLine, this.prevPos);
-                }
-
+            break;
+            case ATOM: {
+              if (chr == '_') {
                 strBuffer.append(chr);
-                state = TokenizerState.FLOAT;
-              } else {
-                if (foundUnderlineInNumeric) {
-                  throw new PrologParserException("Unexpected low line", this.prevLine, this.prevPos);
-                }
-
+              } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
+                final String text = strBuffer.toString();
+                return this.tokenizerResultPool.find().setData(makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state), state, getLastTokenLine(), getLastTokenPos());
+              } else if (chr == '\''
+                  || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
+                  || findOperatorForSingleChar(chr) != null) {
                 push(chr);
-
+                final String text = strBuffer.toString();
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), quoting, state),
-                    TokenizerState.INTEGER,
+                    makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
+                    state,
                     getLastTokenLine(),
                     getLastTokenPos());
+              } else {
+                strBuffer.append(chr);
               }
             }
-          }
-          break;
-          case FLOAT: {
-            if (Character.isDigit(chr)) {
-              foundUnderlineInNumeric = false;
-              strBuffer.append(chr);
-            } else if (chr == '_') {
-              if (foundUnderlineInNumeric || strBuffer.isLastChar('.')) {
-                throw new PrologParserException("Low line is not allowed before dot", this.prevLine, this.prevPos);
+            break;
+            case INTEGER: {
+              if (Character.isDigit(chr)) {
+                foundUnderlineInNumeric = false;
+                strBuffer.append(chr);
+              } else if (chr == '_') {
+                if (foundUnderlineInNumeric) {
+                  throw new PrologParserException("Duplicated low line in integer", this.prevLine, this.prevPos);
+                } else {
+                  foundUnderlineInNumeric = true;
+                }
               } else {
-                foundUnderlineInNumeric = true;
-              }
-            } else {
-              if (chr == '-' || chr == '+') {
-                if (strBuffer.isLastChar('e')) {
+                if (chr == '.' || chr == 'e' || chr == 'E') {
+                  if (foundUnderlineInNumeric) {
+                    throw new PrologParserException("Low line is not allowed before E or dot", this.prevLine, this.prevPos);
+                  }
+
                   strBuffer.append(chr);
+                  state = TokenizerState.FLOAT;
                 } else {
+                  if (foundUnderlineInNumeric) {
+                    throw new PrologParserException("Unexpected low line", this.prevLine, this.prevPos);
+                  }
+
                   push(chr);
+
                   return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toString(), quoting, TokenizerState.FLOAT),
-                      TokenizerState.FLOAT,
-                      getLastTokenLine(),
-                      getLastTokenPos());
-                }
-              } else if (chr == 'e' || chr == 'E') {
-                if (foundUnderlineInNumeric) {
-                  throw new PrologParserException("Low line is not allowed before E", this.prevLine, this.prevPos);
-                }
-
-                if (strBuffer.lastIndexOf('e') < 0) {
-                  strBuffer.append('e');
-                } else {
-                  push(chr);
-                  return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.FLOAT),
-                      TokenizerState.FLOAT,
-                      getLastTokenLine(),
-                      getLastTokenPos());
-                }
-              } else {
-
-                push(chr);
-
-                if (foundUnderlineInNumeric) {
-                  throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
-                }
-
-                if (strBuffer.isLastChar('.')) {
-                  // it was an integer
-                  push('.');
-                  return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.INTEGER),
+                      makeTermFromString(strBuffer.toString(), quoting, state),
                       TokenizerState.INTEGER,
                       getLastTokenLine(),
                       getLastTokenPos());
+                }
+              }
+            }
+            break;
+            case FLOAT: {
+              if (Character.isDigit(chr)) {
+                foundUnderlineInNumeric = false;
+                strBuffer.append(chr);
+              } else if (chr == '_') {
+                if (foundUnderlineInNumeric || strBuffer.isLastChar('.')) {
+                  throw new PrologParserException("Low line is not allowed before dot", this.prevLine, this.prevPos);
                 } else {
-                  // it is float
+                  foundUnderlineInNumeric = true;
+                }
+              } else {
+                if (chr == '-' || chr == '+') {
+                  if (strBuffer.isLastChar('e')) {
+                    strBuffer.append(chr);
+                  } else {
+                    push(chr);
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, TokenizerState.FLOAT),
+                        TokenizerState.FLOAT,
+                        getLastTokenLine(),
+                        getLastTokenPos());
+                  }
+                } else if (chr == 'e' || chr == 'E') {
+                  if (foundUnderlineInNumeric) {
+                    throw new PrologParserException("Low line is not allowed before E", this.prevLine, this.prevPos);
+                  }
+
+                  if (strBuffer.lastIndexOf('e') < 0) {
+                    strBuffer.append('e');
+                  } else {
+                    push(chr);
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.FLOAT),
+                        TokenizerState.FLOAT,
+                        getLastTokenLine(),
+                        getLastTokenPos());
+                  }
+                } else {
+
+                  push(chr);
+
+                  if (foundUnderlineInNumeric) {
+                    throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                  }
+
+                  if (strBuffer.isLastChar('.')) {
+                    // it was an integer
+                    push('.');
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.INTEGER),
+                        TokenizerState.INTEGER,
+                        getLastTokenLine(),
+                        getLastTokenPos());
+                  } else {
+                    // it is float
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        state,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  }
+                }
+              }
+            }
+            break;
+            case OPERATOR: {
+              if (chr != '_' && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
+                push(chr);
+
+                if (lastFoundFullOperator == null) {
                   return this.tokenizerResultPool.find().setData(
                       makeTermFromString(strBuffer.toString(), quoting, state),
                       state,
                       getLastTokenLine(),
                       getLastTokenPos()
                   );
+                } else {
+                  return this.tokenizerResultPool.find().setData(
+                      lastFoundFullOperator,
+                      state,
+                      getLastTokenLine(),
+                      getLastTokenPos()
+                  );
                 }
-              }
-            }
-          }
-          break;
-          case OPERATOR: {
-            if (chr != '_' && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
-              push(chr);
-
-              if (lastFoundFullOperator == null) {
-                return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), quoting, state),
-                    state,
-                    getLastTokenLine(),
-                    getLastTokenPos()
-                );
               } else {
-                return this.tokenizerResultPool.find().setData(
-                    lastFoundFullOperator,
-                    state,
-                    getLastTokenLine(),
-                    getLastTokenPos()
-                );
-              }
-            } else {
-              final OpContainer previousleDetectedOperator = lastFoundFullOperator;
-              strBuffer.append(chr);
-              final String operator = strBuffer.toString();
-              lastFoundFullOperator = findOperatorForName(operator);
-              if (previousleDetectedOperator == null) {
-                if (!hasOperatorStartsWith(operator)) {
-                  if (hasOperatorStartsWith(String.valueOf(chr))) {
-                    // next char can be the start char op an
-                    // operator so we need get back it into the
-                    // buffer
-                    strBuffer.pop();
-                    push(chr);
+                final OpContainer previousleDetectedOperator = lastFoundFullOperator;
+                strBuffer.append(chr);
+                final String operator = strBuffer.toString();
+                lastFoundFullOperator = findOperatorForName(operator);
+                if (previousleDetectedOperator == null) {
+                  if (!hasOperatorStartsWith(operator)) {
+                    if (hasOperatorStartsWith(String.valueOf(chr))) {
+                      // next char can be the start char op an
+                      // operator so we need get back it into the
+                      // buffer
+                      strBuffer.pop();
+                      push(chr);
+                    }
+                    state = TokenizerState.ATOM;
                   }
-                  state = TokenizerState.ATOM;
-                }
-              } else {
-                if (lastFoundFullOperator == null) {
-                  if (hasOperatorStartsWith(operator)) {
-                    lastFoundFullOperator = previousleDetectedOperator;
-                  } else {
-                    if (letterOrDigitOnly) {
-                      state = TokenizerState.ATOM;
+                } else {
+                  if (lastFoundFullOperator == null) {
+                    if (hasOperatorStartsWith(operator)) {
+                      lastFoundFullOperator = previousleDetectedOperator;
                     } else {
+                      if (letterOrDigitOnly) {
+                        state = TokenizerState.ATOM;
+                      } else {
+                        calcDiffAndPushResultBack(
+                            previousleDetectedOperator.getTermText(), strBuffer);
+                        return this.tokenizerResultPool.find().setData(
+                            previousleDetectedOperator,
+                            state, getLastTokenLine(),
+                            getLastTokenPos()
+                        );
+                      }
+                    }
+                  } else {
+                    if (!hasOperatorStartsWith(operator)) {
                       calcDiffAndPushResultBack(
                           previousleDetectedOperator.getTermText(), strBuffer);
                       return this.tokenizerResultPool.find().setData(
                           previousleDetectedOperator,
-                          state, getLastTokenLine(),
-                          getLastTokenPos()
-                      );
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos());
                     }
                   }
-                } else {
-                  if (!hasOperatorStartsWith(operator)) {
-                    calcDiffAndPushResultBack(
-                        previousleDetectedOperator.getTermText(), strBuffer);
-                    return this.tokenizerResultPool.find().setData(
-                        previousleDetectedOperator,
-                        state,
-                        getLastTokenLine(),
-                        getLastTokenPos());
-                  }
                 }
               }
             }
-          }
-          break;
-          case STRING: {
-            if (specCharDetected) {
-              if (specCharBuffer.isEmpty() && chr == '\n') {
-                strBuffer.append('\n');
-                specCharDetected = false;
-              } else if (!Character.isISOControl(chr)) {
-                specCharBuffer.append(chr);
-                final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(specCharBuffer);
-                if (result.isError()) {
-                  throw new PrologParserException("Detected wrong escape char: \\" + specCharBuffer.toString(), this.prevLine, this.prevPos);
-                } else if (!result.doesNeedMore()) {
-                  strBuffer.append(result.getDecoded());
+            break;
+            case STRING: {
+              if (specCharDetected) {
+                if (specCharBuffer.isEmpty() && chr == '\n') {
+                  strBuffer.append('\n');
                   specCharDetected = false;
+                } else if (!Character.isISOControl(chr)) {
+                  specCharBuffer.append(chr);
+                  final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(specCharBuffer);
+                  if (result.isError()) {
+                    throw new PrologParserException("Detected wrong escape char: \\" + specCharBuffer.toString(), this.prevLine, this.prevPos);
+                  } else if (!result.doesNeedMore()) {
+                    strBuffer.append(result.getDecoded());
+                    specCharDetected = false;
+                  }
+                }
+              } else {
+                switch (chr) {
+                  case '\'':
+                    if (quoting == PrologTerm.QuotingType.SINGLE_QUOTED) {
+                      return this.tokenizerResultPool.find().setData(
+                          makeTermFromString(strBuffer.toString(), quoting, state),
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos()
+                      );
+                    } else {
+                      strBuffer.append(chr);
+                    }
+                    break;
+                  case '`':
+                    if (quoting == PrologTerm.QuotingType.BACK_QUOTED) {
+                      return this.tokenizerResultPool.find().setData(
+                          makeTermFromString(strBuffer.toString(), quoting, state),
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos()
+                      );
+                    } else {
+                      strBuffer.append(chr);
+                    }
+                    break;
+                  case '\"':
+                    if (quoting == PrologTerm.QuotingType.DOUBLE_QUOTED) {
+                      return this.tokenizerResultPool.find().setData(
+                          makeTermFromString(strBuffer.toString(), quoting, state),
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos()
+                      );
+                    } else {
+                      strBuffer.append(chr);
+                    }
+                    break;
+                  case '\\':
+                    specCharDetected = true;
+                    specCharBuffer.clear();
+                    break;
+                  default:
+                    if (Character.isISOControl(chr)) {
+                      strBuffer.append(StringUtils.isAllowedEscapeChar(chr) ? chr : '→');
+                    } else {
+                      strBuffer.append(chr);
+                    }
+                    break;
                 }
               }
-            } else {
-              switch (chr) {
-                case '\'':
-                  if (quoting == PrologTerm.QuotingType.SINGLE_QUOTED) {
-                    return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, state),
-                        state,
-                        getLastTokenLine(),
-                        getLastTokenPos()
-                    );
-                  } else {
-                    strBuffer.append(chr);
-                  }
-                  break;
-                case '`':
-                  if (quoting == PrologTerm.QuotingType.BACK_QUOTED) {
-                    return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, state),
-                        state,
-                        getLastTokenLine(),
-                        getLastTokenPos()
-                    );
-                  } else {
-                    strBuffer.append(chr);
-                  }
-                  break;
-                case '\"':
-                  if (quoting == PrologTerm.QuotingType.DOUBLE_QUOTED) {
-                    return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, state),
-                        state,
-                        getLastTokenLine(),
-                        getLastTokenPos()
-                    );
-                  } else {
-                    strBuffer.append(chr);
-                  }
-                  break;
-                case '\\':
-                  specCharDetected = true;
-                  specCharBuffer.clear();
-                  break;
-                default:
-                  if (Character.isISOControl(chr)) {
-                    strBuffer.append(StringUtils.isAllowedEscapeChar(chr) ? chr : '→');
-                  } else {
-                    strBuffer.append(chr);
-                  }
-                  break;
+            }
+            break;
+            case VAR: {
+              if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
+                if (strBuffer.isSingleChar('_')) {
+                  return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
+                }
+                return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
+              } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
+                push(chr);
+                if (strBuffer.isSingleChar('_')) {
+                  return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
+                }
+                return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
+              } else {
+                strBuffer.append(chr);
               }
             }
+            break;
+            default:
+              throw new CriticalUnexpectedError();
           }
-          break;
-          case VAR: {
-            if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
-              if (strBuffer.isSingleChar('_')) {
-                return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
-              }
-              return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
-            } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
-              push(chr);
-              if (strBuffer.isSingleChar('_')) {
-                return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
-              }
-              return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
-            } else {
-              strBuffer.append(chr);
-            }
-          }
-          break;
-          default:
-            throw new CriticalUnexpectedError();
         }
       }
       return null;
