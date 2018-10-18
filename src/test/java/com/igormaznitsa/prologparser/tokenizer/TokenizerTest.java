@@ -10,7 +10,6 @@ import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
-import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
@@ -35,7 +34,7 @@ public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
     ParserContext context = mock(ParserContext.class);
-    when(context.isBlockCommentAllowed()).thenReturn(allowBlockComment);
+    when(context.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
     return this.tokenizeOf(str, context);
   }
 
@@ -65,14 +64,14 @@ public class TokenizerTest {
     tokenizer = tokenizeOf("/* some text */ 12345/*other*/.", true);
     result = tokenizer.readNextToken();
     assertEquals(TermType.ATOM, result.getResult().getTermType());
-    assertEquals(12345, ((PrologNumeric)result.getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologNumeric) result.getResult()).getNumber().intValue());
     assertEquals(1, result.getLine());
     assertEquals(17, result.getPos());
 
     tokenizer = tokenizeOf("/* some text */12.345/*other*/.", true);
     result = tokenizer.readNextToken();
     assertEquals(TermType.ATOM, result.getResult().getTermType());
-    assertEquals(12.345d, ((PrologNumeric)result.getResult()).getNumber().doubleValue(),Double.MIN_NORMAL);
+    assertEquals(12.345d, ((PrologNumeric) result.getResult()).getNumber().doubleValue(), Double.MIN_NORMAL);
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
 

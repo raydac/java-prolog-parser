@@ -8,6 +8,7 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
 import com.igormaznitsa.prologparser.terms.PrologList;
+import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
@@ -37,14 +38,21 @@ import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
 
-  private EdinburghPrologParser parserFor(final String str) {
-    final ParserContext mock = mock(ParserContext.class);
-    return new EdinburghPrologParser(new StringReader(str), mock);
+  private static EdinburghPrologParser parseEd(final String str) {
+    final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    return new EdinburghPrologParser(new StringReader(str), parserContext);
+  }
+
+  private static GenericPrologParser parseGen(final String str) {
+    final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    return new GenericPrologParser(new StringReader(str), parserContext);
   }
 
   @Test
   public void testParseStringWithSpecialChars() {
-    final PrologParser parser = parserFor("'\u0008Hello\\\nWorld\u0021\\r'.'\\xFF\\Another String\u0007'.");
+    final PrologParser parser = parseEd("'\u0008Hello\\\nWorld\u0021\\r'.'\\xFF\\Another String\u0007'.");
     PrologTerm term = parser.next();
 
     assertEquals(ATOM, term.getTermType());
@@ -59,7 +67,7 @@ public class IntegrationTest {
 
   @Test
   public void testVariableMustBeNotEqualAtSentenceBounds() {
-    PrologStruct structure = (PrologStruct) parserFor("test(A,B,C,A,B,C,A,B,C,A,B,C,_,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,_,_).").next();
+    PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,_,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,_,_).").next();
 
     final Set<PrologVariable> varSet = new HashSet<>();
     for (int li = 0; li < structure.getArity(); li++) {
@@ -73,7 +81,7 @@ public class IntegrationTest {
 
   @Test
   public void testVariablesAtSentenceBounds() {
-    PrologStruct structure = (PrologStruct) parserFor("test(A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C).").next();
+    PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C).").next();
 
     final PrologVariable varA = (PrologVariable) structure.getElementAt(0);
     final PrologVariable varB = (PrologVariable) structure.getElementAt(1);
@@ -96,7 +104,7 @@ public class IntegrationTest {
 
   @Test
   public void testEndOfStream() {
-    final PrologParser parser = parserFor("hello.world.");
+    final PrologParser parser = parseEd("hello.world.");
     PrologTerm term = parser.next();
 
     assertEquals(ATOM, term.getTermType());
@@ -110,7 +118,7 @@ public class IntegrationTest {
   }
 
   private void checkWrongSentenceReadingWithPPE(final String readSentence, final int stringPosition) {
-    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parserFor(readSentence).next()).getPos());
+    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parseEd(readSentence).next()).getPos());
   }
 
   @Test
@@ -143,14 +151,14 @@ public class IntegrationTest {
   }
 
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) {
-    final PrologTerm atom = parserFor(atomToBeChecked + '.').next();
+    final PrologTerm atom = parseEd(atomToBeChecked + '.').next();
     assertEquals(ATOM, atom.getTermType());
     assertEquals(PrologAtom.class, atom.getClass());
     assertEquals(expectedAtomText, atom.getTermText());
   }
 
   private void checkParseAtomQuoting(final String atomToBeChecked, final String expectedAtomText, final PrologTerm.QuotingType expectedType) {
-    final PrologTerm atom = parserFor(atomToBeChecked + '.').next();
+    final PrologTerm atom = parseEd(atomToBeChecked + '.').next();
     assertEquals(ATOM, atom.getTermType());
     assertEquals(expectedType, atom.getQuotingType());
     assertEquals(PrologAtom.class, atom.getClass());
@@ -172,7 +180,7 @@ public class IntegrationTest {
   }
 
   private void checkIntegerWithoutPPE(final String atomToBeChecked, final long expectedNumber) {
-    PrologTerm atom = parserFor(atomToBeChecked + '.').next();
+    PrologTerm atom = parseEd(atomToBeChecked + '.').next();
     assertEquals(ATOM, atom.getTermType(), "Type: " + atom.getTermType());
     assertEquals(PrologInteger.class, atom.getClass(), "Class: " + atom.getClass());
     assertEquals(expectedNumber, ((PrologInteger) atom).getNumber().longValue(), "Number: " + ((PrologInteger) atom).getNumber().longValue());
@@ -190,14 +198,14 @@ public class IntegrationTest {
 
     checkIntegerWithoutPPE(Long.toString(Long.MIN_VALUE), Long.MIN_VALUE);
 
-    final PrologTerm val = parserFor("'298723987'.").next();
+    final PrologTerm val = parseEd("'298723987'.").next();
     assertEquals(ATOM, val.getTermType());
     assertEquals(PrologAtom.class, val.getClass());
     assertEquals("298723987", val.getTermText());
   }
 
   private void checkFloatWithoutPPE(final String atomToBeChecked, final double expectedNumber) {
-    PrologTerm atom = parserFor(atomToBeChecked + '.').next();
+    PrologTerm atom = parseEd(atomToBeChecked + '.').next();
     assertEquals(ATOM, atom.getTermType());
     assertEquals(PrologFloat.class, atom.getClass());
     assertEquals(expectedNumber, ((PrologFloat) atom).getNumber().doubleValue(), Double.MIN_NORMAL, String.format("%e <> %e", expectedNumber, ((PrologFloat) atom).getNumber().doubleValue()));
@@ -211,48 +219,48 @@ public class IntegrationTest {
     checkFloatWithoutPPE("100.2", 100.2d);
     checkFloatWithoutPPE("2000.0", 2.0e+3d);
 
-    final PrologTerm val = parserFor("298723987493287423423.00002342342300043324234324E+75.").next();
+    final PrologTerm val = parseEd("298723987493287423423.00002342342300043324234324E+75.").next();
     assertEquals(ATOM, val.getTermType());
     assertEquals(PrologFloat.class, val.getClass());
 
-    final PrologTerm valAtom = parserFor("2.0E.").next();
+    final PrologTerm valAtom = parseEd("2.0E.").next();
     assertEquals(ATOM, valAtom.getTermType());
     assertEquals(PrologAtom.class, valAtom.getClass());
   }
 
   @Test
   public void testParseVariable() {
-    PrologTerm var = parserFor("X.").next();
+    PrologTerm var = parseEd("X.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("X", var.getTermText());
 
-    var = parserFor("Result.").next();
+    var = parseEd("Result.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("Result", var.getTermText());
 
-    var = parserFor("Object2.").next();
+    var = parseEd("Object2.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("Object2", var.getTermText());
 
-    var = parserFor("Participant_list.").next();
+    var = parseEd("Participant_list.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("Participant_list", var.getTermText());
 
-    var = parserFor("ShoppingList.").next();
+    var = parseEd("ShoppingList.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("ShoppingList", var.getTermText());
 
-    var = parserFor("_x23.").next();
+    var = parseEd("_x23.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("_x23", var.getTermText());
 
-    var = parserFor("_23.").next();
+    var = parseEd("_23.").next();
     assertEquals(TermType.VAR, var.getTermType());
     assertEquals(PrologVariable.class, var.getClass());
     assertEquals("_23", var.getTermText());
@@ -260,7 +268,7 @@ public class IntegrationTest {
 
   @Test
   public void testParseStructure() {
-    PrologParser parser = parserFor("date(Day,may,2001).");
+    PrologParser parser = parseEd("date(Day,may,2001).");
     final PrologTerm term = parser.next();
 
     verify(parser.getContext(), times(1)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
@@ -282,16 +290,16 @@ public class IntegrationTest {
 
   @Test
   public void testParseList() {
-    PrologList list = (PrologList) parserFor("[].").next();
+    PrologList list = (PrologList) parseEd("[].").next();
     assertEquals(TermType.LIST, list.getTermType());
     assertEquals(PrologList.class, list.getClass());
     assertTrue((list).isEmpty());
 
-    list = (PrologList) parserFor("[1,2,3,4,5].").next();
+    list = (PrologList) parseEd("[1,2,3,4,5].").next();
     assertFalse(list.isEmpty());
     assertEquals("[1, 2, 3, 4, 5]", list.toString());
 
-    list = (PrologList) parserFor("[Hello|World].").next();
+    list = (PrologList) parseEd("[Hello|World].").next();
     assertFalse(list.isEmpty());
     assertEquals("[Hello|World]", list.toString());
     assertEquals(TermType.VAR, list.getHead().getTermType());
@@ -299,22 +307,22 @@ public class IntegrationTest {
     assertEquals(TermType.VAR, list.getTail().getTermType());
     assertEquals("World", list.getTail().getTermText());
 
-    list = (PrologList) parserFor("[a|[b,c]].").next();
+    list = (PrologList) parseEd("[a|[b,c]].").next();
     assertFalse(list.isEmpty());
     assertEquals("[a, b, c]", list.toString());
 
-    list = (PrologList) parserFor("[a,b|[c]].").next();
+    list = (PrologList) parseEd("[a,b|[c]].").next();
     assertFalse(list.isEmpty());
     assertEquals("[a, b, c]", list.toString());
 
-    list = (PrologList) parserFor("[a,b,c|[]].").next();
+    list = (PrologList) parseEd("[a,b,c|[]].").next();
     assertFalse(list.isEmpty());
     assertEquals("[a, b, c]", list.toString());
   }
 
   @Test
   public void testParseOperator() {
-    PrologParser parser = parserFor("hello:-world.");
+    PrologParser parser = parseEd("hello:-world.");
     PrologStruct struct = (PrologStruct) parser.next();
 
     verify(parser.getContext(), times(1)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
@@ -328,7 +336,7 @@ public class IntegrationTest {
     assertEquals("hello", struct.getElementAt(0).getTermText());
     assertEquals("world", struct.getElementAt(1).getTermText());
 
-    parser = parserFor(":-test.");
+    parser = parseEd(":-test.");
     struct = (PrologStruct) parser.next();
 
     verify(parser.getContext(), times(1)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
@@ -341,7 +349,7 @@ public class IntegrationTest {
         ((Op) struct.getFunctor()).getOpType());
     assertEquals("test", struct.getElementAt(0).getTermText());
 
-    parser = parserFor("X is X+1.");
+    parser = parseEd("X is X+1.");
     struct = (PrologStruct) parser.next();
 
     verify(parser.getContext(), times(2)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
@@ -364,7 +372,7 @@ public class IntegrationTest {
 
   @Test
   public void testComments() {
-    final PrologParser parser = parserFor("  %   zero line %%%% misc%%%% \n%first line\n%second line\n\nhello:-world.%test\n:-test.");
+    final PrologParser parser = parseEd("  %   zero line %%%% misc%%%% \n%first line\n%second line\n\nhello:-world.%test\n:-test.");
     PrologTerm term = parser.next();
     PrologTerm term2 = parser.next();
 
@@ -473,8 +481,8 @@ public class IntegrationTest {
     assertEquals("~ (A & B) <===> ~ A v ~ B", term.toString());
   }
 
-  private void assertReadTerms(final int expected, final String resource, final Op ... ops) {
-    final DefaultParserContext defaultContext = new DefaultParserContext(true, ops);
+  private void assertReadTerms(final int expected, final String resource, final Op... ops) {
+    final DefaultParserContext defaultContext = new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS, ops);
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
       final PrologParser parser = new EdinburghPrologParser(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
@@ -500,26 +508,26 @@ public class IntegrationTest {
 
   @Test
   public void testStreamPositionForTerms() {
-    PrologTerm atom = parserFor("\n     'hello'.").next();
+    PrologTerm atom = parseEd("\n     'hello'.").next();
     assertEquals(6, atom.getPos());
     assertEquals(2, atom.getLine());
 
-    atom = parserFor("\n     12345.").next();
+    atom = parseEd("\n     12345.").next();
     assertEquals(6, atom.getPos());
     assertEquals(2, atom.getLine());
 
-    atom = parserFor("\n     [1,2,3,4,5].").next();
+    atom = parseEd("\n     [1,2,3,4,5].").next();
     assertEquals(6, atom.getPos());
     assertEquals(2, atom.getLine());
 
-    final PrologList list = (PrologList) parserFor("\n\n\n\n   [   [1,2],3].").next();
+    final PrologList list = (PrologList) parseEd("\n\n\n\n   [   [1,2],3].").next();
     assertEquals(4, list.getPos());
     assertEquals(5, list.getLine());
 
     assertEquals(8, list.getHead().getPos());
     assertEquals(5, list.getHead().getLine());
 
-    final PrologStruct mainterm = (PrologStruct) parserFor("  %\ncube (X,\'hello\',1000) :- \n Y is X * X * X.").next();
+    final PrologStruct mainterm = (PrologStruct) parseEd("  %\ncube (X,\'hello\',1000) :- \n Y is X * X * X.").next();
 
     // ':-'
     assertEquals(23, mainterm.getPos());
@@ -547,7 +555,7 @@ public class IntegrationTest {
     assertEquals(2, rightPart.getElementAt(0).getPos());
     assertEquals(3, rightPart.getElementAt(0).getLine());
 
-    final PrologStruct structure = (PrologStruct) parserFor("test(\n1,  \n2, 4*2,  \n3,4,\n5,6*7,8).").next();
+    final PrologStruct structure = (PrologStruct) parseEd("test(\n1,  \n2, 4*2,  \n3,4,\n5,6*7,8).").next();
     // 4*2
     assertEquals(5, structure.getElementAt(2).getPos());
     assertEquals(3, structure.getElementAt(2).getLine());
@@ -558,7 +566,7 @@ public class IntegrationTest {
 
   @Test
   public void testSingleOperatorAsAtom() {
-    final PrologStruct structure = (PrologStruct) parserFor("not/stream.").next();
+    final PrologStruct structure = (PrologStruct) parseEd("not/stream.").next();
     assertEquals("/", structure.getFunctor().getTermText());
     assertEquals(ATOM, structure.getElementAt(0).getTermType());
     assertEquals("not", structure.getElementAt(0).getTermText());
@@ -581,7 +589,7 @@ public class IntegrationTest {
 
   @Test
   public void testOperatorNameAsAtomicFunctor() {
-    final PrologStruct structure = (PrologStruct) parserFor("'mod'(_,_,_,_).").next();
+    final PrologStruct structure = (PrologStruct) parseEd("'mod'(_,_,_,_).").next();
     assertEquals("mod", structure.getFunctor().getTermText());
     assertNotSame(structure.getFunctor().getTermType(), TermType.__OPERATOR__);
     assertEquals(4, structure.getArity());
@@ -589,21 +597,21 @@ public class IntegrationTest {
 
   @Test
   public void testOperatorNameAsFunctor_EmptyBrackets() {
-    final PrologParserException ex = assertThrows(PrologParserException.class, () -> parserFor("+().").next());
+    final PrologParserException ex = assertThrows(PrologParserException.class, () -> parseEd("+().").next());
     assertEquals(2, ex.getPos());
     assertEquals(1, ex.getLine());
   }
 
   @Test
   public void testAtomAsFunctor_EmptyBrackets() {
-    final PrologParserException ex = assertThrows(PrologParserException.class, () -> parserFor("'hello'().").next());
+    final PrologParserException ex = assertThrows(PrologParserException.class, () -> parseEd("'hello'().").next());
     assertEquals(8, ex.getPos());
     assertEquals(1, ex.getLine());
   }
 
   @Test
   public void testAtomInSequenceWithNameSimilarOperator() {
-    final PrologStruct structure = (PrologStruct) parserFor("functor(1,2,3,mod,5,6).").next();
+    final PrologStruct structure = (PrologStruct) parseEd("functor(1,2,3,mod,5,6).").next();
     assertEquals(6, structure.getArity());
     assertEquals("1", structure.getElementAt(0).getTermText());
     assertEquals("2", structure.getElementAt(1).getTermText());
@@ -632,7 +640,7 @@ public class IntegrationTest {
     }
     buffer.append("].");
 
-    PrologList list = (PrologList) parserFor(buffer.toString()).next();
+    PrologList list = (PrologList) parseEd(buffer.toString()).next();
 
     for (int i = 0; i < ELEMENTS; i++) {
       final PrologInteger head = (PrologInteger) list.getHead();
@@ -645,7 +653,7 @@ public class IntegrationTest {
 
   @Test
   public void testHelloWorld() {
-    final PrologStruct rule = (PrologStruct) parserFor("hello :- world,!.").next();
+    final PrologStruct rule = (PrologStruct) parseEd("hello :- world,!.").next();
     final PrologStruct and = (PrologStruct) rule.getElementAt(1);
     assertEquals("hello world!", rule.getElementAt(0).getTermText() + ' ' + and.getElementAt(0).getTermText() + and.getElementAt(1).getTermText());
   }
@@ -663,16 +671,16 @@ public class IntegrationTest {
       } else {
         nonfirst = true;
       }
-      buffer.append(i);
+      buffer.append(i - 100);
     }
     buffer.append(").");
 
-    PrologStruct struct = (PrologStruct) parserFor(buffer.toString()).next();
+    PrologStruct struct = (PrologStruct) parseEd(buffer.toString()).next();
 
     assertEquals(ELEMENTS, struct.getArity());
     assertEquals("test", struct.getFunctor().getTermText());
     for (int i = 0; i < ELEMENTS; i++) {
-      assertEquals(i, ((PrologInteger) struct.getElementAt(i)).getNumber().intValue());
+      assertEquals(i - 100, ((PrologInteger) struct.getElementAt(i)).getNumber().intValue());
     }
   }
 
@@ -744,6 +752,26 @@ public class IntegrationTest {
   }
 
   @Test
+  public void testSignedNumerics_EdingburghParser() {
+    assertEquals(-1, ((PrologNumeric) parseEd("-1.").next()).getNumber().intValue());
+    assertEquals(1, ((PrologNumeric) parseEd("+1.").next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseEd("+1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1.1f, ((PrologNumeric) parseEd("-1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(1, ((PrologNumeric) parseEd("1.").next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseEd("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+  }
+
+  @Test
+  public void testSignedNumerics_GenericParser() {
+    assertEquals(-1, ((PrologNumeric) parseGen("-1.").next()).getNumber().intValue());
+    assertEquals(1, ((PrologNumeric) parseGen("+1.").next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(1, ((PrologNumeric) parseGen("1.").next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+  }
+
+  @Test
   public void testStandardTermOrder() {
     assertEquals("1\n2\n3\n4\n5", parseSortAndJoin("5. 3. 1. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23. 3.6. 1.3. 2. 4."));
@@ -763,8 +791,8 @@ public class IntegrationTest {
     }
 
     @Override
-    public boolean isBlockCommentAllowed() {
-      return false;
+    public int getFlags() {
+      return ParserContext.FLAG_NONE;
     }
 
     @Override

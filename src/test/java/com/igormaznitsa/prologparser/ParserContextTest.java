@@ -67,7 +67,7 @@ public class ParserContextTest {
 
   @Test
   public void testHasZeroArityStruct() {
-    final ParserContext context = new DefaultParserContext(true).addZeroArityStructs("foo");
+    final ParserContext context = new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS).addZeroArityStructs("foo");
 
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("foo.faa."), context);
 
@@ -111,9 +111,10 @@ public class ParserContextTest {
       }
 
       @Override
-      public boolean isBlockCommentAllowed() {
-        return false;
+      public int getFlags() {
+        return ParserContext.FLAG_NONE;
       }
+
     };
 
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("test(1,2,3).foo.ttt(5). a :- b."), stubContext);

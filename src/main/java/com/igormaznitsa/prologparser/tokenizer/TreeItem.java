@@ -237,9 +237,14 @@ final class TreeItem {
           }
 
           // this code replaces '-'(number) to '-number'
-          if (right instanceof PrologNumeric && "-".equals(wrapper.getTermText()) && left == null && right.getTermType() == TermType.ATOM) {
-            result = ((PrologNumeric) right).neg();
-            break;
+          if (right instanceof PrologNumeric && wrapper.getQuotingType() == PrologTerm.QuotingType.NO_QUOTED && left == null && right.getTermType() == TermType.ATOM) {
+            if ("-".equals(wrapper.getTermText())) {
+              result = ((PrologNumeric) right).neg();
+              break;
+            } else if ("+".equals(wrapper.getTermText())) {
+              result = right;
+              break;
+            }
           }
 
           final PrologStruct operatorStruct;

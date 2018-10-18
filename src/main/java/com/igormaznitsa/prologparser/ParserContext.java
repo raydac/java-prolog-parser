@@ -27,6 +27,9 @@ import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 public interface ParserContext {
 
+  int FLAG_NONE = 0;
+  int FLAG_BLOCK_COMMENTS = 1;
+
   boolean hasOperatorStartsWith(PrologParser source, String namePrefix);
 
   OpContainer findOperatorForName(PrologParser source, String name);
@@ -35,5 +38,5 @@ public interface ParserContext {
 
   void onStructureCreated(PrologParser source, PrologStruct struct);
 
-  boolean isBlockCommentAllowed();
+  int getFlags();
 }

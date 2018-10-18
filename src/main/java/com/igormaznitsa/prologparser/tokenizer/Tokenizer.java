@@ -63,7 +63,7 @@ final class Tokenizer {
     super();
     this.reader = reader;
     this.parser = parser;
-    this.blockCommentsAllowed = parser.context == null ? true : parser.context.isBlockCommentAllowed();
+    this.blockCommentsAllowed = parser.context != null && ((parser.context.getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
 
     this.pos = 1;
     this.line = 1;
