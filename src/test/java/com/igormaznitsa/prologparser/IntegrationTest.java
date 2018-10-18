@@ -473,11 +473,10 @@ public class IntegrationTest {
     assertEquals("~ (A & B) <===> ~ A v ~ B", term.toString());
   }
 
-  private void assertReadTerms(final int expected, final String resource) {
+  private void assertReadTerms(final int expected, final String resource, final Op ... ops) {
+    final DefaultParserContext defaultContext = new DefaultParserContext(true, ops);
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
-      final ParserContext context = mock(ParserContext.class);
-      when(context.isBlockCommentAllowed()).thenReturn(true);
-      final PrologParser parser = new EdinburghPrologParser(reader, context);
+      final PrologParser parser = new EdinburghPrologParser(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
       ex.printStackTrace();
@@ -496,6 +495,7 @@ public class IntegrationTest {
     assertReadTerms(16, "likes.pl");
     assertReadTerms(7, "dmalloc.pl");
     assertReadTerms(24, "xref_packages.pl");
+    assertReadTerms(75, "sictus.pl", Op.makeOne(900, OpType.XFX, "=>"), Op.makeOne(800, OpType.XFY, "&"), Op.makeOne(300, OpType.XFX, ":"));
   }
 
   @Test

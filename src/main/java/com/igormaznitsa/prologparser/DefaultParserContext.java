@@ -39,8 +39,9 @@ public class DefaultParserContext implements ParserContext {
 
   protected final boolean blockCommentAllowed;
 
-  public DefaultParserContext(final boolean blockCommentAllowed) {
+  public DefaultParserContext(final boolean blockCommentAllowed, final Op... operators) {
     this.blockCommentAllowed = blockCommentAllowed;
+    this.addOperators(operators);
   }
 
   @Override
@@ -49,7 +50,7 @@ public class DefaultParserContext implements ParserContext {
   }
 
   protected void fillPrefixes(final String name) {
-    for (int i = 1; i < name.length(); i++) {
+    for (int i = 1; i <= name.length(); i++) {
       this.opPrefixes.add(name.substring(0, i));
     }
   }

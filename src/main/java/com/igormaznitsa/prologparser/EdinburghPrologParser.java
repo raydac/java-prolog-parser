@@ -40,8 +40,7 @@ public class EdinburghPrologParser extends GenericPrologParser {
         op(400, OpType.YFX, "*", "/", "//", "<<", ">>", "rem", "mod"),
         op(200, OpType.XFX, "**"),
         op(200, OpType.XFY, "^"),
-        op(200, OpType.FY, "-"),
-        op(200, OpType.FY, "\\"));
+        op(200, OpType.FY, "-","+","\\"));
   }
 
   public EdinburghPrologParser(final Reader reader, final ParserContext context) {

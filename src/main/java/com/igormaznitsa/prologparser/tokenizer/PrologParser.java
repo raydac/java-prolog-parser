@@ -456,8 +456,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
               if (readAtom == null) {
                 // we didn't get any operator for our criteria, so throw
                 // an exception
-
-                throw new PrologParserException("Incompatible operator type",
+                throw new PrologParserException("Incompatible operator type ["+readAtomContainer.getResult().getTermText()+']',
                     readAtomContainer.getLine(), readAtomContainer.getPos());
               }
               // we have found needed operator so get its priority
