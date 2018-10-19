@@ -21,7 +21,7 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.operators.OpContainer;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 
 import java.util.Arrays;
 import java.util.Collections;

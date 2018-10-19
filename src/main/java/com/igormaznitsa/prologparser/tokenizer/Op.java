@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser.operators;
+package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -30,39 +30,34 @@ import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Prolog operator definition.
  */
 public final class Op extends SpecServiceCompound {
-  public static final Op METAOPERATOR_LEFT_BRACKET = makeMeta(-1, OpType.FX, "(");
-  public static final Op METAOPERATOR_RIGHT_BRACKET = makeMeta(-1, OpType.XF, ")");
-  public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeMeta(-1, OpType.FX, "[");
-  public static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeMeta(-1, OpType.XF, "]");
-  public static final Op METAOPERATOR_DOT = makeMeta(Integer.MAX_VALUE, OpType.XF, ".");
-  public static final Op METAOPERATOR_VERTICAL_BAR = makeMeta(Integer.MAX_VALUE - 1, OpType.XFY, "|");
+  public static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpType.FX, "(");
+  public static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpType.XF, ")");
+  public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpType.FX, "[");
+  public static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpType.XF, "]");
+  public static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpType.XF, ".");
+  public static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpType.XFY, "|");
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
-  private static final long serialVersionUID = -5954313127778538548L;
+  private static final long serialVersionUID = -5954313127778138548L;
   private static final Op[] EMPTY = new Op[0];
   private final OpType opType;
   private final int precedence;
   private final int preparedHash;
 
-  /**
-   * Constructor
-   *
-   * @param precedence priority of the operator
-   * @param type       type of the operator
-   * @param name       name of the operator
-   */
-  private Op(final int precedence, final OpType type, final String name) {
+  private final String[] multiNames;
+
+  private Op(final int precedence, final OpType type, final String name, final String[] multiNames) {
     super(name);
 
     assertOpValidOpName(name);
 
+    this.multiNames = multiNames;
     this.opType = type;
     this.precedence = precedence;
 
@@ -97,7 +92,7 @@ public final class Op extends SpecServiceCompound {
    * @return array of generated operators
    * @see OpType
    */
-  public static Op[] make(final int precedence, final OpType type, final String[] names) {
+  public static Op make(final int precedence, final OpType type, final String... names) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException("Precedence must be in 0..1200");
     }
@@ -105,30 +100,32 @@ public final class Op extends SpecServiceCompound {
     AssertUtils.assertNotNull(type);
     AssertUtils.assertNotNull(names);
 
-    return Stream.of(names)
-        .map(x -> makeOne(precedence, type, x))
-        .collect(Collectors.toList()).toArray(EMPTY);
-  }
-
-  /**
-   * Gemerate operator for names.
-   *
-   * @param precedence the priority
-   * @param type       the type of operators
-   * @param name       name of operator to generate
-   * @return generated operator
-   * @see OpType
-   */
-  public static Op makeOne(final int precedence, final OpType type, final String name) {
-    if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
-      throw new IllegalArgumentException("Wrong precedence value");
+    if (names.length == 0) {
+      throw new IllegalArgumentException("Operator name must be defined");
     }
 
-    return new Op(precedence, type, name);
+    return names.length == 1 ? new Op(precedence, type, names[0], null)
+        : new Op(precedence, type, ".multi.", names);
   }
 
-  private static Op makeMeta(final int precedence, final OpType type, final String name) {
-    return new Op(precedence, type, name);
+  static Op makeSystem(final int precedence, final OpType type, final String... names) {
+    AssertUtils.assertNotNull(type);
+    AssertUtils.assertNotNull(names);
+
+    if (names.length == 0) {
+      throw new IllegalArgumentException("Operator name must be defined");
+    }
+
+    return names.length == 1 ? new Op(precedence, type, names[0], null)
+        : new Op(precedence, type, ".system.", names);
+  }
+
+  public Stream<Op> streamOp() {
+    if (this.multiNames == null) {
+      return Stream.of(this);
+    } else {
+      return Stream.of(this.multiNames).map(x -> new Op(this.precedence, this.opType, x, null));
+    }
   }
 
   @Override

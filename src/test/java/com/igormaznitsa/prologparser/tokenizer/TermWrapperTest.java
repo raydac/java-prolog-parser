@@ -1,7 +1,5 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class TermWrapperTest {
 
-  final Op testWrapped = Op.makeOne(300, OpType.FX, "---");
+  final Op testWrapped = Op.make(300, OpType.FX, "---");
   final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<TermWrapper>(32) {
     @Override
     public final TermWrapper get() {

@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser.operators;
+package com.igormaznitsa.prologparser.tokenizer;
 
 import java.util.Optional;
 import java.util.stream.Stream;

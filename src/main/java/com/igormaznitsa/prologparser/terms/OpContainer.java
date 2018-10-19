@@ -19,12 +19,11 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser.operators;
+package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
-import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 /**

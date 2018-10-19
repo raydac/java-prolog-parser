@@ -23,8 +23,6 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;

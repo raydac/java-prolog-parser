@@ -1,9 +1,9 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.terms.OpContainer;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
@@ -50,7 +50,7 @@ public class ParserContextTest {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
-        return OpContainer.make(Op.makeOne(1000, OpType.XFX, "operator"));
+        return OpContainer.make(Op.make(1000, OpType.XFX, "operator"));
       } else {
         return null;
       }

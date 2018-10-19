@@ -21,7 +21,7 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.operators.OpContainer;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 

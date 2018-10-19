@@ -25,10 +25,7 @@ import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.operators.Ops;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
@@ -41,7 +38,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,7 +50,7 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.igormaznitsa.prologparser.operators.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 
 /**
  * Abstract prolog parser.
@@ -100,7 +96,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     OPERATOR_VERTICALBAR = make(Op.METAOPERATOR_VERTICAL_BAR);
     META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_VERTICAL_BAR.getTermText(), OPERATOR_VERTICALBAR);
 
-    registerSysOp(Ops.of(1000, OpType.XFY, ","));
+    registerSysOp(Op.make(1000, OpType.XFY, ","));
 
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_DOT.getTermText());
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_LEFT_BRACKET.getTermText());
@@ -151,16 +147,16 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  private static void registerSysOp(final Ops... operators) {
+  private static void registerSysOp(final Op... operators) {
     final StringBuilderEx buff = new StringBuilderEx(10);
 
-    Stream.of(operators).flatMap(x -> Arrays.stream(x.makeOperators())).forEach(op -> {
-      final String opText = op.getTermText();
+    Stream.of(operators).flatMap(x -> x.streamOp()).forEach(x -> {
+      final String opText = x.getTermText();
       if (SYSTEM_OPERATORS.containsKey(opText)) {
         final OpContainer container = SYSTEM_OPERATORS.get(opText);
-        container.add(op);
+        container.add(x);
       } else {
-        final OpContainer container = make(op);
+        final OpContainer container = make(x);
         SYSTEM_OPERATORS.put(opText, container);
       }
       buff.clear();

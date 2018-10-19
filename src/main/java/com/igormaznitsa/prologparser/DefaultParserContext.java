@@ -21,9 +21,9 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.operators.Ops;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Collections;
@@ -31,8 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static java.util.Arrays.stream;
+import java.util.stream.Stream;
 
 public class DefaultParserContext implements ParserContext {
 
@@ -42,7 +41,7 @@ public class DefaultParserContext implements ParserContext {
 
   protected final int flags;
 
-  public DefaultParserContext(final int flags, final Ops... operators) {
+  public DefaultParserContext(final int flags, final Op... operators) {
     this.flags = flags;
     this.addOperators(operators);
   }
@@ -70,15 +69,15 @@ public class DefaultParserContext implements ParserContext {
     return this;
   }
 
-  public DefaultParserContext addOperators(final Ops... operators) {
-    stream(operators).flatMap(x -> stream(x.makeOperators())).forEach(op -> {
-      fillPrefixes(op.getTermText());
-      OpContainer container = this.opContainers.get(op.getTermText());
+  public DefaultParserContext addOperators(final Op... operators) {
+    Stream.of(operators).flatMap(x -> x.streamOp()).forEach(x -> {
+      fillPrefixes(x.getTermText());
+      OpContainer container = this.opContainers.get(x.getTermText());
       if (container == null) {
-        container = OpContainer.make(op);
-        this.opContainers.put(op.getTermText(), container);
+        container = OpContainer.make(x);
+        this.opContainers.put(x.getTermText(), container);
       } else {
-        container.add(op);
+        container.add(x);
       }
     });
     return this;

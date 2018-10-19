@@ -1,10 +1,9 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
-import com.igormaznitsa.prologparser.operators.Ops;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.terms.OpContainer;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
@@ -31,7 +30,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static com.igormaznitsa.prologparser.operators.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static java.util.stream.Collectors.joining;
@@ -396,9 +395,9 @@ public class IntegrationTest {
   @Test
   public void testSimilarOperatorInterpretation() {
     final Map<String, OpContainer> operators = new HashMap<>();
-    final Op firstOperator = Op.makeOne(100, OpType.FY, "++++++");
-    final Op secondOperator = Op.makeOne(100, OpType.FY, "+++");
-    final Op thirdOperator = Op.makeOne(100, OpType.FY, "++");
+    final Op firstOperator = Op.make(100, OpType.FY, "++++++");
+    final Op secondOperator = Op.make(100, OpType.FY, "+++");
+    final Op thirdOperator = Op.make(100, OpType.FY, "++");
 
     operators.put(firstOperator.getTermText(), make(firstOperator));
     operators.put(secondOperator.getTermText(), make(secondOperator));
@@ -431,7 +430,7 @@ public class IntegrationTest {
           final PrologStruct operatorstructure = (PrologStruct) structure.getElementAt(0);
 
           if (operatorstructure.getArity() == 3 && operatorstructure.getFunctor().getTermText().equals("of")) {
-            final Op newoperator = Op.makeOne(
+            final Op newoperator = Op.make(
                 ((PrologInteger) operatorstructure.getElementAt(0)).getNumber().intValue(),
                 OpType.findForName(operatorstructure.getElementAt(1).getTermText()).get(),
                 operatorstructure.getElementAt(2).getTermText());
@@ -491,7 +490,7 @@ public class IntegrationTest {
     assertEquals("~ (A & B) <===> ~ A v ~ B", term.toString());
   }
 
-  private void assertReadTerms(final int expected, final String resource, final Ops... ops) {
+  private void assertReadTerms(final int expected, final String resource, final Op... ops) {
     final DefaultParserContext defaultContext = new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS, ops);
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
       final PrologParser parser = new EdinburghPrologParser(reader, defaultContext);
@@ -513,7 +512,7 @@ public class IntegrationTest {
     assertReadTerms(16, "likes.pl");
     assertReadTerms(7, "dmalloc.pl");
     assertReadTerms(24, "xref_packages.pl");
-    assertReadTerms(75, "sictus.pl", Ops.of(900, OpType.XFX, "=>"), Ops.of(800, OpType.XFY, "&"), Ops.of(300, OpType.XFX, ":"));
+    assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
 
   @Test
@@ -587,8 +586,8 @@ public class IntegrationTest {
   @Test
   public void testRecognizingUserOperatorsWhichSimilarMetaOperators() {
     final Map<String, OpContainer> operators = new HashMap<>();
-    operators.put("(((", make(Op.makeOne(1, OpType.FX, "(((")));
-    operators.put("...", make(Op.makeOne(1200, OpType.XF, "...")));
+    operators.put("(((", make(Op.make(1, OpType.FX, "(((")));
+    operators.put("...", make(Op.make(1200, OpType.XF, "...")));
     final StubContext stubContext = new StubContext(operators);
 
     final PrologStruct structure = (PrologStruct) new EdinburghPrologParser(new StringReader("(((hello...."), stubContext).next();

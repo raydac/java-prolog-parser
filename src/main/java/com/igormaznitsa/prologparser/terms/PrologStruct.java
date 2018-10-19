@@ -22,7 +22,7 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.operators.Op;
+import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 

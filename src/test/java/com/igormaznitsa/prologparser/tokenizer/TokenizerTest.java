@@ -4,9 +4,7 @@ import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.operators.Op;
-import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
@@ -19,7 +17,7 @@ import org.junit.jupiter.api.function.Executable;
 
 import java.io.StringReader;
 
-import static com.igormaznitsa.prologparser.operators.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.NO_QUOTED;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.SINGLE_QUOTED;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
@@ -320,7 +318,7 @@ public class TokenizerTest {
     assertThrows(NullPointerException.class, () -> tokenizer.findOperatorForName(null));
     assertNull(tokenizer.findOperatorForName("<------------------------------------------------------->"));
 
-    final OpContainer operatorContainer = make(Op.makeOne(1000, OpType.FX, "some_operator"));
+    final OpContainer operatorContainer = make(Op.make(1000, OpType.FX, "some_operator"));
 
     when(context.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 

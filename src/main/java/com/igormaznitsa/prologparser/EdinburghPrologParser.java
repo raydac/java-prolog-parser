@@ -21,29 +21,29 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 
 import java.io.Reader;
 
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
 import static com.igormaznitsa.prologparser.ParserContexts.of;
-import static com.igormaznitsa.prologparser.operators.Ops.of;
+import static com.igormaznitsa.prologparser.tokenizer.Op.make;
 
 public class EdinburghPrologParser extends GenericPrologParser {
 
   public EdinburghPrologParser(final Reader reader, final ParserContext context) {
     super(reader, of(new DefaultParserContext(FLAG_BLOCK_COMMENTS,
-        of(1200, OpType.XFX, ":-", "-->"),
-        of(1200, OpType.FX, "?-", ":-"),
-        of(1100, OpType.XFY, ";"),
-        of(1150, OpType.XFY, "->"),
-        of(900, OpType.FY, "\\+"),
-        of(700, OpType.XFX, "=", "\\=", "==", "\\==", "@<", "@=<", "@>", "@>+", "=..", "is", "=:=", "=\\=", "<", "=<", ">", ">="),
-        of(500, OpType.YFX, "+", "-", "/\\", "\\/"),
-        of(400, OpType.YFX, "*", "/", "//", "<<", ">>", "rem", "mod"),
-        of(200, OpType.XFX, "**"),
-        of(200, OpType.XFY, "^"),
-        of(200, OpType.FY, "-", "+", "\\")
+        make(1200, OpType.XFX, ":-", "-->"),
+        make(1200, OpType.FX, "?-", ":-"),
+        make(1100, OpType.XFY, ";"),
+        make(1150, OpType.XFY, "->"),
+        make(900, OpType.FY, "\\+"),
+        make(700, OpType.XFX, "=", "\\=", "==", "\\==", "@<", "@=<", "@>", "@>+", "=..", "is", "=:=", "=\\=", "<", "=<", ">", ">="),
+        make(500, OpType.YFX, "+", "-", "/\\", "\\/"),
+        make(400, OpType.YFX, "*", "/", "//", "<<", ">>", "rem", "mod"),
+        make(200, OpType.XFX, "**"),
+        make(200, OpType.XFY, "^"),
+        make(200, OpType.FY, "-", "+", "\\")
     ), context));
   }
 
