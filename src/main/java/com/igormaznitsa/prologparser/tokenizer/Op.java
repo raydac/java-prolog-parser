@@ -37,16 +37,15 @@ import java.util.stream.Stream;
  * Prolog operator definition.
  */
 public final class Op extends SpecServiceCompound {
-  public static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpType.FX, "(");
-  public static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpType.XF, ")");
-  public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpType.FX, "[");
-  public static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpType.XF, "]");
-  public static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpType.XF, ".");
-  public static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpType.XFY, "|");
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
-  private static final long serialVersionUID = -5954313127778138548L;
-  private static final Op[] EMPTY = new Op[0];
+  static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpType.FX, "(");
+  static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpType.XF, ")");
+  static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpType.FX, "[");
+  static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpType.XF, "]");
+  static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpType.XF, ".");
+  static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpType.XFY, "|");
+  private static final long serialVersionUID = -5914313127778138548L;
   private final OpType opType;
   private final int precedence;
   private final int preparedHash;
@@ -125,6 +124,10 @@ public final class Op extends SpecServiceCompound {
 
     return names.length == 1 ? new Op(precedence, type, assertOpValidOpName(names[0]), null)
         : new Op(precedence, type, ".system.", assertOpValidOpName(names));
+  }
+
+  public boolean isMultiName() {
+    return this.multiNames != null;
   }
 
   public Stream<Op> streamOp() {

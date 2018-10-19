@@ -40,7 +40,7 @@ public final class OpContainer extends SpecServiceCompound {
 
   private OpContainer(final Op operator) {
     super(operator.getTermText());
-    add(operator);
+    operator.streamOp().forEach(this::add);
   }
 
   /**
