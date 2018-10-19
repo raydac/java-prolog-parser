@@ -29,6 +29,7 @@ import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -64,7 +65,12 @@ public final class Op extends SpecServiceCompound {
     this.preparedHash = (name + '/' + this.opType.name() + '/' + this.precedence).hashCode();
   }
 
-  private static void assertOpValidOpName(final String name) {
+  private static String[] assertOpValidOpName(final String[] names) {
+    Arrays.stream(names).forEach(Op::assertOpValidOpName);
+    return names;
+  }
+
+  private static String assertOpValidOpName(final String name) {
     AssertUtils.assertStringNotNullAndNotEmpty(name);
 
     final char firstChar = name.charAt(0);
@@ -81,15 +87,16 @@ public final class Op extends SpecServiceCompound {
       throw new IllegalArgumentException("'_' can't be firs char");
     }
 
+    return name;
   }
 
   /**
-   * Gemerate operators for names.
+   * Gemerate operator descriptor for names with same precedence and type.
    *
    * @param precedence the priority
    * @param type       the type of operators
-   * @param names      names of operators to generate
-   * @return array of generated operators
+   * @param names      names of operators, must not be empty or contain null
+   * @return generated operator descriptor
    * @see OpType
    */
   public static Op make(final int precedence, final OpType type, final String... names) {
@@ -104,8 +111,8 @@ public final class Op extends SpecServiceCompound {
       throw new IllegalArgumentException("Operator name must be defined");
     }
 
-    return names.length == 1 ? new Op(precedence, type, names[0], null)
-        : new Op(precedence, type, ".multi.", names);
+    return names.length == 1 ? new Op(precedence, type, AssertUtils.assertNotNull(names[0]), null)
+        : new Op(precedence, type, ".multi.", assertOpValidOpName(names));
   }
 
   static Op makeSystem(final int precedence, final OpType type, final String... names) {
@@ -116,8 +123,8 @@ public final class Op extends SpecServiceCompound {
       throw new IllegalArgumentException("Operator name must be defined");
     }
 
-    return names.length == 1 ? new Op(precedence, type, names[0], null)
-        : new Op(precedence, type, ".system.", names);
+    return names.length == 1 ? new Op(precedence, type, assertOpValidOpName(names[0]), null)
+        : new Op(precedence, type, ".system.", assertOpValidOpName(names));
   }
 
   public Stream<Op> streamOp() {
