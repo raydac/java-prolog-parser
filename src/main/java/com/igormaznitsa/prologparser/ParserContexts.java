@@ -24,6 +24,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
+import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -44,8 +45,14 @@ public class ParserContexts implements ParserContext {
     this.flags = accflags;
   }
 
-  public static ParserContexts of(final ParserContext... contexts) {
-    return new ParserContexts(contexts);
+  public static ParserContext of(final ParserContext... contexts) {
+    final ParserContext result;
+    if (contexts.length == 1) {
+      result = AssertUtils.assertNotNull(contexts[0]);
+    } else {
+      result = new ParserContexts(contexts);
+    }
+    return result;
   }
 
   @Override
