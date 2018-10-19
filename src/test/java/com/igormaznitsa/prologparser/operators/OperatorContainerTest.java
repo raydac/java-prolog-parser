@@ -22,7 +22,7 @@ public class OperatorContainerTest {
     container.add(makeOne(300, OpType.XFX, "<>"));
     container.add(makeOne(800, OpType.YF, "<>"));
     assertEquals(
-        "OpContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
+        "OpContainer [of(100,fx,'<>'). of(800,yf,'<>'). of(300,xfx,'<>').]",
         container.toString());
   }
 

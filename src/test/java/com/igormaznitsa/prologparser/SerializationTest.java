@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SerializationTest {
   @Test
   public void testSerializationOperator() throws Exception {
-    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a+b. c+d."), null);
+    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a,b. c,d."), null);
 
     final PrologStruct first = (PrologStruct) parser.next();
     final PrologStruct second = (PrologStruct) parser.next();

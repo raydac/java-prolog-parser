@@ -31,32 +31,36 @@ import static java.util.Collections.unmodifiableList;
 /**
  * Definition of operators with same precedence and type but different names.
  */
-public final class OpDef {
+public final class Ops {
 
   private final int precedence;
   private final OpType type;
-  private final List<String> names;
+  private final String[] names;
 
-  private OpDef(final int precedence, final OpType type, final String... names) {
+  private Ops(final int precedence, final OpType type, final String... names) {
     AssertUtils.assertNotNull(type);
     if (precedence < 0 || precedence > 1200) {
       throw new IllegalArgumentException("Precedence must be in 0..1200");
     }
     this.precedence = precedence;
     this.type = type;
-    this.names = unmodifiableList(asList(names));
+    this.names = names.clone();
   }
 
-  public static OpDef op(final int precedence, final OpType type, final String... names) {
-    return new OpDef(precedence, type, names);
+  public Op[] makeOperators() {
+    return Op.make(this.precedence, this.type, this.names);
+  }
+
+  public static Ops of(final int precedence, final OpType type, final String... names) {
+    return new Ops(precedence, type, names);
   }
 
   public int getPrecedence() {
     return this.precedence;
   }
 
-  public List<String> getNames() {
-    return this.names;
+  public String [] getNames() {
+    return this.names.clone();
   }
 
   public OpType getType() {

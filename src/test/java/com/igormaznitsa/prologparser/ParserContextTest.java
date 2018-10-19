@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,6 +91,11 @@ public class ParserContextTest {
   public void testProcessNewStructure() {
     final Map<String, PrologStruct> detectedStructures = new HashMap<>();
     final ParserContext stubContext = new ParserContext() {
+      @Override
+      public Map<String, OpContainer> findAllOperators() {
+        return Collections.emptyMap();
+      }
+
       @Override
       public void onStructureCreated(final PrologParser source, final PrologStruct struct) {
         detectedStructures.put(struct.getFunctor().getTermText(), struct);

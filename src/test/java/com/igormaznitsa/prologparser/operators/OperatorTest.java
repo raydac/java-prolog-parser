@@ -19,8 +19,8 @@ public class OperatorTest {
 
   @Test
   public void testToString() {
-    assertEquals("op(231,xfy,'<>').", Op.makeOne(231, OpType.XFY, "<>").toString());
-    assertEquals("op(100,fy,'><').", Op.makeOne(100, OpType.FY, "><").toString());
+    assertEquals("of(231,xfy,'<>').", Op.makeOne(231, OpType.XFY, "<>").toString());
+    assertEquals("of(100,fy,'><').", Op.makeOne(100, OpType.FY, "><").toString());
   }
 
   @Test

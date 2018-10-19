@@ -25,6 +25,8 @@ import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
+import java.util.Map;
+
 public interface ParserContext {
 
   int FLAG_NONE = 0;
@@ -37,6 +39,10 @@ public interface ParserContext {
   boolean hasZeroArityStruct(PrologParser source, String atomName);
 
   void onStructureCreated(PrologParser source, PrologStruct struct);
+
+
+  Map<String, OpContainer> findAllOperators();
+
 
   int getFlags();
 }

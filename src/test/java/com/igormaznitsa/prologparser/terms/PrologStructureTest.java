@@ -1,11 +1,14 @@
 package com.igormaznitsa.prologparser.terms;
 
+import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpContainer;
 import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;
 
+import java.io.StringReader;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,24 +41,25 @@ public class PrologStructureTest {
         new PrologAtom("first"), new PrologFloat(123d),
         new PrologList(), new PrologVariable()}).toString());
 
-    final Map<String, OpContainer> systemOperators = GenericPrologParser.findAllSystemOperators();
-    assertEquals("hello :- world", new PrologStruct(systemOperators.get(":-").findForType(OpType.XFX),
+    final Map<String, OpContainer> contextOperators = new EdinburghPrologParser(new StringReader("")).getContext().findAllOperators();
+    final Map<String, OpContainer> systemOperators = PrologParser.findAllSystemOperators();
+    assertEquals("hello :- world", new PrologStruct(contextOperators.get(":-").findForType(OpType.XFX),
         new PrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
     assertEquals(":- hello",
-        new PrologStruct(systemOperators.get(":-").findForType(OpType.FX),
+        new PrologStruct(contextOperators.get(":-").findForType(OpType.FX),
             new PrologTerm[] {new PrologAtom("hello")}).toString());
     assertEquals(
         "- 10 * (1 + 2)",
         new PrologStruct(
-            systemOperators.get("*").findForType(
+            contextOperators.get("*").findForType(
                 OpType.YFX),
             new PrologTerm[] {
                 new PrologStruct(
-                    systemOperators.get("-").findForType(
+                    contextOperators.get("-").findForType(
                         OpType.FY),
                     new PrologTerm[] {new PrologInteger("10")}),
-                new PrologStruct(systemOperators.get("+").findForType(OpType.YFX),
+                new PrologStruct(contextOperators.get("+").findForType(OpType.YFX),
                     new PrologTerm[] {
                         new PrologInteger("1"),
                         new PrologInteger("2")})}).toString());
@@ -63,10 +67,10 @@ public class PrologStructureTest {
     assertEquals(
         "- - 10",
         new PrologStruct(
-            systemOperators.get("-").findForType(
+            contextOperators.get("-").findForType(
                 OpType.FY),
             new PrologTerm[] {new PrologStruct(
-                systemOperators.get("-").findForType(
+                contextOperators.get("-").findForType(
                     OpType.FY),
                 new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());
@@ -74,10 +78,10 @@ public class PrologStructureTest {
     assertEquals(
         "\\ (\\+ 10)",
         new PrologStruct(
-            systemOperators.get("\\").findForType(
+            contextOperators.get("\\").findForType(
                 OpType.FY),
             new PrologTerm[] {new PrologStruct(
-                systemOperators.get("\\+").findForType(
+                contextOperators.get("\\+").findForType(
                     OpType.FY),
                 new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());

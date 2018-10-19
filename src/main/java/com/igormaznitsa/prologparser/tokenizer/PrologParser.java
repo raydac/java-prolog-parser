@@ -21,13 +21,14 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.operators.Op;
 import com.igormaznitsa.prologparser.operators.OpContainer;
-import com.igormaznitsa.prologparser.operators.OpDef;
 import com.igormaznitsa.prologparser.operators.OpType;
+import com.igormaznitsa.prologparser.operators.Ops;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
@@ -40,13 +41,13 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -99,7 +100,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     OPERATOR_VERTICALBAR = make(Op.METAOPERATOR_VERTICAL_BAR);
     META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_VERTICAL_BAR.getTermText(), OPERATOR_VERTICALBAR);
 
-    registerSysOp(OpDef.op(1000, OpType.XFY, ","));
+    registerSysOp(Ops.of(1000, OpType.XFY, ","));
 
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_DOT.getTermText());
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_LEFT_BRACKET.getTermText());
@@ -125,7 +126,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
-    this.context = context;
+    this.context = context == null ? new DefaultParserContext(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
 
     this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {
@@ -150,23 +151,24 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  protected static void registerSysOp(final OpDef... operators) {
+  private static void registerSysOp(final Ops... operators) {
     final StringBuilderEx buff = new StringBuilderEx(10);
 
-    Stream.of(operators).filter(Objects::nonNull).forEach(x -> x.getNames().forEach(n -> {
-      if (SYSTEM_OPERATORS.containsKey(n)) {
-        final OpContainer container = SYSTEM_OPERATORS.get(n);
-        container.add(Op.makeOne(x.getPrecedence(), x.getType(), n));
+    Stream.of(operators).flatMap(x -> Arrays.stream(x.makeOperators())).forEach(op -> {
+      final String opText = op.getTermText();
+      if (SYSTEM_OPERATORS.containsKey(opText)) {
+        final OpContainer container = SYSTEM_OPERATORS.get(opText);
+        container.add(op);
       } else {
-        final OpContainer container = make(Op.makeOne(x.getPrecedence(), x.getType(), n));
-        SYSTEM_OPERATORS.put(n, container);
+        final OpContainer container = make(op);
+        SYSTEM_OPERATORS.put(opText, container);
       }
       buff.clear();
-      for (final char c : n.toCharArray()) {
+      for (final char c : opText.toCharArray()) {
         buff.append(c);
         SYSTEM_OPERATORS_PREFIXES.add(buff.toString());
       }
-    }));
+    });
   }
 
   public static Map<String, OpContainer> findAllSystemOperators() {
@@ -342,7 +344,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             final TokenizerResult nextAtomTwo = tokenizer.readNextToken();
             try {
               if (!nextAtomTwo.getResult().getTermText().equals(OPERATOR_RIGHTSQUAREBRACKET.getTermText())) {
-                throw new PrologParserException("Wrong end op the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
+                throw new PrologParserException("Wrong end of the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
               }
             } finally {
               nextAtomTwo.release();
@@ -480,7 +482,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                     atBrakes = true;
                     readAtom = readBlock(OPERATORS_SUBBLOCK);
                     if (readAtom == null) {
-                      throw new PrologParserException("Illegal start op term",
+                      throw new PrologParserException("Illegal start of term",
                           readAtomContainer.getLine(), readAtomContainer.getPos());
                     }
                     readAtom.setPos(readAtomContainer.getPos());
@@ -524,7 +526,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   readAtom = readStruct(readAtom);
                   if (readAtom == null) {
                     // we have met the empty brackets, it disallowed by Prolog
-                    throw new PrologParserException("Illegal start op term",
+                    throw new PrologParserException("Illegal start of term",
                         nextTokenLineNumber, nextTokenStrPosition);
                   }
                 } else {
