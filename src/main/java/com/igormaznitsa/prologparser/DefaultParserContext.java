@@ -24,6 +24,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Collections;
@@ -34,6 +35,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class DefaultParserContext implements ParserContext {
+
+  public static final Op OPERATORS_PLUS_MINUS = Op.make(200, OpType.FY, "-", "+");
 
   protected final Set<String> opPrefixes = new HashSet<>();
   protected final Map<String, OpContainer> opContainers = new HashMap<>();

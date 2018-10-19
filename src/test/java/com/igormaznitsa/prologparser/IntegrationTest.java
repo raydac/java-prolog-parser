@@ -1,9 +1,7 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInteger;
@@ -13,6 +11,8 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
@@ -47,6 +48,12 @@ public class IntegrationTest {
 
   private static EdinburghPrologParser parseEd(final String str, final ParserContext context) {
     return new EdinburghPrologParser(new StringReader(str), context);
+  }
+
+  private static GenericPrologParser parseGen(final String str, final ParserContext context) {
+    final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    return new GenericPrologParser(new StringReader(str), ParserContexts.of(context, parserContext));
   }
 
   private static GenericPrologParser parseGen(final String str) {
@@ -358,7 +365,7 @@ public class IntegrationTest {
     assertEquals("test", struct.getElementAt(0).getTermText());
 
     reset(mockContext);
-    parser = parseEd("X is X+1.",mockContext);
+    parser = parseEd("X is X+1.", mockContext);
     struct = (PrologStruct) parser.next();
 
     verify(mockContext, times(2)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
@@ -772,12 +779,18 @@ public class IntegrationTest {
 
   @Test
   public void testSignedNumerics_GenericParser() {
-    assertThrows(PrologParserException.class, ()-> parseGen("-1.").next());
-    assertThrows(PrologParserException.class, ()-> parseGen("+1.").next());
-    assertThrows(PrologParserException.class, ()-> parseGen("-1.1.").next());
-    assertThrows(PrologParserException.class, ()-> parseGen("+1.1.").next());
+    assertThrows(PrologParserException.class, () -> parseGen("-1.").next());
+    assertThrows(PrologParserException.class, () -> parseGen("+1.").next());
+    assertThrows(PrologParserException.class, () -> parseGen("-1.1.").next());
+    assertThrows(PrologParserException.class, () -> parseGen("+1.1.").next());
+
     assertEquals(1, ((PrologNumeric) parseGen("1.").next()).getNumber().intValue());
     assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
+
+    assertEquals(-1, ((PrologNumeric) parseGen("-1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().intValue());
+    assertEquals(1, ((PrologNumeric) parseGen("+1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test
@@ -806,7 +819,7 @@ public class IntegrationTest {
 
     @Override
     public int getFlags() {
-      return ParserContext.FLAG_NONE;
+      return FLAG_NONE;
     }
 
     @Override
