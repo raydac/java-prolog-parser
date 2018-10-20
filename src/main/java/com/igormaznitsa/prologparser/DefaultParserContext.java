@@ -26,6 +26,7 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,14 +64,12 @@ public class DefaultParserContext implements ParserContext {
   }
 
   public DefaultParserContext addZeroArityStructs(final String... names) {
-    for (final String name : names) {
-      this.zeroArityStructs.add(name);
-    }
+    this.zeroArityStructs.addAll(Arrays.asList(names));
     return this;
   }
 
   public DefaultParserContext addOperators(final Op... operators) {
-    Stream.of(operators).flatMap(x -> x.streamOp()).forEach(x -> {
+    Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
       fillPrefixes(x.getTermText());
       OpContainer container = this.opContainers.get(x.getTermText());
       if (container == null) {

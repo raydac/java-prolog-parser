@@ -154,9 +154,9 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
           current.setTail(new PrologList());
           return current;
         } else {
-          final PrologTerm ltail = current.elements[1];
-          if (ltail.getTermType() == TermType.LIST) {
-            current = (PrologList) ltail;
+          final PrologTerm leftTail = current.elements[1];
+          if (leftTail.getTermType() == TermType.LIST) {
+            current = (PrologList) leftTail;
           } else {
             final PrologList newOne = new PrologList(term, new PrologList());
             current.setTail(newOne);
@@ -173,8 +173,8 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     while (true) {
       final PrologTerm tail = curList.elements[1];
       if (tail.getTermType() == TermType.LIST) {
-        final PrologList ltail = (PrologList) tail;
-        if (ltail.isEmpty()) {
+        final PrologList leftTail = (PrologList) tail;
+        if (leftTail.isEmpty()) {
           curList.setTail(newTailElement);
           break;
         }
@@ -212,7 +212,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     if (!isEmpty()) {
       final StringBuilderEx builder = new StringBuilderEx("[");
 
-      boolean notfirst = false;
+      boolean notFirst = false;
       PrologTerm list = this;
 
       while (true) {
@@ -223,7 +223,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
             break;
           }
 
-          if (notfirst) {
+          if (notFirst) {
             builder.append(", ");
           }
 
@@ -233,13 +233,13 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
           }
           list = asList.elements[1];
         } else {
-          if (notfirst) {
+          if (notFirst) {
             builder.append('|');
           }
           builder.append(list.toString());
           break;
         }
-        notfirst = true;
+        notFirst = true;
       }
 
       builder.append(']');

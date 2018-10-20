@@ -90,7 +90,7 @@ public final class Op extends SpecServiceCompound {
   }
 
   /**
-   * Gemerate operator descriptor for names with same precedence and type.
+   * Make operator descriptor describing bunch of operators with same characteristics but differently named.
    *
    * @param precedence the priority
    * @param type       the type of operators

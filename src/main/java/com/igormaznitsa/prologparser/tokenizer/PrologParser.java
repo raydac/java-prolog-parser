@@ -150,7 +150,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static void registerSysOp(final Op... operators) {
     final StringBuilderEx buff = new StringBuilderEx(10);
 
-    Stream.of(operators).flatMap(x -> x.streamOp()).forEach(x -> {
+    Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
       final String opText = x.getTermText();
       if (SYSTEM_OPERATORS.containsKey(opText)) {
         final OpContainer container = SYSTEM_OPERATORS.get(opText);
@@ -416,7 +416,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           break;
         }
 
-        // the variable contains calculated atem priority (it can be not the
+        // the variable contains calculated item priority (it can be not the
         // same as the nature priority)
         int readAtomPriority = 0; // we make it as zero (the highest
         // priority) default
@@ -474,7 +474,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   }
                   break;
                   case '(': {
-                    // read subblock
+                    // read sub-block
                     atBrakes = true;
                     readAtom = readBlock(OPERATORS_SUBBLOCK);
                     if (readAtom == null) {
@@ -564,10 +564,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         } else {
           // not first
           if (currentTreeItem.getType() == TermType.OPERATOR) {
-            // it's an operator
+            // it's not first operator
             if (currentTreeItem.getPriority() <= readAtomPriority) {
               // new has low priority
-              // make its as an ascendent
+              // make it as ascendent
               final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPriority(readAtomPriority);
               if (foundItem.getPriority() < readAtomPriority) {
                 // make as parent

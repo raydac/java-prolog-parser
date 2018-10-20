@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.util.stream.Stream;
 
 /**
- * Base class for special serivce terms for use on level of parser.
+ * Base class for special service terms for use on level of parser.
  */
 public abstract class SpecServiceCompound extends PrologCompound {
 

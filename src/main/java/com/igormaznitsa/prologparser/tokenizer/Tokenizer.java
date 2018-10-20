@@ -37,7 +37,7 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 import java.io.IOException;
 import java.io.Reader;
 
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOKFOR;
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
 import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
@@ -109,28 +109,28 @@ final class Tokenizer {
     int chars = buffer.length() - etalon.length();
     int bufferPosition = buffer.length() - 1;
 
-    int lpos = this.pos;
-    int lposPrev = this.prevPos;
-    int lline = this.line;
-    int llinePrev = this.prevLine;
+    int locPos = this.pos;
+    int locPosPrev = this.prevPos;
+    int locLine = this.line;
+    int locLinePrev = this.prevLine;
 
     while (chars > 0) {
       final char ch = buffer.charAt(bufferPosition--);
       this.insideCharBuffer.push(ch);
       chars--;
-      lpos = Math.max(1, lpos - 1);
+      locPos = Math.max(1, locPos - 1);
 
-      lposPrev = lpos;
+      locPosPrev = locPos;
       if (ch == '\n') {
-        lline = Math.max(1, lline - 1);
-        llinePrev = lline;
+        locLine = Math.max(1, locLine - 1);
+        locLinePrev = locLine;
       }
     }
 
-    this.pos = lpos;
-    this.prevPos = lposPrev;
-    this.line = lline;
-    this.prevLine = llinePrev;
+    this.pos = locPos;
+    this.prevPos = locPosPrev;
+    this.line = locLine;
+    this.prevLine = locLinePrev;
   }
 
   private void push(final char ch) {
@@ -165,7 +165,7 @@ final class Tokenizer {
   OpContainer findOperatorForName(final String operatorName) {
     OpContainer result = null;
 
-    // check metaoperators as the first ones
+    // check meta-operators as the first ones
     if (operatorName.length() == 1) {
       result = PrologParser.META_SYSTEM_OPERATORS.get(operatorName);
     }
@@ -229,23 +229,21 @@ final class Tokenizer {
   private void skipUntilBlockCommentEnd() throws IOException {
     boolean star = false;
     while (!Thread.currentThread().isInterrupted()) {
-      final int readchar = this.readChar();
-      if (readchar < 0) {
+      final int readChar = this.readChar();
+      if (readChar < 0) {
         break;
-      } else if (readchar == '/' && star) {
+      } else if (readChar == '/' && star) {
         break;
-      } else if (readchar == '*') {
-        star = true;
       } else {
-        star = false;
+        star = readChar == '*';
       }
     }
   }
 
   private void skipUntilNextString() throws IOException {
     while (!Thread.currentThread().isInterrupted()) {
-      final int readchar = this.readChar();
-      if (readchar < 0 || readchar == '\n') {
+      final int readChar = this.readChar();
+      if (readChar < 0 || readChar == '\n') {
         break;
       }
     }
@@ -268,7 +266,7 @@ final class Tokenizer {
 
     PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;
 
-    TokenizerState state = LOOKFOR;
+    TokenizerState state = LOOK_FOR;
     boolean specCharDetected = false;
 
     strBuf.clear();
@@ -289,7 +287,7 @@ final class Tokenizer {
 
         if (readChar < 0) {
           switch (state) {
-            case LOOKFOR:
+            case LOOK_FOR:
               return null;
             case FLOAT:
             case INTEGER:
@@ -299,7 +297,7 @@ final class Tokenizer {
               }
 
               if (state == TokenizerState.FLOAT && strBuffer.isLastChar('.')) {
-                // non-ended float then it is an integer number ened by the '.' operator
+                // non-ended float then it is an integer number ended by the '.' operator
                 push('.');
                 // it is Integer
                 return this.tokenizerResultPool.find().setData(
@@ -368,12 +366,12 @@ final class Tokenizer {
         if (state != STRING && this.blockCommentsAllowed && chr == '*' && this.strBuf.isLastChar('/')) {
           if (this.strBuf.isSingleChar('/')) {
             this.strBuf.pop();
-            state = this.strBuf.isEmpty() ? LOOKFOR : state;
+            state = this.strBuf.isEmpty() ? LOOK_FOR : state;
           }
           skipUntilBlockCommentEnd();
         } else {
           switch (state) {
-            case LOOKFOR: {
+            case LOOK_FOR: {
               if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
                 continue;
               }

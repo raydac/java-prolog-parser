@@ -27,10 +27,12 @@ import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
+import java.beans.Transient;
+
 final class TermWrapper extends SpecServiceCompound {
 
   private static final long serialVersionUID = 9006607815982718325L;
-  private final SoftObjectPool<TermWrapper> pool;
+  private transient final SoftObjectPool<TermWrapper> pool;
   private PrologTerm wrappedTerm;
 
   TermWrapper(final SoftObjectPool<TermWrapper> pool) {

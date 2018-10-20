@@ -23,7 +23,7 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 enum TokenizerState {
 
-  LOOKFOR,
+  LOOK_FOR,
   ATOM,
   STRING,
   OPERATOR,

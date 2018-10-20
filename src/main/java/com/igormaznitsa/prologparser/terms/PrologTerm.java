@@ -180,19 +180,19 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       case LIST:
       case STRUCT: {
         if (that instanceof PrologCompound) {
-          int lresult = Integer.compare(((PrologCompound) this).getArity(), ((PrologCompound) that).getArity());
-          if (lresult == 0) {
-            lresult = this.getTermText().compareTo(that.getTermText());
+          int leftResult = Integer.compare(((PrologCompound) this).getArity(), ((PrologCompound) that).getArity());
+          if (leftResult == 0) {
+            leftResult = this.getTermText().compareTo(that.getTermText());
           }
-          if (lresult == 0) {
+          if (leftResult == 0) {
             for (int i = 0; i < ((PrologCompound) this).getArity(); i++) {
-              lresult = ((PrologCompound) this).getElementAt(i).compareTo(((PrologCompound) that).getElementAt(i));
-              if (lresult != 0) {
+              leftResult = ((PrologCompound) this).getElementAt(i).compareTo(((PrologCompound) that).getElementAt(i));
+              if (leftResult != 0) {
                 break;
               }
             }
           }
-          result = lresult;
+          result = leftResult;
         } else {
           result = 1;
         }

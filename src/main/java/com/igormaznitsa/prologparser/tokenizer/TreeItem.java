@@ -152,11 +152,11 @@ final class TreeItem {
     TreeItem result = this;
 
     while (true) {
-      final TreeItem itsparent = result.parentItem;
-      if (itsparent == null || result.getPriority() >= priority) {
+      final TreeItem itsParent = result.parentItem;
+      if (itsParent == null || result.getPriority() >= priority) {
         break;
       } else {
-        result = itsparent;
+        result = itsParent;
       }
     }
 

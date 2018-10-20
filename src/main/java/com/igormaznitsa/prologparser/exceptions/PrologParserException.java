@@ -22,7 +22,7 @@
 package com.igormaznitsa.prologparser.exceptions;
 
 /**
- * Exception is thrown if any problem with parsion of prolog sources.
+ * Exception is thrown if any problem with parsing of prolog sources.
  */
 public class PrologParserException extends RuntimeException {
   private static final long serialVersionUID = -4404323844125857006L;

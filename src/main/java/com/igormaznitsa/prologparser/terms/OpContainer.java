@@ -110,7 +110,7 @@ public final class OpContainer extends SpecServiceCompound {
    * @param arity arity to be used (1..2)
    * @return found operator or null
    */
-  public Op findArity(final int arity) {
+  public Op findForArity(final int arity) {
     Op result;
     switch (arity) {
       case 1: {
@@ -210,7 +210,7 @@ public final class OpContainer extends SpecServiceCompound {
    * Find operator for presented arguments.
    *
    * @param hasLeftArg  should have left argument
-   * @param hasRightArg should have ritgh argument
+   * @param hasRightArg should have right argument
    * @return operator for needed condition, null if not found
    */
   public Op findSimilar(final boolean hasLeftArg, final boolean hasRightArg) {
