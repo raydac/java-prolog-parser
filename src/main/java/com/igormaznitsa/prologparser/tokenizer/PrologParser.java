@@ -54,16 +54,16 @@ import static com.igormaznitsa.prologparser.terms.OpContainer.make;
  */
 public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
-  protected static final OneCharOpMap META_SINGLE_CHAR_OPERATOR_MAP;
-  protected static final SingleCharKoi7Set META_OPERATOS_PREFIXES;
+  static final OneCharOpMap META_SINGLE_CHAR_OPERATOR_MAP;
+  static final SingleCharKoi7Set META_OPERATOS_PREFIXES;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
-  private final static OpContainer OPERATOR_COMMA;
-  private final static OpContainer OPERATOR_LEFTBRACKET;
-  private final static OpContainer OPERATOR_RIGHTBRACKET;
-  private final static OpContainer OPERATOR_LEFTSQUAREBRACKET;
-  private final static OpContainer OPERATOR_RIGHTSQUAREBRACKET;
-  private final static OpContainer OPERATOR_DOT;
-  private final static OpContainer OPERATOR_VERTICALBAR;
+  private static final OpContainer OPERATOR_COMMA;
+  private static final OpContainer OPERATOR_LEFTBRACKET;
+  private static final OpContainer OPERATOR_RIGHTBRACKET;
+  private static final OpContainer OPERATOR_LEFTSQUAREBRACKET;
+  private static final OpContainer OPERATOR_RIGHTSQUAREBRACKET;
+  private static final OpContainer OPERATOR_DOT;
+  private static final OpContainer OPERATOR_VERTICALBAR;
   private static final OneCharOpMap OPERATORS_PHRASE;
   private static final OneCharOpMap OPERATORS_INSIDE_LIST;
   private static final OneCharOpMap OPERATORS_END_LIST;
@@ -75,17 +75,13 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     META_SINGLE_CHAR_OPERATOR_MAP = new OneCharOpMap();
     META_OPERATOS_PREFIXES = new SingleCharKoi7Set();
 
-    OPERATOR_DOT = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_DOT);
-    OPERATOR_LEFTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_BRACKET);
-    OPERATOR_RIGHTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_RIGHT_BRACKET);
-    OPERATOR_LEFTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
-    OPERATOR_RIGHTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
-    OPERATOR_VERTICALBAR = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_VERTICAL_BAR);
-    OPERATOR_COMMA = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.make(1000, OpType.XFY, ","));
-
-    for (final Map.Entry<String, OpContainer> e : META_SINGLE_CHAR_OPERATOR_MAP.getUnmodifableMap().entrySet()) {
-      META_OPERATOS_PREFIXES.add(e.getKey().charAt(0));
-    }
+    OPERATOR_DOT = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.METAOPERATOR_DOT);
+    OPERATOR_LEFTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.METAOPERATOR_LEFT_BRACKET);
+    OPERATOR_RIGHTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.METAOPERATOR_RIGHT_BRACKET);
+    OPERATOR_LEFTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
+    OPERATOR_RIGHTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
+    OPERATOR_VERTICALBAR = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.METAOPERATOR_VERTICAL_BAR);
+    OPERATOR_COMMA = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, META_OPERATOS_PREFIXES, Op.make(1000, OpType.XFY, ","));
 
     OPERATORS_PHRASE = new OneCharOpMap(OPERATOR_DOT);
     OPERATORS_INSIDE_LIST = new OneCharOpMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
@@ -127,12 +123,14 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  private static OpContainer addMetaOperator(final OneCharOpMap metaMap, final Op operator) {
+  private static OpContainer addMetaOperator(final OneCharOpMap metaMap, final SingleCharKoi7Set prefixSet, final Op operator) {
     final String text = operator.getTermText();
 
     if (text.length() != 1) {
       throw new Error("Meta operator must be single char: " + text);
     }
+
+    prefixSet.add(text.charAt(0));
 
     final OpContainer container;
     if (metaMap.containsKey(text)) {
