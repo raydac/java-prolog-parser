@@ -520,6 +520,8 @@ public class IntegrationTest {
     assertReadTerms(16, "likes.pl");
     assertReadTerms(7, "dmalloc.pl");
     assertReadTerms(24, "xref_packages.pl");
+    assertReadTerms(6, "test_loop.pl");
+    assertReadTerms(4, "sendmoney.pl",Operators.SWI_CPL);
     assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
 
