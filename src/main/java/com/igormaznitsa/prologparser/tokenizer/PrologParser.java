@@ -438,7 +438,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
               boolean leftPresented = false;
 
               if (currentTreeItem != null) {
-                if (currentTreeItem.getType() == TermType.__OPERATOR__) {
+                if (currentTreeItem.getType() == TermType.OPERATOR) {
                   if (currentTreeItem.getRightBranch() != null) {
                     leftPresented = true;
                   }
@@ -563,7 +563,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           currentTreeItem = readAtomTreeItem;
         } else {
           // not first
-          if (currentTreeItem.getType() == TermType.__OPERATOR__) {
+          if (currentTreeItem.getType() == TermType.OPERATOR) {
             // it's an operator
             if (currentTreeItem.getPriority() <= readAtomPriority) {
               // new has low priority
@@ -596,7 +596,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
 
             } else if (currentTreeItem.getPriority() > readAtomPriority) {
               // new has great priority
-              if (readAtomTreeItem.getType() != TermType.__OPERATOR__ && currentTreeItem.getRightBranch() != null) {
+              if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
                 // it's a ground atom and its right branch is not empty
                 throw new PrologParserException(
                     "There is no any operator before the atom",
@@ -608,8 +608,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             }
           } else {
             // check that it is an operator
-            if (currentTreeItem.getType() != TermType.__OPERATOR__
-                && readAtomTreeItem.getType() != TermType.__OPERATOR__) {
+            if (currentTreeItem.getType() != TermType.OPERATOR
+                && readAtomTreeItem.getType() != TermType.OPERATOR) {
               throw new PrologParserException(
                   "There must be an operator between atoms or structures",
                   readAtomContainer.getLine(),

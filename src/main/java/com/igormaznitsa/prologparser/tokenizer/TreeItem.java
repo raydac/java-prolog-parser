@@ -53,7 +53,7 @@ final class TreeItem {
       this.replaceSavedTerm(null);
     } else {
       final TermType termType = term.getTermType();
-      if (termType == TermType.__OPERATOR__ || termType == TermType.__OPERATOR_CONTAINER__) {
+      if (termType == TermType.OPERATOR || termType == TermType.__OPERATOR_CONTAINER__) {
         final TermWrapper termWrapper = this.termWrapperPool.find().setWrappedTerm(term);
         this.replaceSavedTerm(termWrapper);
       } else {
@@ -97,7 +97,7 @@ final class TreeItem {
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
     TreeItem result = this;
-    if (item.getType() == TermType.__OPERATOR__ && item.getPriority() != 0) {
+    if (item.getType() == TermType.OPERATOR && item.getPriority() != 0) {
       result = item;
     }
     return result;
@@ -180,7 +180,7 @@ final class TreeItem {
   }
 
   private boolean validate() {
-    if (savedTerm.getTermType() == TermType.__OPERATOR__) {
+    if (savedTerm.getTermType() == TermType.OPERATOR) {
       final int priority = getPriority();
       final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getWrappedTerm();
       switch (wrappedOperator.getOpType()) {
@@ -216,7 +216,7 @@ final class TreeItem {
       PrologTerm result;
 
       switch (savedTerm.getTermType()) {
-        case __OPERATOR__: {
+        case OPERATOR: {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any arguments

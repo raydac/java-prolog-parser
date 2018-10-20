@@ -50,7 +50,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   public PrologStruct(final PrologTerm functor, final PrologTerm[] elements) {
     super(functor.getTermText());
 
-    if (functor.getTermType() != TermType.ATOM && functor.getTermType() != TermType.__OPERATOR__) {
+    if (functor.getTermType() != TermType.ATOM && functor.getTermType() != TermType.OPERATOR) {
       throw new IllegalArgumentException("Functor must be either atom or operator");
     }
     if (functor instanceof PrologNumeric) {
@@ -91,7 +91,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     super(functor.getTermText());
 
     if (functor.getTermType() != TermType.ATOM
-        && functor.getTermType() != TermType.__OPERATOR__
+        && functor.getTermType() != TermType.OPERATOR
         && functor.getTermType() != TermType.__OPERATOR_CONTAINER__) {
       throw new IllegalArgumentException("Functor type must be either atom or operator");
     }
@@ -143,7 +143,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   @Override
   public int getPrecedence() {
-    if (functor.getTermType() == TermType.__OPERATOR__) {
+    if (functor.getTermType() == TermType.OPERATOR) {
       return functor.getPrecedence();
     } else {
       return 0;
@@ -158,7 +158,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   public String toString() {
     final StringBuilderEx builder = new StringBuilderEx(64);
 
-    if (functor.getTermType() == TermType.__OPERATOR__) {
+    if (functor.getTermType() == TermType.OPERATOR) {
 
       final Op operatorFunctor = (Op) functor;
       final String opName = operatorFunctor.getTermText();

@@ -48,8 +48,8 @@ public class OperatorTest {
   public void testGetType() {
     final Op op = Op.make(243, OpType.FX, "<>");
     final Op op2 = Op.make(243, OpType.XFX, "><");
-    assertEquals(TermType.__OPERATOR__, op.getTermType());
-    assertEquals(TermType.__OPERATOR__, op2.getTermType());
+    assertEquals(TermType.OPERATOR, op.getTermType());
+    assertEquals(TermType.OPERATOR, op2.getTermType());
   }
 
   @Test

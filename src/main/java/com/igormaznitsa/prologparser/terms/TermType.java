@@ -30,6 +30,6 @@ public enum TermType {
   ATOM,
   STRUCT,
   LIST,
-  __OPERATOR__,
+  OPERATOR,
   __OPERATOR_CONTAINER__
 }

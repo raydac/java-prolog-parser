@@ -150,7 +150,7 @@ public final class Op extends SpecServiceCompound {
 
   @Override
   public TermType getTermType() {
-    return TermType.__OPERATOR__;
+    return TermType.OPERATOR;
   }
 
   public OpType getOpType() {

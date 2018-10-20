@@ -342,7 +342,7 @@ public class IntegrationTest {
     verify(mockContext, times(1)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
 
     assertEquals(PrologStruct.class, struct.getClass());
-    assertEquals(TermType.__OPERATOR__, struct.getFunctor().getTermType());
+    assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(":-", struct.getFunctor().getTermText());
     assertEquals(2, struct.getArity());
     assertEquals(OpType.XFX,
@@ -357,7 +357,7 @@ public class IntegrationTest {
     verify(mockContext, times(1)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
 
     assertEquals(PrologStruct.class, struct.getClass());
-    assertEquals(TermType.__OPERATOR__, struct.getFunctor().getTermType());
+    assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(":-", struct.getFunctor().getTermText());
     assertEquals(1, struct.getArity());
     assertEquals(OpType.FX,
@@ -371,7 +371,7 @@ public class IntegrationTest {
     verify(mockContext, times(2)).onStructureCreated(any(EdinburghPrologParser.class), any(PrologStruct.class));
 
     assertEquals(PrologStruct.class, struct.getClass());
-    assertEquals(TermType.__OPERATOR__, struct.getFunctor().getTermType());
+    assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals("is", struct.getFunctor().getTermText());
     assertEquals(2, struct.getArity());
     assertEquals(OpType.XFX,
@@ -593,6 +593,22 @@ public class IntegrationTest {
     assertEquals(5, structure.getElementAt(6).getLine());
   }
 
+  private void assertZFZOperatorStruct(final String operator, final PrologTerm term) {
+    assertEquals(TermType.STRUCT, term.getTermType());
+    final PrologStruct struct = (PrologStruct) term;
+    assertEquals(2, struct.getArity());
+    assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
+    assertEquals(operator, struct.getFunctor().getTermText());
+  }
+
+  @Test
+  public void testPairOperatorsWithoutWhitespaces() {
+    final PrologParser parser = parseEd("a=..b.a..b.", new DefaultParserContext(FLAG_NONE, Operators.SWI_CPL));
+    assertZFZOperatorStruct("=..", parser.next());
+    assertZFZOperatorStruct("..", parser.next());
+    assertFalse(parser.hasNext());
+  }
+
   @Test
   public void testSingleOperatorAsAtom() {
     final PrologStruct structure = (PrologStruct) parseEd("not/stream.").next();
@@ -620,7 +636,7 @@ public class IntegrationTest {
   public void testOperatorNameAsAtomicFunctor() {
     final PrologStruct structure = (PrologStruct) parseEd("'mod'(_,_,_,_).").next();
     assertEquals("mod", structure.getFunctor().getTermText());
-    assertNotSame(structure.getFunctor().getTermType(), TermType.__OPERATOR__);
+    assertNotSame(structure.getFunctor().getTermType(), TermType.OPERATOR);
     assertEquals(4, structure.getArity());
   }
 
