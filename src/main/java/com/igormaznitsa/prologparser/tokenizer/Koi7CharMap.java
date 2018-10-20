@@ -23,23 +23,22 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Arrays.stream;
 
-final class OneCharOpMap {
+final class Koi7CharMap {
 
   private final Map<String, OpContainer> insideMap = new HashMap<>();
   private final Map<String, OpContainer> unmodifableInsideMap = Collections.unmodifiableMap(this.insideMap);
   private final OpContainer[] charMap = new OpContainer[0x80];
 
-  OneCharOpMap() {
+  Koi7CharMap() {
   }
 
-  OneCharOpMap(final OpContainer... containers) {
+  Koi7CharMap(final OpContainer... containers) {
     stream(containers).forEach(x -> put(x.getTermText(), x));
   }
 
@@ -48,7 +47,7 @@ final class OneCharOpMap {
       return false;
     }
     final int chr = key.charAt(0);
-    return chr < 0x80 && charMap[chr] != null;
+    return chr < 0x80 && this.charMap[chr] != null;
   }
 
   void put(final String key, final OpContainer container) {
@@ -61,8 +60,8 @@ final class OneCharOpMap {
       throw new IllegalArgumentException("The char code is greater than 0x7F");
     }
 
-    charMap[chr] = container;
-    insideMap.put(key, container);
+    this.charMap[chr] = container;
+    this.insideMap.put(key, container);
   }
 
   OpContainer get(final String key) {
@@ -75,19 +74,14 @@ final class OneCharOpMap {
     if (code > 0x7F) {
       return null;
     }
-    return charMap[code];
+    return this.charMap[code];
   }
 
   OpContainer get(final char c) {
-    return c > 0x7F ? null : charMap[c];
+    return c > 0x7F ? null : this.charMap[c];
   }
 
   Map<String, OpContainer> getUnmodifableMap() {
     return this.unmodifableInsideMap;
-  }
-
-  void clear() {
-    insideMap.clear();
-    Arrays.fill(charMap, null);
   }
 }
