@@ -57,7 +57,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final OpContainer OPERATOR_COMMA;
   private static final OpContainer OPERATOR_LEFTBRACKET;
   private static final OpContainer OPERATOR_RIGHTBRACKET;
-  private static final OpContainer OPERATOR_LEFTSQUAREBRACKET;
   private static final OpContainer OPERATOR_RIGHTSQUAREBRACKET;
   private static final OpContainer OPERATOR_DOT;
   private static final OpContainer OPERATOR_VERTICALBAR;
@@ -74,7 +73,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     OPERATOR_DOT = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_DOT);
     OPERATOR_LEFTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_BRACKET);
     OPERATOR_RIGHTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_RIGHT_BRACKET);
-    OPERATOR_LEFTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
+    addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
     OPERATOR_RIGHTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
     OPERATOR_VERTICALBAR = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_VERTICAL_BAR);
     OPERATOR_COMMA = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.make(1000, OpType.XFY, ","));
