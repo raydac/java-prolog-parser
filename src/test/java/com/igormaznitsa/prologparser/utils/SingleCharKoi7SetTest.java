@@ -42,6 +42,10 @@ class SingleCharKoi7SetTest {
     assertEquals(1L, koiSet.getHighMask());
 
     assertThrows(IllegalArgumentException.class, () -> koiSet.add((char) 129));
+
+    koiSet.clear();
+    assertEquals(0L, koiSet.getLowMask());
+    assertEquals(0L, koiSet.getHighMask());
   }
 
 }

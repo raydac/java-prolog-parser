@@ -21,7 +21,7 @@
 
 package com.igormaznitsa.prologparser.utils;
 
-public final class SingleCharKoi7Set {
+public class SingleCharKoi7Set {
   private long low;
   private long high;
 
@@ -46,6 +46,11 @@ public final class SingleCharKoi7Set {
     } else {
       this.high |= (1L << (chr - 64));
     }
+  }
+
+  public void clear() {
+    this.low = 0L;
+    this.high = 0L;
   }
 
   public boolean contains(final String text) {
