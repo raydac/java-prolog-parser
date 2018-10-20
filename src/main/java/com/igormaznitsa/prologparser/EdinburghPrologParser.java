@@ -22,7 +22,6 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.tokenizer.OpType;
-import com.igormaznitsa.prologparser.utils.Operators;
 
 import java.io.Reader;
 

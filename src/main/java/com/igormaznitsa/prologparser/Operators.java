@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser.utils;
+package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.tokenizer.Op;
 

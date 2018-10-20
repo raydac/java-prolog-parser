@@ -14,7 +14,6 @@ import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
-import com.igormaznitsa.prologparser.utils.Operators;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
 
