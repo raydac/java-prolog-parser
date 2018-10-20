@@ -526,6 +526,11 @@ public class IntegrationTest {
     assertReadTerms(5, "test_eclipse.pl");
     assertReadTerms(17, "test_sandbox.pl");
     assertReadTerms(151, "test_arith.pl");
+    assertReadTerms(168, "html_text.pl");
+    assertReadTerms(87, "recursive.pl");
+    assertReadTerms(10, "calltree.pl");
+    assertReadTerms(53, "basics.pl");
+    assertReadTerms(28, "analysis.pl", Op.make(500, OpType.XFX, "@"));
     assertReadTerms(4, "sendmoney.pl", Op.SWI_CPL);
     assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
