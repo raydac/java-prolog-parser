@@ -23,20 +23,21 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 
-public class ParserContexts implements ParserContext {
+public class ParserContextChain implements ParserContext {
   private final ParserContext[] contexts;
   private final int flags;
 
-  public ParserContexts(final ParserContext... contexts) {
+  public ParserContextChain(final ParserContext... contexts) {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
     int commonFlags = stream(this.contexts).mapToInt(ParserContext::getFlags).reduce(FLAG_NONE, (a, b) -> a | b);
     this.flags = commonFlags;
@@ -47,7 +48,7 @@ public class ParserContexts implements ParserContext {
     if (contexts.length == 1) {
       result = AssertUtils.assertNotNull(contexts[0]);
     } else {
-      result = new ParserContexts(contexts);
+      result = new ParserContextChain(contexts);
     }
     return result;
   }
@@ -61,10 +62,10 @@ public class ParserContexts implements ParserContext {
   }
 
   @Override
-  public boolean hasOperatorStartsWith(final PrologParser source, final String namePrefix) {
+  public boolean hasOpStartsWith(final AbstractPrologParser source, final String namePrefix) {
     boolean result = false;
     for (final ParserContext c : this.contexts) {
-      if (c.hasOperatorStartsWith(source, namePrefix)) {
+      if (c.hasOpStartsWith(source, namePrefix)) {
         result = true;
         break;
       }
@@ -73,10 +74,10 @@ public class ParserContexts implements ParserContext {
   }
 
   @Override
-  public OpContainer findOperatorForName(final PrologParser source, final String name) {
+  public OpContainer findOpForName(final AbstractPrologParser source, final String name) {
     OpContainer result = null;
     for (final ParserContext c : this.contexts) {
-      result = c.findOperatorForName(source, name);
+      result = c.findOpForName(source, name);
       if (result != null) {
         break;
       }
@@ -85,10 +86,10 @@ public class ParserContexts implements ParserContext {
   }
 
   @Override
-  public boolean hasZeroArityStruct(final PrologParser source, final String atomName) {
+  public boolean hasZeroStruct(final AbstractPrologParser source, final String atomName) {
     boolean result = false;
     for (final ParserContext c : this.contexts) {
-      if (c.hasZeroArityStruct(source, atomName)) {
+      if (c.hasZeroStruct(source, atomName)) {
         result = true;
         break;
       }
@@ -97,10 +98,8 @@ public class ParserContexts implements ParserContext {
   }
 
   @Override
-  public void onStructureCreated(final PrologParser source, final PrologStruct struct) {
-    for (final ParserContext c : this.contexts) {
-      c.onStructureCreated(source, struct);
-    }
+  public void onNewStruct(final AbstractPrologParser source, final PrologStruct struct) {
+    Arrays.stream(this.contexts).forEach(c -> c.onNewStruct(source, struct));
   }
 
   @Override

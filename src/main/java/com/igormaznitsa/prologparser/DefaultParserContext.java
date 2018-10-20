@@ -23,8 +23,8 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static java.util.stream.IntStream.rangeClosed;
 
 public class DefaultParserContext implements ParserContext {
 
@@ -58,12 +60,22 @@ public class DefaultParserContext implements ParserContext {
   }
 
   protected void fillPrefixes(final String name) {
-    for (int i = 1; i <= name.length(); i++) {
-      this.opPrefixes.add(name.substring(0, i));
-    }
+    rangeClosed(1, name.length()).mapToObj(i -> name.substring(0, i)).forEach(this.opPrefixes::add);
   }
 
-  public DefaultParserContext addZeroArityStructs(final String... names) {
+  public static ParserContext of(final int flags) {
+    return new DefaultParserContext(flags);
+  }
+
+  public static ParserContext of(final int flags, final Op... operators) {
+    return new DefaultParserContext(flags, operators);
+  }
+
+  public static ParserContext of(final int flags, final String... zeroArityStructures) {
+    return new DefaultParserContext(flags).addZeroStructs(zeroArityStructures);
+  }
+
+  public DefaultParserContext addZeroStructs(final String... names) {
     this.zeroArityStructs.addAll(Arrays.asList(names));
     return this;
   }
@@ -83,21 +95,21 @@ public class DefaultParserContext implements ParserContext {
   }
 
   @Override
-  public void onStructureCreated(final PrologParser source, final PrologStruct struct) {
+  public void onNewStruct(final AbstractPrologParser source, final PrologStruct struct) {
   }
 
   @Override
-  public boolean hasZeroArityStruct(final PrologParser source, String atomName) {
+  public boolean hasZeroStruct(final AbstractPrologParser source, String atomName) {
     return this.zeroArityStructs.contains(atomName);
   }
 
   @Override
-  public boolean hasOperatorStartsWith(final PrologParser source, String operatorNameStartSubstring) {
+  public boolean hasOpStartsWith(final AbstractPrologParser source, String operatorNameStartSubstring) {
     return this.opPrefixes.contains(operatorNameStartSubstring);
   }
 
   @Override
-  public OpContainer findOperatorForName(final PrologParser source, String operatorName) {
+  public OpContainer findOpForName(final AbstractPrologParser source, String operatorName) {
     return this.opContainers.get(operatorName);
   }
 }

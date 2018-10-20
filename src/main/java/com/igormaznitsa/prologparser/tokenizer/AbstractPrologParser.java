@@ -21,7 +21,6 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
@@ -45,12 +44,13 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 
 /**
  * Abstract prolog parser.
  */
-public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
+public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
   static final Koi7OpMap META_SINGLE_CHAR_OPERATOR_MAP;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
@@ -92,8 +92,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private final Tokenizer tokenizer;
   private PrologTerm lastFoundTerm;
 
-  public PrologParser(final Reader source, final ParserContext context) {
-    this.context = context == null ? new DefaultParserContext(ParserContext.FLAG_NONE) : context;
+  public AbstractPrologParser(final Reader source, final ParserContext context) {
+    this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
 
     this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {
@@ -113,7 +113,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     this.treeItemPool = new SoftObjectPool<TreeItem>(MAX_INTERNAL_POOL_SIZE) {
       @Override
       public final TreeItem get() {
-        return new TreeItem(PrologParser.this, this, termWrapperPool);
+        return new TreeItem(AbstractPrologParser.this, this, termWrapperPool);
       }
     };
   }
@@ -506,7 +506,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 if (readAtomContainer.getResult().getTermType() == TermType.ATOM) {
                   if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getTermText().equals("!")) {
                     readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-                  } else if (context != null && context.hasZeroArityStruct(this, readAtom.getTermText())) {
+                  } else if (context != null && context.hasZeroStruct(this, readAtom.getTermText())) {
                     readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
                 }

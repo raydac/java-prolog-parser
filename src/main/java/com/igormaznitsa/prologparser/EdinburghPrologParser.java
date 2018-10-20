@@ -27,13 +27,13 @@ import com.igormaznitsa.prologparser.tokenizer.OpType;
 import java.io.Reader;
 
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
-import static com.igormaznitsa.prologparser.ParserContexts.of;
+import static com.igormaznitsa.prologparser.ParserContextChain.of;
 import static com.igormaznitsa.prologparser.tokenizer.Op.make;
 
 public class EdinburghPrologParser extends GenericPrologParser {
 
   public EdinburghPrologParser(final Reader reader, final ParserContext context) {
-    super(reader, of(new DefaultParserContext(FLAG_BLOCK_COMMENTS,
+    super(reader, of(DefaultParserContext.of(FLAG_BLOCK_COMMENTS,
         make(1200, OpType.XFX, ":-", "-->"),
         make(1200, OpType.FX, "?-", ":-"),
         make(1150, OpType.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),

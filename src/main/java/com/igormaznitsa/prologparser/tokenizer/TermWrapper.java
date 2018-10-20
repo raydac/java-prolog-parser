@@ -30,8 +30,8 @@ import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 final class TermWrapper extends SpecServiceCompound {
 
   private static final long serialVersionUID = 9006607815982718325L;
-  private transient final SoftObjectPool<TermWrapper> pool;
-  private PrologTerm wrappedTerm;
+  private final transient SoftObjectPool<TermWrapper> pool;
+  private transient PrologTerm wrappedTerm;
 
   TermWrapper(final SoftObjectPool<TermWrapper> pool) {
     super(".wrapper");
@@ -57,6 +57,7 @@ final class TermWrapper extends SpecServiceCompound {
     return this;
   }
 
+  @Override
   public PrologAtom.QuotingType getQuotingType() {
     return this.wrappedTerm.getQuotingType();
   }

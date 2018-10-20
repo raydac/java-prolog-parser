@@ -23,7 +23,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 
 import java.util.Map;
 
@@ -32,13 +32,13 @@ public interface ParserContext {
   int FLAG_NONE = 0;
   int FLAG_BLOCK_COMMENTS = 1;
 
-  boolean hasOperatorStartsWith(PrologParser source, String namePrefix);
+  boolean hasOpStartsWith(AbstractPrologParser source, String namePrefix);
 
-  OpContainer findOperatorForName(PrologParser source, String name);
+  OpContainer findOpForName(AbstractPrologParser source, String name);
 
-  boolean hasZeroArityStruct(PrologParser source, String atomName);
+  boolean hasZeroStruct(AbstractPrologParser source, String atomName);
 
-  void onStructureCreated(PrologParser source, PrologStruct struct);
+  void onNewStruct(AbstractPrologParser source, PrologStruct struct);
 
 
   Map<String, OpContainer> findAllOperators();

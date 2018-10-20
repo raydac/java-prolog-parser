@@ -8,7 +8,7 @@ import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -29,23 +30,23 @@ public class ParserContextTest {
   public void testHasOperatorStartsWith() {
     final ParserContext mockContext = mock(ParserContext.class);
     Mockito.when(mockContext
-        .hasOperatorStartsWith(any(GenericPrologParser.class), anyString()))
+        .hasOpStartsWith(any(GenericPrologParser.class), anyString()))
         .then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
     final GenericPrologParser parser = new GenericPrologParser(new StringReader("a operator b."), mockContext);
 
     assertThrows(PrologParserException.class, () -> parser.next());
 
-    verify(mockContext).findOperatorForName(parser, "a");
-    verify(mockContext).findOperatorForName(parser, "operator");
-    verify(mockContext).findOperatorForName(parser, "b");
-    verify(mockContext, never()).hasOperatorStartsWith(parser, eq(anyString()));
+    verify(mockContext).findOpForName(parser, "a");
+    verify(mockContext).findOpForName(parser, "operator");
+    verify(mockContext).findOpForName(parser, "b");
+    verify(mockContext, never()).hasOpStartsWith(parser, eq(anyString()));
   }
 
   @Test
   public void testFindOperatorForName() throws Exception {
     final ParserContext mockContext = mock(ParserContext.class);
-    when(mockContext.findOperatorForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
+    when(mockContext.findOpForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {
         return OpContainer.make(Op.make(1000, OpType.XFX, "operator"));
       } else {
@@ -53,19 +54,19 @@ public class ParserContextTest {
       }
     });
 
-    Mockito.when(mockContext.hasOperatorStartsWith(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
+    Mockito.when(mockContext.hasOpStartsWith(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("operator."), mockContext);
     final PrologAtom atom = (PrologAtom) parser.next();
     assertEquals("operator", atom.getTermText());
 
-    verify(mockContext).findOperatorForName(parser, "operator");
+    verify(mockContext).findOpForName(parser, "operator");
 
   }
 
   @Test
   public void testHasZeroArityStruct() {
-    final ParserContext context = new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS).addZeroArityStructs("foo");
+    final ParserContext context = of(ParserContext.FLAG_BLOCK_COMMENTS, "foo");
 
     final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("foo.faa."), context);
 
@@ -94,22 +95,22 @@ public class ParserContextTest {
       }
 
       @Override
-      public void onStructureCreated(final PrologParser source, final PrologStruct struct) {
+      public void onNewStruct(final AbstractPrologParser source, final PrologStruct struct) {
         detectedStructures.put(struct.getFunctor().getTermText(), struct);
       }
 
       @Override
-      public boolean hasZeroArityStruct(final PrologParser source, String atomName) {
+      public boolean hasZeroStruct(final AbstractPrologParser source, String atomName) {
         return "foo".equals(atomName);
       }
 
       @Override
-      public boolean hasOperatorStartsWith(final PrologParser source, String operatorNameStartSubstring) {
+      public boolean hasOpStartsWith(final AbstractPrologParser source, String operatorNameStartSubstring) {
         return false;
       }
 
       @Override
-      public OpContainer findOperatorForName(final PrologParser source, String operatorName) {
+      public OpContainer findOpForName(final AbstractPrologParser source, String operatorName) {
         return null;
       }
 

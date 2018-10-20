@@ -34,7 +34,7 @@ final class TreeItem {
 
   private final SoftObjectPool<TreeItem> pool;
 
-  private final PrologParser parser;
+  private final AbstractPrologParser parser;
   private final SoftObjectPool<TermWrapper> termWrapperPool;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
@@ -42,7 +42,7 @@ final class TreeItem {
   private boolean insideBrakes;
   private PrologTerm savedTerm;
 
-  TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
+  TreeItem(final AbstractPrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
     this.parser = parser;
     this.pool = pool;
     this.termWrapperPool = termWrapperPool;
@@ -254,14 +254,14 @@ final class TreeItem {
           result = operatorStruct;
 
           if (this.parser.getContext() != null) {
-            this.parser.getContext().onStructureCreated(this.parser, operatorStruct);
+            this.parser.getContext().onNewStruct(this.parser, operatorStruct);
           }
 
         }
         break;
         case STRUCT: {
           if (this.parser.getContext() != null) {
-            this.parser.getContext().onStructureCreated(parser, (PrologStruct) this.savedTerm);
+            this.parser.getContext().onNewStruct(parser, (PrologStruct) this.savedTerm);
           }
           result = this.savedTerm;
         }

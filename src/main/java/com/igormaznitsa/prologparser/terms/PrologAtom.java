@@ -48,6 +48,7 @@ public final class PrologAtom extends PrologTerm {
     super(text, quotingType, line, pos);
   }
 
+  @Override
   public QuotingType getQuotingType() {
     return this.quotingType;
   }

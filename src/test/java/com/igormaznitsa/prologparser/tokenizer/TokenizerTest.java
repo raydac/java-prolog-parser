@@ -304,7 +304,7 @@ public class TokenizerTest {
     final Tokenizer tokenizer = tokenizeOf("", context);
     assertFalse(tokenizer.hasOperatorStartsWith("<------------------------------------------------------->"));
 
-    when(context.hasOperatorStartsWith(any(GenericPrologParser.class), eq("start_with"))).thenReturn(true);
+    when(context.hasOpStartsWith(any(GenericPrologParser.class), eq("start_with"))).thenReturn(true);
 
     assertTrue(tokenizer.hasOperatorStartsWith(":"));
     assertFalse(tokenizer.hasOperatorStartsWith("sstart_with"));
@@ -320,7 +320,7 @@ public class TokenizerTest {
 
     final OpContainer operatorContainer = make(Op.make(1000, OpType.FX, "some_operator"));
 
-    when(context.findOperatorForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
+    when(context.findOpForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 
     final OpContainer systemOne = tokenizer.findOperatorForName(":-");
     assertNotNull(systemOne);
