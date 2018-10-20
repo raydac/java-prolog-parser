@@ -23,16 +23,10 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.util.Arrays.stream;
 
 final class Koi7CharMap {
 
-  private final Map<String, OpContainer> insideMap = new HashMap<>();
-  private final Map<String, OpContainer> unmodifableInsideMap = Collections.unmodifiableMap(this.insideMap);
   private final OpContainer[] charMap = new OpContainer[0x80];
 
   Koi7CharMap() {
@@ -42,7 +36,7 @@ final class Koi7CharMap {
     stream(containers).forEach(x -> put(x.getTermText(), x));
   }
 
-  boolean containsKey(final String key) {
+  boolean contains(final String key) {
     if (key.length() != 1) {
       return false;
     }
@@ -61,7 +55,6 @@ final class Koi7CharMap {
     }
 
     this.charMap[chr] = container;
-    this.insideMap.put(key, container);
   }
 
   OpContainer get(final String key) {
@@ -71,17 +64,16 @@ final class Koi7CharMap {
 
     final int code = key.charAt(0);
 
-    if (code > 0x7F) {
-      return null;
+    final OpContainer result;
+    if (code < 0x80) {
+      result = this.charMap[code];
+    } else {
+      result = null;
     }
-    return this.charMap[code];
+    return result;
   }
 
   OpContainer get(final char c) {
     return c > 0x7F ? null : this.charMap[c];
-  }
-
-  Map<String, OpContainer> getUnmodifableMap() {
-    return this.unmodifableInsideMap;
   }
 }

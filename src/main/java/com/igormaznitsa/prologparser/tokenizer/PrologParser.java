@@ -39,7 +39,6 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -128,7 +127,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     }
 
     final OpContainer container;
-    if (metaMap.containsKey(text)) {
+    if (metaMap.contains(text)) {
       container = metaMap.get(text);
       container.add(operator);
     } else {
@@ -136,10 +135,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       metaMap.put(text, container);
     }
     return container;
-  }
-
-  public static Map<String, OpContainer> getMetaOperators() {
-    return META_SINGLE_CHAR_OPERATOR_MAP.getUnmodifableMap();
   }
 
   public static Op findSystemOperatorForNameAndType(final String text, final OpType type) {
@@ -179,7 +174,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       return false;
     }
 
-    return operator.getTermType() == TermType.__OPERATOR_CONTAINER__ && endOperators.containsKey(operator.getTermText());
+    return operator.getTermType() == TermType.__OPERATOR_CONTAINER__ && endOperators.contains(operator.getTermText());
   }
 
   public ParserContext getContext() {

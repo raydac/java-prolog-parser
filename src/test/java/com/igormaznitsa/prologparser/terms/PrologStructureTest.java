@@ -3,7 +3,6 @@ package com.igormaznitsa.prologparser.terms;
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -40,7 +39,6 @@ public class PrologStructureTest {
         new PrologList(), new PrologVariable()}).toString());
 
     final Map<String, OpContainer> contextOperators = new EdinburghPrologParser(new StringReader("")).getContext().findAllOperators();
-    final Map<String, OpContainer> systemOperators = PrologParser.getMetaOperators();
     assertEquals("hello :- world", new PrologStruct(contextOperators.get(":-").findForType(OpType.XFX),
         new PrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
@@ -83,17 +81,6 @@ public class PrologStructureTest {
                     OpType.FY),
                 new PrologTerm[] {new PrologInteger(
                     "10")})}).toString());
-    assertEquals(
-        "(10 .) .",
-        new PrologStruct(
-            systemOperators.get(".").findForType(
-                OpType.XF),
-            new PrologTerm[] {new PrologStruct(
-                systemOperators.get(".").findForType(
-                    OpType.XF),
-                new PrologTerm[] {new PrologInteger(
-                    "10")})}).toString());
-
     final Op operatorYF = Op.make(800, OpType.YF, "!");
     final Op operatorYF2 = Op.make(1000, OpType.YF, "!!");
 
