@@ -138,7 +138,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     return container;
   }
 
-  public static Map<String, OpContainer> findMetaOperators() {
+  public static Map<String, OpContainer> getMetaOperators() {
     return META_SINGLE_CHAR_OPERATOR_MAP.getUnmodifableMap();
   }
 

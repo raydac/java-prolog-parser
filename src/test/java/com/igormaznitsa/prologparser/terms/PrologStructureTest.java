@@ -40,7 +40,7 @@ public class PrologStructureTest {
         new PrologList(), new PrologVariable()}).toString());
 
     final Map<String, OpContainer> contextOperators = new EdinburghPrologParser(new StringReader("")).getContext().findAllOperators();
-    final Map<String, OpContainer> systemOperators = PrologParser.findMetaOperators();
+    final Map<String, OpContainer> systemOperators = PrologParser.getMetaOperators();
     assertEquals("hello :- world", new PrologStruct(contextOperators.get(":-").findForType(OpType.XFX),
         new PrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
