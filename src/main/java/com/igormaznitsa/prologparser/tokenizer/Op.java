@@ -45,6 +45,8 @@ public final class Op extends SpecServiceCompound {
   static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpType.XF, "]");
   static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpType.XF, ".");
   static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpType.XFY, "|");
+  static final Op METAOPERATOR_COMMA = makeSystem(1000, OpType.XFY, ",");
+
   private static final long serialVersionUID = -5914313127778138548L;
   private final OpType opType;
   private final int precedence;

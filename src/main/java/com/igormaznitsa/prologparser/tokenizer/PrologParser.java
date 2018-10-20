@@ -38,7 +38,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -57,8 +57,7 @@ import static com.igormaznitsa.prologparser.terms.OpContainer.make;
  */
 public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
-  protected static final OneCharOpMap META_SYSTEM_OPERATORS = new OneCharOpMap();
-  protected static final Map<String, OpContainer> SYSTEM_OPERATORS = new HashMap<>();
+  protected static final OneCharOpMap META_SINGLE_CHAR_OPERATOR_MAP = new OneCharOpMap();
   protected static final Set<String> SYSTEM_OPERATORS_PREFIXES = new HashSet<>();
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private final static OpContainer OPERATOR_COMMA;
@@ -76,27 +75,27 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final PrologTerm[] EMPTY = new PrologTerm[0];
 
   static {
-    META_SYSTEM_OPERATORS.clear();
+    META_SINGLE_CHAR_OPERATOR_MAP.clear();
 
     OPERATOR_DOT = make(Op.METAOPERATOR_DOT);
-    META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_DOT.getTermText(), OPERATOR_DOT);
+    META_SINGLE_CHAR_OPERATOR_MAP.put(Op.METAOPERATOR_DOT.getTermText(), OPERATOR_DOT);
 
     OPERATOR_LEFTBRACKET = make(Op.METAOPERATOR_LEFT_BRACKET);
-    META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_LEFT_BRACKET.getTermText(), OPERATOR_LEFTBRACKET);
+    META_SINGLE_CHAR_OPERATOR_MAP.put(Op.METAOPERATOR_LEFT_BRACKET.getTermText(), OPERATOR_LEFTBRACKET);
 
     OPERATOR_RIGHTBRACKET = make(Op.METAOPERATOR_RIGHT_BRACKET);
-    META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_RIGHT_BRACKET.getTermText(), OPERATOR_RIGHTBRACKET);
+    META_SINGLE_CHAR_OPERATOR_MAP.put(Op.METAOPERATOR_RIGHT_BRACKET.getTermText(), OPERATOR_RIGHTBRACKET);
 
     OPERATOR_LEFTSQUAREBRACKET = make(Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
-    META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_LEFT_SQUARE_BRACKET.getTermText(), OPERATOR_LEFTSQUAREBRACKET);
+    META_SINGLE_CHAR_OPERATOR_MAP.put(Op.METAOPERATOR_LEFT_SQUARE_BRACKET.getTermText(), OPERATOR_LEFTSQUAREBRACKET);
 
     OPERATOR_RIGHTSQUAREBRACKET = make(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
-    META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET.getTermText(), OPERATOR_RIGHTSQUAREBRACKET);
+    META_SINGLE_CHAR_OPERATOR_MAP.put(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET.getTermText(), OPERATOR_RIGHTSQUAREBRACKET);
 
     OPERATOR_VERTICALBAR = make(Op.METAOPERATOR_VERTICAL_BAR);
-    META_SYSTEM_OPERATORS.put(Op.METAOPERATOR_VERTICAL_BAR.getTermText(), OPERATOR_VERTICALBAR);
+    META_SINGLE_CHAR_OPERATOR_MAP.put(Op.METAOPERATOR_VERTICAL_BAR.getTermText(), OPERATOR_VERTICALBAR);
 
-    registerSysOp(Op.make(1000, OpType.XFY, ","));
+    OPERATOR_COMMA = registerSysOp(Op.make(1000, OpType.XFY, ",")).get(0);
 
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_DOT.getTermText());
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_LEFT_BRACKET.getTermText());
@@ -104,8 +103,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_RIGHT_BRACKET.getTermText());
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET.getTermText());
     SYSTEM_OPERATORS_PREFIXES.add(Op.METAOPERATOR_VERTICAL_BAR.getTermText());
-
-    OPERATOR_COMMA = SYSTEM_OPERATORS.get(",");
 
     OPERATORS_PHRASE = new OneCharOpMap(OPERATOR_DOT);
     OPERATORS_INSIDE_LIST = new OneCharOpMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
@@ -147,37 +144,46 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  private static void registerSysOp(final Op... operators) {
-    final StringBuilderEx buff = new StringBuilderEx(10);
+  private static List<OpContainer> registerSysOp(final Op... operators) {
+    final Map<String, OpContainer> metaMap = META_SINGLE_CHAR_OPERATOR_MAP.getMap();
+
+    final List<OpContainer> result = new ArrayList<>();
 
     Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
       final String opText = x.getTermText();
-      if (SYSTEM_OPERATORS.containsKey(opText)) {
-        final OpContainer container = SYSTEM_OPERATORS.get(opText);
+
+      if (opText.length() > 1) {
+        throw new Error("Meta operator must be single char: " + opText);
+      }
+
+      final OpContainer container;
+      if (metaMap.containsKey(opText)) {
+        container = metaMap.get(opText);
         container.add(x);
       } else {
-        final OpContainer container = make(x);
-        SYSTEM_OPERATORS.put(opText, container);
+        container = make(x);
+        META_SINGLE_CHAR_OPERATOR_MAP.put(opText, container);
       }
-      buff.clear();
-      for (final char c : opText.toCharArray()) {
-        buff.append(c);
-        SYSTEM_OPERATORS_PREFIXES.add(buff.toString());
-      }
+      SYSTEM_OPERATORS_PREFIXES.add(String.valueOf(opText.charAt(0)));
+      result.add(container);
     });
-  }
 
-  public static Map<String, OpContainer> findAllSystemOperators() {
-    final Map<String, OpContainer> result = new HashMap<>(SYSTEM_OPERATORS);
-    result.putAll(META_SYSTEM_OPERATORS.getMap());
     return result;
   }
 
+  public static Map<String, OpContainer> findMetaOperators() {
+    return Collections.unmodifiableMap(META_SINGLE_CHAR_OPERATOR_MAP.getMap());
+  }
+
   public static Op findSystemOperatorForNameAndType(final String text, final OpType type) {
-    OpContainer container = META_SYSTEM_OPERATORS.get(text);
+    if (text.length() != 1) {
+      return null;
+    }
+
+    OpContainer container = META_SINGLE_CHAR_OPERATOR_MAP.get(text);
 
     if (container == null) {
-      container = SYSTEM_OPERATORS.get(text);
+      container = META_SINGLE_CHAR_OPERATOR_MAP.get(text);
     }
 
     Op result = null;

@@ -167,7 +167,7 @@ final class Tokenizer {
 
     // check meta-operators as the first ones
     if (operatorName.length() == 1) {
-      result = PrologParser.META_SYSTEM_OPERATORS.get(operatorName);
+      result = PrologParser.META_SINGLE_CHAR_OPERATOR_MAP.get(operatorName);
     }
     if (result == null) {
       // check user defined operators because a user can replace a system operator
@@ -175,18 +175,13 @@ final class Tokenizer {
       if (ctx != null) {
         result = ctx.findOperatorForName(parser, operatorName);
       }
-
-      // check system operators
-      if (result == null) {
-        result = PrologParser.SYSTEM_OPERATORS.get(operatorName);
-      }
     }
 
     return result;
   }
 
   private OpContainer findOperatorForSingleChar(final char c) {
-    OpContainer result = PrologParser.META_SYSTEM_OPERATORS.get(c);
+    OpContainer result = PrologParser.META_SINGLE_CHAR_OPERATOR_MAP.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c));
     }
