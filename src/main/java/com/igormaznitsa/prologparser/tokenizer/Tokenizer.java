@@ -39,6 +39,7 @@ import java.io.Reader;
 
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOKFOR;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
+import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
 final class Tokenizer {
 
@@ -417,14 +418,19 @@ final class Tokenizer {
                   } else {
                     letterOrDigitOnly = Character.isLetterOrDigit(chr);
                     final String operator = String.valueOf(chr);
-                    if (hasOperatorStartsWith(operator)) {
-                      lastFoundFullOperator = findOperatorForName(operator);
-                      state = TokenizerState.OPERATOR;
+
+                    if (Character.isLowerCase(chr)) {
+                      state = TokenizerState.ATOM;
                     } else {
-                      if (Character.isDigit(chr)) {
-                        state = TokenizerState.INTEGER;
+                      if (hasOperatorStartsWith(operator)) {
+                        lastFoundFullOperator = findOperatorForName(operator);
+                        state = TokenizerState.OPERATOR;
                       } else {
-                        state = TokenizerState.ATOM;
+                        if (Character.isDigit(chr)) {
+                          state = TokenizerState.INTEGER;
+                        } else {
+                          state = TokenizerState.ATOM;
+                        }
                       }
                     }
                   }
@@ -438,17 +444,46 @@ final class Tokenizer {
                 strBuffer.append(chr);
               } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
                 final String text = strBuffer.toString();
-                return this.tokenizerResultPool.find().setData(makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state), state, getLastTokenLine(), getLastTokenPos());
-              } else if (chr == '\''
-                  || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
-                  || findOperatorForSingleChar(chr) != null) {
-                push(chr);
-                final String text = strBuffer.toString();
+
+                if (quoting == PrologTerm.QuotingType.NO_QUOTED) {
+                  final OpContainer operator = findOperatorForName(text);
+                  if (operator != null) {
+                    return this.tokenizerResultPool.find().setData(
+                        operator,
+                        TokenizerState.OPERATOR,
+                        getLastTokenLine(),
+                        getLastTokenPos());
+                  }
+                }
+
                 return this.tokenizerResultPool.find().setData(
                     makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
+              } else if (
+                  (chr == '\'' || chr == '\"' || chr == '`')
+                  || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
+                  || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
+                push(chr);
+                final String text = strBuffer.toString();
+
+                if (quoting == PrologTerm.QuotingType.NO_QUOTED) {
+                  final OpContainer operator = findOperatorForName(text);
+                  if (operator != null) {
+                    return this.tokenizerResultPool.find().setData(
+                        operator,
+                        TokenizerState.OPERATOR,
+                        getLastTokenLine(),
+                        getLastTokenPos());
+                  }
+                }
+                  return this.tokenizerResultPool.find().setData(
+                      makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
+                      state,
+                      getLastTokenLine(),
+                      getLastTokenPos());
+
               } else {
                 strBuffer.append(chr);
               }
@@ -574,11 +609,13 @@ final class Tokenizer {
                   );
                 }
               } else {
-                final OpContainer previousleDetectedOperator = lastFoundFullOperator;
+                final OpContainer previouslyDetectedOperator = lastFoundFullOperator;
+
                 strBuffer.append(chr);
                 final String operator = strBuffer.toString();
                 lastFoundFullOperator = findOperatorForName(operator);
-                if (previousleDetectedOperator == null) {
+
+                if (previouslyDetectedOperator == null) {
                   if (!hasOperatorStartsWith(operator)) {
                     if (hasOperatorStartsWith(String.valueOf(chr))) {
                       // next char can be the start char of an
@@ -592,15 +629,15 @@ final class Tokenizer {
                 } else {
                   if (lastFoundFullOperator == null) {
                     if (hasOperatorStartsWith(operator)) {
-                      lastFoundFullOperator = previousleDetectedOperator;
+                      lastFoundFullOperator = previouslyDetectedOperator;
                     } else {
                       if (letterOrDigitOnly) {
                         state = TokenizerState.ATOM;
                       } else {
                         calcDiffAndPushResultBack(
-                            previousleDetectedOperator.getTermText(), strBuffer);
+                            previouslyDetectedOperator.getTermText(), strBuffer);
                         return this.tokenizerResultPool.find().setData(
-                            previousleDetectedOperator,
+                            previouslyDetectedOperator,
                             state, getLastTokenLine(),
                             getLastTokenPos()
                         );
@@ -609,9 +646,9 @@ final class Tokenizer {
                   } else {
                     if (!hasOperatorStartsWith(operator)) {
                       calcDiffAndPushResultBack(
-                          previousleDetectedOperator.getTermText(), strBuffer);
+                          previouslyDetectedOperator.getTermText(), strBuffer);
                       return this.tokenizerResultPool.find().setData(
-                          previousleDetectedOperator,
+                          previouslyDetectedOperator,
                           state,
                           getLastTokenLine(),
                           getLastTokenPos());
@@ -695,7 +732,7 @@ final class Tokenizer {
                   return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
                 }
                 return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
-              } else if (!StringUtils.isCharAllowedForUnquotedAtom(chr)) {
+              } else if (!isCharAllowedForUnquotedAtom(chr)) {
                 push(chr);
                 if (strBuffer.isSingleChar('_')) {
                   return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());

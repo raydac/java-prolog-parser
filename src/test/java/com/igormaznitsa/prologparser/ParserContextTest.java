@@ -36,15 +36,10 @@ public class ParserContextTest {
 
     assertThrows(PrologParserException.class, () -> parser.next());
 
-    verify(mockContext).hasOperatorStartsWith(parser, "a");
-    verify(mockContext).hasOperatorStartsWith(parser, "o");
-    verify(mockContext).hasOperatorStartsWith(parser, "op");
-    verify(mockContext).hasOperatorStartsWith(parser, "ope");
-    verify(mockContext).hasOperatorStartsWith(parser, "oper");
-    verify(mockContext).hasOperatorStartsWith(parser, "opera");
-    verify(mockContext).hasOperatorStartsWith(parser, "operato");
-    verify(mockContext).hasOperatorStartsWith(parser, "operator");
-    verify(mockContext).hasOperatorStartsWith(parser, "b");
+   verify(mockContext).findOperatorForName(parser, "a");
+   verify(mockContext).findOperatorForName(parser, "operator");
+   verify(mockContext).findOperatorForName(parser, "b");
+   verify(mockContext,never()).hasOperatorStartsWith(parser, eq(anyString()));
   }
 
   @Test
