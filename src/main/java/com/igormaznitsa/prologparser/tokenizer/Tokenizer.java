@@ -695,7 +695,7 @@ final class Tokenizer {
                   return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
                 }
                 return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
-              } else if (chr != '_' && !Character.isLetterOrDigit(chr)) {
+              } else if (!StringUtils.isCharAllowedForUnquotedAtom(chr)) {
                 push(chr);
                 if (strBuffer.isSingleChar('_')) {
                   return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
