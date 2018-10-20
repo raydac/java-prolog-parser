@@ -52,7 +52,7 @@ import static com.igormaznitsa.prologparser.terms.OpContainer.make;
  */
 public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
-  static final Koi7CharMap META_SINGLE_CHAR_OPERATOR_MAP;
+  static final Koi7OpMap META_SINGLE_CHAR_OPERATOR_MAP;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private static final OpContainer OPERATOR_COMMA;
   private static final OpContainer OPERATOR_LEFTBRACKET;
@@ -61,15 +61,15 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final OpContainer OPERATOR_RIGHTSQUAREBRACKET;
   private static final OpContainer OPERATOR_DOT;
   private static final OpContainer OPERATOR_VERTICALBAR;
-  private static final Koi7CharMap OPERATORS_PHRASE;
-  private static final Koi7CharMap OPERATORS_INSIDE_LIST;
-  private static final Koi7CharMap OPERATORS_END_LIST;
-  private static final Koi7CharMap OPERATORS_INSIDE_STRUCT;
-  private static final Koi7CharMap OPERATORS_SUBBLOCK;
+  private static final Koi7OpMap OPERATORS_PHRASE;
+  private static final Koi7OpMap OPERATORS_INSIDE_LIST;
+  private static final Koi7OpMap OPERATORS_END_LIST;
+  private static final Koi7OpMap OPERATORS_INSIDE_STRUCT;
+  private static final Koi7OpMap OPERATORS_SUBBLOCK;
   private static final PrologTerm[] EMPTY = new PrologTerm[0];
 
   static {
-    META_SINGLE_CHAR_OPERATOR_MAP = new Koi7CharMap();
+    META_SINGLE_CHAR_OPERATOR_MAP = new Koi7OpMap();
 
     OPERATOR_DOT = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_DOT);
     OPERATOR_LEFTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_BRACKET);
@@ -79,11 +79,11 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     OPERATOR_VERTICALBAR = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_VERTICAL_BAR);
     OPERATOR_COMMA = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.make(1000, OpType.XFY, ","));
 
-    OPERATORS_PHRASE = new Koi7CharMap(OPERATOR_DOT);
-    OPERATORS_INSIDE_LIST = new Koi7CharMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
-    OPERATORS_END_LIST = new Koi7CharMap(OPERATOR_RIGHTSQUAREBRACKET);
-    OPERATORS_INSIDE_STRUCT = new Koi7CharMap(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
-    OPERATORS_SUBBLOCK = new Koi7CharMap(OPERATOR_RIGHTBRACKET);
+    OPERATORS_PHRASE = new Koi7OpMap(OPERATOR_DOT);
+    OPERATORS_INSIDE_LIST = new Koi7OpMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
+    OPERATORS_END_LIST = new Koi7OpMap(OPERATOR_RIGHTSQUAREBRACKET);
+    OPERATORS_INSIDE_STRUCT = new Koi7OpMap(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
+    OPERATORS_SUBBLOCK = new Koi7OpMap(OPERATOR_RIGHTBRACKET);
   }
 
   protected final ParserContext context;
@@ -119,7 +119,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  private static OpContainer addMetaOperator(final Koi7CharMap metaMap, final Op operator) {
+  private static OpContainer addMetaOperator(final Koi7OpMap metaMap, final Op operator) {
     final String text = operator.getTermText();
 
     if (text.length() != 1) {
@@ -165,7 +165,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     }
   }
 
-  private boolean isEndOperator(final PrologTerm operator, final Koi7CharMap endOperators) {
+  private boolean isEndOperator(final PrologTerm operator, final Koi7OpMap endOperators) {
     if (operator == null) {
       return true;
     }
@@ -353,7 +353,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     }
   }
 
-  private PrologTerm readBlock(final Koi7CharMap endOperators) {
+  private PrologTerm readBlock(final Koi7OpMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
     TreeItem currentTreeItem = null;

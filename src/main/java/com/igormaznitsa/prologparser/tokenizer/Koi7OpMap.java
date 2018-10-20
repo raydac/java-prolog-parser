@@ -25,14 +25,14 @@ import com.igormaznitsa.prologparser.terms.OpContainer;
 
 import static java.util.Arrays.stream;
 
-final class Koi7CharMap {
+final class Koi7OpMap {
 
   private final OpContainer[] charMap = new OpContainer[0x80];
 
-  Koi7CharMap() {
+  Koi7OpMap() {
   }
 
-  Koi7CharMap(final OpContainer... containers) {
+  Koi7OpMap(final OpContainer... containers) {
     stream(containers).forEach(x -> put(x.getTermText(), x));
   }
 
