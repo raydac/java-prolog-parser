@@ -36,8 +36,6 @@ import java.util.stream.Stream;
 
 public class DefaultParserContext implements ParserContext {
 
-  public static final Op OPERATORS_PLUS_MINUS = Op.make(200, OpType.FY, "-", "+");
-
   protected final Set<String> opPrefixes = new HashSet<>();
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
   protected final Set<String> zeroArityStructs = new HashSet<>();

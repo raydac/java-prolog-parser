@@ -14,6 +14,7 @@ import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
+import com.igormaznitsa.prologparser.utils.Operators;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
 
@@ -523,6 +524,11 @@ public class IntegrationTest {
   }
 
   @Test
+  public void testOperatorLooksAsAtomAndPartOfAtom() {
+    assertEquals("module", parseEd("module.").next().getTermText());
+  }
+
+  @Test
   public void testStreamPositionForTerms() {
     PrologTerm atom = parseEd("\n     'hello'.").next();
     assertEquals(6, atom.getPos());
@@ -787,10 +793,10 @@ public class IntegrationTest {
     assertEquals(1, ((PrologNumeric) parseGen("1.").next()).getNumber().intValue());
     assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
 
-    assertEquals(-1, ((PrologNumeric) parseGen("-1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().intValue());
-    assertEquals(1, ((PrologNumeric) parseGen("+1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().intValue());
-    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
-    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", new DefaultParserContext(FLAG_NONE, DefaultParserContext.OPERATORS_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1, ((PrologNumeric) parseGen("-1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
+    assertEquals(1, ((PrologNumeric) parseGen("+1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test

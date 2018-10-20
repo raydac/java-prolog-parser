@@ -28,9 +28,11 @@ public class ParserContextTest {
   @Test
   public void testHasOperatorStartsWith() {
     final ParserContext mockContext = mock(ParserContext.class);
-    Mockito.when(mockContext.hasOperatorStartsWith(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
+    Mockito.when(mockContext
+        .hasOperatorStartsWith(any(GenericPrologParser.class), anyString()))
+        .then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
-    final GenericPrologParser parser = new EdinburghPrologParser(new StringReader("a operator b."), mockContext);
+    final GenericPrologParser parser = new GenericPrologParser(new StringReader("a operator b."), mockContext);
 
     assertThrows(PrologParserException.class, () -> parser.next());
 

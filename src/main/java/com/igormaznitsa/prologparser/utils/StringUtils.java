@@ -133,6 +133,10 @@ public final class StringUtils {
     }
   }
 
+  public static boolean isCharAllowedForUnquotedAtom(final char chr) {
+    return Character.isLetterOrDigit(chr) || chr == '_';
+  }
+
   public static boolean isCharAppropriateForHex(final char chr) {
     return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F');
   }
