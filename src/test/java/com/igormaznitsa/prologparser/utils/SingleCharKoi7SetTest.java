@@ -21,45 +21,27 @@
 
 package com.igormaznitsa.prologparser.utils;
 
-public final class SingleCharKoi7Set {
-  private long low;
-  private long high;
+import org.junit.jupiter.api.Test;
 
-  public SingleCharKoi7Set() {
+import static org.junit.jupiter.api.Assertions.*;
 
+class SingleCharKoi7SetTest {
+
+  @Test
+  public void testAdd() {
+    final SingleCharKoi7Set koiSet = new SingleCharKoi7Set();
+    assertFalse(koiSet.contains(String.valueOf((char) 0)));
+
+    koiSet.add((char) 0);
+    assertEquals(1L, koiSet.getLowMask());
+    assertEquals(0L, koiSet.getHighMask());
+    assertTrue(koiSet.contains(String.valueOf((char) 0)));
+
+    koiSet.add((char) 64);
+    assertEquals(1L, koiSet.getLowMask());
+    assertEquals(1L, koiSet.getHighMask());
+
+    assertThrows(IllegalArgumentException.class, () -> koiSet.add((char) 129));
   }
 
-  public long getHighMask() {
-    return this.high;
-  }
-
-  public long getLowMask() {
-    return this.low;
-  }
-
-  public void add(final char chr) {
-    if (chr > 0x7F) {
-      throw new IllegalArgumentException("Non-koi 7 char: " + chr);
-    }
-    if (chr < 64) {
-      this.low |= (1L << chr);
-    } else {
-      this.high |= (1L << (chr - 64));
-    }
-  }
-
-  public boolean contains(final String text) {
-    boolean result = false;
-    if (text.length() == 1) {
-      final int code = text.charAt(0);
-      if (code < 0x80) {
-        if (code < 64) {
-          result = (this.low & (1L << code)) != 0;
-        } else {
-          result = (this.high & (1L << (code - 64))) != 0;
-        }
-      }
-    }
-    return result;
-  }
 }
