@@ -208,7 +208,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       if (hasNext()) {
         return this.lastFoundTerm;
       } else {
-        throw new NoSuchElementException("There are terms in the source.");
+        throw new NoSuchElementException("No terms in source");
       }
     } finally {
       this.lastFoundTerm = null;
