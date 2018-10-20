@@ -521,6 +521,12 @@ public class IntegrationTest {
     assertReadTerms(7, "dmalloc.pl");
     assertReadTerms(24, "xref_packages.pl");
     assertReadTerms(6, "test_loop.pl");
+    assertReadTerms(11, "linprog.pl");
+    assertReadTerms(6, "queue_send.pl");
+    assertReadTerms(8, "pooltest.pl");
+    assertReadTerms(5, "test_eclipse.pl");
+    assertReadTerms(17, "test_sandbox.pl");
+    assertReadTerms(151, "test_arith.pl");
     assertReadTerms(4, "sendmoney.pl",Operators.SWI_CPL);
     assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
