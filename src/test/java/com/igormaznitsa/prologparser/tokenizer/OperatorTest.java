@@ -25,8 +25,6 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
-import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -61,7 +59,7 @@ public class OperatorTest {
     assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MAX - 1, OpType.FX, names));
     assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MIN + 1, OpType.FX, names));
     assertThrows(NullPointerException.class, () -> Op.make(345, null, names));
-    assertThrows(NullPointerException.class, () -> Op.make(345, OpType.FX, (String[])null));
+    assertThrows(NullPointerException.class, () -> Op.make(345, OpType.FX, (String[]) null));
 
     final Op operators = Op.make(321, OpType.XFX, names);
     assertEquals(names.length, operators.streamOp().count());
@@ -71,7 +69,7 @@ public class OperatorTest {
   public void testOperatorIntOperatorTypeString() {
     assertThrows(IllegalArgumentException.class, () -> Op.make(-1, OpType.FX, "<>"));
     assertThrows(IllegalArgumentException.class, () -> Op.make(1201, OpType.FX, "<>"));
-    assertThrows(NullPointerException.class, () -> Op.make(333, OpType.FX, (String[])null));
+    assertThrows(NullPointerException.class, () -> Op.make(333, OpType.FX, (String[]) null));
     assertThrows(NullPointerException.class, () -> Op.make(333, null, "<>"));
     assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpType.FX, "Hello"));
     assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpType.FX, " <>"));

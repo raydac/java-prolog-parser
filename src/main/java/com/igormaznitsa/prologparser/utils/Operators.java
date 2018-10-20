@@ -22,11 +22,9 @@
 package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
 
 import static com.igormaznitsa.prologparser.tokenizer.Op.make;
 import static com.igormaznitsa.prologparser.tokenizer.OpType.*;
-import static com.igormaznitsa.prologparser.tokenizer.OpType.YFX;
 
 public final class Operators {
   public static final Op UNARY_PLUS_MINUS = make(200, FY, "+", "-");
@@ -35,16 +33,16 @@ public final class Operators {
   public static final Op UNIFY = make(700, XFX, "=");
   public static final Op CONDITIONAL = make(700, XFX, "==", "<", "=<", ">", ">=");
   public static final Op BITWISE_SHIFT = make(400, YFX, "<<", ">>");
-  public static final Op [] SWI_CPL = {
-    make(760, YFX, "#<==>"),
-    make(750, XFY, "#==>"),
-    make(750, YFX, "#<=="),
-    make(740, YFX, "#\\/"),
-    make(730, YFX, "#\\"),
-    make(720, YFX, "#/\\"),
-    make(710, FY, "#\\"),
-    make(700, XFX, "#>","#<","#>=","#=<","#=","#\\=","in","ins"),
-    make(450, XFX, ".."),
+  public static final Op[] SWI_CPL = {
+      make(760, YFX, "#<==>"),
+      make(750, XFY, "#==>"),
+      make(750, YFX, "#<=="),
+      make(740, YFX, "#\\/"),
+      make(730, YFX, "#\\"),
+      make(720, YFX, "#/\\"),
+      make(710, FY, "#\\"),
+      make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
+      make(450, XFX, ".."),
   };
 
   private Operators() {

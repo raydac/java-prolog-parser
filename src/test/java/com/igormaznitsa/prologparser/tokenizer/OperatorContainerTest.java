@@ -23,8 +23,6 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.TermType;
-import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
 import org.junit.jupiter.api.Test;
 
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;

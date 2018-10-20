@@ -1,13 +1,13 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
-import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,10 +36,10 @@ public class ParserContextTest {
 
     assertThrows(PrologParserException.class, () -> parser.next());
 
-   verify(mockContext).findOperatorForName(parser, "a");
-   verify(mockContext).findOperatorForName(parser, "operator");
-   verify(mockContext).findOperatorForName(parser, "b");
-   verify(mockContext,never()).hasOperatorStartsWith(parser, eq(anyString()));
+    verify(mockContext).findOperatorForName(parser, "a");
+    verify(mockContext).findOperatorForName(parser, "operator");
+    verify(mockContext).findOperatorForName(parser, "b");
+    verify(mockContext, never()).hasOperatorStartsWith(parser, eq(anyString()));
   }
 
   @Test

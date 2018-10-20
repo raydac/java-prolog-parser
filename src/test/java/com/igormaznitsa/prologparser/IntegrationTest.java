@@ -527,7 +527,7 @@ public class IntegrationTest {
     assertReadTerms(5, "test_eclipse.pl");
     assertReadTerms(17, "test_sandbox.pl");
     assertReadTerms(151, "test_arith.pl");
-    assertReadTerms(4, "sendmoney.pl",Operators.SWI_CPL);
+    assertReadTerms(4, "sendmoney.pl", Operators.SWI_CPL);
     assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
 
