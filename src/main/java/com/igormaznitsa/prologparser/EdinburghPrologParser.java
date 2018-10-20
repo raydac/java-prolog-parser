@@ -21,6 +21,7 @@
 
 package com.igormaznitsa.prologparser;
 
+import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
 
 import java.io.Reader;
@@ -40,19 +41,19 @@ public class EdinburghPrologParser extends GenericPrologParser {
         make(1050, OpType.XFY, "->", "*->"),
         make(990, OpType.FY, ":="),
         make(900, OpType.FY, "\\+"),
-        Operators.UNIFY,
-        Operators.CONDITIONAL,
+        Op.UNIFY,
+        Op.CONDITIONAL,
         make(700, OpType.XFX, "=..", "=@=", "\\=@=", "=:=", "=\\=", "@<", "@=<", "@>", "@>=", "\\=", "\\==", "as", "is", ">:<", ":<"),
         make(600, OpType.XFY, ":"),
-        Operators.BINARY_PLUS_MINUS,
+        Op.BINARY_PLUS_MINUS,
         make(500, OpType.YFX, "/\\", "\\/", "xor"),
         make(500, OpType.FX, "?"),
-        Operators.BINARY_MUL_DIV,
-        Operators.BITWISE_SHIFT,
+        Op.BINARY_MUL_DIV,
+        Op.BITWISE_SHIFT,
         make(400, OpType.YFX, "//", "div", "rdiv", "mod", "rem"),
         make(200, OpType.XFX, "**"),
         make(200, OpType.XFY, "^"),
-        Operators.UNARY_PLUS_MINUS,
+        Op.UNARY_PLUS_MINUS,
         make(200, OpType.FY, "\\"),
         make(1, OpType.FX, "$")
     ), context));

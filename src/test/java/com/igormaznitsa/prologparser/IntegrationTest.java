@@ -526,7 +526,7 @@ public class IntegrationTest {
     assertReadTerms(5, "test_eclipse.pl");
     assertReadTerms(17, "test_sandbox.pl");
     assertReadTerms(151, "test_arith.pl");
-    assertReadTerms(4, "sendmoney.pl", Operators.SWI_CPL);
+    assertReadTerms(4, "sendmoney.pl", Op.SWI_CPL);
     assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
 
@@ -603,7 +603,7 @@ public class IntegrationTest {
 
   @Test
   public void testPairOperatorsWithoutWhitespaces() {
-    final PrologParser parser = parseEd("a=..b.a..b.", new DefaultParserContext(FLAG_NONE, Operators.SWI_CPL));
+    final PrologParser parser = parseEd("a=..b.a..b.", new DefaultParserContext(FLAG_NONE, Op.SWI_CPL));
     assertZFZOperatorStruct("=..", parser.next());
     assertZFZOperatorStruct("..", parser.next());
     assertFalse(parser.hasNext());
@@ -816,10 +816,10 @@ public class IntegrationTest {
     assertEquals(1, ((PrologNumeric) parseGen("1.").next()).getNumber().intValue());
     assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
 
-    assertEquals(-1, ((PrologNumeric) parseGen("-1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
-    assertEquals(1, ((PrologNumeric) parseGen("+1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
-    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
-    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", new DefaultParserContext(FLAG_NONE, Operators.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1, ((PrologNumeric) parseGen("-1.", new DefaultParserContext(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
+    assertEquals(1, ((PrologNumeric) parseGen("+1.", new DefaultParserContext(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
+    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.", new DefaultParserContext(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", new DefaultParserContext(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test

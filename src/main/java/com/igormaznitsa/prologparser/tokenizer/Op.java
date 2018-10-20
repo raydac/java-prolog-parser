@@ -33,12 +33,31 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Stream;
 
+import static com.igormaznitsa.prologparser.tokenizer.OpType.*;
+
 /**
  * Prolog operator definition.
  */
 public final class Op extends SpecServiceCompound {
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
+  public static final Op UNARY_PLUS_MINUS = make(200, FY, "+", "-");
+  public static final Op BINARY_PLUS_MINUS = make(500, YFX, "+", "-");
+  public static final Op BINARY_MUL_DIV = make(400, YFX, "*", "/");
+  public static final Op UNIFY = make(700, XFX, "=");
+  public static final Op CONDITIONAL = make(700, XFX, "==", "<", "=<", ">", ">=");
+  public static final Op BITWISE_SHIFT = make(400, YFX, "<<", ">>");
+  public static final Op[] SWI_CPL = {
+      make(760, YFX, "#<==>"),
+      make(750, XFY, "#==>"),
+      make(750, YFX, "#<=="),
+      make(740, YFX, "#\\/"),
+      make(730, YFX, "#\\"),
+      make(720, YFX, "#/\\"),
+      make(710, FY, "#\\"),
+      make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
+      make(450, XFX, ".."),
+  };
   static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpType.FX, "(");
   static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpType.XF, ")");
   static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpType.FX, "[");
@@ -46,7 +65,6 @@ public final class Op extends SpecServiceCompound {
   static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpType.XF, ".");
   static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpType.XFY, "|");
   static final Op METAOPERATOR_COMMA = makeSystem(1000, OpType.XFY, ",");
-
   private static final long serialVersionUID = -5914313127778138548L;
   private final OpType opType;
   private final int precedence;
