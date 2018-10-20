@@ -38,7 +38,7 @@ public class EdinburghPrologParser extends GenericPrologParser {
         make(1200, OpType.FX, "?-", ":-"),
         make(1150, OpType.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
         make(1100, OpType.XFY, ";"),
-        make(1050, OpType.XFY, "->","*->"),
+        make(1050, OpType.XFY, "->", "*->"),
         make(990, OpType.FY, ":="),
         make(900, OpType.FY, "\\+"),
         Operators.UNIFY,

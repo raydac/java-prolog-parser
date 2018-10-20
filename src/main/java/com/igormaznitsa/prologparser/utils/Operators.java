@@ -35,5 +35,6 @@ public final class Operators {
   public static final Op BITWISE_SHIFT = make(400, OpType.YFX, "<<", ">>");
 
 
-  private Operators(){}
+  private Operators() {
+  }
 }

@@ -463,8 +463,8 @@ final class Tokenizer {
                     getLastTokenPos());
               } else if (
                   (chr == '\'' || chr == '\"' || chr == '`')
-                  || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
-                  || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
+                      || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
+                      || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
                 push(chr);
                 final String text = strBuffer.toString();
 
@@ -478,11 +478,11 @@ final class Tokenizer {
                         getLastTokenPos());
                   }
                 }
-                  return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
-                      state,
-                      getLastTokenLine(),
-                      getLastTokenPos());
+                return this.tokenizerResultPool.find().setData(
+                    makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
+                    state,
+                    getLastTokenLine(),
+                    getLastTokenPos());
 
               } else {
                 strBuffer.append(chr);
