@@ -612,7 +612,7 @@ public class IntegrationTest {
   @Test
   public void testSingleOperatorAsAtom() {
     final PrologStruct structure = (PrologStruct) parseEd("not/stream.").next();
-    assertEquals("/", structure.getFunctor().getTermText());
+    assertZFZOperatorStruct("/", structure);
     assertEquals(ATOM, structure.getElementAt(0).getTermType());
     assertEquals("not", structure.getElementAt(0).getTermText());
     assertEquals(ATOM, structure.getElementAt(1).getTermType());
