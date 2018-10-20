@@ -82,7 +82,7 @@ final class OneCharOpMap {
     return c > 0x7F ? null : charMap[c];
   }
 
-  Map<String, OpContainer> getMap() {
+  Map<String, OpContainer> getUnmodifableMap() {
     return this.unmodifableInsideMap;
   }
 

@@ -151,7 +151,7 @@ final class Tokenizer {
 
   boolean hasOperatorStartsWith(final String operatorNameStartSubstring) {
     boolean result = false;
-    if (PrologParser.SYSTEM_OPERATORS_PREFIXES.contains(operatorNameStartSubstring)) {
+    if (PrologParser.META_OPERATOS_PREFIXES.contains(operatorNameStartSubstring)) {
       result = true;
     } else if (parser != null) {
       final ParserContext ctx = parser.getContext();
