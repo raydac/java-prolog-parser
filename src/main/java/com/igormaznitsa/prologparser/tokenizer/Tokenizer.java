@@ -197,7 +197,7 @@ final class Tokenizer {
 
   TokenizerResult peek() {
     TokenizerResult result;
-    if (lastPushedTerm == null) {
+    if (this.lastPushedTerm == null) {
       result = readNextToken();
       push(result);
     } else {

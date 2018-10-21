@@ -49,6 +49,18 @@ public class DefaultParserContext implements ParserContext {
     this.addOperators(operators);
   }
 
+  public static ParserContext of(final int flags) {
+    return new DefaultParserContext(flags);
+  }
+
+  public static ParserContext of(final int flags, final Op... operators) {
+    return new DefaultParserContext(flags, operators);
+  }
+
+  public static ParserContext of(final int flags, final String... zeroArityStructures) {
+    return new DefaultParserContext(flags).addZeroStructs(zeroArityStructures);
+  }
+
   @Override
   public Map<String, OpContainer> findAllOperators() {
     return Collections.unmodifiableMap(this.opContainers);
@@ -61,18 +73,6 @@ public class DefaultParserContext implements ParserContext {
 
   protected void fillPrefixes(final String name) {
     rangeClosed(1, name.length()).mapToObj(i -> name.substring(0, i)).forEach(this.opPrefixes::add);
-  }
-
-  public static ParserContext of(final int flags) {
-    return new DefaultParserContext(flags);
-  }
-
-  public static ParserContext of(final int flags, final Op... operators) {
-    return new DefaultParserContext(flags, operators);
-  }
-
-  public static ParserContext of(final int flags, final String... zeroArityStructures) {
-    return new DefaultParserContext(flags).addZeroStructs(zeroArityStructures);
   }
 
   public DefaultParserContext addZeroStructs(final String... names) {

@@ -11,9 +11,9 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
-import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
 

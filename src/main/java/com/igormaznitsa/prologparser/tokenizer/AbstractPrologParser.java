@@ -211,7 +211,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
 
         final TokenizerResult nextAtom = this.tokenizer.readNextToken();
         if (nextAtom == null) {
-          return null;
+          throw new PrologParserException("Can't read next token in block", this.tokenizer.getLine(), this.tokenizer.getPos());
         }
 
         try {
@@ -257,7 +257,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
 
       final TokenizerResult nextAtom = tokenizer.readNextToken();
       if (nextAtom == null) {
-        return null;
+        throw new PrologParserException("Can't read next token in list", this.tokenizer.getLine(), this.tokenizer.getPos());
       }
 
       try {
@@ -296,11 +296,11 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
 
             final TokenizerResult nextAtomTwo = tokenizer.readNextToken();
             if (nextAtomTwo == null) {
-              return null;
+              throw new PrologParserException("Can't find expected token in list", this.tokenizer.getLine(), this.tokenizer.getPos());
             }
             try {
               if (!nextAtomTwo.getResult().getTermText().equals(OPERATOR_RIGHTSQUAREBRACKET.getTermText())) {
-                throw new PrologParserException("Wrong end of the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
+                throw new PrologParserException("Wrong end of the list tail", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
               }
             } finally {
               nextAtomTwo.release();
@@ -446,8 +446,14 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
                     readAtomPriority = 0;
 
                     final TokenizerResult token = tokenizer.readNextToken();
-                    final PrologTerm closingAtom = token.getResult();
-                    token.release();
+
+                    final PrologTerm closingAtom;
+                    if (token == null) {
+                      closingAtom = null;
+                    } else {
+                      closingAtom = token.getResult();
+                      token.release();
+                    }
 
                     if (closingAtom == null || !closingAtom.getTermText().equals(OPERATOR_RIGHTBRACKET.getTermText())) {
                       throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
@@ -472,8 +478,13 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
           break;
           default: {
             TokenizerResult nextToken = tokenizer.readNextToken();
+
+            if (nextToken == null) {
+              return null;
+            }
+
             try {
-              if (nextToken != null && nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
+              if (nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
                 final int nextTokenLineNumber = nextToken.getLine();
                 final int nextTokenStrPosition = nextToken.getPos();
 

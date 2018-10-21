@@ -33,12 +33,12 @@ final class Koi7CharOpMap {
 
   private final OpContainer[] charMap = new OpContainer[0x80];
 
-  static Koi7CharOpMap ofOps(final OpContainer... containers) {
-    return new Koi7CharOpMap(containers);
-  }
-
   private Koi7CharOpMap(final OpContainer... containers) {
     stream(containers).forEach(x -> put(x.getTermText(), x));
+  }
+
+  static Koi7CharOpMap ofOps(final OpContainer... containers) {
+    return new Koi7CharOpMap(containers);
   }
 
   OpContainer add(final Op operator) {

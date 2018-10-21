@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 
 /**
  * Auxiliary class to implement cache some objects, but if there is not any cached one then new one will be generated,
+ *
  * @param <T> type of objects.
  */
 public abstract class SoftObjectPool<T> implements Supplier<T> {
