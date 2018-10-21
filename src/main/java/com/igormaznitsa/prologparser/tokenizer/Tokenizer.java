@@ -151,7 +151,7 @@ final class Tokenizer {
 
   boolean hasOperatorStartsWith(final String operatorNameStartSubstring) {
     boolean result = false;
-    if (AbstractPrologParser.META_SINGLE_CHAR_OPERATOR_MAP.contains(operatorNameStartSubstring)) {
+    if (AbstractPrologParser.META_OP_MAP.contains(operatorNameStartSubstring)) {
       result = true;
     } else if (parser != null) {
       final ParserContext ctx = parser.getContext();
@@ -167,7 +167,7 @@ final class Tokenizer {
 
     // check meta-operators as the first ones
     if (operatorName.length() == 1) {
-      result = AbstractPrologParser.META_SINGLE_CHAR_OPERATOR_MAP.get(operatorName);
+      result = AbstractPrologParser.META_OP_MAP.get(operatorName);
     }
     if (result == null) {
       // check user defined operators because a user can replace a system operator
@@ -181,7 +181,7 @@ final class Tokenizer {
   }
 
   private OpContainer findOperatorForSingleChar(final char c) {
-    OpContainer result = AbstractPrologParser.META_SINGLE_CHAR_OPERATOR_MAP.get(c);
+    OpContainer result = AbstractPrologParser.META_OP_MAP.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c));
     }

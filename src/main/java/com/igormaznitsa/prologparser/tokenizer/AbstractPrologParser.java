@@ -45,14 +45,14 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 
 /**
- * Abstract prolog parser.
+ * Abstract base Prolog parser.
  */
 public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
-  static final Koi7OpMap META_SINGLE_CHAR_OPERATOR_MAP;
+  static final Koi7CharOpMap META_OP_MAP;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private static final OpContainer OPERATOR_COMMA;
   private static final OpContainer OPERATOR_LEFTBRACKET;
@@ -60,29 +60,29 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
   private static final OpContainer OPERATOR_RIGHTSQUAREBRACKET;
   private static final OpContainer OPERATOR_DOT;
   private static final OpContainer OPERATOR_VERTICALBAR;
-  private static final Koi7OpMap OPERATORS_PHRASE;
-  private static final Koi7OpMap OPERATORS_INSIDE_LIST;
-  private static final Koi7OpMap OPERATORS_END_LIST;
-  private static final Koi7OpMap OPERATORS_INSIDE_STRUCT;
-  private static final Koi7OpMap OPERATORS_SUBBLOCK;
+  private static final Koi7CharOpMap OPERATORS_PHRASE;
+  private static final Koi7CharOpMap OPERATORS_INSIDE_LIST;
+  private static final Koi7CharOpMap OPERATORS_END_LIST;
+  private static final Koi7CharOpMap OPERATORS_INSIDE_STRUCT;
+  private static final Koi7CharOpMap OPERATORS_SUBBLOCK;
   private static final PrologTerm[] EMPTY = new PrologTerm[0];
 
   static {
-    META_SINGLE_CHAR_OPERATOR_MAP = new Koi7OpMap();
+    META_OP_MAP = ofOps();
 
-    OPERATOR_DOT = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_DOT);
-    OPERATOR_LEFTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_BRACKET);
-    OPERATOR_RIGHTBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_RIGHT_BRACKET);
-    addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
-    OPERATOR_RIGHTSQUAREBRACKET = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
-    OPERATOR_VERTICALBAR = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_VERTICAL_BAR);
-    OPERATOR_COMMA = addMetaOperator(META_SINGLE_CHAR_OPERATOR_MAP, Op.METAOPERATOR_COMMA);
+    OPERATOR_DOT = META_OP_MAP.add(Op.METAOPERATOR_DOT);
+    OPERATOR_LEFTBRACKET = META_OP_MAP.add(Op.METAOPERATOR_LEFT_BRACKET);
+    OPERATOR_RIGHTBRACKET = META_OP_MAP.add(Op.METAOPERATOR_RIGHT_BRACKET);
+    META_OP_MAP.add(Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
+    OPERATOR_RIGHTSQUAREBRACKET = META_OP_MAP.add(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
+    OPERATOR_VERTICALBAR = META_OP_MAP.add(Op.METAOPERATOR_VERTICAL_BAR);
+    OPERATOR_COMMA = META_OP_MAP.add(Op.METAOPERATOR_COMMA);
 
-    OPERATORS_PHRASE = new Koi7OpMap(OPERATOR_DOT);
-    OPERATORS_INSIDE_LIST = new Koi7OpMap(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
-    OPERATORS_END_LIST = new Koi7OpMap(OPERATOR_RIGHTSQUAREBRACKET);
-    OPERATORS_INSIDE_STRUCT = new Koi7OpMap(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
-    OPERATORS_SUBBLOCK = new Koi7OpMap(OPERATOR_RIGHTBRACKET);
+    OPERATORS_PHRASE = ofOps(OPERATOR_DOT);
+    OPERATORS_INSIDE_LIST = ofOps(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
+    OPERATORS_END_LIST = ofOps(OPERATOR_RIGHTSQUAREBRACKET);
+    OPERATORS_INSIDE_STRUCT = ofOps(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
+    OPERATORS_SUBBLOCK = ofOps(OPERATOR_RIGHTBRACKET);
   }
 
   protected final ParserContext context;
@@ -118,33 +118,15 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
     };
   }
 
-  private static OpContainer addMetaOperator(final Koi7OpMap metaMap, final Op operator) {
-    final String text = operator.getTermText();
-
-    if (text.length() != 1) {
-      throw new Error("Meta operator must be single char: " + text);
-    }
-
-    final OpContainer container;
-    if (metaMap.contains(text)) {
-      container = metaMap.get(text);
-      container.add(operator);
-    } else {
-      container = make(operator);
-      metaMap.put(text, container);
-    }
-    return container;
-  }
-
   public static Op findSystemOperatorForNameAndType(final String text, final OpType type) {
     if (text.length() != 1) {
       return null;
     }
 
-    OpContainer container = META_SINGLE_CHAR_OPERATOR_MAP.get(text);
+    OpContainer container = META_OP_MAP.get(text);
 
     if (container == null) {
-      container = META_SINGLE_CHAR_OPERATOR_MAP.get(text);
+      container = META_OP_MAP.get(text);
     }
 
     Op result = null;
@@ -164,7 +146,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
     }
   }
 
-  private boolean isEndOperator(final PrologTerm operator, final Koi7OpMap endOperators) {
+  private boolean isEndOperator(final PrologTerm operator, final Koi7CharOpMap endOperators) {
     if (operator == null) {
       return true;
     }
@@ -352,7 +334,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
     }
   }
 
-  private PrologTerm readBlock(final Koi7OpMap endOperators) {
+  private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
     TreeItem currentTreeItem = null;

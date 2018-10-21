@@ -23,18 +23,42 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static java.util.Arrays.stream;
 
-final class Koi7OpMap {
+/**
+ * Auxiliary mapping class allows to map a single char KOI7 to its related operator data container.
+ */
+final class Koi7CharOpMap {
 
   private final OpContainer[] charMap = new OpContainer[0x80];
 
-  Koi7OpMap() {
+  static Koi7CharOpMap ofOps(final OpContainer... containers) {
+    return new Koi7CharOpMap(containers);
   }
 
-  Koi7OpMap(final OpContainer... containers) {
+  private Koi7CharOpMap(final OpContainer... containers) {
     stream(containers).forEach(x -> put(x.getTermText(), x));
   }
+
+  OpContainer add(final Op operator) {
+    final String text = operator.getTermText();
+
+    if (text.length() != 1) {
+      throw new Error("Meta operator must be single char: " + text);
+    }
+
+    final OpContainer container;
+    if (this.contains(text)) {
+      container = this.get(text);
+      container.add(operator);
+    } else {
+      container = make(operator);
+      this.put(text, container);
+    }
+    return container;
+  }
+
 
   boolean contains(final String key) {
     if (key.length() != 1) {

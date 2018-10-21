@@ -23,6 +23,10 @@ package com.igormaznitsa.prologparser.utils;
 
 import java.util.function.Supplier;
 
+/**
+ * Auxiliary class to implement cache some objects, but if there is not any cached one then new one will be generated,
+ * @param <T> type of objects.
+ */
 public abstract class SoftObjectPool<T> implements Supplier<T> {
 
   private final T[] pool;
@@ -40,6 +44,9 @@ public abstract class SoftObjectPool<T> implements Supplier<T> {
     return this.size;
   }
 
+  /**
+   * Fill the cache by pre-generated instances.
+   */
   public void fill() {
     while (this.size < this.maxSize) {
       this.push(this.get());
