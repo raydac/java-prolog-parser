@@ -32,38 +32,38 @@ public final class PrologSourceKoi7Generator extends InputStream {
   private final Random rnd = new Random(123);
   private final int maxChars;
   private final boolean throwException;
-  private final int maxSentences;
-  private final boolean separateSentences;
+  private final int maxClauses;
+  private final boolean splitClauses;
   private int charCounter;
-  private int generatedSentencesCounter;
-  private String sentenceBuffer;
-  private int sentencePos;
+  private int generatedClauseCounter;
+  private String clauseBuffer;
+  private int clausePos;
 
-  public PrologSourceKoi7Generator(final int maxSentences, final boolean separateSentences) {
-    this.generatedSentencesCounter = 0;
-    this.separateSentences = separateSentences;
+  public PrologSourceKoi7Generator(final int maxClauses, final boolean splitClauses) {
+    this.generatedClauseCounter = 0;
+    this.splitClauses = splitClauses;
     this.maxChars = Integer.MAX_VALUE;
     this.throwException = false;
-    this.maxSentences = maxSentences;
-    genNextSentence();
+    this.maxClauses = maxClauses;
+    genNextClause();
   }
 
-  public PrologSourceKoi7Generator(final boolean separateSentences, final int numberOfChars, final boolean throwException) {
-    this.generatedSentencesCounter = 0;
-    this.separateSentences = separateSentences;
+  public PrologSourceKoi7Generator(final boolean splitClauses, final int numberOfChars, final boolean throwException) {
+    this.generatedClauseCounter = 0;
+    this.splitClauses = splitClauses;
     this.maxChars = numberOfChars;
     this.throwException = throwException;
-    this.maxSentences = Integer.MAX_VALUE;
-    genNextSentence();
+    this.maxClauses = Integer.MAX_VALUE;
+    genNextClause();
   }
 
-  private void genNextSentence() {
-    this.sentenceBuffer = generateSentence();
-    this.sentencePos = 0;
-    this.generatedSentencesCounter++;
+  private void genNextClause() {
+    this.clauseBuffer = generateClause();
+    this.clausePos = 0;
+    this.generatedClauseCounter++;
   }
 
-  private String generateSentence() {
+  private String generateClause() {
     final StringBuilder builder = new StringBuilder();
 
     builder.append(generateOperator(this.rnd.nextInt(10) + 2));
@@ -73,7 +73,7 @@ public final class PrologSourceKoi7Generator extends InputStream {
       builder.append('.');
     }
 
-    if (this.separateSentences) {
+    if (this.splitClauses) {
       if (this.rnd.nextInt(100) > 50) {
         builder.append(' ');
         if (this.rnd.nextInt(100) > 80) {
@@ -327,15 +327,15 @@ public final class PrologSourceKoi7Generator extends InputStream {
 
   @Override
   public int read() throws IOException {
-    if (this.generatedSentencesCounter <= this.maxSentences && this.charCounter < this.maxChars) {
-      if (this.sentencePos == this.sentenceBuffer.length()) {
-        genNextSentence();
+    if (this.generatedClauseCounter <= this.maxClauses && this.charCounter < this.maxChars) {
+      if (this.clausePos == this.clauseBuffer.length()) {
+        genNextClause();
       }
     }
 
-    if (this.generatedSentencesCounter <= this.maxSentences && this.charCounter < this.maxChars) {
+    if (this.generatedClauseCounter <= this.maxClauses && this.charCounter < this.maxChars) {
       this.charCounter++;
-      return this.sentenceBuffer.charAt(this.sentencePos++);
+      return this.clauseBuffer.charAt(this.clausePos++);
     } else {
       if (this.throwException) {
         throw new IOException("Exception on demand");
@@ -355,9 +355,9 @@ public final class PrologSourceKoi7Generator extends InputStream {
       builder.append((char) next);
     }
 
-    this.generatedSentencesCounter = 0;
+    this.generatedClauseCounter = 0;
     this.charCounter = 0;
-    genNextSentence();
+    genNextClause();
 
     return builder.toString();
   }

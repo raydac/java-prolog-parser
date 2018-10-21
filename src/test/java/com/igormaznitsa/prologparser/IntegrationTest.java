@@ -81,7 +81,7 @@ public class IntegrationTest {
   }
 
   @Test
-  public void testVariableMustBeNotEqualAtSentenceBounds() {
+  public void testVariableMustBeNotEqualAtClauseBounds() {
     PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,_,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,_,_).").next();
 
     final Set<PrologVariable> varSet = new HashSet<>();
@@ -95,7 +95,7 @@ public class IntegrationTest {
   }
 
   @Test
-  public void testVariablesAtSentenceBounds() {
+  public void testVariablesAtClauseBounds() {
     PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C).").next();
 
     final PrologVariable varA = (PrologVariable) structure.getElementAt(0);
@@ -132,29 +132,29 @@ public class IntegrationTest {
     assertThrows(NoSuchElementException.class, () -> parser.next());
   }
 
-  private void checkWrongSentenceReadingWithPPE(final String readSentence, final int stringPosition) {
-    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parseEd(readSentence).next()).getPos());
+  private void checkWrongClauseReadingWithPPE(final String readClause, final int stringPosition) {
+    assertEquals(stringPosition, assertThrows(PrologParserException.class, () -> parseEd(readClause).next()).getPos());
   }
 
   @Test
   public void testErrorListDefinitions() {
-    checkWrongSentenceReadingWithPPE(" [,].", 3);
-    checkWrongSentenceReadingWithPPE(" [|].", 2);
-    checkWrongSentenceReadingWithPPE(" [345|].", 7);
-    checkWrongSentenceReadingWithPPE(" [345|323|X].", 11);
-    checkWrongSentenceReadingWithPPE(" [345|323|].", 10);
-    checkWrongSentenceReadingWithPPE(" [|345].", 2);
-    checkWrongSentenceReadingWithPPE(" [A|((((B|C))))].", 15);
-    checkWrongSentenceReadingWithPPE(" [1,2,3.", 8);
-    checkWrongSentenceReadingWithPPE(" 1,2,3].", 7);
+    checkWrongClauseReadingWithPPE(" [,].", 3);
+    checkWrongClauseReadingWithPPE(" [|].", 2);
+    checkWrongClauseReadingWithPPE(" [345|].", 7);
+    checkWrongClauseReadingWithPPE(" [345|323|X].", 11);
+    checkWrongClauseReadingWithPPE(" [345|323|].", 10);
+    checkWrongClauseReadingWithPPE(" [|345].", 2);
+    checkWrongClauseReadingWithPPE(" [A|((((B|C))))].", 15);
+    checkWrongClauseReadingWithPPE(" [1,2,3.", 8);
+    checkWrongClauseReadingWithPPE(" 1,2,3].", 7);
   }
 
   @Test
   public void testQuoting_Wrong() {
-    checkWrongSentenceReadingWithPPE("\"abc'.", 1);
-    checkWrongSentenceReadingWithPPE("'abc\".", 1);
-    checkWrongSentenceReadingWithPPE("`abc\".", 1);
-    checkWrongSentenceReadingWithPPE("`abc'.", 1);
+    checkWrongClauseReadingWithPPE("\"abc'.", 1);
+    checkWrongClauseReadingWithPPE("'abc\".", 1);
+    checkWrongClauseReadingWithPPE("`abc\".", 1);
+    checkWrongClauseReadingWithPPE("`abc'.", 1);
   }
 
   @Test
@@ -837,16 +837,28 @@ public class IntegrationTest {
 
   @Test
   public void testParseBigGeneratedPrologSource() throws Exception {
-    final int SENTENCES = 1000;
-    assertEquals(SENTENCES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(SENTENCES, true)), DefaultParserContext.of(FLAG_NONE)).stream().count());
-    assertEquals(SENTENCES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(SENTENCES, false)), DefaultParserContext.of(FLAG_NONE)).stream().count());
+    final int CLAUSES = 1000;
+    assertEquals(CLAUSES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE)).stream().count());
+    assertEquals(CLAUSES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE)).stream().count());
+  }
+
+  @Test
+  public void testNonCompletedClause() throws Exception {
+    assertThrows(PrologParserException.class, () -> parseEd("a").next());
+    assertThrows(PrologParserException.class, () -> parseEd("123").next());
+    assertThrows(PrologParserException.class, () -> parseEd("\"dsdsd\"").next());
+    assertThrows(PrologParserException.class, () -> parseEd("some(1,2)").next());
+    assertThrows(PrologParserException.class, () -> parseEd("[1,2,3,4]").next());
+    assertThrows(PrologParserException.class, () -> parseEd("[1,2,3").next());
+    assertThrows(PrologParserException.class, () -> parseEd("a(").next());
+    assertThrows(PrologParserException.class, () -> parseEd("1.22").next());
   }
 
   @Test
   public void testUnexpectedlyEndedReadStream() throws Exception {
     final Random rnd = new Random(12345);
 
-    final AtomicInteger wholeSentenceCounter = new AtomicInteger();
+    final AtomicInteger completedClauseCounter = new AtomicInteger();
 
     final int ATTEMPTS = 100;
 
@@ -862,12 +874,12 @@ public class IntegrationTest {
         while (parser.hasNext()) {
           assertNotNull(parser.next());
         }
-        wholeSentenceCounter.incrementAndGet();
-        throw new PrologParserException("Whole sentence has been read", -1, -1);
+        completedClauseCounter.incrementAndGet();
+        throw new PrologParserException("Whole clause has been read", -1, -1);
       });
     }
 
-    assertTrue(wholeSentenceCounter.get() < Math.round(0.1 * ATTEMPTS));
+    assertTrue(completedClauseCounter.get() < Math.round(0.1 * ATTEMPTS));
   }
 
   @Test

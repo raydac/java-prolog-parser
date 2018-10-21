@@ -362,7 +362,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             return null;
           } else {
             // non closed something
-            throw new PrologParserException("Not-ended sentence", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
+            throw new PrologParserException("Non-ended clause", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
           }
         }
 
@@ -481,7 +481,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             TokenizerResult nextToken = this.tokenizer.readNextToken();
 
             if (nextToken == null) {
-              return null;
+              throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
             }
 
             try {
