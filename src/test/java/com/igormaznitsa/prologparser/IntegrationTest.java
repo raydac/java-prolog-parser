@@ -835,7 +835,7 @@ public class IntegrationTest {
 
   @Test
   public void testParseBigGeneratedPrologSource() throws Exception {
-    final int SENTENCES = 10000;
+    final int SENTENCES = 1000;
     final PrologParser parser = new EdinburghPrologParser(new InputStreamReader(new PrologTestKoi7Generator(SENTENCES)), DefaultParserContext.of(FLAG_NONE));
     assertEquals(SENTENCES, parser.stream().count());
   }
