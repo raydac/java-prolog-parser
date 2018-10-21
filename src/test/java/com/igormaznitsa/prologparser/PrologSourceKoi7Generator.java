@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
-public final class PrologTestKoi7Generator extends InputStream {
+public final class PrologSourceKoi7Generator extends InputStream {
 
   private final Random rnd = new Random(123);
   private final int maxChars;
@@ -37,17 +37,20 @@ public final class PrologTestKoi7Generator extends InputStream {
   private int generatedSentencesCounter;
   private String sentenceBuffer;
   private int sentencePos;
+  private final boolean separateSentences;
 
-  public PrologTestKoi7Generator(final int maxSentences) {
+  public PrologSourceKoi7Generator(final int maxSentences, final boolean separateSentences) {
     this.generatedSentencesCounter = 0;
+    this.separateSentences = separateSentences;
     this.maxChars = Integer.MAX_VALUE;
     this.throwException = false;
     this.maxSentences = maxSentences;
     genNextSentence();
   }
 
-  public PrologTestKoi7Generator(final int numberOfChars, final boolean throwException) {
+  public PrologSourceKoi7Generator(final boolean separateSentences, final int numberOfChars, final boolean throwException) {
     this.generatedSentencesCounter = 0;
+    this.separateSentences = separateSentences;
     this.maxChars = numberOfChars;
     this.throwException = throwException;
     this.maxSentences = Integer.MAX_VALUE;
@@ -64,12 +67,21 @@ public final class PrologTestKoi7Generator extends InputStream {
     final StringBuilder builder = new StringBuilder();
 
     builder.append(generateOperator(this.rnd.nextInt(10) + 2));
-    builder.append('.');
-
-    if (this.rnd.nextInt(100) > 50) {
-      builder.append(' ');
+    if (Character.isDigit(builder.charAt(builder.length() - 1))) {
+      builder.append(". ");
     } else {
-      builder.append('\n');
+      builder.append('.');
+    }
+
+    if (this.separateSentences) {
+      if (this.rnd.nextInt(100) > 50) {
+        builder.append(' ');
+        if (this.rnd.nextInt(100) > 80) {
+          builder.append("% ").append(generateAtom()).append('\n');
+        }
+      } else {
+        builder.append('\n');
+      }
     }
 
     return builder.toString();
@@ -78,13 +90,13 @@ public final class PrologTestKoi7Generator extends InputStream {
   private String makeRndTerm(int recusionLevel) {
     switch (this.rnd.nextInt(8)) {
       case 0:
-        return generateNumber(recusionLevel - 1);
+        return generateNumber();
       case 1:
-        return generateString(recusionLevel - 1);
+        return generateString();
       case 2:
-        return generateAtom(recusionLevel - 1);
+        return generateAtom();
       case 3:
-        return generateVar(recusionLevel - 1);
+        return generateVar();
       case 4:
         return generateList(recusionLevel - 1);
       case 5:
@@ -127,7 +139,7 @@ public final class PrologTestKoi7Generator extends InputStream {
     }
   }
 
-  private String generateStruct(int recusionLevel) {
+  private String generateStruct(final int recusionLevel) {
     if (recusionLevel <= 0) {
       return "''(123_345)";
     }
@@ -135,9 +147,9 @@ public final class PrologTestKoi7Generator extends InputStream {
     final StringBuilder builder = new StringBuilder();
 
     if (this.rnd.nextInt(100) > 50) {
-      builder.append(generateAtom(recusionLevel - 1));
+      builder.append(generateAtom());
     } else {
-      builder.append(generateString(recusionLevel - 1));
+      builder.append(generateString());
     }
 
     builder.append('(');
@@ -155,7 +167,7 @@ public final class PrologTestKoi7Generator extends InputStream {
     return builder.toString();
   }
 
-  private String generateList(int recusionLevel) {
+  private String generateList(final int recusionLevel) {
     if (recusionLevel <= 0) {
       return "[]";
     }
@@ -184,7 +196,7 @@ public final class PrologTestKoi7Generator extends InputStream {
     return builder.toString();
   }
 
-  private String generateNumber(int recusionLevel) {
+  private String generateNumber() {
     final StringBuilder builder = new StringBuilder();
     final int len = this.rnd.nextInt(32) + 1;
     for (int i = 0; i < len; i++) {
@@ -193,7 +205,7 @@ public final class PrologTestKoi7Generator extends InputStream {
     return builder.toString();
   }
 
-  private String generateString(int recusionLevel) {
+  private String generateString() {
     final PrologTerm.QuotingType type;
     switch (this.rnd.nextInt(3)) {
       case 0:
@@ -281,11 +293,7 @@ public final class PrologTestKoi7Generator extends InputStream {
     return buffer.toString();
   }
 
-  private String generateAtom(int recusionLevel) {
-    if (recusionLevel <= 0) {
-      return "!";
-    }
-
+  private String generateAtom() {
     final int len = this.rnd.nextInt(32) + 1;
     final StringBuilder buffer = new StringBuilder(len);
 
@@ -303,7 +311,7 @@ public final class PrologTestKoi7Generator extends InputStream {
     return buffer.toString();
   }
 
-  private String generateVar(int recusionLevel) {
+  private String generateVar() {
     final StringBuilder buffer = new StringBuilder();
     if (this.rnd.nextInt(100) > 90) {
       buffer.append("_");

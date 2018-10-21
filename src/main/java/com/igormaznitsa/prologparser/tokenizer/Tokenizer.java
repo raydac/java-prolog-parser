@@ -522,7 +522,7 @@ final class Tokenizer {
                 strBuffer.append(chr);
               } else if (chr == '_') {
                 if (foundUnderlineInNumeric || strBuffer.isLastChar('.')) {
-                  throw new PrologParserException("Low line is not allowed before dot", this.prevLine, this.prevPos);
+                  throw new PrologParserException("Underline char just after dot in number: "+strBuffer.toString(), this.prevLine, this.prevPos);
                 } else {
                   foundUnderlineInNumeric = true;
                 }
