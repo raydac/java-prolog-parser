@@ -202,7 +202,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
     try {
       PrologStruct result;
       boolean active = true;
-      while (active) {
+      while (active && !Thread.currentThread().isInterrupted()) {
         final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
         if (block == null) {
@@ -210,6 +210,10 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
         }
 
         final TokenizerResult nextAtom = this.tokenizer.readNextToken();
+        if (nextAtom == null) {
+          return null;
+        }
+
         try {
           final String nextText = nextAtom.getResult().getTermText();
 
@@ -248,10 +252,14 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
 
     boolean doRead = true;
 
-    while (doRead) {
+    while (doRead && !Thread.currentThread().isInterrupted()) {
       final PrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
       final TokenizerResult nextAtom = tokenizer.readNextToken();
+      if (nextAtom == null) {
+        return null;
+      }
+
       try {
         final String text = nextAtom.getResult().getTermText();
 
@@ -287,6 +295,9 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
             }
 
             final TokenizerResult nextAtomTwo = tokenizer.readNextToken();
+            if (nextAtomTwo == null) {
+              return null;
+            }
             try {
               if (!nextAtomTwo.getResult().getTermText().equals(OPERATOR_RIGHTSQUAREBRACKET.getTermText())) {
                 throw new PrologParserException("Wrong end of the list tail", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());

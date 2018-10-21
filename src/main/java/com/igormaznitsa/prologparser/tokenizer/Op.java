@@ -164,8 +164,8 @@ public final class Op extends SpecServiceCompound {
   }
 
   @Override
-  public PrologTerm getElementAt(int position) {
-    throw new UnsupportedOperationException("Can't get element from operator");
+  public PrologTerm getElementAt(final int position) {
+    throw new UnsupportedOperationException("Can't get positioned element from operator");
   }
 
   @Override

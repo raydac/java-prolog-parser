@@ -48,14 +48,13 @@ final class Koi7CharOpMap {
       throw new Error("Meta operator must be single char: " + text);
     }
 
-    final OpContainer container;
-    if (this.contains(text)) {
-      container = this.get(text);
-      container.add(operator);
-    } else {
+    OpContainer container = this.get(text);
+    if (container == null) {
       container = make(operator);
       this.put(text, container);
     }
+    container.add(operator);
+
     return container;
   }
 
