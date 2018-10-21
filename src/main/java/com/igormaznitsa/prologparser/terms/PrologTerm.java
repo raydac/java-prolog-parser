@@ -216,6 +216,10 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       this.quote = quote;
     }
 
+    public String getDelimiter() {
+      return this.quote;
+    }
+
     public String makeString(final String atomText) {
       return this.quote + StringUtils.escapeString(atomText, this) + this.quote;
     }

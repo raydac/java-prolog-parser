@@ -48,7 +48,7 @@ final class Tokenizer {
   private final StringBuilderEx insideCharBuffer = new StringBuilderEx(8);
   private final boolean blockCommentsAllowed;
   private final Reader reader;
-  private final AbstractPrologParser parser;
+  private final PrologParser parser;
   private final SoftObjectPool<TokenizerResult> tokenizerResultPool;
   private TokenizerResult lastPushedTerm;
   private int prevTokenLine;
@@ -60,7 +60,7 @@ final class Tokenizer {
   private int pos;
   private int line;
 
-  Tokenizer(final AbstractPrologParser parser, final Reader reader) {
+  Tokenizer(final PrologParser parser, final Reader reader) {
     super();
     this.reader = reader;
     this.parser = parser;
@@ -151,7 +151,7 @@ final class Tokenizer {
 
   boolean hasOperatorStartsWith(final String operatorNameStartSubstring) {
     boolean result = false;
-    if (AbstractPrologParser.META_OP_MAP.contains(operatorNameStartSubstring)) {
+    if (PrologParser.META_OP_MAP.contains(operatorNameStartSubstring)) {
       result = true;
     } else if (parser != null) {
       final ParserContext ctx = parser.getContext();
@@ -167,7 +167,7 @@ final class Tokenizer {
 
     // check meta-operators as the first ones
     if (operatorName.length() == 1) {
-      result = AbstractPrologParser.META_OP_MAP.get(operatorName);
+      result = PrologParser.META_OP_MAP.get(operatorName);
     }
     if (result == null) {
       // check user defined operators because a user can replace a system operator
@@ -181,7 +181,7 @@ final class Tokenizer {
   }
 
   private OpContainer findOperatorForSingleChar(final char c) {
-    OpContainer result = AbstractPrologParser.META_OP_MAP.get(c);
+    OpContainer result = PrologParser.META_OP_MAP.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c));
     }

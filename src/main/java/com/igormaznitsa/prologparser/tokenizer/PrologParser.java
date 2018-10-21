@@ -50,7 +50,7 @@ import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 /**
  * Abstract base Prolog parser.
  */
-public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
+public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
   static final Koi7CharOpMap META_OP_MAP;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
@@ -92,7 +92,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
   private final Tokenizer tokenizer;
   private PrologTerm lastFoundTerm;
 
-  public AbstractPrologParser(final Reader source, final ParserContext context) {
+  public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
 
@@ -113,7 +113,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
     this.treeItemPool = new SoftObjectPool<TreeItem>(MAX_INTERNAL_POOL_SIZE) {
       @Override
       public final TreeItem get() {
-        return new TreeItem(AbstractPrologParser.this, this, termWrapperPool);
+        return new TreeItem(PrologParser.this, this, termWrapperPool);
       }
     };
   }
@@ -493,7 +493,7 @@ public abstract class AbstractPrologParser implements Iterator<PrologTerm>, Iter
                   readAtom = readStruct(readAtom);
                   if (readAtom == null) {
                     // we have met the empty brackets, it disallowed by Prolog
-                    throw new PrologParserException("Illegal start of term",
+                    throw new PrologParserException("Empty structure is not allowed",
                         nextTokenLineNumber, nextTokenStrPosition);
                   }
                 } else {

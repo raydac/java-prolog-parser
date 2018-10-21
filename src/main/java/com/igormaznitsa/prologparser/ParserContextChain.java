@@ -23,7 +23,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
-import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
+import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public boolean hasOpStartsWith(final AbstractPrologParser source, final String namePrefix) {
+  public boolean hasOpStartsWith(final PrologParser source, final String namePrefix) {
     boolean result = false;
     for (final ParserContext c : this.contexts) {
       if (c.hasOpStartsWith(source, namePrefix)) {
@@ -74,7 +74,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public OpContainer findOpForName(final AbstractPrologParser source, final String name) {
+  public OpContainer findOpForName(final PrologParser source, final String name) {
     OpContainer result = null;
     for (final ParserContext c : this.contexts) {
       result = c.findOpForName(source, name);
@@ -86,7 +86,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public boolean hasZeroStruct(final AbstractPrologParser source, final String atomName) {
+  public boolean hasZeroStruct(final PrologParser source, final String atomName) {
     boolean result = false;
     for (final ParserContext c : this.contexts) {
       if (c.hasZeroStruct(source, atomName)) {
@@ -98,7 +98,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public void onNewStruct(final AbstractPrologParser source, final PrologStruct struct) {
+  public void onNewStruct(final PrologParser source, final PrologStruct struct) {
     Arrays.stream(this.contexts).forEach(c -> c.onNewStruct(source, struct));
   }
 

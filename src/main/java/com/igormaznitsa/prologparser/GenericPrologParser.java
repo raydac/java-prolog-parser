@@ -21,14 +21,14 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
+import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.io.Reader;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 
 @SuppressWarnings("serial")
-public class GenericPrologParser extends AbstractPrologParser {
+public class GenericPrologParser extends PrologParser {
   public GenericPrologParser(final Reader reader, final ParserContext context) {
     super(reader, context);
   }

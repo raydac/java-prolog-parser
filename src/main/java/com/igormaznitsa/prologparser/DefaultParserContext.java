@@ -23,8 +23,8 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
-import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,21 +95,21 @@ public class DefaultParserContext implements ParserContext {
   }
 
   @Override
-  public void onNewStruct(final AbstractPrologParser source, final PrologStruct struct) {
+  public void onNewStruct(final PrologParser source, final PrologStruct struct) {
   }
 
   @Override
-  public boolean hasZeroStruct(final AbstractPrologParser source, String atomName) {
+  public boolean hasZeroStruct(final PrologParser source, String atomName) {
     return this.zeroArityStructs.contains(atomName);
   }
 
   @Override
-  public boolean hasOpStartsWith(final AbstractPrologParser source, String operatorNameStartSubstring) {
+  public boolean hasOpStartsWith(final PrologParser source, String operatorNameStartSubstring) {
     return this.opPrefixes.contains(operatorNameStartSubstring);
   }
 
   @Override
-  public OpContainer findOpForName(final AbstractPrologParser source, String operatorName) {
+  public OpContainer findOpForName(final PrologParser source, String operatorName) {
     return this.opContainers.get(operatorName);
   }
 }

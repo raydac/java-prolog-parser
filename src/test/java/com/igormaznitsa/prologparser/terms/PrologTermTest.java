@@ -2,7 +2,7 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.EdinburghPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
-import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
+import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 
 public class PrologTermTest {
 
-  private AbstractPrologParser parserFor(final String str) {
+  private PrologParser parserFor(final String str) {
     return new EdinburghPrologParser(new StringReader(str), mock(ParserContext.class));
   }
 

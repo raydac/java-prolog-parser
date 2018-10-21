@@ -6,9 +6,9 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
-import com.igormaznitsa.prologparser.tokenizer.AbstractPrologParser;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
+import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
@@ -95,22 +95,22 @@ public class ParserContextTest {
       }
 
       @Override
-      public void onNewStruct(final AbstractPrologParser source, final PrologStruct struct) {
+      public void onNewStruct(final PrologParser source, final PrologStruct struct) {
         detectedStructures.put(struct.getFunctor().getTermText(), struct);
       }
 
       @Override
-      public boolean hasZeroStruct(final AbstractPrologParser source, String atomName) {
+      public boolean hasZeroStruct(final PrologParser source, String atomName) {
         return "foo".equals(atomName);
       }
 
       @Override
-      public boolean hasOpStartsWith(final AbstractPrologParser source, String operatorNameStartSubstring) {
+      public boolean hasOpStartsWith(final PrologParser source, String operatorNameStartSubstring) {
         return false;
       }
 
       @Override
-      public OpContainer findOpForName(final AbstractPrologParser source, String operatorName) {
+      public OpContainer findOpForName(final PrologParser source, String operatorName) {
         return null;
       }
 

@@ -34,7 +34,7 @@ final class TreeItem {
 
   private final SoftObjectPool<TreeItem> pool;
 
-  private final AbstractPrologParser parser;
+  private final PrologParser parser;
   private final SoftObjectPool<TermWrapper> termWrapperPool;
   private TreeItem leftBranch;
   private TreeItem rightBranch;
@@ -42,7 +42,7 @@ final class TreeItem {
   private boolean insideBrakes;
   private PrologTerm savedTerm;
 
-  TreeItem(final AbstractPrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
+  TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
     this.parser = parser;
     this.pool = pool;
     this.termWrapperPool = termWrapperPool;
@@ -224,7 +224,7 @@ final class TreeItem {
           }
 
           if (!validate()) {
-            throw new PrologParserException("Wrong operator [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+            throw new PrologParserException("Invalid use of operator, may be incompatible operator argument priorities with its type [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 
           final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
