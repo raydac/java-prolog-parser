@@ -33,11 +33,11 @@ public final class PrologSourceKoi7Generator extends InputStream {
   private final int maxChars;
   private final boolean throwException;
   private final int maxSentences;
+  private final boolean separateSentences;
   private int charCounter;
   private int generatedSentencesCounter;
   private String sentenceBuffer;
   private int sentencePos;
-  private final boolean separateSentences;
 
   public PrologSourceKoi7Generator(final int maxSentences, final boolean separateSentences) {
     this.generatedSentencesCounter = 0;

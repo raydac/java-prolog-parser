@@ -274,7 +274,7 @@ final class Tokenizer {
 
     boolean letterOrDigitOnly = false;
 
-    boolean foundUnderlineInNumeric = false;
+    boolean foundUnderscoreInNumber = false;
 
     try {
       while (!Thread.currentThread().isInterrupted()) {
@@ -287,8 +287,8 @@ final class Tokenizer {
             case FLOAT:
             case INTEGER:
             case ATOM: {
-              if (foundUnderlineInNumeric) {
-                throw new PrologParserException("Contains unexpected underline char: " + strBuffer.toString(), this.prevLine, this.prevPos);
+              if (foundUnderscoreInNumber) {
+                throw new PrologParserException("Contains unexpected underscore: " + strBuffer.toString(), this.prevLine, this.prevPos);
               }
 
               if (state == TokenizerState.FLOAT && strBuffer.isLastChar('.')) {
@@ -330,7 +330,7 @@ final class Tokenizer {
               }
             }
             case STRING: {
-              throw new PrologParserException("Non-closed string: " + strBuffer.toString(), this.lastTokenLine, this.lastTokenPos);
+              throw new PrologParserException("Non-completed string: " + strBuffer.toString(), this.lastTokenLine, this.lastTokenPos);
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
@@ -484,25 +484,25 @@ final class Tokenizer {
             break;
             case INTEGER: {
               if (Character.isDigit(chr)) {
-                foundUnderlineInNumeric = false;
+                foundUnderscoreInNumber = false;
                 strBuffer.append(chr);
               } else if (chr == '_') {
-                if (foundUnderlineInNumeric) {
-                  throw new PrologParserException("Duplicated low line in integer", this.prevLine, this.prevPos);
+                if (foundUnderscoreInNumber) {
+                  throw new PrologParserException("Duplicated underscore char in integer", this.prevLine, this.prevPos);
                 } else {
-                  foundUnderlineInNumeric = true;
+                  foundUnderscoreInNumber = true;
                 }
               } else {
                 if (chr == '.' || chr == 'e' || chr == 'E') {
-                  if (foundUnderlineInNumeric) {
-                    throw new PrologParserException("Low line is not allowed before E or dot", this.prevLine, this.prevPos);
+                  if (foundUnderscoreInNumber) {
+                    throw new PrologParserException("Underscore is not allowed before E or dot", this.prevLine, this.prevPos);
                   }
 
                   strBuffer.append(chr);
                   state = TokenizerState.FLOAT;
                 } else {
-                  if (foundUnderlineInNumeric) {
-                    throw new PrologParserException("Unexpected low line", this.prevLine, this.prevPos);
+                  if (foundUnderscoreInNumber) {
+                    throw new PrologParserException("Unexpected underscore", this.prevLine, this.prevPos);
                   }
 
                   push(chr);
@@ -518,13 +518,13 @@ final class Tokenizer {
             break;
             case FLOAT: {
               if (Character.isDigit(chr)) {
-                foundUnderlineInNumeric = false;
+                foundUnderscoreInNumber = false;
                 strBuffer.append(chr);
               } else if (chr == '_') {
-                if (foundUnderlineInNumeric || strBuffer.isLastChar('.')) {
-                  throw new PrologParserException("Underline char just after dot in number: " + strBuffer.toString(), this.prevLine, this.prevPos);
+                if (foundUnderscoreInNumber || strBuffer.isLastChar('.')) {
+                  throw new PrologParserException("Underscore after dot in number: " + strBuffer.toString(), this.prevLine, this.prevPos);
                 } else {
-                  foundUnderlineInNumeric = true;
+                  foundUnderscoreInNumber = true;
                 }
               } else {
                 if (chr == '-' || chr == '+') {
@@ -539,8 +539,8 @@ final class Tokenizer {
                         getLastTokenPos());
                   }
                 } else if (chr == 'e' || chr == 'E') {
-                  if (foundUnderlineInNumeric) {
-                    throw new PrologParserException("Low line is not allowed before E", this.prevLine, this.prevPos);
+                  if (foundUnderscoreInNumber) {
+                    throw new PrologParserException("Underscore is not allowed before E", this.prevLine, this.prevPos);
                   }
 
                   if (strBuffer.lastIndexOf('e') < 0) {
@@ -557,8 +557,8 @@ final class Tokenizer {
 
                   push(chr);
 
-                  if (foundUnderlineInNumeric) {
-                    throw new PrologParserException("Unexpected low line char", this.prevLine, this.prevPos);
+                  if (foundUnderscoreInNumber) {
+                    throw new PrologParserException("Unexpected underscore", this.prevLine, this.prevPos);
                   }
 
                   if (strBuffer.isLastChar('.')) {

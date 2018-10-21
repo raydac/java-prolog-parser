@@ -851,7 +851,7 @@ public class IntegrationTest {
     final int ATTEMPTS = 100;
 
     for (int i = 0; i < ATTEMPTS; i++) {
-      final int numChars = rnd.nextInt(5) + i*3;
+      final int numChars = rnd.nextInt(5) + i * 3;
       assertThrows(PrologParserException.class, () -> {
         final PrologParser parser = new EdinburghPrologParser(
             new InputStreamReader(
