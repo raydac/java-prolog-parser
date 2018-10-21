@@ -288,7 +288,7 @@ final class Tokenizer {
             case INTEGER:
             case ATOM: {
               if (foundUnderlineInNumeric) {
-                throw new PrologParserException("Unexpected low line", this.prevLine, this.prevPos);
+                throw new PrologParserException("Contains unexpected underline char: " + strBuffer.toString(), this.prevLine, this.prevPos);
               }
 
               if (state == TokenizerState.FLOAT && strBuffer.isLastChar('.')) {
@@ -330,7 +330,7 @@ final class Tokenizer {
               }
             }
             case STRING: {
-              throw new PrologParserException("Non-closed string", this.lastTokenLine, this.lastTokenPos);
+              throw new PrologParserException("Non-closed string: " + strBuffer.toString(), this.lastTokenLine, this.lastTokenPos);
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
@@ -351,7 +351,7 @@ final class Tokenizer {
               }
             }
             default: {
-              throw new CriticalUnexpectedError();
+              throw new PrologParserException("Non-completed term (" + state + "): " + strBuffer.toString(), this.prevLine, this.prevPos);
             }
           }
         }
@@ -522,7 +522,7 @@ final class Tokenizer {
                 strBuffer.append(chr);
               } else if (chr == '_') {
                 if (foundUnderlineInNumeric || strBuffer.isLastChar('.')) {
-                  throw new PrologParserException("Underline char just after dot in number: "+strBuffer.toString(), this.prevLine, this.prevPos);
+                  throw new PrologParserException("Underline char just after dot in number: " + strBuffer.toString(), this.prevLine, this.prevPos);
                 } else {
                   foundUnderlineInNumeric = true;
                 }

@@ -28,7 +28,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
@@ -838,6 +840,34 @@ public class IntegrationTest {
     final int SENTENCES = 1000;
     assertEquals(SENTENCES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(SENTENCES, true)), DefaultParserContext.of(FLAG_NONE)).stream().count());
     assertEquals(SENTENCES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(SENTENCES, false)), DefaultParserContext.of(FLAG_NONE)).stream().count());
+  }
+
+  @Test
+  public void testUnexpectedlyEndedReadStream() throws Exception {
+    final Random rnd = new Random(12345);
+
+    final AtomicInteger wholeSentenceCounter = new AtomicInteger();
+
+    final int ATTEMPTS = 100;
+
+    for (int i = 0; i < ATTEMPTS; i++) {
+      final int numChars = rnd.nextInt(5) + i*3;
+      assertThrows(PrologParserException.class, () -> {
+        final PrologParser parser = new EdinburghPrologParser(
+            new InputStreamReader(
+                new PrologSourceKoi7Generator(rnd.nextBoolean(),
+                    numChars,
+                    false)));
+
+        while (parser.hasNext()) {
+          assertNotNull(parser.next());
+        }
+        wholeSentenceCounter.incrementAndGet();
+        throw new PrologParserException("Whole sentence has been read", -1, -1);
+      });
+    }
+
+    assertTrue(wholeSentenceCounter.get() < Math.round(0.1 * ATTEMPTS));
   }
 
   @Test

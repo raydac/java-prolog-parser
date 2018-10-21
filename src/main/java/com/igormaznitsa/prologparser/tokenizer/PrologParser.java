@@ -407,7 +407,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 }
               }
 
-              final boolean rightPresented = !isEndOperator(tokenizer.peek().getResult(), endOperators);
+              final TokenizerResult peekResult = this.tokenizer.peek();
+              final boolean rightPresented = peekResult != null && !isEndOperator(peekResult.getResult(), endOperators);
 
               readAtom = readOperators.findSimilar(leftPresented, rightPresented);
 
@@ -445,7 +446,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                     readAtom.setLine(readAtomContainer.getLine());
                     readAtomPriority = 0;
 
-                    final TokenizerResult token = tokenizer.readNextToken();
+                    final TokenizerResult token = this.tokenizer.readNextToken();
 
                     final PrologTerm closingAtom;
                     if (token == null) {
@@ -477,7 +478,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           }
           break;
           default: {
-            TokenizerResult nextToken = tokenizer.readNextToken();
+            TokenizerResult nextToken = this.tokenizer.readNextToken();
 
             if (nextToken == null) {
               return null;
