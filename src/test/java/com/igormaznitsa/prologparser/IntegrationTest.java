@@ -854,6 +854,22 @@ public class IntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("1.22").next());
   }
 
+  private void assertOperatorAsFunctor(final String expected, final PrologTerm term) {
+    assertTrue(term instanceof PrologStruct);
+    final PrologStruct struct = (PrologStruct) term;
+    assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
+    assertEquals(((Op) struct.getFunctor()).getArity(), struct.getArity());
+    assertEquals(expected, term.toString());
+  }
+
+  @Test
+  public void testOperatorAsFunctor() throws Exception {
+    assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
+    assertOperatorAsFunctor("1 / 2", parseEd("/(1,2).").next());
+    assertOperatorAsFunctor("1 : 2", parseEd(":(1,2).").next());
+    assertOperatorAsFunctor("+ abc", parseEd("+(abc).").next());
+  }
+
   @Test
   public void testUnexpectedlyEndedReadStream() throws Exception {
     final Random rnd = new Random(12345);

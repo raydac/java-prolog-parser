@@ -65,7 +65,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final Koi7CharOpMap OPERATORS_END_LIST;
   private static final Koi7CharOpMap OPERATORS_INSIDE_STRUCT;
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK;
-  private static final PrologTerm[] EMPTY = new PrologTerm[0];
+  private static final PrologTerm[] EMPTY_TERM = new PrologTerm[0];
 
   static {
     META_OP_MAP = ofOps();
@@ -235,7 +235,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         }
       }
 
-      result = new PrologStruct(functor, listOfAtoms.toArray(EMPTY));
+      result = new PrologStruct(functor, listOfAtoms.toArray(EMPTY_TERM));
       return result;
     } finally {
       listOfAtoms.clear();

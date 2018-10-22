@@ -23,6 +23,7 @@ package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
@@ -221,6 +222,23 @@ final class TreeItem {
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any arguments
             return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getQuotingType(), wrapper.getPos(), wrapper.getLine());
+          }
+
+          if (this.leftBranch == null) {
+            if (this.rightBranch.getType() == TermType.STRUCT && ((PrologStruct) this.rightBranch.savedTerm).getFunctor() == Op.METAOPERATOR_COMMA) {
+              Op theOp = (Op) wrapper.getWrappedTerm();
+              if (theOp.getArity() == 1) {
+                final OpContainer opContainer = this.parser.getContext().findOpForName(this.parser, theOp.getTermText());
+                if (opContainer != null) {
+                  theOp = opContainer.findForArity(2);
+                } else {
+                  theOp = null;
+                }
+              }
+              if (theOp != null) {
+                return ((PrologStruct) this.rightBranch.savedTerm).copyWithAnotherFunctor(theOp);
+              }
+            }
           }
 
           if (!validate()) {
