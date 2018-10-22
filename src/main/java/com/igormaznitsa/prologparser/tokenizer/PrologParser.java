@@ -25,6 +25,7 @@ import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
+import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
@@ -413,6 +414,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
               readAtom = readOperators.findSimilar(leftPresented, rightPresented);
 
               if (readAtom == null) {
+                if (!(leftPresented || rightPresented)) {
+                  // alone operator, it is an atom
+                  return new PrologAtom(readOperators.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, readOperators.getLine(), readOperators.getPos());
+                }
                 // we didn't get any operator for our criteria, so throw
                 // an exception
                 throw new PrologParserException("Incompatible operator type [" + readAtomContainer.getResult().getTermText() + ']',

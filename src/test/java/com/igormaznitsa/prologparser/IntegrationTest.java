@@ -664,7 +664,7 @@ public class IntegrationTest {
 
   @Test
   public void testAtomInSequenceWithNameSimilarOperator() {
-    final PrologStruct structure = (PrologStruct) parseEd("functor(1,2,3,mod,5,6).").next();
+    final PrologStruct structure = (PrologStruct) parseEd("functor(1,2,3,'mod',5,6).").next();
     assertEquals(6, structure.getArity());
     assertEquals("1", structure.getElementAt(0).getTermText());
     assertEquals("2", structure.getElementAt(1).getTermText());
@@ -862,12 +862,26 @@ public class IntegrationTest {
     assertEquals(expected, term.toString());
   }
 
+  private void assertAtom(final String expected, final PrologTerm term) {
+    assertEquals(TermType.ATOM, term.getTermType());
+    assertEquals(expected, term.toString());
+  }
+
   @Test
   public void testOperatorAsFunctor() throws Exception {
     assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
-    assertOperatorAsFunctor("1 / 2", parseEd("/(1,2).").next());
+    assertOperatorAsFunctor("1 + 2 + 34", parseEd("+(1,2)+34.").next());
+    assertOperatorAsFunctor("1 / 2 / 4 / (8 / 3)", parseEd("/(1,2)/4/(8/3).").next());
+    assertOperatorAsFunctor("1 / 2 / 4 / (8 , 3)", parseEd("/(1,2)/4/(8,3).").next());
     assertOperatorAsFunctor("1 : 2", parseEd(":(1,2).").next());
-    assertOperatorAsFunctor("+ abc", parseEd("+(abc).").next());
+    assertOperatorAsFunctor("+ abc - 12", parseEd("+(abc)-12.").next());
+  }
+
+  @Test
+  public void testAloneOperatorAsAtom() throws Exception {
+    assertEquals(TermType.ATOM, parseEd("/.").next().getTermType());
+    assertEquals(TermType.ATOM, parseEd("-.").next().getTermType());
+    assertEquals(TermType.ATOM, parseEd("+.").next().getTermType());
   }
 
   @Test
