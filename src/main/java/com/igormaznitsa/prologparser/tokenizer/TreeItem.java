@@ -258,9 +258,9 @@ final class TreeItem {
             if (operator.getOpType() == OpType.FX || operator.getOpType() == OpType.FY) {
               final PrologTerm that = this.leftBranch.convertToTermAndRelease();
               if (that.getTermType() != TermType.STRUCT) {
-                return new PrologStruct(that,new PrologTerm[]{
+                return new PrologStruct(that, new PrologTerm[] {
                     new PrologAtom(operator.getTermText())
-                },operator.getLine(),operator.getPos());
+                }, operator.getLine(), operator.getPos());
               }
             }
             throw new PrologParserException("Invalid use of operator, may be incompatible operator argument priorities with its type [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
