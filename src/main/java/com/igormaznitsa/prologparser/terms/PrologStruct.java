@@ -55,7 +55,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
       throw new IllegalArgumentException("Functor must be either atom or operator: " + functor.getTermType());
     }
     if (functor instanceof PrologNumeric) {
-      throw new IllegalArgumentException("Functor can't be number");
+      throw new IllegalArgumentException("Functor can't be number: " + functor);
     }
 
     this.elements = assertNotNull(elements.clone());

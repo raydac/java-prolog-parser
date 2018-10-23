@@ -254,15 +254,20 @@ final class TreeItem {
           }
 
           if (!isPrecedenceOrderOk()) {
-            final Op operator = (Op) wrapper.getWrappedTerm();
-            if (operator.getOpType() == OpType.FX || operator.getOpType() == OpType.FY) {
-              final PrologTerm that = this.leftBranch.convertToTermAndRelease();
-              if (that.getTermType() != TermType.STRUCT) {
-                return new PrologStruct(that, new PrologTerm[] {
-                    new PrologAtom(operator.getTermText())
-                }, operator.getLine(), operator.getPos());
+            if (this.rightBranch != null || this.leftBranch != null) {
+              final Op operator = (Op) wrapper.getWrappedTerm();
+              if (operator.getOpType() == OpType.XF || operator.getOpType() == OpType.YF || operator.getOpType() == OpType.FX || operator.getOpType() == OpType.FY) {
+                final PrologTerm that = this.rightBranch != null
+                    ? this.rightBranch.convertToTermAndRelease()
+                    : this.leftBranch.convertToTermAndRelease();
+                if (that.getTermType() != TermType.STRUCT) {
+                  return new PrologStruct(that, new PrologTerm[] {
+                      new PrologAtom(operator.getTermText())
+                  }, operator.getLine(), operator.getPos());
+                }
               }
             }
+
             throw new PrologParserException("Invalid use of operator, may be incompatible operator argument priorities with its type [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 

@@ -145,7 +145,6 @@ public class IntegrationTest {
     checkWrongClauseReadingWithPPE(" [345|323|].", 10);
     checkWrongClauseReadingWithPPE(" [|345].", 2);
     checkWrongClauseReadingWithPPE(" [1,2,3.", 8);
-    checkWrongClauseReadingWithPPE(" 1,2,3].", 7);
   }
 
   @Test
@@ -509,6 +508,11 @@ public class IntegrationTest {
     assertReadTerms(32, "sec811.pro");
     assertReadTerms(8, "einstein_puzzle.pro");
     assertReadTerms(14, "simple.pl");
+    assertReadTerms(207, "scheduleevents.pl");
+    assertReadTerms(7, "eliza.pl");
+    assertReadTerms(6, "houses_puzzle.pl");
+    assertReadTerms(18, "grammar.pl");
+    assertReadTerms(6, "sudoku.pl", Op.SWI_CPL);
     assertReadTerms(39, "golog.pl",
         Op.make(800, OpType.XFY, "&"),
         Op.make(850, OpType.XFY, "v"),
