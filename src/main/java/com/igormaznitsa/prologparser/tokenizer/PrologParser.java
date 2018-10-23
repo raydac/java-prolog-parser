@@ -355,8 +355,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       // read next atom from tokenizer
       TokenizerResult readAtomContainer = this.tokenizer.readNextToken();
       try {
-        boolean atBrakes = false;
-
         if (readAtomContainer == null) {
           if (currentTreeItem == null) {
             // end_of_file
@@ -441,7 +439,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   break;
                   case '(': {
                     // read sub-block
-                    atBrakes = true;
                     readAtom = readBlock(OPERATORS_SUBBLOCK);
 
                     if (readAtom == null) {
@@ -515,10 +512,9 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 tokenizer.push(nextToken);
                 nextToken = null;
                 // check read atom to be zero-struct
-                if (readAtomContainer.getResult().getTermType() == TermType.ATOM) {
-                  if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getTermText().equals("!")) {
-                    readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-                  }
+                if (readAtomContainer.getResult().getTermType() == TermType.ATOM
+                    && readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getTermText().equals("!")) {
+                  readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
                 }
               }
             } finally {

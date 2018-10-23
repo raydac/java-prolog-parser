@@ -324,7 +324,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   @Override
   public Iterator<PrologTerm> iterator() {
     return new Iterator<PrologTerm>() {
-      PrologTerm[] terms = elements.clone();
+      final PrologTerm[] terms = elements.clone();
       int index = 0;
 
       @Override

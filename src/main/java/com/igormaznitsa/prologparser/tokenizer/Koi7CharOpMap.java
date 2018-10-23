@@ -45,7 +45,7 @@ final class Koi7CharOpMap {
     final String text = operator.getTermText();
 
     if (text.length() != 1) {
-      throw new Error("Meta operator must be single char: " + text);
+      throw new IllegalArgumentException("Meta operator must be single char: " + text);
     }
 
     OpContainer container = this.get(text);
