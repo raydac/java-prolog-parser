@@ -537,14 +537,14 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           // not first
           if (currentTreeItem.getType() == TermType.OPERATOR) {
             // it's not first operator
-            if (currentTreeItem.getPriority() <= readAtomPriority) {
+            if (currentTreeItem.getPrecedence() <= readAtomPriority) {
               // new has low priority
               // make it as ascendent
               final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPriority(readAtomPriority);
-              if (foundItem.getPriority() < readAtomPriority) {
+              if (foundItem.getPrecedence() < readAtomPriority) {
                 // make as parent
                 currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
-              } else if (foundItem.getPriority() > readAtomPriority) {
+              } else if (foundItem.getPrecedence() > readAtomPriority) {
                 // make new as right subbranch
                 currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
               } else {
@@ -566,7 +566,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 }
               }
 
-            } else if (currentTreeItem.getPriority() > readAtomPriority) {
+            } else if (currentTreeItem.getPrecedence() > readAtomPriority) {
               // new has great priority
               if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
                 // it's a ground atom and its right branch is not empty

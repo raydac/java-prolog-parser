@@ -40,8 +40,8 @@ public class OperatorTest {
 
   @Test
   public void testToString() {
-    assertEquals("of(231,xfy,'<>').", Op.make(231, OpType.XFY, "<>").toString());
-    assertEquals("of(100,fy,'><').", Op.make(100, OpType.FY, "><").toString());
+    assertEquals("op(231,xfy,'<>').", Op.make(231, OpType.XFY, "<>").toString());
+    assertEquals("op(100,fy,'><').", Op.make(100, OpType.FY, "><").toString());
   }
 
   @Test

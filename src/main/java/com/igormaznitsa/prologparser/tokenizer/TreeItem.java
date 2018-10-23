@@ -83,7 +83,7 @@ final class TreeItem {
     this.pool.push(this);
   }
 
-  int getPriority() {
+  int getPrecedence() {
     return this.savedTerm.getPrecedence();
   }
 
@@ -92,7 +92,7 @@ final class TreeItem {
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
     TreeItem result = this;
-    if (item.getType() == TermType.OPERATOR && item.getPriority() != 0) {
+    if (item.getType() == TermType.OPERATOR && item.getPrecedence() != 0) {
       result = item;
     }
     return result;
@@ -148,7 +148,7 @@ final class TreeItem {
 
     while (true) {
       final TreeItem itsParent = result.parentItem;
-      if (itsParent == null || result.getPriority() >= priority) {
+      if (itsParent == null || result.getPrecedence() >= priority) {
         break;
       } else {
         result = itsParent;
@@ -174,30 +174,30 @@ final class TreeItem {
     return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpType();
   }
 
-  private boolean validate() {
-    if (savedTerm.getTermType() == TermType.OPERATOR) {
-      final int priority = getPriority();
-      final Op wrappedOperator = (Op) ((TermWrapper) savedTerm).getWrappedTerm();
+  private boolean isPrecedenceOrderOk() {
+    if (this.savedTerm.getTermType() == TermType.OPERATOR) {
+      final int thisPrecedence = this.getPrecedence();
+      final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
       switch (wrappedOperator.getOpType()) {
         case FX:
-          return leftBranch == null && (rightBranch != null && rightBranch.getPriority() < priority);
+          return this.leftBranch == null && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
         case FY:
-          return leftBranch == null && (rightBranch != null && rightBranch.getPriority() <= priority);
+          return this.leftBranch == null && (this.rightBranch != null && this.rightBranch.getPrecedence() <= thisPrecedence);
         case YF:
-          return (leftBranch != null && leftBranch.getPriority() <= priority) && rightBranch == null;
+          return (this.leftBranch != null && this.leftBranch.getPrecedence() <= thisPrecedence) && this.rightBranch == null;
         case XF:
-          return (leftBranch != null && leftBranch.getPriority() < priority) && rightBranch == null;
+          return (this.leftBranch != null && this.leftBranch.getPrecedence() < thisPrecedence) && this.rightBranch == null;
         case XFX:
-          return (leftBranch != null && leftBranch.getPriority() < priority) && (rightBranch != null && rightBranch.getPriority() < priority);
+          return (this.leftBranch != null && this.leftBranch.getPrecedence() < thisPrecedence) && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
         case XFY:
-          return (leftBranch != null && leftBranch.getPriority() < priority) && (rightBranch != null && rightBranch.getPriority() <= priority);
+          return (this.leftBranch != null && this.leftBranch.getPrecedence() < thisPrecedence) && (this.rightBranch != null && this.rightBranch.getPrecedence() <= thisPrecedence);
         case YFX:
-          return (leftBranch != null && leftBranch.getPriority() <= priority) && (rightBranch != null && rightBranch.getPriority() < priority);
+          return (this.leftBranch != null && this.leftBranch.getPrecedence() <= thisPrecedence) && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
         default:
           throw new CriticalUnexpectedError();
       }
     } else {
-      return leftBranch == null && rightBranch == null;
+      return this.leftBranch == null && this.rightBranch == null;
     }
   }
 
@@ -253,7 +253,16 @@ final class TreeItem {
             return this.leftBranch.convertToTermAndRelease();
           }
 
-          if (!validate()) {
+          if (!isPrecedenceOrderOk()) {
+            final Op operator = (Op) wrapper.getWrappedTerm();
+            if (operator.getOpType() == OpType.FX || operator.getOpType() == OpType.FY) {
+              final PrologTerm that = this.leftBranch.convertToTermAndRelease();
+              if (that.getTermType() != TermType.STRUCT) {
+                return new PrologStruct(that,new PrologTerm[]{
+                    new PrologAtom(operator.getTermText())
+                },operator.getLine(),operator.getPos());
+              }
+            }
             throw new PrologParserException("Invalid use of operator, may be incompatible operator argument priorities with its type [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 

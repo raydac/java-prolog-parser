@@ -509,6 +509,14 @@ public class IntegrationTest {
     assertReadTerms(32, "sec811.pro");
     assertReadTerms(8, "einstein_puzzle.pro");
     assertReadTerms(14, "simple.pl");
+    assertReadTerms(39, "golog.pl",
+        Op.make(800, OpType.XFY, "&"),
+        Op.make(850, OpType.XFY, "v"),
+        Op.make(870, OpType.XFY, "=>"),
+        Op.make(880, OpType.XFY, "<=>"),
+        Op.make(880, OpType.XFY, ":"),
+        Op.make(960, OpType.XFY, "#")
+    );
     assertReadTerms(3, "hanoi.pl");
     assertReadTerms(16, "likes.pl");
     assertReadTerms(7, "dmalloc.pl");
@@ -869,6 +877,11 @@ public class IntegrationTest {
     assertOperatorAsFunctor("1 / 2 / 4 / (8 , 3)", parseEd("/(1,2)/4/(8,3).").next());
     assertOperatorAsFunctor("1 : 2", parseEd(":(1,2).").next());
     assertOperatorAsFunctor("+ abc - 12", parseEd("+(abc)-12.").next());
+  }
+
+  @Test
+  public void testPairOfOperatorsWithIncompatiblePriority() throws Exception {
+    assertEquals("-(discontiguous)", parseEd("-discontiguous.").next().toString());
   }
 
   @Test

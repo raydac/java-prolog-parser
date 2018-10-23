@@ -305,7 +305,7 @@ public final class Op extends SpecServiceCompound {
 
   @Override
   public String toString() {
-    return String.format("of(%d,%s,'%s').", getPrecedence(), getOpType().toString().toLowerCase(Locale.ENGLISH), getTermText());
+    return String.format("op(%d,%s,'%s').", getPrecedence(), getOpType().toString().toLowerCase(Locale.ENGLISH), getTermText());
   }
 
   private Object readResolve() {
