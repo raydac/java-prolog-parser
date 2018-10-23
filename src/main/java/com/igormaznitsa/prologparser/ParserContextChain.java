@@ -22,11 +22,9 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -83,23 +81,6 @@ public class ParserContextChain implements ParserContext {
       }
     }
     return result;
-  }
-
-  @Override
-  public boolean hasZeroStruct(final PrologParser source, final String atomName) {
-    boolean result = false;
-    for (final ParserContext c : this.contexts) {
-      if (c.hasZeroStruct(source, atomName)) {
-        result = true;
-        break;
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public void onNewStruct(final PrologParser source, final PrologStruct struct) {
-    Arrays.stream(this.contexts).forEach(c -> c.onNewStruct(source, struct));
   }
 
   @Override

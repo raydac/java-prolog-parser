@@ -2,7 +2,8 @@ package com.igormaznitsa.prologparser.terms;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PrologBaseTermTest {
 
@@ -70,24 +71,6 @@ public class PrologBaseTermTest {
   @Test
   public void testToString() {
     assertEquals("test \n hello", new StubAbstractPrologTermTest("test \n hello").toString());
-  }
-
-  @Test
-  public void testSetPayload() {
-    final StubAbstractPrologTermTest stub = new StubAbstractPrologTermTest("test");
-    assertNull(stub.getPayload());
-    stub.setPayload("test_linked");
-    assertEquals("test_linked", stub.getPayload());
-    stub.setPayload(null);
-    assertNull(stub.getPayload());
-  }
-
-  @Test
-  public void testGetPayload() {
-    final StubAbstractPrologTermTest stub = new StubAbstractPrologTermTest("test");
-    assertNull(stub.getPayload());
-    stub.setPayload("testObject");
-    assertEquals("testObject", stub.getPayload());
   }
 
   private final static class StubAbstractPrologTermTest extends PrologTerm {

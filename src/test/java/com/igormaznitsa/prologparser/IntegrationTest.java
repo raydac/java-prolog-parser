@@ -287,8 +287,6 @@ public class IntegrationTest {
     PrologParser parser = parseEd("date(Day,may,2001).", mockContext);
     final PrologTerm term = parser.next();
 
-    verify(mockContext, times(1)).onNewStruct(any(EdinburghPrologParser.class), any(PrologStruct.class));
-
     assertEquals(TermType.STRUCT, term.getTermType());
 
     PrologStruct struct = (PrologStruct) term;
@@ -342,8 +340,6 @@ public class IntegrationTest {
     PrologParser parser = parseEd("hello:-world.", mockContext);
     PrologStruct struct = (PrologStruct) parser.next();
 
-    verify(mockContext, times(1)).onNewStruct(any(EdinburghPrologParser.class), any(PrologStruct.class));
-
     assertEquals(PrologStruct.class, struct.getClass());
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(":-", struct.getFunctor().getTermText());
@@ -357,8 +353,6 @@ public class IntegrationTest {
     parser = parseEd(":-test.", mockContext);
     struct = (PrologStruct) parser.next();
 
-    verify(mockContext, times(1)).onNewStruct(any(EdinburghPrologParser.class), any(PrologStruct.class));
-
     assertEquals(PrologStruct.class, struct.getClass());
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(":-", struct.getFunctor().getTermText());
@@ -370,8 +364,6 @@ public class IntegrationTest {
     reset(mockContext);
     parser = parseEd("X is X+1.", mockContext);
     struct = (PrologStruct) parser.next();
-
-    verify(mockContext, times(2)).onNewStruct(any(EdinburghPrologParser.class), any(PrologStruct.class));
 
     assertEquals(PrologStruct.class, struct.getClass());
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
@@ -875,6 +867,7 @@ public class IntegrationTest {
     assertOperatorAsFunctor("1 / 2 / 4 / (8 , 3)", parseEd("/(1,2)/4/(8,3).").next());
     assertOperatorAsFunctor("1 : 2", parseEd(":(1,2).").next());
     assertOperatorAsFunctor("+ abc - 12", parseEd("+(abc)-12.").next());
+//    assertOperatorAsFunctor("+ abc - 12", parseEd("+(1,2,3).").next());
   }
 
   @Test
@@ -959,14 +952,6 @@ public class IntegrationTest {
       return operators.get(operatorName);
     }
 
-    @Override
-    public boolean hasZeroStruct(final PrologParser source, final String atomName) {
-      return false;
-    }
-
-    @Override
-    public void onNewStruct(final PrologParser source, final PrologStruct struct) {
-    }
   }
 
 }

@@ -22,11 +22,9 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +38,6 @@ public class DefaultParserContext implements ParserContext {
 
   protected final Set<String> opPrefixes = new HashSet<>();
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
-  protected final Set<String> zeroArityStructs = new HashSet<>();
 
   protected final int flags;
 
@@ -57,10 +54,6 @@ public class DefaultParserContext implements ParserContext {
     return new DefaultParserContext(flags, operators);
   }
 
-  public static ParserContext of(final int flags, final String... zeroArityStructures) {
-    return new DefaultParserContext(flags).addZeroStructs(zeroArityStructures);
-  }
-
   @Override
   public Map<String, OpContainer> findAllOperators() {
     return Collections.unmodifiableMap(this.opContainers);
@@ -75,11 +68,6 @@ public class DefaultParserContext implements ParserContext {
     rangeClosed(1, name.length()).mapToObj(i -> name.substring(0, i)).forEach(this.opPrefixes::add);
   }
 
-  public DefaultParserContext addZeroStructs(final String... names) {
-    this.zeroArityStructs.addAll(Arrays.asList(names));
-    return this;
-  }
-
   public DefaultParserContext addOperators(final Op... operators) {
     Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
       fillPrefixes(x.getTermText());
@@ -92,15 +80,6 @@ public class DefaultParserContext implements ParserContext {
       }
     });
     return this;
-  }
-
-  @Override
-  public void onNewStruct(final PrologParser source, final PrologStruct struct) {
-  }
-
-  @Override
-  public boolean hasZeroStruct(final PrologParser source, String atomName) {
-    return this.zeroArityStructs.contains(atomName);
   }
 
   @Override

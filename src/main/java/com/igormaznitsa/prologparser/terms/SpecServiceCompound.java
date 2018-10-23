@@ -21,7 +21,6 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import java.io.Serializable;
 import java.util.stream.Stream;
 
 /**
@@ -37,16 +36,6 @@ public abstract class SpecServiceCompound extends PrologCompound {
 
   @Override
   public PrologTerm getElementAt(int position) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final Serializable getPayload() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public final void setPayload(Serializable obj) {
     throw new UnsupportedOperationException();
   }
 

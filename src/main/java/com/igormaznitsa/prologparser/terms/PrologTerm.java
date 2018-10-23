@@ -38,7 +38,6 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   private static final long serialVersionUID = 1402429096900255841L;
   protected final QuotingType quotingType;
   protected final String text;
-  private volatile Serializable payload;
   private int line;
   private int pos;
 
@@ -115,14 +114,6 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       result = this.quotingType.makeString(this.text);
     }
     return result;
-  }
-
-  public Serializable getPayload() {
-    return this.payload;
-  }
-
-  public void setPayload(final Serializable obj) {
-    this.payload = obj;
   }
 
   public abstract TermType getTermType();

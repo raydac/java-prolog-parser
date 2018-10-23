@@ -516,8 +516,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 if (readAtomContainer.getResult().getTermType() == TermType.ATOM) {
                   if (readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getTermText().equals("!")) {
                     readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-                  } else if (context != null && context.hasZeroStruct(this, readAtom.getTermText())) {
-                    readAtom = new PrologStruct(readAtom, readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
                 }
               }

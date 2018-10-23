@@ -22,7 +22,6 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Map;
@@ -35,11 +34,6 @@ public interface ParserContext {
   boolean hasOpStartsWith(PrologParser source, String namePrefix);
 
   OpContainer findOpForName(PrologParser source, String name);
-
-  boolean hasZeroStruct(PrologParser source, String atomName);
-
-  void onNewStruct(PrologParser source, PrologStruct struct);
-
 
   Map<String, OpContainer> findAllOperators();
 

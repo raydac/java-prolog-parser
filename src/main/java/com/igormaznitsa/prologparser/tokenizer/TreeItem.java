@@ -270,17 +270,9 @@ final class TreeItem {
             operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
           }
           result = operatorStruct;
-
-          if (this.parser.getContext() != null) {
-            this.parser.getContext().onNewStruct(this.parser, operatorStruct);
-          }
-
         }
         break;
         case STRUCT: {
-          if (this.parser.getContext() != null) {
-            this.parser.getContext().onNewStruct(parser, (PrologStruct) this.savedTerm);
-          }
           result = this.savedTerm;
         }
         break;
