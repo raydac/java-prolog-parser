@@ -513,6 +513,7 @@ public class IntegrationTest {
     assertReadTerms(6, "houses_puzzle.pl");
     assertReadTerms(18, "grammar.pl");
     assertReadTerms(6, "sudoku.pl", Op.SWI_CPL);
+    assertReadTerms(6, "knights.pl", Op.SWI_CPL);
     assertReadTerms(39, "golog.pl",
         Op.make(800, OpType.XFY, "&"),
         Op.make(850, OpType.XFY, "v"),
@@ -524,6 +525,7 @@ public class IntegrationTest {
     assertReadTerms(3, "hanoi.pl");
     assertReadTerms(16, "likes.pl");
     assertReadTerms(7, "dmalloc.pl");
+    assertReadTerms(2910, "moviedb.pl");
     assertReadTerms(24, "xref_packages.pl");
     assertReadTerms(6, "test_loop.pl");
     assertReadTerms(11, "linprog.pl");

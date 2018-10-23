@@ -48,6 +48,8 @@ public final class Op extends SpecServiceCompound {
   public static final Op CONDITIONAL = make(700, XFX, "==", "<", "=<", ">", ">=");
   public static final Op BITWISE_SHIFT = make(400, YFX, "<<", ">>");
   public static final Op[] SWI_CPL = {
+      make(300, FY, "~"),
+      make(500, YFX, "#"),
       make(760, YFX, "#<==>"),
       make(750, XFY, "#==>"),
       make(750, YFX, "#<=="),
