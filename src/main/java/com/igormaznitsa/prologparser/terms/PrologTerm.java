@@ -77,6 +77,14 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return result;
   }
 
+  public int getArity() {
+    return 1;
+  }
+
+  public boolean isBlock() {
+    return false;
+  }
+
   public QuotingType getQuotingType() {
     return this.quotingType;
   }

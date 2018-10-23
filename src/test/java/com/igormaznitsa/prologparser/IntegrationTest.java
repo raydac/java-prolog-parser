@@ -15,7 +15,6 @@ import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -145,7 +144,6 @@ public class IntegrationTest {
     checkWrongClauseReadingWithPPE(" [345|323|X].", 11);
     checkWrongClauseReadingWithPPE(" [345|323|].", 10);
     checkWrongClauseReadingWithPPE(" [|345].", 2);
-    checkWrongClauseReadingWithPPE(" [A|((((B|C))))].", 15);
     checkWrongClauseReadingWithPPE(" [1,2,3.", 8);
     checkWrongClauseReadingWithPPE(" 1,2,3].", 7);
   }
@@ -420,7 +418,7 @@ public class IntegrationTest {
     final Map<String, OpContainer> operators = new HashMap<>();
 
     final StubContext contextStub = new StubContext(operators);
-    final PrologParser parser = new EdinburghPrologParser(new StringReader(":-of(800,xfx,'<===>').:-of(700,xfy,'v').:-of(600,xfy,'&').:-of(500,fy,'~').~(A&B)<===> ~A v ~B."), contextStub);
+    final PrologParser parser = new EdinburghPrologParser(new StringReader(":-op(800,xfx,'<===>').:-op(700,xfy,'v').:-op(600,xfy,'&').:-op(500,fy,'~').~(A&B)<===> ~A v ~B."), contextStub);
 
     PrologTerm term = null;
 
@@ -432,7 +430,7 @@ public class IntegrationTest {
         if (structure.getArity() == 1 && structure.getFunctor().getTermText().equals(":-")) {
           final PrologStruct operatorstructure = (PrologStruct) structure.getElementAt(0);
 
-          if (operatorstructure.getArity() == 3 && operatorstructure.getFunctor().getTermText().equals("of")) {
+          if (operatorstructure.getArity() == 3 && operatorstructure.getFunctor().getTermText().equals("op")) {
             final Op newoperator = Op.make(
                 ((PrologInteger) operatorstructure.getElementAt(0)).getNumber().intValue(),
                 OpType.findForName(operatorstructure.getElementAt(1).getTermText()).get(),
@@ -863,6 +861,9 @@ public class IntegrationTest {
   @Test
   public void testOperatorAsFunctor() throws Exception {
     assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
+    assertOperatorAsFunctor("+ 1", parseEd("+(1).").next());
+    assertOperatorAsFunctor("1 + 2 + 3", parseEd("+(1,2)+3.").next());
+    assertOperatorAsFunctor("1 + (2 + 3)", parseEd("1++(2,3).").next());
     assertOperatorAsFunctor("1 + 2 + 34", parseEd("+(1,2)+34.").next());
     assertOperatorAsFunctor("1 / 2 / 4 / (8 / 3)", parseEd("/(1,2)/4/(8/3).").next());
     assertOperatorAsFunctor("1 / 2 / 4 / (8 , 3)", parseEd("/(1,2)/4/(8,3).").next());
@@ -871,9 +872,25 @@ public class IntegrationTest {
   }
 
   @Test
-  @Disabled
-  public void testOperatorAsFunctorWithWrongArity() throws Exception {
-    assertOperatorAsFunctor("'+'(1, 2, 3)", parseEd("+(1,2,3).").next());
+  public void testOperatorAsFunctorWithUnsupportedArity() throws Exception {
+    assertEquals("'+'(1, 2, 3)", parseEd("+(1,2,3).").next().toString());
+    assertEquals("':'(1, 2, 3)", parseEd(":(1,2,3).").next().toString());
+    assertEquals("':'(1, (2 , 3), 4)", parseEd(":(1,(2,3),4).").next().toString());
+    assertEquals("':'(1)", parseEd(":(1).").next().toString());
+  }
+
+  @Test
+  public void testBlock() {
+    assertEquals("(1)", parseEd("(1).").next().toString());
+    assertEquals("(1 , 2)", parseEd("(1,2).").next().toString());
+    assertEquals("(1 - 2)", parseEd("(1-2).").next().toString());
+    assertEquals("(1 - 2 * (34 / 33))", parseEd("(1-2*(34/33)).").next().toString());
+    assertEquals("(1 , 2 , 3)", parseEd("(1,2,3).").next().toString());
+    assertEquals("((1 , 2) , 3)", parseEd("((1,2),3).").next().toString());
+    assertEquals("((1 , 2) , 3)", parseEd("(((1,2),3)).").next().toString());
+    assertEquals("[A|(B | C)]", parseEd("[A|((((B|C))))].").next().toString());
+    assertEquals("vertical(line(point(X, Y), point(X, Z)))", parseEd("vertical(line(point(X,Y), point(X,Z))).").next().toString());
+    assertEquals("move(state(middle, onbox, middle, hasnot), grasp, state(middle, onbox, middle, has))", parseEd("move(state(middle, onbox, middle, hasnot),grasp,state(middle, onbox, middle, has)).").next().toString());
   }
 
   @Test

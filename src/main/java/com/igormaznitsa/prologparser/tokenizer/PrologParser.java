@@ -67,7 +67,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final Koi7CharOpMap OPERATORS_END_LIST;
   private static final Koi7CharOpMap OPERATORS_INSIDE_STRUCT;
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK;
-  private static final PrologTerm[] EMPTY_TERM = new PrologTerm[0];
 
   static {
     META_OP_MAP = ofOps();
@@ -237,7 +236,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         }
       }
 
-      result = new PrologStruct(functor, listOfAtoms.toArray(EMPTY_TERM));
+      result = new PrologStruct(functor, listOfAtoms.toArray(EMPTY_TERM_ARRAY));
       return result;
     } finally {
       listOfAtoms.clear();
@@ -444,13 +443,15 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                     // read sub-block
                     atBrakes = true;
                     readAtom = readBlock(OPERATORS_SUBBLOCK);
+
                     if (readAtom == null) {
                       throw new PrologParserException("Illegal start of term",
                           readAtomContainer.getLine(), readAtomContainer.getPos());
                     }
-                    readAtom.setPos(readAtomContainer.getPos());
+
                     readAtom.setLine(readAtomContainer.getLine());
-                    readAtomPriority = 0;
+                    readAtom.setPos(readAtomContainer.getPos());
+                    readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
 
                     final TokenizerResult token = this.tokenizer.readNextToken();
 
@@ -530,7 +531,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         }
 
         final TreeItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
-            atBrakes,
             readAtomContainer.getLine(),
             readAtomContainer.getPos());
 

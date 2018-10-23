@@ -31,7 +31,5 @@ public abstract class PrologCompound extends PrologTerm {
     super(text, QuotingType.NO_QUOTED);
   }
 
-  public abstract int getArity();
-
   public abstract PrologTerm getElementAt(int position);
 }

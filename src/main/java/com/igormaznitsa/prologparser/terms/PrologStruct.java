@@ -28,6 +28,7 @@ import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -178,110 +179,112 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   public String toString() {
     final StringBuilderEx builder = new StringBuilderEx(64);
 
-    if (functor.getTermType() == TermType.OPERATOR) {
-
-      final Op operatorFunctor = (Op) functor;
-      final String opName = operatorFunctor.getTermText();
-      final int priority = operatorFunctor.getPrecedence();
+    if (this.functor.getTermType() == TermType.OPERATOR) {
+      if (this.isBlock()) {
+        builder.append('(').append(this.elements[0].toString()).append(')');
+      } else {
+        final Op operatorFunctor = (Op) functor;
+        final String opName = operatorFunctor.getTermText();
+        final int priority = operatorFunctor.getPrecedence();
 
         final String text1 = getElementAt(0).toString();
         final String text2 = getArity() > 1 ? getElementAt(1).toString()
             : null;
 
-      switch (operatorFunctor.getOpType()) {
-        case FX: {
-          builder.append(opName).append(' ');
+        switch (operatorFunctor.getOpType()) {
+          case FX: {
+            builder.append(opName).append(' ');
 
-          if (getElementAt(0).getPrecedence() >= priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
+            if (getElementAt(0).getPrecedence() >= priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
           }
+          break;
+          case FY: {
+            builder.append(opName);
+            builder.append(' ');
+
+            if (getElementAt(0).getPrecedence() > priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
+          }
+          break;
+          case XF: {
+            if (getElementAt(0).getPrecedence() >= priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
+
+            builder.append(' ').append(opName);
+          }
+          break;
+          case YF: {
+            if (getElementAt(0).getPrecedence() > priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
+
+            builder.append(' ').append(opName);
+          }
+          break;
+          case XFX: {
+            if (getElementAt(0).getPrecedence() >= priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
+
+            builder.append(' ').append(opName).append(' ');
+
+            if (getElementAt(1).getPrecedence() >= priority) {
+              builder.append('(').append(text2).append(')');
+            } else {
+              builder.append(text2);
+            }
+          }
+          break;
+          case YFX: {
+            if (getElementAt(0).getPrecedence() > priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
+
+            builder.append(' ').append(opName).append(' ');
+
+            if (getElementAt(1).getPrecedence() >= priority) {
+              builder.append('(').append(text2).append(')');
+            } else {
+              builder.append(text2);
+            }
+          }
+          break;
+          case XFY: {
+            if (getElementAt(0).getPrecedence() >= priority) {
+              builder.append('(').append(text1).append(')');
+            } else {
+              builder.append(text1);
+            }
+
+            builder.append(' ').append(opName).append(' ');
+
+            if (getElementAt(1).getPrecedence() > priority) {
+              builder.append('(').append(text2).append(')');
+            } else {
+              builder.append(text2);
+            }
+          }
+          break;
+          default:
+            throw new CriticalUnexpectedError();
         }
-        break;
-        case FY: {
-          builder.append(opName);
-          builder.append(' ');
-
-          if (getElementAt(0).getPrecedence() > priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
-          }
-        }
-        break;
-        case XF: {
-          if (getElementAt(0).getPrecedence() >= priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
-          }
-
-          builder.append(' ').append(opName);
-        }
-        break;
-        case YF: {
-          if (getElementAt(0).getPrecedence() > priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
-          }
-
-          builder.append(' ').append(opName);
-        }
-        break;
-        case XFX: {
-          if (getElementAt(0).getPrecedence() >= priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
-          }
-
-          builder.append(' ').append(opName).append(' ');
-
-          if (getElementAt(1).getPrecedence() >= priority) {
-            builder.append('(').append(text2).append(')');
-          } else {
-            builder.append(text2);
-          }
-        }
-        break;
-        case YFX: {
-          if (getElementAt(0).getPrecedence() > priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
-          }
-
-          builder.append(' ').append(opName).append(' ');
-
-          if (getElementAt(1).getPrecedence() >= priority) {
-            builder.append('(').append(text2).append(')');
-          } else {
-            builder.append(text2);
-          }
-        }
-        break;
-        case XFY: {
-          if (getElementAt(0).getPrecedence() >= priority) {
-            builder.append('(').append(text1).append(')');
-          } else {
-            builder.append(text1);
-          }
-
-          builder.append(' ').append(opName).append(' ');
-
-          if (getElementAt(1).getPrecedence() > priority) {
-            builder.append('(').append(text2).append(')');
-          } else {
-            builder.append(text2);
-          }
-        }
-        break;
-        default:
-          throw new CriticalUnexpectedError();
       }
-
     } else {
       String functorText = functor.getTermText();
 
