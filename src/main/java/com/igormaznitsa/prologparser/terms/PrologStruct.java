@@ -155,6 +155,26 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   @Override
+  public boolean isBlock() {
+    return this.functor == Op.VIRTUAL_OPERATOR_BLOCK;
+  }
+
+  public List<PrologTerm> fillElementsForComma(final List<PrologTerm> list) {
+    if (this.functor == Op.METAOPERATOR_COMMA) {
+      for (final PrologTerm t : this.elements) {
+        if (t instanceof PrologStruct) {
+          ((PrologStruct) t).fillElementsForComma(list);
+        } else {
+          list.add(t);
+        }
+      }
+    } else {
+      list.add(this);
+    }
+    return list;
+  }
+
+  @Override
   public String toString() {
     final StringBuilderEx builder = new StringBuilderEx(64);
 
@@ -164,9 +184,9 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
       final String opName = operatorFunctor.getTermText();
       final int priority = operatorFunctor.getPrecedence();
 
-      final String text1 = getElementAt(0).toString();
-      final String text2 = getArity() > 1 ? getElementAt(1).toString()
-          : null;
+        final String text1 = getElementAt(0).toString();
+        final String text2 = getArity() > 1 ? getElementAt(1).toString()
+            : null;
 
       switch (operatorFunctor.getOpType()) {
         case FX: {

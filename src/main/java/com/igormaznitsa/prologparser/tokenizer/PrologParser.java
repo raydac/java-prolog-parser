@@ -53,6 +53,7 @@ import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
  */
 public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
+  public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
   static final Koi7CharOpMap META_OP_MAP;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private static final OpContainer OPERATOR_COMMA;

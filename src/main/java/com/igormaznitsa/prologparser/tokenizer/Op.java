@@ -58,6 +58,8 @@ public final class Op extends SpecServiceCompound {
       make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
       make(450, XFX, ".."),
   };
+  public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpType.FX, "()");
+  public static final Op METAOPERATOR_COMMA = makeSystem(1000, OpType.XFY, ",");
   static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpType.FX, "(");
   static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpType.XF, ")");
   static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpType.FX, "[");
