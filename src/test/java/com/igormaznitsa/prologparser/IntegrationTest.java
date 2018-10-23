@@ -15,6 +15,7 @@ import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpType;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -867,7 +868,12 @@ public class IntegrationTest {
     assertOperatorAsFunctor("1 / 2 / 4 / (8 , 3)", parseEd("/(1,2)/4/(8,3).").next());
     assertOperatorAsFunctor("1 : 2", parseEd(":(1,2).").next());
     assertOperatorAsFunctor("+ abc - 12", parseEd("+(abc)-12.").next());
-//    assertOperatorAsFunctor("+ abc - 12", parseEd("+(1,2,3).").next());
+  }
+
+  @Test
+  @Disabled
+  public void testOperatorAsFunctorWithWrongArity() throws Exception {
+    assertOperatorAsFunctor("'+'(1, 2, 3)", parseEd("+(1,2,3).").next());
   }
 
   @Test
