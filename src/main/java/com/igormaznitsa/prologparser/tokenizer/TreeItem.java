@@ -260,7 +260,7 @@ final class TreeItem {
                 final PrologTerm that = this.rightBranch != null
                     ? this.rightBranch.convertToTermAndRelease()
                     : this.leftBranch.convertToTermAndRelease();
-                if (that.getTermType() != TermType.STRUCT) {
+                if (that.getTermType() != TermType.STRUCT && that.getTermType() != TermType.VAR) {
                   return new PrologStruct(that, new PrologTerm[] {
                       new PrologAtom(operator.getTermText())
                   }, operator.getLine(), operator.getPos());
@@ -268,7 +268,7 @@ final class TreeItem {
               }
             }
 
-            throw new PrologParserException("Invalid use of operator, may be incompatible operator argument priorities with its type [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+            throw new PrologParserException("Operator priority clash or missing operator: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 
           final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();

@@ -47,6 +47,27 @@ public final class Op extends SpecServiceCompound {
   public static final Op UNIFY = make(700, XFX, "=");
   public static final Op CONDITIONAL = make(700, XFX, "==", "<", "=<", ">", ">=");
   public static final Op BITWISE_SHIFT = make(400, YFX, "<<", ">>");
+
+  public static final Op[] ISO = {
+      make(1200, OpType.XFX, ":-", "-->"),
+      make(1200, OpType.FX, "?-", ":-"),
+      make(1100, OpType.XFY, ";"),
+      make(1050, OpType.XFY, "->"),
+      Op.UNIFY,
+      Op.CONDITIONAL,
+      make(700, OpType.XFX, "\\=", "\\==", "@<", "@=<", "@>", "@>=", "is", "=:=", "=\\=", "=.."),
+      Op.BINARY_PLUS_MINUS,
+      make(500, OpType.YFX, "/\\", "\\/"),
+      Op.BINARY_MUL_DIV,
+      Op.BITWISE_SHIFT,
+      make(400, OpType.YFX, "//", "mod", "rem"),
+      make(200, OpType.XFX, "**"),
+      make(200, OpType.XFY, "^"),
+      make(200, OpType.FY, "\\", "-"),
+      make(100, OpType.XFX, "@"),
+      make(50, OpType.XFX, ":")
+  };
+
   public static final Op[] SWI_CPL = {
       make(300, FY, "~"),
       make(500, YFX, "#"),

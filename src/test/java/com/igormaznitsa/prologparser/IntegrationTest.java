@@ -33,15 +33,25 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static com.igormaznitsa.prologparser.tokenizer.OpType.XFY;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
+
+  private static EdinburghPrologParser parseCpl(final String str) {
+    return new EdinburghPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.SWI_CPL));
+  }
+
+  private static PrologParser parseIso(final String str) {
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE, Op.ISO));
+  }
 
   private static EdinburghPrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
@@ -63,6 +73,21 @@ public class IntegrationTest {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
     return new GenericPrologParser(new StringReader(str), parserContext);
+  }
+
+  @Test
+  public void testSwiCpl() {
+    assertEquals("X in 5 .. 10 , 5 , Y #=< X + -1 , 6 , Y in 4 .. 8", parseCpl("X in 5..10,5,Y#=<X+ -1,6,Y in 4..8.").next().toString());
+    assertEquals("#\\ X", parseCpl("#\\X.").next().toString());
+    assertEquals("M #\\= 0 , S #\\= 0", parseCpl("M #\\= 0, S #\\= 0.").next().toString());
+    assertEquals("Temp #< 800 , #\\ Startup #==> Temp #> 300", parseCpl("Temp#<800,#\\Startup#==>Temp#>300.").next().toString());
+    assertEquals("A in 1 \\/ 3 \\/ 5 \\/ 8 #==> B #=< 8 , A in 9 .. 11 \\/ 14 #==> B #> 8", parseCpl("A in 1\\/3\\/5\\/8#==>B#=<8,A in 9..11\\/14#==>B#>8.").next().toString());
+    assertEquals("[X, Y] ins 1 .. 3 , labeling([max(X), min(Y)], [X, Y])", parseCpl("[X,Y] ins 1..3,labeling([max(X),min(Y)],[X,Y]).").next().toString());
+    assertEquals("sort_of_near_to(X, Y, N, M) :- X #> Y #==> X - N #>= Y #/\\ X - M - 1 #< Y , X #=< Y #==> Y - N #>= X #/\\ Y - M - 1 #< X", parseCpl("sort_of_near_to(X, Y, N, M):-X#>Y#==>X-N#>=Y#/\\X-M-1#<Y,X#=<Y#==>Y-N#>=X#/\\Y-M-1#<X.").next().toString());
+    assertEquals("V in inf .. -2 \\/ 0 \\/ 2 .. 16 \\/ 18 .. sup", parseCpl("V in inf.. -2 \\/ 0 \\/ 2..16 \\/ 18..sup.").next().toString());
+    assertEquals("X #> Y #==> X - N #>= Y #/\\ X - M - 1 #< Y , X #=< Y #==> Y - N #>= X #/\\ Y - M - 1 #< X", parseCpl("X#>Y#==>X-N#>=Y#/\\X-M-1#<Y,X #=< Y #==> Y - N #>= X #/\\ Y - M - 1 #< X.").next().toString());
+    assertEquals("clpfd : run_propagator(even(X), MState) :- (integer(X) -> clpfd : kill(MState) , 0 is X mod 2 ; true)", parseCpl("clpfd:run_propagator(even(X),MState):-(integer(X)->clpfd:kill(MState),0is X mod 2;true).").next().toString());
+    assertThrows(PrologParserException.class, () -> parseCpl("#\\X..#\\Y.").next());
   }
 
   @Test
@@ -202,6 +227,8 @@ public class IntegrationTest {
 
   @Test
   public void testParseInteger() {
+    checkIntegerWithoutPPE("-17", -17);
+    checkIntegerWithoutPPE("0", 0);
     checkIntegerWithoutPPE("1", 1);
     checkIntegerWithoutPPE("1313", 1313);
     checkIntegerWithoutPPE("-0", 0);
@@ -228,6 +255,7 @@ public class IntegrationTest {
   @Test
   public void testParseFloat() {
     checkFloatWithoutPPE(new BigDecimal(Math.PI, PrologFloat.MATH_CONTEXT).toEngineeringString(), Math.PI);
+    checkFloatWithoutPPE("-2.67e+021", -2.67e+021);
     checkFloatWithoutPPE("-0.0035", -0.0035d);
     checkFloatWithoutPPE("100.2", 100.2d);
     checkFloatWithoutPPE("2000.0", 2.0e+3d);
@@ -515,12 +543,12 @@ public class IntegrationTest {
     assertReadTerms(6, "sudoku.pl", Op.SWI_CPL);
     assertReadTerms(6, "knights.pl", Op.SWI_CPL);
     assertReadTerms(39, "golog.pl",
-        Op.make(800, OpType.XFY, "&"),
-        Op.make(850, OpType.XFY, "v"),
-        Op.make(870, OpType.XFY, "=>"),
-        Op.make(880, OpType.XFY, "<=>"),
-        Op.make(880, OpType.XFY, ":"),
-        Op.make(960, OpType.XFY, "#")
+        Op.make(800, XFY, "&"),
+        Op.make(850, XFY, "v"),
+        Op.make(870, XFY, "=>"),
+        Op.make(880, XFY, "<=>"),
+        Op.make(880, XFY, ":"),
+        Op.make(960, XFY, "#")
     );
     assertReadTerms(3, "hanoi.pl");
     assertReadTerms(16, "likes.pl");
@@ -540,7 +568,7 @@ public class IntegrationTest {
     assertReadTerms(53, "basics.pl");
     assertReadTerms(28, "analysis.pl", Op.make(500, OpType.XFX, "@"));
     assertReadTerms(4, "sendmoney.pl", Op.SWI_CPL);
-    assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, OpType.XFY, "&"), Op.make(300, OpType.XFX, ":"));
+    assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, XFY, "&"), Op.make(300, OpType.XFX, ":"));
   }
 
   @Test
@@ -875,6 +903,7 @@ public class IntegrationTest {
   @Test
   public void testOperatorAsFunctor() throws Exception {
     assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
+    assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
     assertOperatorAsFunctor("+ 1", parseEd("+(1).").next());
     assertOperatorAsFunctor("1 + 2 + 3", parseEd("+(1,2)+3.").next());
     assertOperatorAsFunctor("1 + (2 + 3)", parseEd("1++(2,3).").next());
@@ -882,12 +911,15 @@ public class IntegrationTest {
     assertOperatorAsFunctor("1 / 2 / 4 / (8 / 3)", parseEd("/(1,2)/4/(8/3).").next());
     assertOperatorAsFunctor("1 / 2 / 4 / (8 , 3)", parseEd("/(1,2)/4/(8,3).").next());
     assertOperatorAsFunctor("1 : 2", parseEd(":(1,2).").next());
-    assertOperatorAsFunctor("+ abc - 12", parseEd("+(abc)-12.").next());
+    assertOperatorAsFunctor("2 + 3 * 4 =:= X", parseIso("=:=(+(2,*(3,4)),X).").next());
   }
 
   @Test
   public void testPairOfOperatorsWithIncompatiblePriority() throws Exception {
     assertEquals("-(discontiguous)", parseEd("-discontiguous.").next().toString());
+    assertEquals("a : b :> c :> d", parseEd("a:b:>c:>d.", DefaultParserContext.of(ParserContext.FLAG_NONE, Op.make(500, XFY, ":>"))).next().toString());
+    assertThrows(PrologParserException.class, () -> parseEd("a :- b :- c.").next());
+    assertThrows(PrologParserException.class, () -> parseEd("?-mother(pam,bob);").next());
   }
 
   @Test
@@ -910,6 +942,7 @@ public class IntegrationTest {
     assertEquals("[A|(B | C)]", parseEd("[A|((((B|C))))].").next().toString());
     assertEquals("vertical(line(point(X, Y), point(X, Z)))", parseEd("vertical(line(point(X,Y), point(X,Z))).").next().toString());
     assertEquals("move(state(middle, onbox, middle, hasnot), grasp, state(middle, onbox, middle, has))", parseEd("move(state(middle, onbox, middle, hasnot),grasp,state(middle, onbox, middle, has)).").next().toString());
+    assertEquals("X1 =< X2 , X2 =< (X1 + LENGTH) , (Y1 - LENGTH) =< Y2 , Y2 =< Y1", parseEd("X1 =< X2, X2 =< (X1 + LENGTH), (Y1-LENGTH) =< Y2, Y2 =< Y1.").next().toString());
   }
 
   @Test

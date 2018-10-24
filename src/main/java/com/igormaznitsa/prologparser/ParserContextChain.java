@@ -37,8 +37,7 @@ public class ParserContextChain implements ParserContext {
 
   public ParserContextChain(final ParserContext... contexts) {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
-    int commonFlags = stream(this.contexts).mapToInt(ParserContext::getFlags).reduce(FLAG_NONE, (a, b) -> a | b);
-    this.flags = commonFlags;
+    this.flags = stream(this.contexts).mapToInt(ParserContext::getFlags).reduce(FLAG_NONE, (a, b) -> a | b);
   }
 
   public static ParserContext of(final ParserContext... contexts) {
