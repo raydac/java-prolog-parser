@@ -25,15 +25,8 @@ import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.io.Reader;
 
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-
-@SuppressWarnings("serial")
 public class GenericPrologParser extends PrologParser {
   public GenericPrologParser(final Reader reader, final ParserContext context) {
     super(reader, context);
-  }
-
-  public GenericPrologParser(final Reader reader) {
-    this(reader, of(ParserContext.FLAG_NONE));
   }
 }

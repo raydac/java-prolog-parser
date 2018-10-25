@@ -103,7 +103,7 @@ public final class StringUtils {
             if (len > 5) {
               return new UnescapeResult('u', false, true);
             } else {
-              if (stringAfterEscMarker.hasSeveralChars() && !isCharAppropriateForHex(stringAfterEscMarker.getLastChar())) {
+              if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHex(stringAfterEscMarker.getLastChar())) {
                 return new UnescapeResult('u', false, true);
               }
               return new UnescapeResult('u', true, false);
@@ -120,7 +120,7 @@ public final class StringUtils {
             }
             return new UnescapeResult((char) decoded, false, false);
           } else {
-            if (stringAfterEscMarker.hasSeveralChars() && !isCharAppropriateForHex(stringAfterEscMarker.getLastChar())) {
+            if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHex(stringAfterEscMarker.getLastChar())) {
               return new UnescapeResult('x', false, true);
             }
             return new UnescapeResult('x', true, false);
@@ -137,8 +137,8 @@ public final class StringUtils {
     return Character.isLetterOrDigit(chr) || chr == '_';
   }
 
-  public static boolean isCharAppropriateForHex(final char chr) {
-    return (chr >= '0' && chr <= '9') || (chr >= 'a' && chr <= 'f') || (chr >= 'A' && chr <= 'F');
+  public static boolean isCharNotAppropriateForHex(final char chr) {
+    return (chr < '0' || chr > '9') && (chr < 'a' || chr > 'f') && (chr < 'A' || chr > 'F');
   }
 
   public static boolean isAllowedEscapeChar(final char chr) {

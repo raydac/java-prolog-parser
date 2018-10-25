@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
+import static java.util.stream.Stream.of;
 
 /**
  * Prolog operator definition.
@@ -199,7 +200,7 @@ public final class Op extends SpecServiceCompound {
   }
 
   public static Op[] join(Op[]... args) {
-    return Stream.of(args).flatMap(x -> Stream.of(x)).toArray(Op[]::new);
+    return of(args).flatMap(Stream::of).toArray(Op[]::new);
   }
 
   public boolean isMultiName() {
@@ -208,9 +209,9 @@ public final class Op extends SpecServiceCompound {
 
   public Stream<Op> streamOp() {
     if (this.multiNames == null) {
-      return Stream.of(this);
+      return of(this);
     } else {
-      return Stream.of(this.multiNames).map(x -> new Op(this.precedence, this.opAssoc, x, null));
+      return of(this.multiNames).map(x -> new Op(this.precedence, this.opAssoc, x, null));
     }
   }
 
@@ -361,7 +362,7 @@ public final class Op extends SpecServiceCompound {
   @Override
   public String toString() {
     if (isMultiName()) {
-      return String.format("op(%d, %s, [%s]).", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), Stream.of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
+      return String.format("op(%d, %s, [%s]).", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
     } else {
       return String.format("op(%d, %s, '%s').", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), getTermText());
     }
