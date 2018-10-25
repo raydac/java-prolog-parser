@@ -30,6 +30,8 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class OperatorTest {
 
   @Test

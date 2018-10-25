@@ -48,6 +48,9 @@ import java.util.stream.StreamSupport;
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
+
 /**
  * Abstract base Prolog parser.
  */

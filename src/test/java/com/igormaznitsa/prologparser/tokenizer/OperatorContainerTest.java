@@ -28,6 +28,9 @@ import org.junit.jupiter.api.Test;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static org.junit.jupiter.api.Assertions.*;
 
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static org.junit.jupiter.api.Assertions.*;
+
 public class OperatorContainerTest {
 
   @Test

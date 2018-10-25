@@ -505,13 +505,18 @@ final class Tokenizer {
                     throw new PrologParserException("Unexpected underscore", this.prevLine, this.prevPos);
                   }
 
-                  push(chr);
-
-                  return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toString(), quoting, state),
-                      TokenizerState.INTEGER,
-                      getLastTokenLine(),
-                      getLastTokenPos());
+                  if (this.zeroSingleQuotationAllowed && chr == '\'' && strBuffer.isSingleChar('0')) {
+                    state = STRING;
+                    charCodeAsInt = true;
+                    strBuffer.clear();
+                  } else {
+                    push(chr);
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        TokenizerState.INTEGER,
+                        getLastTokenLine(),
+                        getLastTokenPos());
+                  }
                 }
               }
             }
@@ -656,14 +661,33 @@ final class Tokenizer {
                 if (specCharBuffer.isEmpty() && chr == '\n') {
                   strBuffer.append('\n');
                   specCharDetected = false;
+
+                  strBuffer.append('\n');
+                  if (charCodeAsInt) {
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        state,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  }
                 } else if (!Character.isISOControl(chr)) {
                   specCharBuffer.append(chr);
                   final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(specCharBuffer);
                   if (result.isError()) {
                     throw new PrologParserException("Detected wrong escape char: \\" + specCharBuffer.toString(), this.prevLine, this.prevPos);
                   } else if (!result.doesNeedMore()) {
-                    strBuffer.append(result.getDecoded());
                     specCharDetected = false;
+                    if (charCodeAsInt) {
+                      return this.tokenizerResultPool.find().setData(
+                          new PrologInteger(result.getDecoded()),
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos()
+                      );
+                    } else {
+                      strBuffer.append(result.getDecoded());
+                    }
                   }
                 }
               } else {
@@ -677,7 +701,16 @@ final class Tokenizer {
                           getLastTokenPos()
                       );
                     } else {
-                      strBuffer.append(chr);
+                      if (charCodeAsInt) {
+                        return this.tokenizerResultPool.find().setData(
+                            new PrologInteger(chr),
+                            state,
+                            getLastTokenLine(),
+                            getLastTokenPos()
+                        );
+                      } else {
+                        strBuffer.append(chr);
+                      }
                     }
                     break;
                   case '`':
@@ -689,7 +722,16 @@ final class Tokenizer {
                           getLastTokenPos()
                       );
                     } else {
-                      strBuffer.append(chr);
+                      if (charCodeAsInt) {
+                        return this.tokenizerResultPool.find().setData(
+                            new PrologInteger(chr),
+                            state,
+                            getLastTokenLine(),
+                            getLastTokenPos()
+                        );
+                      } else {
+                        strBuffer.append(chr);
+                      }
                     }
                     break;
                   case '\"':
@@ -701,7 +743,16 @@ final class Tokenizer {
                           getLastTokenPos()
                       );
                     } else {
-                      strBuffer.append(chr);
+                      if (charCodeAsInt) {
+                        return this.tokenizerResultPool.find().setData(
+                            new PrologInteger(chr),
+                            state,
+                            getLastTokenLine(),
+                            getLastTokenPos()
+                        );
+                      } else {
+                        strBuffer.append(chr);
+                      }
                     }
                     break;
                   case '\\':
@@ -710,7 +761,17 @@ final class Tokenizer {
                     break;
                   default:
                     if (Character.isISOControl(chr)) {
-                      strBuffer.append(StringUtils.isAllowedEscapeChar(chr) ? chr : '→');
+                      theChar = StringUtils.isAllowedEscapeChar(chr) ? chr : '→';
+                    } else {
+                      theChar = chr;
+                    }
+                    if (charCodeAsInt) {
+                      return this.tokenizerResultPool.find().setData(
+                          new PrologInteger(theChar),
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos()
+                      );
                     } else {
                       strBuffer.append(chr);
                     }

@@ -13,7 +13,7 @@ import static org.mockito.Mockito.mock;
 public class PrologTermTest {
 
   private PrologParser parserFor(final String str) {
-    return new EdinburghPrologParser(new StringReader(str), mock(ParserContext.class));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(ParserContext.FLAG_NONE, Op.SWI));
   }
 
   @Test

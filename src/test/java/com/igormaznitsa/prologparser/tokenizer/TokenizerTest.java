@@ -37,7 +37,10 @@ public class TokenizerTest {
   }
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
-    return new Tokenizer(new EdinburghPrologParser(new StringReader(str), context), new StringReader(str));
+    return new Tokenizer(
+        new GenericPrologParser(new StringReader(str),
+            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context)),
+        new StringReader(str));
   }
 
   @Test

@@ -170,6 +170,10 @@ public final class Op extends SpecServiceCompound {
         : new Op(precedence, type, ".system.", assertOpValidOpName(names));
   }
 
+  public static Op[] join(Op[]... args) {
+    return Stream.of(args).flatMap(x -> Stream.of(x)).toArray(Op[]::new);
+  }
+
   public boolean isMultiName() {
     return this.multiNames != null;
   }

@@ -11,6 +11,8 @@ import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class SerializationTest {
   @Test
   public void testSerializationOperator() throws Exception {
