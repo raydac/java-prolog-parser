@@ -25,28 +25,26 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class OperatorTypeTest {
 
   @Test
   public void testGetForName() {
-    assertSame(OpType.XF, OpType.findForName("xf").get());
-    assertSame(OpType.FX, OpType.findForName("fx").get());
-    assertSame(OpType.XFX, OpType.findForName("xfx").get());
-    assertSame(OpType.XFY, OpType.findForName("xfy").get());
-    assertSame(OpType.YF, OpType.findForName("yf").get());
-    assertSame(OpType.YFX, OpType.findForName("yfx").get());
-    assertFalse(OpType.findForName("yfy").isPresent());
+    assertSame(OpAssoc.XF, OpAssoc.findForName("xf").get());
+    assertSame(OpAssoc.FX, OpAssoc.findForName("fx").get());
+    assertSame(OpAssoc.XFX, OpAssoc.findForName("xfx").get());
+    assertSame(OpAssoc.XFY, OpAssoc.findForName("xfy").get());
+    assertSame(OpAssoc.YF, OpAssoc.findForName("yf").get());
+    assertSame(OpAssoc.YFX, OpAssoc.findForName("yfx").get());
+    assertFalse(OpAssoc.findForName("yfy").isPresent());
   }
 
   @Test
   public void testGetText() {
-    assertEquals("xf", OpType.XF.getText());
-    assertEquals("fx", OpType.FX.getText());
-    assertEquals("xfx", OpType.XFX.getText());
-    assertEquals("xfy", OpType.XFY.getText());
-    assertEquals("yf", OpType.YF.getText());
-    assertEquals("yfx", OpType.YFX.getText());
+    assertEquals("xf", OpAssoc.XF.getText());
+    assertEquals("fx", OpAssoc.FX.getText());
+    assertEquals("xfx", OpAssoc.XFX.getText());
+    assertEquals("xfy", OpAssoc.XFY.getText());
+    assertEquals("yf", OpAssoc.YF.getText());
+    assertEquals("yfx", OpAssoc.YFX.getText());
   }
 }

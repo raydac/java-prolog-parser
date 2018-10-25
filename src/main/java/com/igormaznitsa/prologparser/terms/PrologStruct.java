@@ -191,7 +191,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
         final String text2 = getArity() > 1 ? getElementAt(1).toString()
             : null;
 
-        switch (operatorFunctor.getOpType()) {
+        switch (operatorFunctor.getOpAssoc()) {
           case FX: {
             builder.append(opName).append(' ');
 

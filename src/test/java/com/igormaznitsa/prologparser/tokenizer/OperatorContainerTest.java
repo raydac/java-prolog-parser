@@ -28,39 +28,36 @@ import org.junit.jupiter.api.Test;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static org.junit.jupiter.api.Assertions.*;
 
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static org.junit.jupiter.api.Assertions.*;
-
 public class OperatorContainerTest {
 
   @Test
   public void testGetPriority() {
-    assertEquals(make(Op.make(1000, OpType.FX,
+    assertEquals(make(Op.make(1000, OpAssoc.FX,
         "<>")).getPrecedence(), 0);
   }
 
   @Test
   public void testToString() {
-    final Op operator = Op.make(100, OpType.FX, "<>");
+    final Op operator = Op.make(100, OpAssoc.FX, "<>");
     final OpContainer container = make(operator);
-    container.add(Op.make(300, OpType.XFX, "<>"));
-    container.add(Op.make(800, OpType.YF, "<>"));
+    container.add(Op.make(300, OpAssoc.XFX, "<>"));
+    container.add(Op.make(800, OpAssoc.YF, "<>"));
     assertEquals(
-        "OpContainer [op(100,fx,'<>'). op(800,yf,'<>'). op(300,xfx,'<>').]",
+        "OpContainer [op(100, fx, '<>'). op(800, yf, '<>'). op(300, xfx, '<>').]",
         container.toString());
   }
 
   @Test
   public void testGetType() {
     assertEquals(TermType.__OPERATOR_CONTAINER__, make(
-        Op.make(1000, OpType.FX, "<>")).getTermType());
+        Op.make(1000, OpAssoc.FX, "<>")).getTermType());
   }
 
   @Test
   public void testOperatorContainer() {
     assertThrows(NullPointerException.class, () -> make(null));
 
-    final Op operator = Op.make(100, OpType.FX, "<>");
+    final Op operator = Op.make(100, OpAssoc.FX, "<>");
     final OpContainer container = make(operator);
     assertEquals(1, container.size());
     assertSame(operator, container.getOperatorIfSingle());
@@ -68,10 +65,10 @@ public class OperatorContainerTest {
 
   @Test
   public void testAddOperator() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
-    final Op otheroperatorYF = Op.make(300, OpType.YF,
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
+    final Op otheroperatorYF = Op.make(300, OpAssoc.YF,
         "><");
 
     final OpContainer container = make(operatorFX);
@@ -89,16 +86,16 @@ public class OperatorContainerTest {
     assertFalse(container.add(operatorFX));
     assertFalse(container.add(operatorYF));
 
-    assertSame(operatorFX, container.findForType(OpType.FX));
-    assertSame(operatorXFX, container.findForType(OpType.XFX));
-    assertSame(operatorYF, container.findForType(OpType.YF));
+    assertSame(operatorFX, container.findForType(OpAssoc.FX));
+    assertSame(operatorXFX, container.findForType(OpAssoc.XFX));
+    assertSame(operatorYF, container.findForType(OpAssoc.YF));
   }
 
   @Test
   public void testRemoveAll() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
 
@@ -110,17 +107,17 @@ public class OperatorContainerTest {
     assertEquals(3, container.size());
     container.removeAll();
     assertEquals(0, container.size());
-    assertNull(container.findForType(OpType.FX));
-    assertNull(container.findForType(OpType.XFX));
-    assertNull(container.findForType(OpType.YF));
+    assertNull(container.findForType(OpAssoc.FX));
+    assertNull(container.findForType(OpAssoc.XFX));
+    assertNull(container.findForType(OpAssoc.YF));
   }
 
   @Test
   public void testRemove() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
-    final Op otheroperatorXFX = Op.make(400, OpType.XFX,
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
+    final Op otheroperatorXFX = Op.make(400, OpAssoc.XFX,
         "><");
 
     final OpContainer container = make(operatorFX);
@@ -131,25 +128,25 @@ public class OperatorContainerTest {
 
     assertTrue(container.remove(operatorFX));
     assertEquals(2, container.size());
-    assertNull(container.findSimilar(OpType.FX));
+    assertNull(container.findSimilar(OpAssoc.FX));
 
     assertThrows(NullPointerException.class, () -> container.remove(null));
     assertThrows(IllegalArgumentException.class, () -> container.remove(otheroperatorXFX));
 
     assertTrue(container.remove(operatorXFX));
     assertEquals(1, container.size());
-    assertNull(container.findSimilar(OpType.XFX));
+    assertNull(container.findSimilar(OpAssoc.XFX));
 
     assertTrue(container.remove(operatorYF));
     assertEquals(0, container.size());
-    assertNull(container.findSimilar(OpType.YF));
+    assertNull(container.findSimilar(OpAssoc.YF));
   }
 
   @Test
   public void testSize() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
 
@@ -166,9 +163,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetOperatorIfSingle() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
 
@@ -186,9 +183,9 @@ public class OperatorContainerTest {
 
   @Test
   public void testFindCompatibleOperator() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
 
@@ -224,32 +221,32 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetOperatorForType() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
 
     assertThrows(NullPointerException.class, () -> container.findForType(null));
 
-    assertNull(container.findForType(OpType.XFX));
-    assertNull(container.findForType(OpType.YF));
+    assertNull(container.findForType(OpAssoc.XFX));
+    assertNull(container.findForType(OpAssoc.YF));
 
     container.add(operatorXFX);
     container.add(operatorYF);
 
-    assertSame(operatorFX, container.findForType(OpType.FX));
-    assertSame(operatorXFX, container.findForType(OpType.XFX));
-    assertSame(operatorYF, container.findForType(OpType.YF));
-    assertNull(container.findForType(OpType.YFX));
-    assertNull(container.findForType(OpType.XF));
+    assertSame(operatorFX, container.findForType(OpAssoc.FX));
+    assertSame(operatorXFX, container.findForType(OpAssoc.XFX));
+    assertSame(operatorYF, container.findForType(OpAssoc.YF));
+    assertNull(container.findForType(OpAssoc.YFX));
+    assertNull(container.findForType(OpAssoc.XF));
   }
 
   @Test
   public void testGetOperatorForSimilarType() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
     container.add(operatorXFX);
@@ -258,19 +255,19 @@ public class OperatorContainerTest {
     assertThrows(NullPointerException.class, () -> container.findSimilar(null));
 
     assertSame(operatorFX,
-        container.findSimilar(OpType.FY));
+        container.findSimilar(OpAssoc.FY));
     assertSame(operatorXFX,
-        container.findSimilar(OpType.YFX));
-    assertTrue(container.removeForType(OpType.FX));
-    assertNull(container.findSimilar(OpType.FY));
+        container.findSimilar(OpAssoc.YFX));
+    assertTrue(container.removeForType(OpAssoc.FX));
+    assertNull(container.findSimilar(OpAssoc.FY));
 
   }
 
   @Test
   public void testRemoveOperatorForType() {
-    final Op operatorFX = Op.make(100, OpType.FX, "<>");
-    final Op operatorXFX = Op.make(400, OpType.XFX, "<>");
-    final Op operatorYF = Op.make(300, OpType.YF, "<>");
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
 
     final OpContainer container = make(operatorFX);
     container.add(operatorXFX);
@@ -278,18 +275,18 @@ public class OperatorContainerTest {
 
     assertThrows(NullPointerException.class, () -> container.removeForType(null));
 
-    assertTrue(container.removeForType(OpType.FX));
-    assertNull(container.findForType(OpType.FX));
-    assertTrue(container.removeForType(OpType.XFX));
-    assertNull(container.findForType(OpType.XFX));
-    assertTrue(container.removeForType(OpType.YF));
-    assertNull(container.findForType(OpType.YF));
-    assertFalse(container.removeForType(OpType.YFX));
+    assertTrue(container.removeForType(OpAssoc.FX));
+    assertNull(container.findForType(OpAssoc.FX));
+    assertTrue(container.removeForType(OpAssoc.XFX));
+    assertNull(container.findForType(OpAssoc.XFX));
+    assertTrue(container.removeForType(OpAssoc.YF));
+    assertNull(container.findForType(OpAssoc.YF));
+    assertFalse(container.removeForType(OpAssoc.YFX));
   }
 
   @Test
   public void testGetText() {
     assertEquals("<>", make(Op.make(1000,
-        OpType.FX, "<>")).getTermText());
+        OpAssoc.FX, "<>")).getTermText());
   }
 }

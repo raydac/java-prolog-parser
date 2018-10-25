@@ -23,7 +23,7 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
+import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 /**
@@ -65,7 +65,7 @@ public final class OpContainer extends SpecServiceCompound {
       throw new IllegalArgumentException("Illegal operator name, must be '" + getTermText() + "'");
     }
 
-    switch (operator.getOpType()) {
+    switch (operator.getOpAssoc()) {
       case FX:
       case FY:
         if (opFZ != null) {
@@ -251,7 +251,7 @@ public final class OpContainer extends SpecServiceCompound {
    * @param type type of needed operator
    * @return found operator, null if not found
    */
-  public Op findForType(final OpType type) {
+  public Op findForType(final OpAssoc type) {
     Op result = null;
     switch (type) {
       case FY:
@@ -277,7 +277,7 @@ public final class OpContainer extends SpecServiceCompound {
         throw new CriticalUnexpectedError();
     }
 
-    if (result != null && result.getOpType() == type) {
+    if (result != null && result.getOpAssoc() == type) {
       return result;
     }
     return null;
@@ -289,7 +289,7 @@ public final class OpContainer extends SpecServiceCompound {
    * @param type type of operator to find
    * @return operator with similar type or null if not found
    */
-  public Op findSimilar(final OpType type) {
+  public Op findSimilar(final OpAssoc type) {
     Op result;
     switch (type) {
       case FX:
@@ -317,19 +317,19 @@ public final class OpContainer extends SpecServiceCompound {
    * @param type type of removing operator
    * @return true if removed, false if not found
    */
-  public boolean removeForType(final OpType type) {
+  public boolean removeForType(final OpAssoc type) {
     boolean result = false;
     switch (type) {
       case FX:
       case FY:
-        if (opFZ != null && opFZ.getOpType() == type) {
+        if (opFZ != null && opFZ.getOpAssoc() == type) {
           opFZ = null;
           result = true;
         }
         break;
       case XF:
       case YF:
-        if (opZF != null && opZF.getOpType() == type) {
+        if (opZF != null && opZF.getOpAssoc() == type) {
           opZF = null;
           result = true;
         }
@@ -337,7 +337,7 @@ public final class OpContainer extends SpecServiceCompound {
       case XFX:
       case YFX:
       case XFY:
-        if (opZFZ != null && opZFZ.getOpType() == type) {
+        if (opZFZ != null && opZFZ.getOpAssoc() == type) {
           opZFZ = null;
           result = true;
         }

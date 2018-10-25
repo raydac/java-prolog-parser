@@ -12,7 +12,7 @@ import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVariable;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.OpType;
+import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -33,45 +33,49 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
+import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.tokenizer.OpType.XFY;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
 
-  private static EdinburghPrologParser parseCpl(final String str) {
-    return new EdinburghPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.SWI_CPL));
+  private static PrologParser parseCpl(final String str) {
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.join(Op.SWI, Op.SWI_CPL)));
   }
 
   private static PrologParser parseIso(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE, Op.ISO));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.ISO));
   }
 
-  private static EdinburghPrologParser parseEd(final String str) {
+  private static PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return parseEd(str, parserContext);
   }
 
-  private static EdinburghPrologParser parseEd(final String str, final ParserContext context) {
-    return new EdinburghPrologParser(new StringReader(str), context);
+  private static PrologParser parseEd(final String str, final ParserContext context) {
+    return parseEd(new StringReader(str), context);
   }
 
-  private static GenericPrologParser parseGen(final String str, final ParserContext context) {
+  private static PrologParser parseEd(final Reader reader, final ParserContext context) {
+    return new GenericPrologParser(reader, ParserContextChain.of(
+        DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context));
+  }
+
+  private static PrologParser parseGen(final String str, final ParserContext context) {
     final ParserContext parserContext = mock(ParserContext.class);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
   }
 
   private static GenericPrologParser parseGen(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
   }
 
@@ -92,17 +96,41 @@ public class IntegrationTest {
 
   @Test
   public void testParseStringWithSpecialChars() {
-    final PrologParser parser = parseEd("'\u0008Hello\\\nWorld\u0021\\r'.'\\xFF\\Another String\u0007'.");
+    final PrologParser parser = parseEd("'0\\'a \u0008Hello\\\nWorld\u0021\\r'.\"0'a \\xFF\\Another String\u0007\".");
     PrologTerm term = parser.next();
 
     assertEquals(ATOM, term.getTermType());
-    assertEquals("\\bHello\\nWorld!\\r",
-        StringUtils.escapeString(term.getTermText(), SINGLE_QUOTED));
+    assertEquals(PrologTerm.QuotingType.SINGLE_QUOTED, term.getQuotingType());
+    assertEquals("0\\'a \\bHello\\nWorld!\\r", StringUtils.escapeString(term.getTermText(), SINGLE_QUOTED));
 
     term = parser.next();
     assertNotNull(term);
-    assertEquals("\u00FFAnother String\u0007", term.getTermText());
+    assertEquals(PrologTerm.QuotingType.DOUBLE_QUOTED, term.getQuotingType());
+    assertEquals("0'a \u00FFAnother String\u0007", term.getTermText());
 
+  }
+
+  private void assertPrologInteger(final long expected, final String parse) {
+    final PrologParser parser = parseEd(parse);
+    final PrologTerm term = parser.next();
+    assertFalse(parser.hasNext());
+    assertEquals(TermType.ATOM, term.getTermType());
+    assertEquals(1, term.getLine());
+    assertEquals(1, term.getPos());
+    assertTrue(term instanceof PrologInteger);
+    assertEquals(expected, ((PrologInteger) term).getNumber().longValue());
+  }
+
+  @Test
+  public void testParseZeroSingleQuoteChar() {
+    assertPrologInteger('a', "0'a.");
+    assertPrologInteger(' ', "0'\\s.");
+    assertPrologInteger('\u1234', "0'\\u1234.");
+    assertPrologInteger('\n', "0'\\n.");
+    assertPrologInteger('\"', "0'\".");
+    assertPrologInteger('\'', "0'\'.");
+    assertPrologInteger('`', "0'`.");
+    checkWrongClauseReadingWithPPE("0'ab.", 4);
   }
 
   @Test
@@ -227,6 +255,7 @@ public class IntegrationTest {
 
   @Test
   public void testParseInteger() {
+    assertThrows(PrologParserException.class, () -> parseEd("1_000_/*more*/000").next());
     checkIntegerWithoutPPE("-17", -17);
     checkIntegerWithoutPPE("0", 0);
     checkIntegerWithoutPPE("1", 1);
@@ -364,14 +393,15 @@ public class IntegrationTest {
   public void testParseOperator() {
     final ParserContext mockContext = mock(ParserContext.class);
     PrologParser parser = parseEd("hello:-world.", mockContext);
+
     PrologStruct struct = (PrologStruct) parser.next();
 
     assertEquals(PrologStruct.class, struct.getClass());
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(":-", struct.getFunctor().getTermText());
     assertEquals(2, struct.getArity());
-    assertEquals(OpType.XFX,
-        ((Op) struct.getFunctor()).getOpType());
+    assertEquals(OpAssoc.XFX,
+        ((Op) struct.getFunctor()).getOpAssoc());
     assertEquals("hello", struct.getElementAt(0).getTermText());
     assertEquals("world", struct.getElementAt(1).getTermText());
 
@@ -383,8 +413,8 @@ public class IntegrationTest {
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(":-", struct.getFunctor().getTermText());
     assertEquals(1, struct.getArity());
-    assertEquals(OpType.FX,
-        ((Op) struct.getFunctor()).getOpType());
+    assertEquals(OpAssoc.FX,
+        ((Op) struct.getFunctor()).getOpAssoc());
     assertEquals("test", struct.getElementAt(0).getTermText());
 
     reset(mockContext);
@@ -395,16 +425,20 @@ public class IntegrationTest {
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals("is", struct.getFunctor().getTermText());
     assertEquals(2, struct.getArity());
-    assertEquals(OpType.XFX,
-        ((Op) struct.getFunctor()).getOpType());
+    assertEquals(OpAssoc.XFX,
+        ((Op) struct.getFunctor()).getOpAssoc());
     assertEquals("X", struct.getElementAt(0).getTermText());
     assertEquals(TermType.STRUCT, struct.getElementAt(1).getTermType());
     assertEquals("+", ((PrologStruct) struct.getElementAt(1)).getFunctor().getTermText());
-    assertEquals(OpType.YFX,
-        ((Op) ((PrologStruct) struct.getElementAt(1)).getFunctor()).getOpType());
+    assertEquals(OpAssoc.YFX,
+        ((Op) ((PrologStruct) struct.getElementAt(1)).getFunctor()).getOpAssoc());
     assertEquals(2, ((PrologStruct) struct.getElementAt(1)).getArity());
     assertEquals("X", ((PrologStruct) struct.getElementAt(1)).getElementAt(0).getTermText());
     assertEquals("1", ((PrologStruct) struct.getElementAt(1)).getElementAt(1).getTermText());
+
+    assertEquals("+ - + a", parseEd("+-+a.").next().toString());
+    assertEquals("+ - + 1", parseEd("+-+1.").next().toString());
+    assertEquals("+ -1", parseEd("+-1.").next().toString());
   }
 
   @Test
@@ -423,16 +457,16 @@ public class IntegrationTest {
   @Test
   public void testSimilarOperatorInterpretation() {
     final Map<String, OpContainer> operators = new HashMap<>();
-    final Op firstOperator = Op.make(100, OpType.FY, "++++++");
-    final Op secondOperator = Op.make(100, OpType.FY, "+++");
-    final Op thirdOperator = Op.make(100, OpType.FY, "++");
+    final Op firstOperator = Op.make(100, OpAssoc.FY, "++++++");
+    final Op secondOperator = Op.make(100, OpAssoc.FY, "+++");
+    final Op thirdOperator = Op.make(100, OpAssoc.FY, "++");
 
     operators.put(firstOperator.getTermText(), make(firstOperator));
     operators.put(secondOperator.getTermText(), make(secondOperator));
     operators.put(thirdOperator.getTermText(), make(thirdOperator));
 
     final StubContext contextStub = new StubContext(operators);
-    final PrologTerm term = new EdinburghPrologParser(new StringReader("+++++++++++ 3."), contextStub).next();
+    final PrologTerm term = parseEd("+++++++++++ 3.", contextStub).next();
 
     assertSame(firstOperator, ((PrologStruct) term).getFunctor());
     assertSame(secondOperator, ((PrologStruct) (((PrologStruct) term).getElementAt(0))).getFunctor());
@@ -445,7 +479,7 @@ public class IntegrationTest {
     final Map<String, OpContainer> operators = new HashMap<>();
 
     final StubContext contextStub = new StubContext(operators);
-    final PrologParser parser = new EdinburghPrologParser(new StringReader(":-op(800,xfx,'<===>').:-op(700,xfy,'v').:-op(600,xfy,'&').:-op(500,fy,'~').~(A&B)<===> ~A v ~B."), contextStub);
+    final PrologParser parser = parseEd(":-op(800,xfx,'<===>').:-op(700,xfy,'v').:-op(600,xfy,'&').:-op(500,fy,'~').~(A&B)<===> ~A v ~B.", contextStub);
 
     PrologTerm term = null;
 
@@ -460,7 +494,7 @@ public class IntegrationTest {
           if (operatorstructure.getArity() == 3 && operatorstructure.getFunctor().getTermText().equals("op")) {
             final Op newoperator = Op.make(
                 ((PrologInteger) operatorstructure.getElementAt(0)).getNumber().intValue(),
-                OpType.findForName(operatorstructure.getElementAt(1).getTermText()).get(),
+                OpAssoc.findForName(operatorstructure.getElementAt(1).getTermText()).get(),
                 operatorstructure.getElementAt(2).getTermText());
 
             OpContainer container = operators.get(newoperator.getTermText());
@@ -521,7 +555,7 @@ public class IntegrationTest {
   private void assertReadTerms(final int expected, final String resource, final Op... ops) {
     final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS, ops);
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
-      final PrologParser parser = new EdinburghPrologParser(reader, defaultContext);
+      final PrologParser parser = parseEd(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
       ex.printStackTrace();
@@ -566,9 +600,9 @@ public class IntegrationTest {
     assertReadTerms(87, "recursive.pl");
     assertReadTerms(10, "calltree.pl");
     assertReadTerms(53, "basics.pl");
-    assertReadTerms(28, "analysis.pl", Op.make(500, OpType.XFX, "@"));
+    assertReadTerms(28, "analysis.pl", Op.make(500, OpAssoc.XFX, "@"));
     assertReadTerms(4, "sendmoney.pl", Op.SWI_CPL);
-    assertReadTerms(75, "sictus.pl", Op.make(900, OpType.XFX, "=>"), Op.make(800, XFY, "&"), Op.make(300, OpType.XFX, ":"));
+    assertReadTerms(75, "sictus.pl", Op.make(900, OpAssoc.XFX, "=>"), Op.make(800, XFY, "&"), Op.make(300, OpAssoc.XFX, ":"));
   }
 
   @Test
@@ -663,11 +697,11 @@ public class IntegrationTest {
   @Test
   public void testRecognizingUserOperatorsWhichSimilarMetaOperators() {
     final Map<String, OpContainer> operators = new HashMap<>();
-    operators.put("(((", make(Op.make(1, OpType.FX, "(((")));
-    operators.put("...", make(Op.make(1200, OpType.XF, "...")));
+    operators.put("(((", make(Op.make(1, OpAssoc.FX, "(((")));
+    operators.put("...", make(Op.make(1200, OpAssoc.XF, "...")));
     final StubContext stubContext = new StubContext(operators);
 
-    final PrologStruct structure = (PrologStruct) new EdinburghPrologParser(new StringReader("(((hello...."), stubContext).next();
+    final PrologStruct structure = (PrologStruct) parseEd("(((hello....", stubContext).next();
     assertEquals("...", structure.getFunctor().getTermText());
     assertEquals("(((", ((PrologStruct) structure.getElementAt(0)).getFunctor().getTermText());
     assertEquals("hello", ((PrologStruct) structure.getElementAt(0)).getElementAt(0).getTermText());
@@ -772,16 +806,16 @@ public class IntegrationTest {
 
   @Test
   public void testParserStream() {
-    PrologParser parser = new EdinburghPrologParser(new StringReader("z(some).a(X):-[X].b('\\'hello world\\'').list([_|Tail]) :- list(Tail)."));
+    PrologParser parser = parseEd("z(some).a(X):-[X].b('\\'hello world\\'').list([_|Tail]) :- list(Tail).");
     final String joined = parser.stream().map(x -> x.toString()).collect(joining(". ", "", "."));
-    parser = new EdinburghPrologParser(new StringReader(joined));
+    parser = parseEd(joined);
     assertEquals(joined, parser.stream().map(x -> x.toString()).collect(joining(". ", "", ".")));
     assertEquals("z(some). a(X) :- [X]. b('\\'hello world\\''). list([_|Tail]) :- list(Tail).", joined);
   }
 
   @Test
   public void testStructStream() {
-    PrologParser parser = new EdinburghPrologParser(new StringReader("s(1,2,3,4,5,6,7,8)."));
+    PrologParser parser = parseEd("s(1,2,3,4,5,6,7,8).");
     assertEquals("1\n" +
         "2\n" +
         "3\n" +
@@ -794,7 +828,7 @@ public class IntegrationTest {
 
   @Test
   public void testListStream() {
-    PrologParser parser = new EdinburghPrologParser(new StringReader("[1,2,3,4,5,6,7,8|_]."));
+    PrologParser parser = parseEd("[1,2,3,4,5,6,7,8|_].");
     assertEquals("1\n" +
         "2\n" +
         "3\n" +
@@ -809,7 +843,7 @@ public class IntegrationTest {
 
   @Test
   public void testTermStreamFlat() {
-    PrologParser parser = new EdinburghPrologParser(new StringReader("some(hello,world,[1,2,3|X],end)."));
+    PrologParser parser = parseEd("some(hello,world,[1,2,3|X],end).");
     final String joined = parser.stream()
         .flatMap(PrologTerm::stream)
         .flatMap(PrologTerm::stream)
@@ -826,7 +860,7 @@ public class IntegrationTest {
   }
 
   private String parseSortAndJoin(final String text) {
-    return new EdinburghPrologParser(new StringReader(text)).stream().sorted().map(PrologTerm::toString).collect(joining("\n"));
+    return parseEd(text).stream().sorted().map(PrologTerm::toString).collect(joining("\n"));
   }
 
   @Test
@@ -840,8 +874,6 @@ public class IntegrationTest {
   @Test
   public void testSignedNumerics_EdingburghParser() {
     assertEquals(-1, ((PrologNumeric) parseEd("-1.").next()).getNumber().intValue());
-    assertEquals(1, ((PrologNumeric) parseEd("+1.").next()).getNumber().intValue());
-    assertEquals(1.1f, ((PrologNumeric) parseEd("+1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
     assertEquals(-1.1f, ((PrologNumeric) parseEd("-1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
     assertEquals(1, ((PrologNumeric) parseEd("1.").next()).getNumber().intValue());
     assertEquals(1.1f, ((PrologNumeric) parseEd("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
@@ -857,22 +889,25 @@ public class IntegrationTest {
     assertEquals(1, ((PrologNumeric) parseGen("1.").next()).getNumber().intValue());
     assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
 
-    assertEquals(-1, ((PrologNumeric) parseGen("-1.", of(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
-    assertEquals(1, ((PrologNumeric) parseGen("+1.", of(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().intValue());
-    assertEquals(1.1f, ((PrologNumeric) parseGen("+1.1.", of(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
-    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", of(FLAG_NONE, Op.UNARY_PLUS_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1, ((PrologNumeric) parseGen("-1.", of(FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().intValue());
+    assertEquals("+ 1", parseGen("+1.", of(FLAG_NONE, Op.SWI_UNARY_PLUS)).next().toString());
+    assertEquals("+ 1.1", parseGen("+1.1.", of(FLAG_NONE, Op.SWI_UNARY_PLUS)).next().toString());
+    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", of(FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test
   public void testMisc() throws Exception {
     assertNotNull(parseEd("''(123_345)**[].").next());
+    assertEquals("'+'", parseEd("+.").next().toString());
+    assertEquals("some(a, '+', b)", parseEd("some(a,+,b).").next().toString());
+    assertEquals("some('+', '+', '+')", parseEd("some(+,+,+).").next().toString());
   }
 
   @Test
   public void testParseBigGeneratedPrologSource() throws Exception {
     final int CLAUSES = 1000;
-    assertEquals(CLAUSES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE)).stream().count());
-    assertEquals(CLAUSES, new EdinburghPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE)).stream().count());
+    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
   }
 
   @Test
@@ -892,11 +927,6 @@ public class IntegrationTest {
     final PrologStruct struct = (PrologStruct) term;
     assertEquals(TermType.OPERATOR, struct.getFunctor().getTermType());
     assertEquals(((Op) struct.getFunctor()).getArity(), struct.getArity());
-    assertEquals(expected, term.toString());
-  }
-
-  private void assertAtom(final String expected, final PrologTerm term) {
-    assertEquals(TermType.ATOM, term.getTermType());
     assertEquals(expected, term.toString());
   }
 
@@ -963,11 +993,11 @@ public class IntegrationTest {
     for (int i = 0; i < ATTEMPTS; i++) {
       final int numChars = rnd.nextInt(5) + i * 3;
       assertThrows(PrologParserException.class, () -> {
-        final PrologParser parser = new EdinburghPrologParser(
+        final PrologParser parser = parseEd(
             new InputStreamReader(
                 new PrologSourceKoi7Generator(rnd.nextBoolean(),
                     numChars,
-                    false)));
+                    false)), new DefaultParserContext(FLAG_BLOCK_COMMENTS));
 
         while (parser.hasNext()) {
           assertNotNull(parser.next());

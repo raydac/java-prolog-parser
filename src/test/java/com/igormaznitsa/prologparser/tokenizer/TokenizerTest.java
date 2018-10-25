@@ -1,8 +1,9 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.EdinburghPrologParser;
+import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
+import com.igormaznitsa.prologparser.ParserContextChain;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -321,7 +322,7 @@ public class TokenizerTest {
     assertThrows(NullPointerException.class, () -> tokenizer.findOperatorForName(null));
     assertNull(tokenizer.findOperatorForName("<------------------------------------------------------->"));
 
-    final OpContainer operatorContainer = make(Op.make(1000, OpType.FX, "some_operator"));
+    final OpContainer operatorContainer = make(Op.make(1000, OpAssoc.FX, "some_operator"));
 
     when(context.findOpForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
 

@@ -48,9 +48,6 @@ import java.util.stream.StreamSupport;
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
-
 /**
  * Abstract base Prolog parser.
  */
@@ -122,7 +119,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  public static Op findSystemOperatorForNameAndType(final String text, final OpType type) {
+  public static Op findSystemOperatorForNameAndType(final String text, final OpAssoc type) {
     if (text.length() != 1) {
       return null;
     }
@@ -514,11 +511,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 // push back the next atom
                 tokenizer.push(nextToken);
                 nextToken = null;
-                // check read atom to be zero-struct
-                if (readAtomContainer.getResult().getTermType() == TermType.ATOM
-                    && readAtomContainer.getTokenizerState() == TokenizerState.ATOM && readAtom.getTermText().equals("!")) {
-                  readAtom = new PrologStruct("!", readAtomContainer.getLine(), readAtomContainer.getPos());
-                }
               }
             } finally {
               if (nextToken != null) {

@@ -25,28 +25,49 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Type of prolog operators.
+ * Associativity of Prolog operators.
  */
-public enum OpType {
+public enum OpAssoc {
 
+  /**
+   * Postfix, non-associative.
+   */
   XF("xf", 1),
+  /**
+   * Postfix, associative.
+   */
   YF("yf", 1),
+  /**
+   * Prefix, non-associative.
+   */
   FX("fx", 1),
+  /**
+   * Prefix, associative.
+   */
   FY("fy", 1),
+  /**
+   * Infix, non-associative.
+   */
   XFX("xfx", 2),
+  /**
+   * Infix, right-associative.
+   */
   XFY("xfy", 2),
+  /**
+   * Infix, left-associative.
+   */
   YFX("yfx", 2);
 
   private final String text;
 
   private final int arity;
 
-  OpType(final String text, final int arity) {
+  OpAssoc(final String text, final int arity) {
     this.text = text;
     this.arity = arity;
   }
 
-  public static Optional<OpType> findForName(final String str) {
+  public static Optional<OpAssoc> findForName(final String str) {
     return Stream.of(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 

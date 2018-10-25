@@ -6,12 +6,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 public class TermWrapperTest {
 
-  final Op testWrapped = Op.make(300, OpType.FX, "---");
+  final Op testWrapped = Op.make(300, OpAssoc.FX, "---");
   final SoftObjectPool<TermWrapper> pool = new SoftObjectPool<TermWrapper>(32) {
     @Override
     public final TermWrapper get() {

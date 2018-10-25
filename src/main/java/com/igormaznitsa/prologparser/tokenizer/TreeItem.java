@@ -170,15 +170,15 @@ final class TreeItem {
     }
   }
 
-  OpType getOperatorType() {
-    return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpType();
+  OpAssoc getOperatorType() {
+    return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpAssoc();
   }
 
   private boolean isPrecedenceOrderOk() {
     if (this.savedTerm.getTermType() == TermType.OPERATOR) {
       final int thisPrecedence = this.getPrecedence();
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
-      switch (wrappedOperator.getOpType()) {
+      switch (wrappedOperator.getOpAssoc()) {
         case FX:
           return this.leftBranch == null && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
         case FY:
@@ -256,7 +256,7 @@ final class TreeItem {
           if (!isPrecedenceOrderOk()) {
             if (this.rightBranch != null || this.leftBranch != null) {
               final Op operator = (Op) wrapper.getWrappedTerm();
-              if (operator.getOpType() == OpType.XF || operator.getOpType() == OpType.YF || operator.getOpType() == OpType.FX || operator.getOpType() == OpType.FY) {
+              if (operator.getOpAssoc() == OpAssoc.XF || operator.getOpAssoc() == OpAssoc.YF || operator.getOpAssoc() == OpAssoc.FX || operator.getOpAssoc() == OpAssoc.FY) {
                 final PrologTerm that = this.rightBranch != null
                     ? this.rightBranch.convertToTermAndRelease()
                     : this.leftBranch.convertToTermAndRelease();
@@ -282,9 +282,6 @@ final class TreeItem {
           if (right instanceof PrologNumeric && wrapper.getQuotingType() == PrologTerm.QuotingType.NO_QUOTED && left == null && right.getTermType() == TermType.ATOM) {
             if ("-".equals(wrapper.getTermText())) {
               result = ((PrologNumeric) right).neg();
-              break;
-            } else if ("+".equals(wrapper.getTermText())) {
-              result = right;
               break;
             }
           }

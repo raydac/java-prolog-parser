@@ -47,6 +47,7 @@ final class Tokenizer {
   private final StringBuilderEx specCharBuf = new StringBuilderEx(8);
   private final StringBuilderEx insideCharBuffer = new StringBuilderEx(8);
   private final boolean blockCommentsAllowed;
+  private final boolean zeroSingleQuotationAllowed;
   private final Reader reader;
   private final PrologParser parser;
   private final SoftObjectPool<TokenizerResult> tokenizerResultPool;
@@ -64,7 +65,9 @@ final class Tokenizer {
     super();
     this.reader = reader;
     this.parser = parser;
+
     this.blockCommentsAllowed = parser.context != null && ((parser.context.getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
+    this.zeroSingleQuotationAllowed = parser.context != null && ((parser.context.getFlags() & ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
 
     this.pos = 1;
     this.line = 1;
@@ -263,6 +266,8 @@ final class Tokenizer {
 
     TokenizerState state = LOOK_FOR;
     boolean specCharDetected = false;
+
+    boolean charCodeAsInt = false;
 
     strBuf.clear();
     specCharBuf.clear();
@@ -659,7 +664,6 @@ final class Tokenizer {
             case STRING: {
               if (specCharDetected) {
                 if (specCharBuffer.isEmpty() && chr == '\n') {
-                  strBuffer.append('\n');
                   specCharDetected = false;
 
                   strBuffer.append('\n');
@@ -760,6 +764,8 @@ final class Tokenizer {
                     specCharBuffer.clear();
                     break;
                   default:
+                    final char theChar;
+
                     if (Character.isISOControl(chr)) {
                       theChar = StringUtils.isAllowedEscapeChar(chr) ? chr : '→';
                     } else {
@@ -773,7 +779,7 @@ final class Tokenizer {
                           getLastTokenPos()
                       );
                     } else {
-                      strBuffer.append(chr);
+                      strBuffer.append(theChar);
                     }
                     break;
                 }

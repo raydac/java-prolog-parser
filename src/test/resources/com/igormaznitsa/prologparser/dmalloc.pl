@@ -74,7 +74,7 @@ predicates, lazily generated clause indices, etc.
 :- use_foreign_library(dmalloc).
 :- meta_predicate
 	dmalloc(0),
-	dmalloc(0, '+', '+').
+	dmalloc(0, +, +).
 
 %%	dmalloc(:Goal).
 %%	dmalloc(:Goal, +Format, +Args).

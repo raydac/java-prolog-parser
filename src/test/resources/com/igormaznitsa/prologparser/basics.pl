@@ -316,12 +316,12 @@ number(N) -->
 	(   dot,
 	    digit(DF0),
 	    digits(DF)
-	->  (F = ['.', DF0|DF])
+	->  (F = [0'., DF0|DF])
 	;   (F = [])
 	),
 	(   exp
 	->  int_codes(DI),
-	    (E=['e'|DI])
+	    (E=[0'e|DI])
 	;   (E = [])
 	),
 	( append([I, F, E], Codes),
@@ -330,8 +330,8 @@ number(N) -->
 number(N) -->
 	(type_error(number, N) ).
 
-sign('-') --> "-".
-sign('+') --> "+".
+sign(0'-) --> "-".
+sign(0'+) --> "+".
 
 dot --> ".".
 

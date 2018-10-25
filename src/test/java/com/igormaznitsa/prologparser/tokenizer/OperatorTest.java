@@ -30,26 +30,24 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class OperatorTest {
 
   @Test
   public void testGetPriority() {
-    final Op op = Op.make(243, OpType.FX, "<>");
+    final Op op = Op.make(243, OpAssoc.FX, "<>");
     assertEquals(243, op.getPrecedence());
   }
 
   @Test
   public void testToString() {
-    assertEquals("op(231,xfy,'<>').", Op.make(231, OpType.XFY, "<>").toString());
-    assertEquals("op(100,fy,'><').", Op.make(100, OpType.FY, "><").toString());
+    assertEquals("op(231, xfy, '<>').", Op.make(231, OpAssoc.XFY, "<>").toString());
+    assertEquals("op(100, fy, '><').", Op.make(100, OpAssoc.FY, "><").toString());
   }
 
   @Test
   public void testGetType() {
-    final Op op = Op.make(243, OpType.FX, "<>");
-    final Op op2 = Op.make(243, OpType.XFX, "><");
+    final Op op = Op.make(243, OpAssoc.FX, "<>");
+    final Op op2 = Op.make(243, OpAssoc.XFX, "><");
     assertEquals(TermType.OPERATOR, op.getTermType());
     assertEquals(TermType.OPERATOR, op2.getTermType());
   }
@@ -58,49 +56,49 @@ public class OperatorTest {
   public void testMakeOperators() {
     final String[] names = new String[] {"op1", "op2", "op3", "op4"};
 
-    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MAX - 1, OpType.FX, names));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MIN + 1, OpType.FX, names));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MAX - 1, OpAssoc.FX, names));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MIN + 1, OpAssoc.FX, names));
     assertThrows(NullPointerException.class, () -> Op.make(345, null, names));
-    assertThrows(NullPointerException.class, () -> Op.make(345, OpType.FX, (String[]) null));
+    assertThrows(NullPointerException.class, () -> Op.make(345, OpAssoc.FX, (String[]) null));
 
-    final Op operators = Op.make(321, OpType.XFX, names);
+    final Op operators = Op.make(321, OpAssoc.XFX, names);
     assertEquals(names.length, operators.streamOp().count());
   }
 
   @Test
   public void testOperatorIntOperatorTypeString() {
-    assertThrows(IllegalArgumentException.class, () -> Op.make(-1, OpType.FX, "<>"));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(1201, OpType.FX, "<>"));
-    assertThrows(NullPointerException.class, () -> Op.make(333, OpType.FX, (String[]) null));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(-1, OpAssoc.FX, "<>"));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(1201, OpAssoc.FX, "<>"));
+    assertThrows(NullPointerException.class, () -> Op.make(333, OpAssoc.FX, (String[]) null));
     assertThrows(NullPointerException.class, () -> Op.make(333, null, "<>"));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpType.FX, "Hello"));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpType.FX, " <>"));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpType.FX, ""));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpType.FX, "_hello"));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpAssoc.FX, "Hello"));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpAssoc.FX, " <>"));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpAssoc.FX, ""));
+    assertThrows(IllegalArgumentException.class, () -> Op.make(333, OpAssoc.FX, "_hello"));
 
-    final Op operator = Op.make(100, OpType.XFY, "<>");
+    final Op operator = Op.make(100, OpAssoc.XFY, "<>");
     assertEquals(100, operator.getPrecedence());
-    assertEquals(OpType.XFY, operator.getOpType());
+    assertEquals(OpAssoc.XFY, operator.getOpAssoc());
     assertEquals("<>", operator.getTermText());
   }
 
   @Test
   public void testGetOperatorType() {
-    final Op op = Op.make(243, OpType.FX, "<>");
-    final Op op2 = Op.make(243, OpType.XFX, "><");
-    assertEquals(OpType.FX, op.getOpType());
-    assertEquals(OpType.XFX, op2.getOpType());
+    final Op op = Op.make(243, OpAssoc.FX, "<>");
+    final Op op2 = Op.make(243, OpAssoc.XFX, "><");
+    assertEquals(OpAssoc.FX, op.getOpAssoc());
+    assertEquals(OpAssoc.XFX, op2.getOpAssoc());
   }
 
   @Test
   public void testCompatibleWith() {
-    final Op opFX = Op.make(100, OpType.FX, "><");
-    final Op opFY = Op.make(200, OpType.FY, "><");
-    final Op opYFX = Op.make(300, OpType.YFX, "><");
-    final Op opXFX = Op.make(400, OpType.XFX, "><");
-    final Op opXFY = Op.make(500, OpType.XFY, "><");
-    final Op opYF = Op.make(600, OpType.YF, "><");
-    final Op opXF = Op.make(700, OpType.XF, "><");
+    final Op opFX = Op.make(100, OpAssoc.FX, "><");
+    final Op opFY = Op.make(200, OpAssoc.FY, "><");
+    final Op opYFX = Op.make(300, OpAssoc.YFX, "><");
+    final Op opXFX = Op.make(400, OpAssoc.XFX, "><");
+    final Op opXFY = Op.make(500, OpAssoc.XFY, "><");
+    final Op opYF = Op.make(600, OpAssoc.YF, "><");
+    final Op opXF = Op.make(700, OpAssoc.XF, "><");
 
     final PrologStruct empty = new PrologStruct("empty");
     final PrologStruct one = new PrologStruct(new PrologAtom(
@@ -152,9 +150,9 @@ public class OperatorTest {
 
   @Test
   public void testEquals() {
-    final Op opFX = Op.make(100, OpType.FX, "><");
-    final Op opFX2 = Op.make(100, OpType.FX, "><");
-    final Op opFY = Op.make(100, OpType.FX, ">*<");
+    final Op opFX = Op.make(100, OpAssoc.FX, "><");
+    final Op opFX2 = Op.make(100, OpAssoc.FX, "><");
+    final Op opFY = Op.make(100, OpAssoc.FX, ">*<");
 
     assertFalse(opFX.equals("><"));
     assertFalse(opFX.equals(null));
@@ -165,8 +163,8 @@ public class OperatorTest {
 
   @Test
   public void testHashCode() {
-    final Op opFX = Op.make(100, OpType.FX, "><");
-    final Op opFX2 = Op.make(100, OpType.FX, "><");
+    final Op opFX = Op.make(100, OpAssoc.FX, "><");
+    final Op opFX2 = Op.make(100, OpAssoc.FX, "><");
 
     assertFalse("><".hashCode() == opFX.hashCode());
     assertEquals(opFX.hashCode(), opFX2.hashCode());
@@ -175,7 +173,7 @@ public class OperatorTest {
 
   @Test
   public void testGetText() {
-    assertEquals("<>", Op.make(121, OpType.FX, "<>").getTermText());
-    assertEquals("><", Op.make(121, OpType.XFX, "><").getTermText());
+    assertEquals("<>", Op.make(121, OpAssoc.FX, "<>").getTermText());
+    assertEquals("><", Op.make(121, OpAssoc.XFX, "><").getTermText());
   }
 }

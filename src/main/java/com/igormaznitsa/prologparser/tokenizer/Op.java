@@ -31,9 +31,10 @@ import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.igormaznitsa.prologparser.tokenizer.OpType.*;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
 
 /**
  * Prolog operator definition.
@@ -41,32 +42,59 @@ import static com.igormaznitsa.prologparser.tokenizer.OpType.*;
 public final class Op extends SpecServiceCompound {
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
-  public static final Op UNARY_PLUS_MINUS = make(200, FY, "+", "-");
-  public static final Op BINARY_PLUS_MINUS = make(500, YFX, "+", "-");
-  public static final Op BINARY_MUL_DIV = make(400, YFX, "*", "/");
-  public static final Op UNIFY = make(700, XFX, "=");
-  public static final Op CONDITIONAL = make(700, XFX, "==", "<", "=<", ">", ">=");
-  public static final Op BITWISE_SHIFT = make(400, YFX, "<<", ">>");
+
+  public static final Op SWI_UNARY_PLUS = make(200, FY, "+");
+  public static final Op ISO_BITWISE_NEGATION = make(200, FY, "\\");
+  public static final Op ISO_UNARY_MINUS = make(200, FY, "-");
+  public static final Op ISO_UNIFICATION = make(700, XFX, "=", "\\=", "=..");
+  public static final Op ISO_BITWISE_SHIFT = make(400, YFX, "<<", ">>");
+  public static final Op ISO_ORDER_TERM = make(700, OpAssoc.XFX, "==", "\\==", "@<", "@=<", "@>", "@>=");
+
+  public static final Op ISO_ORDER_ARITH = make(700, XFX, "<", "=<", ">", ">=", "=:=", "=\\=", "is");
+  public static final Op ISO_ARITH_PLUS_MINUS = make(500, YFX, "+", "-");
+  public static final Op ISO_ARITH_MUL_DIV = make(400, YFX, "*", "/");
+  public static final Op ISO_ARITH_POWER = make(200, OpAssoc.XFX, "**");
+  public static final Op ISO_ARITH_DIVIDE = make(400, OpAssoc.YFX, "//", "mod", "rem");
+
+  public static final Op ISO_CLAUSES = make(1200, OpAssoc.XFX, ":-", "-->");
+  public static final Op ISO_DIRECTIVES = make(1200, OpAssoc.FX, "?-", ":-");
+  public static final Op ISO_BITWISE_AND_OR = make(500, OpAssoc.YFX, "/\\", "\\/");
 
   public static final Op[] ISO = {
-      make(1200, OpType.XFX, ":-", "-->"),
-      make(1200, OpType.FX, "?-", ":-"),
-      make(1100, OpType.XFY, ";"),
-      make(1050, OpType.XFY, "->"),
-      Op.UNIFY,
-      Op.CONDITIONAL,
-      make(700, OpType.XFX, "\\=", "\\==", "@<", "@=<", "@>", "@>=", "is", "=:=", "=\\=", "=.."),
-      Op.BINARY_PLUS_MINUS,
-      make(500, OpType.YFX, "/\\", "\\/"),
-      Op.BINARY_MUL_DIV,
-      Op.BITWISE_SHIFT,
-      make(400, OpType.YFX, "//", "mod", "rem"),
-      make(200, OpType.XFX, "**"),
-      make(200, OpType.XFY, "^"),
-      make(200, OpType.FY, "\\", "-"),
-      make(100, OpType.XFX, "@"),
-      make(50, OpType.XFX, ":")
+      ISO_CLAUSES,
+      ISO_DIRECTIVES,
+      make(1100, OpAssoc.XFY, ";"),
+      make(1050, OpAssoc.XFY, "->"),
+      ISO_UNIFICATION,
+      ISO_ORDER_ARITH,
+      ISO_ORDER_TERM,
+      ISO_ARITH_PLUS_MINUS,
+      ISO_BITWISE_AND_OR,
+      ISO_ARITH_MUL_DIV,
+      ISO_BITWISE_SHIFT,
+      ISO_ARITH_DIVIDE,
+      ISO_ARITH_POWER,
+      make(200, OpAssoc.XFY, "^"),
+      ISO_UNARY_MINUS,
+      ISO_BITWISE_NEGATION,
+      make(100, OpAssoc.XFX, "@")
   };
+
+  public static final Op[] SWI_SPECIFIC = {
+      make(1150, OpAssoc.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
+      make(1050, OpAssoc.XFY, "*->"),
+      make(990, OpAssoc.FY, ":="),
+      make(900, OpAssoc.FY, "\\+"),
+      make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
+      make(600, OpAssoc.XFY, ":"),
+      make(500, OpAssoc.YFX, "xor"),
+      make(500, OpAssoc.FX, "?"),
+      make(400, OpAssoc.YFX, "div", "rdiv"),
+      SWI_UNARY_PLUS,
+      make(1, OpAssoc.FX, "$")
+  };
+
+  public static final Op[] SWI = Op.join(ISO, SWI_SPECIFIC);
 
   public static final Op[] SWI_CPL = {
       make(300, FY, "~"),
@@ -81,31 +109,31 @@ public final class Op extends SpecServiceCompound {
       make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
       make(450, XFX, ".."),
   };
-  public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpType.FX, "()");
-  public static final Op METAOPERATOR_COMMA = makeSystem(1000, OpType.XFY, ",");
-  static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpType.FX, "(");
-  static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpType.XF, ")");
-  static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpType.FX, "[");
-  static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpType.XF, "]");
-  static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpType.XF, ".");
-  static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpType.XFY, "|");
+  public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpAssoc.FX, "()");
+  public static final Op METAOPERATOR_COMMA = makeSystem(1000, OpAssoc.XFY, ",");
+  static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpAssoc.FX, "(");
+  static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpAssoc.XF, ")");
+  static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.FX, "[");
+  static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.XF, "]");
+  static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpAssoc.XF, ".");
+  static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpAssoc.XFY, "|");
   private static final long serialVersionUID = -5914313127778138548L;
-  private final OpType opType;
+  private final OpAssoc opAssoc;
   private final int precedence;
   private final int preparedHash;
 
   private final String[] multiNames;
 
-  private Op(final int precedence, final OpType type, final String name, final String[] multiNames) {
+  private Op(final int precedence, final OpAssoc type, final String name, final String[] multiNames) {
     super(name);
 
     assertOpValidOpName(name);
 
     this.multiNames = multiNames;
-    this.opType = type;
+    this.opAssoc = type;
     this.precedence = precedence;
 
-    this.preparedHash = (name + '/' + this.opType.name() + '/' + this.precedence).hashCode();
+    this.preparedHash = (name + '/' + this.opAssoc.name() + '/' + this.precedence).hashCode();
   }
 
   private static String[] assertOpValidOpName(final String[] names) {
@@ -140,9 +168,9 @@ public final class Op extends SpecServiceCompound {
    * @param type       the type of operators
    * @param names      names of operators, must not be empty or contain null
    * @return generated operator descriptor
-   * @see OpType
+   * @see OpAssoc
    */
-  public static Op make(final int precedence, final OpType type, final String... names) {
+  public static Op make(final int precedence, final OpAssoc type, final String... names) {
     if (precedence < PRECEDENCE_MAX || precedence > PRECEDENCE_MIN) {
       throw new IllegalArgumentException("Precedence must be in 0..1200");
     }
@@ -158,7 +186,7 @@ public final class Op extends SpecServiceCompound {
         : new Op(precedence, type, ".multi.", assertOpValidOpName(names));
   }
 
-  static Op makeSystem(final int precedence, final OpType type, final String... names) {
+  static Op makeSystem(final int precedence, final OpAssoc type, final String... names) {
     AssertUtils.assertNotNull(type);
     AssertUtils.assertNotNull(names);
 
@@ -182,13 +210,13 @@ public final class Op extends SpecServiceCompound {
     if (this.multiNames == null) {
       return Stream.of(this);
     } else {
-      return Stream.of(this.multiNames).map(x -> new Op(this.precedence, this.opType, x, null));
+      return Stream.of(this.multiNames).map(x -> new Op(this.precedence, this.opAssoc, x, null));
     }
   }
 
   @Override
   public int getArity() {
-    return this.opType.getArity();
+    return this.opAssoc.getArity();
   }
 
   @Override
@@ -201,8 +229,8 @@ public final class Op extends SpecServiceCompound {
     return TermType.OPERATOR;
   }
 
-  public OpType getOpType() {
-    return this.opType;
+  public OpAssoc getOpAssoc() {
+    return this.opAssoc;
   }
 
   @Override
@@ -216,7 +244,7 @@ public final class Op extends SpecServiceCompound {
     if (struct != null) {
       switch (struct.getArity()) {
         case 1: {
-          switch (this.opType) {
+          switch (this.opAssoc) {
             case XFY:
             case XFX:
             case YFX: {
@@ -242,7 +270,7 @@ public final class Op extends SpecServiceCompound {
         }
         break;
         case 2: {
-          switch (this.opType) {
+          switch (this.opAssoc) {
             case XFY:
             case XFX:
             case YFX: {
@@ -253,7 +281,7 @@ public final class Op extends SpecServiceCompound {
                 result = false;
               } else {
 
-                switch (this.opType) {
+                switch (this.opAssoc) {
                   case XFX: {
                     result = elementLeft.getPrecedence() < getPrecedence() && elementRight.getPrecedence() < getPrecedence();
                   }
@@ -277,14 +305,14 @@ public final class Op extends SpecServiceCompound {
 
             case XF:
             case FX: {
-              final PrologTerm atom = struct.getElementAt(this.opType == OpType.XF ? 0 : 1);
+              final PrologTerm atom = struct.getElementAt(this.opAssoc == OpAssoc.XF ? 0 : 1);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
 
             case YF:
             case FY: {
-              final PrologTerm atom = struct.getElementAt(this.opType == OpType.YF ? 0 : 1);
+              final PrologTerm atom = struct.getElementAt(this.opAssoc == OpAssoc.YF ? 0 : 1);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
@@ -321,7 +349,7 @@ public final class Op extends SpecServiceCompound {
       final Op op = (Op) obj;
       if (this.preparedHash == op.preparedHash
           && this.precedence == op.precedence
-          && this.opType == op.opType
+          && this.opAssoc == op.opAssoc
           && this.text.equals(op.text)) {
         result = true;
       }
@@ -332,11 +360,15 @@ public final class Op extends SpecServiceCompound {
 
   @Override
   public String toString() {
-    return String.format("op(%d,%s,'%s').", getPrecedence(), getOpType().toString().toLowerCase(Locale.ENGLISH), getTermText());
+    if (isMultiName()) {
+      return String.format("op(%d, %s, [%s]).", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), Stream.of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
+    } else {
+      return String.format("op(%d, %s, '%s').", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), getTermText());
+    }
   }
 
   private Object readResolve() {
-    final Object result = GenericPrologParser.findSystemOperatorForNameAndType(this.text, this.opType);
+    final Object result = GenericPrologParser.findSystemOperatorForNameAndType(this.text, this.opAssoc);
     return result == null ? this : result;
   }
 }
