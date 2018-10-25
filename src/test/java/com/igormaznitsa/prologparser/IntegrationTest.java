@@ -439,6 +439,7 @@ public class IntegrationTest {
     assertEquals("+ - + a", parseEd("+-+a.").next().toString());
     assertEquals("+ - + 1", parseEd("+-+1.").next().toString());
     assertEquals("+ -1", parseEd("+-1.").next().toString());
+    assertEquals("X is 2 + 3 * 5", parseEd("X is 2+3*5.").next().toString());
   }
 
   @Test
@@ -570,6 +571,12 @@ public class IntegrationTest {
     assertReadTerms(32, "sec811.pro");
     assertReadTerms(8, "einstein_puzzle.pro");
     assertReadTerms(14, "simple.pl");
+    assertReadTerms(8, "examp.pl");
+    assertReadTerms(8, "alpha.pl", Op.SWI_CPL);
+    assertReadTerms(35, "array.pl");
+    assertReadTerms(12, "bdiag.pl", Op.GNU_FD);
+    assertReadTerms(15, "bdonald.pl", Op.GNU_FD);
+    assertReadTerms(89, "bridge1.pl", Op.GNU_FD);
     assertReadTerms(207, "scheduleevents.pl");
     assertReadTerms(7, "eliza.pl");
     assertReadTerms(6, "houses_puzzle.pl");

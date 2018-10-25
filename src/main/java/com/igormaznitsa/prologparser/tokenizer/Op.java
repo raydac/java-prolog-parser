@@ -61,11 +61,14 @@ public final class Op extends SpecServiceCompound {
   public static final Op ISO_DIRECTIVES = make(1200, OpAssoc.FX, "?-", ":-");
   public static final Op ISO_BITWISE_AND_OR = make(500, OpAssoc.YFX, "/\\", "\\/");
 
+  public static final Op ISO_OR = make(1100, OpAssoc.XFY, ";");
+  public static final Op ISO_ZZZ = make(1050, OpAssoc.XFY, "->");
+
   public static final Op[] ISO = {
       ISO_CLAUSES,
       ISO_DIRECTIVES,
-      make(1100, OpAssoc.XFY, ";"),
-      make(1050, OpAssoc.XFY, "->"),
+      ISO_OR,
+      ISO_ZZZ,
       ISO_UNIFICATION,
       ISO_ORDER_ARITH,
       ISO_ORDER_TERM,
@@ -79,6 +82,14 @@ public final class Op extends SpecServiceCompound {
       ISO_UNARY_MINUS,
       ISO_BITWISE_NEGATION,
       make(100, OpAssoc.XFX, "@")
+  };
+
+  public static final Op[] GNU_SPECIFIC = {
+      make(1050, OpAssoc.XFY, "*->"),
+      make(900, OpAssoc.FY, "\\+"),
+      make(600, XFY, ":"),
+      make(400, OpAssoc.YFX, "div", "rdiv"),
+      SWI_UNARY_PLUS,
   };
 
   public static final Op[] SWI_SPECIFIC = {
@@ -96,6 +107,18 @@ public final class Op extends SpecServiceCompound {
   };
 
   public static final Op[] SWI = Op.join(ISO, SWI_SPECIFIC);
+
+  public static final Op[] GNU_FD = {
+      make(750, XFY, "#<=>", "#\\<=>"),
+      make(740, XFY, "#==>", "#\\==>"),
+      make(730, XFY, "##"),
+      make(730, YFX, "#\\/", "#\\\\/"),
+      make(720, YFX, "#/\\", "#\\/\\"),
+      make(710, FY, "#\\"),
+      make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#", "#>=#")
+  };
+
+  public static final Op[] GNU = Op.join(ISO, GNU_SPECIFIC);
 
   public static final Op[] SWI_CPL = {
       make(300, FY, "~"),
@@ -117,7 +140,7 @@ public final class Op extends SpecServiceCompound {
   static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.FX, "[");
   static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.XF, "]");
   static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpAssoc.XF, ".");
-  static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(Integer.MAX_VALUE - 1, OpAssoc.XFY, "|");
+  static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(1105, OpAssoc.XFY, "|");
   private static final long serialVersionUID = -5914313127778138548L;
   private final OpAssoc opAssoc;
   private final int precedence;
@@ -201,6 +224,17 @@ public final class Op extends SpecServiceCompound {
 
   public static Op[] join(Op[]... args) {
     return of(args).flatMap(Stream::of).toArray(Op[]::new);
+  }
+
+  public static Op[] add(Op[] args, Op... ops) {
+    final int newLen = args.length + ops.length;
+    final Op[] result = Arrays.copyOf(args, newLen);
+
+    int sourceIndex = 0;
+    for (int i = args.length; i < newLen; i++) {
+      result[i] = ops[sourceIndex++];
+    }
+    return result;
   }
 
   public boolean isMultiName() {
