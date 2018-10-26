@@ -43,9 +43,9 @@ import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUn
 
 final class Tokenizer {
 
-  private final StringBuilderEx strBuf = new StringBuilderEx(32);
-  private final StringBuilderEx specCharBuf = new StringBuilderEx(8);
-  private final StringBuilderEx insideCharBuffer = new StringBuilderEx(8);
+  private final StringBuilderEx strBuf;
+  private final StringBuilderEx specCharBuf;
+  private final StringBuilderEx insideCharBuffer;
   private final boolean blockCommentsAllowed;
   private final boolean zeroSingleQuotationAllowed;
   private final Reader reader;
@@ -66,8 +66,13 @@ final class Tokenizer {
     this.reader = reader;
     this.parser = parser;
 
+    final int maxAllowedCharBufferSize = parser.context == null ? Integer.MAX_VALUE : parser.context.getMaxTokenizerBufferLength();
     this.blockCommentsAllowed = parser.context != null && ((parser.context.getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
     this.zeroSingleQuotationAllowed = parser.context != null && ((parser.context.getFlags() & ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
+
+    this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
+    this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
+    this.insideCharBuffer = new StringBuilderEx(8, maxAllowedCharBufferSize);
 
     this.pos = 1;
     this.line = 1;
@@ -266,11 +271,10 @@ final class Tokenizer {
 
     TokenizerState state = LOOK_FOR;
     boolean specCharDetected = false;
-
     boolean charCodeAsInt = false;
 
-    strBuf.clear();
-    specCharBuf.clear();
+    this.strBuf.clear();
+    this.specCharBuf.clear();
 
     final StringBuilderEx strBuffer = this.strBuf;
     final StringBuilderEx specCharBuffer = this.specCharBuf;
@@ -787,12 +791,7 @@ final class Tokenizer {
             }
             break;
             case VAR: {
-              if (Character.isWhitespace(chr) || Character.isISOControl(chr)) {
-                if (strBuffer.isSingleChar('_')) {
-                  return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
-                }
-                return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
-              } else if (!isCharAllowedForUnquotedAtom(chr)) {
+              if (!isCharAllowedForUnquotedAtom(chr)) {
                 push(chr);
                 if (strBuffer.isSingleChar('_')) {
                   return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
@@ -813,7 +812,6 @@ final class Tokenizer {
       throw new PrologParserException("IO exception during read char", this.prevLine, this.prevPos, ex);
     }
   }
-
 
   PrologTerm makeTermFromString(final String str, final PrologTerm.QuotingType quotingType, final TokenizerState state) {
     PrologTerm result;

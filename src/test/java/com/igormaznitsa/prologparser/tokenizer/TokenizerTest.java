@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str) {
-    return this.tokenizeOf(str, mock(ParserContext.class));
+    return this.tokenizeOf(str, Integer.MAX_VALUE);
   }
 
   private Tokenizer tokenizeOf(final String str, final int maxBufferLength) {
@@ -40,7 +40,8 @@ public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
     ParserContext context = mock(ParserContext.class);
-    when(context.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS);
+    when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
+    when(context.getFlags()).thenReturn(allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
     return this.tokenizeOf(str, context);
   }
 
@@ -318,6 +319,7 @@ public class TokenizerTest {
   @Test
   public void testHasOperatorStartsWith() {
     final ParserContext context = mock(ParserContext.class);
+    when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
     final Tokenizer tokenizer = tokenizeOf("", context);
     assertFalse(tokenizer.hasOperatorStartsWith("<------------------------------------------------------->"));
 
@@ -331,6 +333,7 @@ public class TokenizerTest {
   @Test
   public void testFindOperatorForName() {
     ParserContext context = mock(ParserContext.class);
+    when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
     Tokenizer tokenizer = tokenizeOf("", context);
     assertThrows(NullPointerException.class, () -> tokenizer.findOperatorForName(null));
     assertNull(tokenizer.findOperatorForName("<------------------------------------------------------->"));

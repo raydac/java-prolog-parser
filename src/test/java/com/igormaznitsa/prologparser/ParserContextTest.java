@@ -17,12 +17,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
 public class ParserContextTest {
 
   @Test
@@ -32,6 +26,7 @@ public class ParserContextTest {
         .hasOpStartsWith(any(GenericPrologParser.class), anyString()))
         .then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
 
+    when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     final GenericPrologParser parser = new GenericPrologParser(new StringReader("a operator b."), mockContext);
 
     assertThrows(PrologParserException.class, () -> parser.next());
@@ -54,6 +49,7 @@ public class ParserContextTest {
     });
 
     Mockito.when(mockContext.hasOpStartsWith(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> "operator".startsWith((String) invocation.getArguments()[1]));
+    when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
 
     final GenericPrologParser parser = new GenericPrologParser(new StringReader("operator."), mockContext);
     final PrologAtom atom = (PrologAtom) parser.next();

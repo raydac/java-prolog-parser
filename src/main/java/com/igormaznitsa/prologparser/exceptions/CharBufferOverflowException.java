@@ -19,28 +19,13 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser;
+package com.igormaznitsa.prologparser.exceptions;
 
-import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
+public class CharBufferOverflowException extends PrologParserException {
 
-import java.util.Map;
+  private static final long serialVersionUID = 78123812638712L;
 
-public interface ParserContext {
-
-  int FLAG_NONE = 0;
-  int FLAG_BLOCK_COMMENTS = 1;
-  int FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE = 2;
-
-  boolean hasOpStartsWith(PrologParser source, String namePrefix);
-
-  OpContainer findOpForName(PrologParser source, String name);
-
-  Map<String, OpContainer> findAllOperators();
-
-  default int getMaxTokenizerBufferLength() {
-    return Integer.MAX_VALUE;
+  public CharBufferOverflowException(final String bufferText) {
+    super("Char buffer limit is reached: " + bufferText, -1, -1);
   }
-
-  int getFlags();
 }

@@ -43,16 +43,6 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.*;
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
-import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
-import static java.util.stream.Collectors.joining;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 public class IntegrationTest {
 
   private static PrologParser parseCpl(final String str) {
@@ -65,6 +55,7 @@ public class IntegrationTest {
 
   private static PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return parseEd(str, parserContext);
   }
@@ -80,12 +71,14 @@ public class IntegrationTest {
 
   private static PrologParser parseGen(final String str, final ParserContext context) {
     final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
   }
 
   private static GenericPrologParser parseGen(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
   }
@@ -350,6 +343,7 @@ public class IntegrationTest {
   @Test
   public void testParseStructure() {
     final ParserContext mockContext = mock(ParserContext.class);
+    when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     PrologParser parser = parseEd("date(Day,may,2001).", mockContext);
     final PrologTerm term = parser.next();
 
@@ -403,6 +397,7 @@ public class IntegrationTest {
   @Test
   public void testParseOperator() {
     final ParserContext mockContext = mock(ParserContext.class);
+    when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     PrologParser parser = parseEd("hello:-world.", mockContext);
 
     PrologStruct struct = (PrologStruct) parser.next();
@@ -416,7 +411,7 @@ public class IntegrationTest {
     assertEquals("hello", struct.getElementAt(0).getTermText());
     assertEquals("world", struct.getElementAt(1).getTermText());
 
-    reset(mockContext);
+    clearInvocations(mockContext);
     parser = parseEd(":-test.", mockContext);
     struct = (PrologStruct) parser.next();
 
@@ -428,7 +423,7 @@ public class IntegrationTest {
         ((Op) struct.getFunctor()).getOpAssoc());
     assertEquals("test", struct.getElementAt(0).getTermText());
 
-    reset(mockContext);
+    clearInvocations(mockContext);
     parser = parseEd("X is X+1.", mockContext);
     struct = (PrologStruct) parser.next();
 
@@ -577,6 +572,14 @@ public class IntegrationTest {
 
   @Test
   public void testParseSourceFiles() {
+    assertReadTerms(20, "ConcurrentList.pl");
+    assertReadTerms(5, "points_test.pl", Op.make(800, XFX, "<-"), Op.make(850, XFY, "returns"));
+    assertReadTerms(6, "points_test2.pl", Op.make(800, XFX, "<-"), Op.make(850, XFY, "returns"));
+    assertReadTerms(3, "Factorial.pl");
+    assertReadTerms(9, "Mutex.pl");
+    assertReadTerms(4, "PrivateQueue.pl");
+    assertReadTerms(2, "PublicQueue.pl");
+    assertReadTerms(17, "SequentialList.pl");
     assertReadTerms(26, "sec812.pro");
     assertReadTerms(25, "sec816.pro");
     assertReadTerms(32, "sec811.pro");
@@ -1050,6 +1053,11 @@ public class IntegrationTest {
     @Override
     public Map<String, OpContainer> findAllOperators() {
       return Collections.emptyMap();
+    }
+
+    @Override
+    public int getMaxTokenizerBufferLength() {
+      return 1000;
     }
 
     @Override

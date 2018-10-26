@@ -35,9 +35,11 @@ import static java.util.Arrays.stream;
 public class ParserContextChain implements ParserContext {
   private final ParserContext[] contexts;
   private final int flags;
+  private final int minDetectedAllowedBufferSize;
 
   public ParserContextChain(final ParserContext... contexts) {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
+    this.minDetectedAllowedBufferSize = Stream.of(this.contexts).mapToInt(ParserContext::getMaxTokenizerBufferLength).min().orElse(Integer.MAX_VALUE);
     this.flags = stream(this.contexts).mapToInt(ParserContext::getFlags).reduce(FLAG_NONE, (a, b) -> a | b);
   }
 
@@ -49,6 +51,11 @@ public class ParserContextChain implements ParserContext {
       result = new ParserContextChain(contexts);
     }
     return result;
+  }
+
+  @Override
+  public int getMaxTokenizerBufferLength() {
+    return this.minDetectedAllowedBufferSize;
   }
 
   @Override

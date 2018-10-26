@@ -25,18 +25,32 @@ import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
 
 public final class StringBuilderEx {
 
+  private final int limit;
+
   private final StringBuilder stringBuilder;
 
   public StringBuilderEx(final String initialString) {
-    this.stringBuilder = new StringBuilder(initialString);
+    this(initialString, Integer.MAX_VALUE);
   }
 
   public StringBuilderEx(final int capacity) {
+    this(capacity, Integer.MAX_VALUE);
+  }
+
+  public StringBuilderEx(final String initialString, final int limit) {
+    this.stringBuilder = new StringBuilder(initialString);
+    this.limit = assertLimitValue(limit);
+    assertBufferLimit();
+  }
+
+  public StringBuilderEx(final int capacity, final int limit) {
     this.stringBuilder = new StringBuilder(capacity);
+    this.limit = assertLimitValue(limit);
   }
 
   public StringBuilderEx append(final char chr) {
     this.stringBuilder.append(chr);
+    assertBufferLimit();
     return this;
   }
 
@@ -46,6 +60,13 @@ public final class StringBuilderEx {
 
   public char charAt(final int position) {
     return this.stringBuilder.charAt(position);
+  }
+
+  private int assertLimitValue(final int limit) {
+    if (limit <= 0) {
+      throw new IllegalArgumentException("Limit must be positive: " + limit);
+    }
+    return limit;
   }
 
   public int lastIndexOf(final char chr) {
@@ -88,6 +109,7 @@ public final class StringBuilderEx {
 
   public StringBuilderEx append(final String str) {
     this.stringBuilder.append(str);
+    assertBufferLimit();
     return this;
   }
 
@@ -100,8 +122,15 @@ public final class StringBuilderEx {
     return this.stringBuilder.toString();
   }
 
+  private void assertBufferLimit() {
+    if (this.stringBuilder.length() > this.limit) {
+      throw new CharBufferOverflowException(this.stringBuilder.toString());
+    }
+  }
+
   public void push(final char chr) {
     this.stringBuilder.append(chr);
+    assertBufferLimit();
   }
 
   public char pop() {
