@@ -37,6 +37,17 @@ import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.*;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;

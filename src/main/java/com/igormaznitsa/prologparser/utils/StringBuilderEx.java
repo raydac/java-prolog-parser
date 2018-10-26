@@ -21,6 +21,8 @@
 
 package com.igormaznitsa.prologparser.utils;
 
+import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
+
 public final class StringBuilderEx {
 
   private final StringBuilder stringBuilder;

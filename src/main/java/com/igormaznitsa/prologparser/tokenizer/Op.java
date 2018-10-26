@@ -61,14 +61,18 @@ public final class Op extends SpecServiceCompound {
   public static final Op ISO_DIRECTIVES = make(1200, OpAssoc.FX, "?-", ":-");
   public static final Op ISO_BITWISE_AND_OR = make(500, OpAssoc.YFX, "/\\", "\\/");
 
+
+  public static final Op GNU_DIV_RDIV = make(400, OpAssoc.YFX, "div", "rdiv");
+
   public static final Op ISO_OR = make(1100, OpAssoc.XFY, ";");
-  public static final Op ISO_ZZZ = make(1050, OpAssoc.XFY, "->");
+  public static final Op ISO_THEN = make(1050, OpAssoc.XFY, "->");
+  public static final Op SWI_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
 
   public static final Op[] ISO = {
       ISO_CLAUSES,
       ISO_DIRECTIVES,
       ISO_OR,
-      ISO_ZZZ,
+      ISO_THEN,
       ISO_UNIFICATION,
       ISO_ORDER_ARITH,
       ISO_ORDER_TERM,
@@ -85,23 +89,23 @@ public final class Op extends SpecServiceCompound {
   };
 
   public static final Op[] GNU_SPECIFIC = {
-      make(1050, OpAssoc.XFY, "*->"),
+      SWI_STAR_THEN,
       make(900, OpAssoc.FY, "\\+"),
       make(600, XFY, ":"),
-      make(400, OpAssoc.YFX, "div", "rdiv"),
+      GNU_DIV_RDIV,
       SWI_UNARY_PLUS,
   };
 
   public static final Op[] SWI_SPECIFIC = {
       make(1150, OpAssoc.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
-      make(1050, OpAssoc.XFY, "*->"),
+      SWI_STAR_THEN,
       make(990, OpAssoc.FY, ":="),
       make(900, OpAssoc.FY, "\\+"),
       make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
       make(600, OpAssoc.XFY, ":"),
       make(500, OpAssoc.YFX, "xor"),
       make(500, OpAssoc.FX, "?"),
-      make(400, OpAssoc.YFX, "div", "rdiv"),
+      GNU_DIV_RDIV,
       SWI_UNARY_PLUS,
       make(1, OpAssoc.FX, "$")
   };

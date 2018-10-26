@@ -4,6 +4,7 @@ import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.ParserContextChain;
+import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -29,6 +30,12 @@ public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str) {
     return this.tokenizeOf(str, mock(ParserContext.class));
+  }
+
+  private Tokenizer tokenizeOf(final String str, final int maxBufferLength) {
+    final ParserContext context = mock(ParserContext.class);
+    when(context.getMaxTokenizerBufferLength()).thenReturn(maxBufferLength);
+    return this.tokenizeOf(str, context);
   }
 
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
@@ -220,6 +227,12 @@ public class TokenizerTest {
     assertParserExceptionAt(1, 7, () -> tokenizeOf("12_34_.34.").readNextToken());
     assertParserExceptionAt(1, 10, () -> tokenizeOf("12_34.34_e+10.").readNextToken());
     assertParserExceptionAt(1, 14, () -> tokenizeOf("12_34.34e+10_.").readNextToken());
+  }
+
+  @Test
+  public void testExceptionForReachBufferLimit() {
+    assertEquals("Char buffer limit is reached: 123456", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 5).readNextToken()).getMessage());
+    assertEquals("Char buffer limit is reached: 1234", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 3).readNextToken()).getMessage());
   }
 
   @Test
