@@ -86,19 +86,6 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     setLine(line);
   }
 
-  private static PrologTerm assertFunctor(final PrologTerm functor) {
-    if (
-        functor.getTermType() == __OPERATOR_CONTAINER__
-            || functor.getTermType() == LIST
-    ) {
-      throw new IllegalArgumentException("Non-allowed functor type: " + functor.getTermType());
-    }
-    if (functor instanceof PrologNumeric) {
-      throw new IllegalArgumentException("Functor can't be number: " + functor);
-    }
-    return functor;
-  }
-
   protected PrologStruct(final PrologTerm functor, final int arity) {
     super(functor.getTermText());
 
@@ -116,6 +103,19 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     this(functor, arity);
     setPos(pos);
     setLine(line);
+  }
+
+  private static PrologTerm assertFunctor(final PrologTerm functor) {
+    if (
+        functor.getTermType() == __OPERATOR_CONTAINER__
+            || functor.getTermType() == LIST
+    ) {
+      throw new IllegalArgumentException("Non-allowed functor type: " + functor.getTermType());
+    }
+    if (functor instanceof PrologNumeric) {
+      throw new IllegalArgumentException("Functor can't be number: " + functor);
+    }
+    return functor;
   }
 
   @Override

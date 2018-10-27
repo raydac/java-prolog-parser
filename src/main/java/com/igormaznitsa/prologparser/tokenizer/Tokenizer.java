@@ -258,7 +258,7 @@ final class Tokenizer {
   TokenizerResult pop() {
     try {
       return this.lastPushedTerm;
-    }finally {
+    } finally {
       this.lastPushedTerm = null;
     }
   }

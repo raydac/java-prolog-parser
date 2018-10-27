@@ -46,9 +46,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_ALLOW_ZERO_STRUCT;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
+import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 
 /**
@@ -90,11 +88,11 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   }
 
   protected final ParserContext context;
+  protected final int parserFlags;
   private final SoftObjectPool<TreeItem> treeItemPool;
   private final SoftObjectPool<TermWrapper> termWrapperPool;
   private final SoftObjectPool<List<PrologTerm>> termArrayListPool;
   private final Tokenizer tokenizer;
-  protected final int parserFlags;
   private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
@@ -499,8 +497,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   // it is a structure
                   if (
                       readAtom.getTermType() == TermType.ATOM
-                      || (readAtom.getTermType() == TermType.VAR
-                      && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)
+                          || (readAtom.getTermType() == TermType.VAR
+                          && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)
                   ) {
 
                     final PrologTerm prev = readAtom;
