@@ -43,7 +43,7 @@ public class DefaultParserContext implements ParserContext {
 
   public DefaultParserContext(final int flags, final Op... operators) {
     this.flags = flags;
-    this.addOperators(operators);
+    this.addOps(operators);
   }
 
   public static ParserContext of(final int flags) {
@@ -68,7 +68,7 @@ public class DefaultParserContext implements ParserContext {
     rangeClosed(1, name.length()).mapToObj(i -> name.substring(0, i)).forEach(this.opPrefixes::add);
   }
 
-  public DefaultParserContext addOperators(final Op... operators) {
+  public DefaultParserContext addOps(final Op... operators) {
     Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
       fillPrefixes(x.getTermText());
       OpContainer container = this.opContainers.get(x.getTermText());
@@ -83,12 +83,12 @@ public class DefaultParserContext implements ParserContext {
   }
 
   @Override
-  public boolean hasOpStartsWith(final PrologParser source, String operatorNameStartSubstring) {
+  public boolean hasOpStartsWith(final PrologParser source, final String operatorNameStartSubstring) {
     return this.opPrefixes.contains(operatorNameStartSubstring);
   }
 
   @Override
-  public OpContainer findOpForName(final PrologParser source, String operatorName) {
+  public OpContainer findOpForName(final PrologParser source, final String operatorName) {
     return this.opContainers.get(operatorName);
   }
 }

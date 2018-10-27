@@ -39,7 +39,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".", PrologAtom.QuotingType.SINGLE_QUOTED);
   private static final long serialVersionUID = -3781631438477816869L;
 
-  private static final PrologVariable EMPTY_ANONYMOUS_VAR = new PrologVariable("_");
+  private static final PrologVar EMPTY_ANONYMOUS_VAR = new PrologVar("_");
 
   public PrologList() {
     super(LIST_FUNCTOR, 2);

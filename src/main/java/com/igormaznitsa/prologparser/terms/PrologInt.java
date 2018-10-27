@@ -33,7 +33,7 @@ import static com.igormaznitsa.prologparser.utils.AssertUtils.assertStringNotNul
 /**
  * Representation of integer numeric term.
  */
-public final class PrologInteger extends PrologNumeric {
+public final class PrologInt extends PrologNumeric {
 
   private static final long serialVersionUID = 6955747225309951985L;
   private static final Map<String, BigInteger> cachedValues;
@@ -46,29 +46,29 @@ public final class PrologInteger extends PrologNumeric {
 
   private final BigInteger value;
 
-  public PrologInteger(final String text) {
+  public PrologInt(final String text) {
     super();
     value = valueOf(text);
   }
 
-  public PrologInteger(final String text, final int line, final int pos) {
+  public PrologInt(final String text, final int line, final int pos) {
     this(valueOf(text), line, pos);
   }
 
-  public PrologInteger(final long value) {
+  public PrologInt(final long value) {
     this(BigInteger.valueOf(value));
   }
 
-  public PrologInteger(final long value, final int line, final int pos) {
+  public PrologInt(final long value, final int line, final int pos) {
     this(BigInteger.valueOf(value), line, pos);
   }
 
-  public PrologInteger(final BigInteger value) {
+  public PrologInt(final BigInteger value) {
     super();
     this.value = assertNotNull(value);
   }
 
-  public PrologInteger(final BigInteger value, final int line, final int pos) {
+  public PrologInt(final BigInteger value, final int line, final int pos) {
     super(line, pos);
     this.value = assertNotNull(value);
   }
@@ -92,7 +92,7 @@ public final class PrologInteger extends PrologNumeric {
 
   @Override
   public PrologNumeric neg() {
-    return new PrologInteger(value.negate());
+    return new PrologInt(value.negate());
   }
 
   @Override

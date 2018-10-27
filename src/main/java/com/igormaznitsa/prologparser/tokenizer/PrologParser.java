@@ -90,14 +90,12 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private final SoftObjectPool<TreeItem> treeItemPool;
   private final SoftObjectPool<TermWrapper> termWrapperPool;
   private final SoftObjectPool<List<PrologTerm>> termArrayListPool;
-  private final int parseFlags;
   private final Tokenizer tokenizer;
   private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
-    this.parseFlags = context == null ? ParserContext.FLAG_NONE : context.getParseFlags();
 
     this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {
       @Override

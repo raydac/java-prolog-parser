@@ -1,7 +1,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologAtom;
-import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ public class TokenizerResultTest {
 
   @Test
   public void testGetResult() {
-    final PrologInteger testAtom = new PrologInteger("322323423");
+    final PrologInt testAtom = new PrologInt("322323423");
     final TokenizerResult result = new TokenizerResult(mock(SoftObjectPool.class)).setData(testAtom,
         TokenizerState.LOOK_FOR, 2, 1);
     assertSame(testAtom, result.getResult());
@@ -46,7 +46,7 @@ public class TokenizerResultTest {
 
   @Test
   public void testGetTermType() {
-    final PrologInteger testAtom = new PrologInteger("322323423");
+    final PrologInt testAtom = new PrologInt("322323423");
     final TokenizerResult result = new TokenizerResult(mock(SoftObjectPool.class)).setData(testAtom,
         TokenizerState.LOOK_FOR, 2, 1);
     assertSame(testAtom, result.getResult());

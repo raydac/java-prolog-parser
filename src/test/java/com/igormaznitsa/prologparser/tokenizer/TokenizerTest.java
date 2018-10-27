@@ -9,7 +9,7 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
-import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
@@ -204,11 +204,11 @@ public class TokenizerTest {
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-    assertEquals(Long.MAX_VALUE, ((PrologInteger) result.getResult()).getNumber().longValue());
+    assertEquals(Long.MAX_VALUE, ((PrologInt) result.getResult()).getNumber().longValue());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, result.getTokenizerState());
-    assertEquals(Long.MAX_VALUE, ((PrologInteger) result.getResult()).getNumber().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
+    assertEquals(Long.MAX_VALUE, ((PrologInt) result.getResult()).getNumber().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
   }
 
   private void assertParserExceptionAt(final int line, final int pos, final Executable executable) {
@@ -246,9 +246,9 @@ public class TokenizerTest {
 
   @Test
   public void testUnderscoreInNumbers_Normal() {
-    assertEquals(12345, ((PrologInteger) tokenizeOf("12_345.").readNextToken().getResult()).getNumber().intValue());
-    assertEquals(12345, ((PrologInteger) tokenizeOf("12_34_5.").readNextToken().getResult()).getNumber().intValue());
-    assertEquals(12345, ((PrologInteger) tokenizeOf("1_2_34_5.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) tokenizeOf("12_345.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) tokenizeOf("12_34_5.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) tokenizeOf("1_2_34_5.").readNextToken().getResult()).getNumber().intValue());
 
     assertEquals(123.45f, ((PrologFloat) tokenizeOf("12_3.45.").readNextToken().getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
     assertEquals(123.45f, ((PrologFloat) tokenizeOf("12_3.4_5.").readNextToken().getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
@@ -264,19 +264,19 @@ public class TokenizerTest {
     PrologTerm term = tokenizer.makeTermFromString("792394382", NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
-    assertSame(term.getClass(), PrologInteger.class);
+    assertSame(term.getClass(), PrologInt.class);
     assertEquals("792394382", term.getTermText());
 
     term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
-    assertSame(term.getClass(), PrologInteger.class);
+    assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MIN_VALUE), term.getTermText());
 
     term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
-    assertSame(term.getClass(), PrologInteger.class);
+    assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MAX_VALUE), term.getTermText());
 
     term = tokenizer.makeTermFromString("0.003422", NO_QUOTED, TokenizerState.FLOAT);

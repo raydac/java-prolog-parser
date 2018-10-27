@@ -38,7 +38,7 @@ public class PrologStructureTest {
     assertEquals("'123'(first, 123.0, [], _)", new PrologStruct(
         new PrologAtom("123"), new PrologTerm[] {
         new PrologAtom("first"), new PrologFloat(123d),
-        new PrologList(), new PrologVariable()}).toString());
+        new PrologList(), new PrologVar()}).toString());
 
     final Map<String, OpContainer> contextOperators = new GenericPrologParser(new StringReader(""), new DefaultParserContext(ParserContext.FLAG_NONE, Op.SWI)).getContext().findAllOperators();
     assertEquals("hello :- world", new PrologStruct(contextOperators.get(":-").findForType(OpAssoc.XFX),
@@ -56,11 +56,11 @@ public class PrologStructureTest {
                 new PrologStruct(
                     contextOperators.get("-").findForType(
                         OpAssoc.FY),
-                    new PrologTerm[] {new PrologInteger("10")}),
+                    new PrologTerm[] {new PrologInt("10")}),
                 new PrologStruct(contextOperators.get("+").findForType(OpAssoc.YFX),
                     new PrologTerm[] {
-                        new PrologInteger("1"),
-                        new PrologInteger("2")})}).toString());
+                        new PrologInt("1"),
+                        new PrologInt("2")})}).toString());
 
     assertEquals(
         "- - 10",
@@ -70,7 +70,7 @@ public class PrologStructureTest {
             new PrologTerm[] {new PrologStruct(
                 contextOperators.get("-").findForType(
                     OpAssoc.FY),
-                new PrologTerm[] {new PrologInteger(
+                new PrologTerm[] {new PrologInt(
                     "10")})}).toString());
 
     assertEquals(
@@ -81,7 +81,7 @@ public class PrologStructureTest {
             new PrologTerm[] {new PrologStruct(
                 contextOperators.get("\\+").findForType(
                     OpAssoc.FY),
-                new PrologTerm[] {new PrologInteger(
+                new PrologTerm[] {new PrologInt(
                     "10")})}).toString());
     final Op operatorYF = Op.make(800, OpAssoc.YF, "!");
     final Op operatorYF2 = Op.make(1000, OpAssoc.YF, "!!");
@@ -92,7 +92,7 @@ public class PrologStructureTest {
             operatorYF,
             new PrologTerm[] {new PrologStruct(
                 operatorYF2,
-                new PrologTerm[] {new PrologInteger(
+                new PrologTerm[] {new PrologInt(
                     "10")})}).toString());
 
     final Op operatorXFX = Op.make(800, OpAssoc.XFX, "$");
@@ -102,12 +102,12 @@ public class PrologStructureTest {
         new PrologStruct(operatorXFX, new PrologTerm[] {
             new PrologStruct(operatorXFX2,
                 new PrologTerm[] {
-                    new PrologInteger("10"),
-                    new PrologInteger("20")}),
+                    new PrologInt("10"),
+                    new PrologInt("20")}),
             new PrologStruct(operatorXFX,
                 new PrologTerm[] {
-                    new PrologInteger("5"),
-                    new PrologInteger("30")})}).toString());
+                    new PrologInt("5"),
+                    new PrologInt("30")})}).toString());
 
     final Op operatorXFY = Op.make(800, OpAssoc.XFY, "$");
     final Op operatorXFY2 = Op.make(1000, OpAssoc.XFY, "$$");
@@ -116,12 +116,12 @@ public class PrologStructureTest {
         new PrologStruct(operatorXFY2, new PrologTerm[] {
             new PrologStruct(operatorXFY,
                 new PrologTerm[] {
-                    new PrologInteger("10"),
-                    new PrologInteger("20")}),
+                    new PrologInt("10"),
+                    new PrologInt("20")}),
             new PrologStruct(operatorXFY,
                 new PrologTerm[] {
-                    new PrologInteger("5"),
-                    new PrologInteger("30")})}).toString());
+                    new PrologInt("5"),
+                    new PrologInt("30")})}).toString());
   }
 
   @Test
@@ -240,9 +240,9 @@ public class PrologStructureTest {
   public void testPrologStructureAbstractPrologTermInt() {
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVariable(), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVar(), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInteger("5"), 10));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInt("5"), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10));
 
     final PrologAtom testAtom = new PrologAtom("test");
@@ -258,9 +258,9 @@ public class PrologStructureTest {
   public void testPrologStructureAbstractPrologTermIntIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVariable(), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVar(), 10, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInteger("5"), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInt("5"), 10, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10, 2, 1));
 
     final PrologAtom testAtom = new PrologAtom("test");

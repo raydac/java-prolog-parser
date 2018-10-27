@@ -45,7 +45,7 @@ final class TermWrapper extends SpecServiceCompound {
 
   @Override
   public int getArity() {
-    return 1;
+    return this.wrappedTerm.getArity();
   }
 
   PrologTerm getWrappedTerm() {

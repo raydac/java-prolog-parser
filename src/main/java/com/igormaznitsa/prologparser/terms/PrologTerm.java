@@ -150,14 +150,14 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
         if (that.getTermType() == TermType.ATOM) {
           if (this instanceof PrologNumeric) {
             if (that instanceof PrologNumeric) {
-              if (this instanceof PrologInteger) {
-                if (that instanceof PrologInteger) {
-                  result = ((PrologInteger) this).getIntValue().compareTo(((PrologInteger) that).getIntValue());
+              if (this instanceof PrologInt) {
+                if (that instanceof PrologInt) {
+                  result = ((PrologInt) this).getIntValue().compareTo(((PrologInt) that).getIntValue());
                 } else {
-                  result = new BigDecimal(((PrologInteger) this).getIntValue()).compareTo(((PrologFloat) that).getFloatValue());
+                  result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(((PrologFloat) that).getFloatValue());
                 }
-              } else if (that instanceof PrologInteger) {
-                result = ((PrologFloat) this).getFloatValue().compareTo((new BigDecimal(((PrologInteger) that).getIntValue())));
+              } else if (that instanceof PrologInt) {
+                result = ((PrologFloat) this).getFloatValue().compareTo((new BigDecimal(((PrologInt) that).getIntValue())));
               } else {
                 result = ((PrologFloat) this).getFloatValue().compareTo(((PrologFloat) that).getFloatValue());
               }

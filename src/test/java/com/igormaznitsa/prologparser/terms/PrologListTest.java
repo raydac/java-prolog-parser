@@ -27,9 +27,9 @@ public class PrologListTest {
         new PrologList(terms).toString());
 
     assertEquals(new PrologList(new PrologAtom("hello"),
-        new PrologVariable("X")).toString(), "[hello|X]");
+        new PrologVar("X")).toString(), "[hello|X]");
     assertEquals(new PrologList(new PrologAtom("hello"), new PrologList(
-        new PrologVariable("X"))).toString(), "[hello, X]");
+        new PrologVar("X"))).toString(), "[hello, X]");
     assertEquals(new PrologList().toString(), "[]");
 
     PrologList list = new PrologList();
@@ -293,7 +293,7 @@ public class PrologListTest {
     list.replaceTail(atom);
     assertSame(atom, list3.getTail());
 
-    list3.setTail(new PrologVariable());
+    list3.setTail(new PrologVar());
     final PrologAtom third = new PrologAtom("third");
     list.replaceTail(third);
     assertSame(third, list3.getTail());

@@ -23,47 +23,47 @@ public class PrologTermTest {
     assertEquals("\'Hello\\nWorld\'",
         new PrologAtom("Hello\nWorld").toString());
     assertEquals("-9823742321",
-        new PrologInteger("-9823742321").toString());
-    assertEquals("23232", new PrologInteger("23232").toString());
-    assertEquals("0", new PrologInteger("0").toString());
-    assertEquals("0", new PrologInteger("0").toString());
+        new PrologInt("-9823742321").toString());
+    assertEquals("23232", new PrologInt("23232").toString());
+    assertEquals("0", new PrologInt("0").toString());
+    assertEquals("0", new PrologInt("0").toString());
     assertEquals("-1002.0", new PrologFloat("-1002").toString());
     assertEquals("9823423.0", new PrologFloat("9823423").toString());
     assertEquals("0.0", new PrologFloat("0").toString());
     assertEquals("0.0", new PrologFloat("-0.0").toString());
 
-    assertEquals("X", new PrologVariable("X").toString());
-    assertEquals("_", new PrologVariable().toString());
+    assertEquals("X", new PrologVar("X").toString());
+    assertEquals("_", new PrologVar().toString());
 
     assertEquals("test(first, 100, -1000.0)", new PrologStruct(
         new PrologAtom("test"), new PrologTerm[] {
         new PrologAtom("first"),
-        new PrologInteger("100"),
+        new PrologInt("100"),
         new PrologFloat(-1000d)}).toString());
 
     assertEquals(new PrologList().toString(), "[]");
 
     final PrologList list = new PrologList(new PrologAtom("head"));
-    list.addAsNewListToEndOfListChain(new PrologInteger("1006")).addAsNewListToEndOfListChain(new PrologVariable("Var"));
+    list.addAsNewListToEndOfListChain(new PrologInt("1006")).addAsNewListToEndOfListChain(new PrologVar("Var"));
     assertEquals("[head, 1006, Var]", list.toString());
 
-    final PrologList list2 = new PrologList(new PrologVariable("X"));
-    list2.setTail(new PrologVariable());
+    final PrologList list2 = new PrologList(new PrologVar("X"));
+    list2.setTail(new PrologVar());
     assertEquals("[X|_]", list2.toString());
 
-    final PrologList list3 = new PrologList(new PrologVariable("X"));
+    final PrologList list3 = new PrologList(new PrologVar("X"));
     list3.setTail(new PrologAtom("Test"));
     assertEquals("[X|'Test']", list3.toString());
 
     final PrologList list4 = new PrologList(new PrologTerm[] {
         new PrologList(new PrologTerm[] {
-            new PrologAtom("First"), new PrologVariable()}),
+            new PrologAtom("First"), new PrologVar()}),
         new PrologList(new PrologTerm[] {
             new PrologAtom("hello"), new PrologAtom("world")})});
     assertEquals("[['First', _], [hello, world]]", list4.toString());
 
-    final PrologList list5 = new PrologList(new PrologVariable("A"));
-    list5.setTail(new PrologList(new PrologVariable("B")));
+    final PrologList list5 = new PrologList(new PrologVar("A"));
+    list5.setTail(new PrologList(new PrologVar("B")));
     assertEquals("[A, B]", list5.toString());
   }
 

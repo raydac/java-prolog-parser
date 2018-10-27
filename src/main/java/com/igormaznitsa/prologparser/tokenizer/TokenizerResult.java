@@ -36,7 +36,12 @@ final class TokenizerResult {
     this.pool = pool;
   }
 
-  TokenizerResult setData(final PrologTerm term, final TokenizerState parserState, final int line, final int pos) {
+  TokenizerResult setData(
+      final PrologTerm term,
+      final TokenizerState parserState,
+      final int line,
+      final int pos
+  ) {
     this.resultTerm = AssertUtils.assertNotNull(term);
     this.parserState = AssertUtils.assertNotNull(parserState);
     this.pos = pos;

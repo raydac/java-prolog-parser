@@ -27,9 +27,9 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
-import com.igormaznitsa.prologparser.terms.PrologInteger;
+import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.PrologVariable;
+import com.igormaznitsa.prologparser.terms.PrologVar;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import com.igormaznitsa.prologparser.utils.StringUtils;
@@ -324,14 +324,14 @@ final class Tokenizer {
             case VAR: {
               if (strBuffer.isSingleChar('_')) {
                 return this.tokenizerResultPool.find().setData(
-                    new PrologVariable(),
+                    new PrologVar(),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
               } else {
                 return this.tokenizerResultPool.find().setData(
-                    new PrologVariable(strBuffer.toString()),
+                    new PrologVar(strBuffer.toString()),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -689,7 +689,7 @@ final class Tokenizer {
                     specCharDetected = false;
                     if (charCodeAsInt) {
                       return this.tokenizerResultPool.find().setData(
-                          new PrologInteger(result.getDecoded()),
+                          new PrologInt(result.getDecoded()),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -712,7 +712,7 @@ final class Tokenizer {
                     } else {
                       if (charCodeAsInt) {
                         return this.tokenizerResultPool.find().setData(
-                            new PrologInteger(chr),
+                            new PrologInt(chr),
                             state,
                             getLastTokenLine(),
                             getLastTokenPos()
@@ -733,7 +733,7 @@ final class Tokenizer {
                     } else {
                       if (charCodeAsInt) {
                         return this.tokenizerResultPool.find().setData(
-                            new PrologInteger(chr),
+                            new PrologInt(chr),
                             state,
                             getLastTokenLine(),
                             getLastTokenPos()
@@ -754,7 +754,7 @@ final class Tokenizer {
                     } else {
                       if (charCodeAsInt) {
                         return this.tokenizerResultPool.find().setData(
-                            new PrologInteger(chr),
+                            new PrologInt(chr),
                             state,
                             getLastTokenLine(),
                             getLastTokenPos()
@@ -778,7 +778,7 @@ final class Tokenizer {
                     }
                     if (charCodeAsInt) {
                       return this.tokenizerResultPool.find().setData(
-                          new PrologInteger(theChar),
+                          new PrologInt(theChar),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -795,9 +795,9 @@ final class Tokenizer {
               if (!isCharAllowedForUnquotedAtom(chr)) {
                 push(chr);
                 if (strBuffer.isSingleChar('_')) {
-                  return this.tokenizerResultPool.find().setData(new PrologVariable(), state, getLastTokenLine(), getLastTokenPos());
+                  return this.tokenizerResultPool.find().setData(new PrologVar(), state, getLastTokenLine(), getLastTokenPos());
                 }
-                return this.tokenizerResultPool.find().setData(new PrologVariable(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
+                return this.tokenizerResultPool.find().setData(new PrologVar(strBuffer.toString()), state, getLastTokenLine(), getLastTokenPos());
               } else {
                 strBuffer.append(chr);
               }
@@ -820,7 +820,7 @@ final class Tokenizer {
     switch (state) {
       case INTEGER: {
         try {
-          result = new PrologInteger(str);
+          result = new PrologInt(str);
         } catch (NumberFormatException ex) {
           result = null;
         }
