@@ -67,8 +67,8 @@ final class Tokenizer {
     this.parser = parser;
 
     final int maxAllowedCharBufferSize = parser.context == null ? Integer.MAX_VALUE : parser.context.getMaxTokenizerBufferLength();
-    this.blockCommentsAllowed = parser.context != null && ((parser.context.getTokenizerFlags() & ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS) != 0);
-    this.zeroSingleQuotationAllowed = parser.context != null && ((parser.context.getTokenizerFlags() & ParserContext.TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
+    this.blockCommentsAllowed = parser.context != null && ((parser.context.getParseFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
+    this.zeroSingleQuotationAllowed = parser.context != null && ((parser.context.getParseFlags() & ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
 
     this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
     this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
@@ -466,7 +466,8 @@ final class Tokenizer {
               } else if (
                   (chr == '\'' || chr == '\"' || chr == '`')
                       || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
-                      || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
+                      || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)
+              ) {
                 push(chr);
                 final String text = strBuffer.toString();
 

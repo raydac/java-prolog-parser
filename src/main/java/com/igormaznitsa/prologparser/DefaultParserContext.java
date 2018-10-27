@@ -60,7 +60,7 @@ public class DefaultParserContext implements ParserContext {
   }
 
   @Override
-  public int getTokenizerFlags() {
+  public int getParseFlags() {
     return this.flags;
   }
 

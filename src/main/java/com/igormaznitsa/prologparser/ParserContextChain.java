@@ -41,8 +41,8 @@ public class ParserContextChain implements ParserContext {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
     this.minDetectedAllowedBufferSize = Stream.of(this.contexts).mapToInt(ParserContext::getMaxTokenizerBufferLength).min().orElse(Integer.MAX_VALUE);
     this.tokenizerFlags = stream(this.contexts)
-        .mapToInt(ParserContext::getTokenizerFlags)
-        .reduce(TOKENIZER_FLAG_NONE, (a, b) -> a | b);
+        .mapToInt(ParserContext::getParseFlags)
+        .reduce(FLAG_NONE, (a, b) -> a | b);
   }
 
   public static ParserContext of(final ParserContext... contexts) {
@@ -93,7 +93,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public int getTokenizerFlags() {
+  public int getParseFlags() {
     return this.tokenizerFlags;
   }
 }

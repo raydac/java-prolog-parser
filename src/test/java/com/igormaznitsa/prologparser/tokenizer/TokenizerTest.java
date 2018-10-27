@@ -41,14 +41,14 @@ public class TokenizerTest {
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
     ParserContext context = mock(ParserContext.class);
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(context.getTokenizerFlags()).thenReturn(allowBlockComment ? ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS : ParserContext.TOKENIZER_FLAG_NONE);
+    when(context.getParseFlags()).thenReturn(allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
     return this.tokenizeOf(str, context);
   }
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
     return new Tokenizer(
         new GenericPrologParser(new StringReader(str),
-            new ParserContextChain(new DefaultParserContext(ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS | ParserContext.TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context)),
+            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context)),
         new StringReader(str));
   }
 
