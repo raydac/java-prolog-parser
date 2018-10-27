@@ -138,14 +138,16 @@ public final class Op extends SpecServiceCompound {
       make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
       make(450, XFX, ".."),
   };
+
   public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpAssoc.FX, "()");
   public static final Op METAOPERATOR_COMMA = makeSystem(1000, OpAssoc.XFY, ",");
-  static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpAssoc.FX, "(");
-  static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpAssoc.XF, ")");
-  static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.FX, "[");
-  static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.XF, "]");
-  static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpAssoc.XF, ".");
-  static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(1105, OpAssoc.XFY, "|");
+  public static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpAssoc.FX, "(");
+  public static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpAssoc.XF, ")");
+  public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.FX, "[");
+  public static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.XF, "]");
+  public static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpAssoc.XF, ".");
+  public static final Op METAOPERATOR_VERTICAL_BAR = makeSystem(1105, OpAssoc.XFY, "|");
+
   private static final long serialVersionUID = -5914313127778138548L;
   private final OpAssoc opAssoc;
   private final int precedence;

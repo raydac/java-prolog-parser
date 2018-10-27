@@ -255,6 +255,14 @@ final class Tokenizer {
     }
   }
 
+  TokenizerResult pop() {
+    try {
+      return this.lastPushedTerm;
+    }finally {
+      this.lastPushedTerm = null;
+    }
+  }
+
   /**
    * Read next token
    *
@@ -263,11 +271,7 @@ final class Tokenizer {
   TokenizerResult readNextToken() {
 
     if (this.lastPushedTerm != null) {
-      try {
-        return lastPushedTerm;
-      } finally {
-        lastPushedTerm = null;
-      }
+      return pop();
     }
 
     PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;

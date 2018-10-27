@@ -35,6 +35,8 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static com.igormaznitsa.prologparser.terms.TermType.LIST;
+import static com.igormaznitsa.prologparser.terms.TermType.__OPERATOR_CONTAINER__;
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
 /**
@@ -50,16 +52,8 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   public PrologStruct(final PrologTerm functor, final PrologTerm[] elements) {
     super(functor.getTermText());
-
-    if (functor.getTermType() != TermType.ATOM && functor.getTermType() != TermType.OPERATOR) {
-      throw new IllegalArgumentException("Functor must be either atom or operator: " + functor.getTermType());
-    }
-    if (functor instanceof PrologNumeric) {
-      throw new IllegalArgumentException("Functor can't be number: " + functor);
-    }
-
+    this.functor = assertFunctor(functor);
     this.elements = assertNotNull(elements.clone());
-    this.functor = functor;
   }
 
   public PrologStruct(
@@ -92,24 +86,28 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     setLine(line);
   }
 
+  private static PrologTerm assertFunctor(final PrologTerm functor) {
+    if (
+        functor.getTermType() == __OPERATOR_CONTAINER__
+            || functor.getTermType() == LIST
+    ) {
+      throw new IllegalArgumentException("Non-allowed functor type: " + functor.getTermType());
+    }
+    if (functor instanceof PrologNumeric) {
+      throw new IllegalArgumentException("Functor can't be number: " + functor);
+    }
+    return functor;
+  }
+
   protected PrologStruct(final PrologTerm functor, final int arity) {
     super(functor.getTermText());
-
-    if (functor.getTermType() != TermType.ATOM
-        && functor.getTermType() != TermType.OPERATOR
-        && functor.getTermType() != TermType.__OPERATOR_CONTAINER__) {
-      throw new IllegalArgumentException("Functor type must be either atom or operator");
-    }
-
-    if (functor instanceof PrologNumeric) {
-      throw new IllegalArgumentException("Numeric term as functor");
-    }
 
     if (arity < 0) {
       throw new IllegalArgumentException("Negative arity");
     }
 
-    this.functor = functor;
+    this.functor = assertFunctor(functor);
+
     this.elements = new PrologTerm[arity];
     Arrays.fill(elements, EMPTY_ATOM);
   }

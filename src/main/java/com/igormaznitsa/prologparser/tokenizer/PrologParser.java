@@ -46,6 +46,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ALLOW_ZERO_STRUCT;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
 import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 
 /**
@@ -91,11 +94,13 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private final SoftObjectPool<TermWrapper> termWrapperPool;
   private final SoftObjectPool<List<PrologTerm>> termArrayListPool;
   private final Tokenizer tokenizer;
+  protected final int parserFlags;
   private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
+    this.parserFlags = context == null ? FLAG_NONE : context.getParseFlags();
 
     this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {
       @Override
@@ -475,45 +480,60 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             }
           }
           break;
-          case VAR: {
-            // it's a variable
-            // do nothing
-          }
-          break;
           default: {
-            TokenizerResult nextToken = this.tokenizer.readNextToken();
+            if (readAtom.getTermType() == TermType.VAR && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) == 0) {
+              // do nothing
+            } else {
 
-            if (nextToken == null) {
-              throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
-            }
+              TokenizerResult nextToken = this.tokenizer.readNextToken();
 
-            try {
-              if (nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
-                final int nextTokenLineNumber = nextToken.getLine();
-                final int nextTokenStrPosition = nextToken.getPos();
+              if (nextToken == null) {
+                throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
+              }
 
-                // it is a structure
-                if (readAtom.getTermType() == TermType.ATOM) {
-                  readAtom = readStruct(readAtom);
-                  if (readAtom == null) {
-                    // we have met the empty brackets, it disallowed by Prolog
-                    throw new PrologParserException("Empty structure is not allowed",
+              try {
+                if (nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
+                  final int nextTokenLineNumber = nextToken.getLine();
+                  final int nextTokenStrPosition = nextToken.getPos();
+
+                  // it is a structure
+                  if (
+                      readAtom.getTermType() == TermType.ATOM
+                      || (readAtom.getTermType() == TermType.VAR
+                      && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)
+                  ) {
+
+                    final PrologTerm prev = readAtom;
+                    readAtom = readStruct(readAtom);
+                    if (readAtom == null) {
+                      // we have met the empty brackets
+                      if ((this.parserFlags & FLAG_ALLOW_ZERO_STRUCT) == 0) {
+                        throw new PrologParserException("Empty structure is not allowed",
+                            nextTokenLineNumber, nextTokenStrPosition);
+                      } else {
+                        final TokenizerResult pushed = this.tokenizer.pop();
+                        if (pushed.getResult() == OPERATOR_RIGHTBRACKET) {
+                          readAtom = new PrologStruct(prev);
+                        } else {
+                          throw new CriticalUnexpectedError();
+                        }
+                      }
+                    }
+                  } else {
+                    tokenizer.push(nextToken);
+                    nextToken = null;
+                    throw new PrologParserException("You must have an atom as the structure functor",
                         nextTokenLineNumber, nextTokenStrPosition);
                   }
                 } else {
+                  // push back the next atom
                   tokenizer.push(nextToken);
                   nextToken = null;
-                  throw new PrologParserException("You must have an atom as the structure functor",
-                      nextTokenLineNumber, nextTokenStrPosition);
                 }
-              } else {
-                // push back the next atom
-                tokenizer.push(nextToken);
-                nextToken = null;
-              }
-            } finally {
-              if (nextToken != null) {
-                nextToken.release();
+              } finally {
+                if (nextToken != null) {
+                  nextToken.release();
+                }
               }
             }
           }

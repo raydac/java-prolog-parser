@@ -1032,6 +1032,49 @@ public class IntegrationTest {
   }
 
   @Test
+  public void testVarAsFunctor() {
+    assertThrows(PrologParserException.class, ()-> new GenericPrologParser(new StringReader("X(a)."), DefaultParserContext.of(FLAG_NONE)).next());
+
+    final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("X(a)."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR)).next();
+    final PrologVar functor = (PrologVar) struct.getFunctor();
+    assertEquals("X", functor.getTermText());
+    assertEquals(1, struct.getArity());
+    assertEquals("X(a)", struct.toString());
+
+    final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("X(a),Y(b),_Z(d)."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR)).next();
+    assertEquals(structB.getFunctor(), Op.METAOPERATOR_COMMA);
+    assertEquals(TermType.VAR, ((PrologStruct)structB.getElementAt(0)).getFunctor().getTermType());
+    assertEquals("X", ((PrologStruct)structB.getElementAt(0)).getFunctor().getTermText());
+
+    final PrologStruct structC = (PrologStruct) structB.getElementAt(1);
+    assertEquals(TermType.VAR, ((PrologStruct)structC.getElementAt(0)).getFunctor().getTermType());
+    assertEquals("Y", ((PrologStruct)structC.getElementAt(0)).getFunctor().getTermText());
+    assertEquals(TermType.VAR, ((PrologStruct)structC.getElementAt(1)).getFunctor().getTermType());
+    assertEquals("_Z", ((PrologStruct)structC.getElementAt(1)).getFunctor().getTermText());
+    assertEquals("X(a) , Y(b) , _Z(d)", structB.toString());
+  }
+
+  @Test
+  public void testAllowZeroStruct() {
+    assertThrows(PrologParserException.class, ()-> new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_NONE)).next());
+    final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_ALLOW_ZERO_STRUCT)).next();
+    final PrologAtom functor = (PrologAtom) struct.getFunctor();
+    assertEquals("a", functor.getTermText());
+    assertEquals(0, struct.getArity());
+    assertEquals("a()", struct.toString());
+
+    final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("a(/*some comment*/)."), DefaultParserContext.of(FLAG_ALLOW_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
+    assertEquals("a()", structB.toString());
+
+    final PrologStruct structC = (PrologStruct) new GenericPrologParser(new StringReader("a(),b(),c()."), DefaultParserContext.of(FLAG_ALLOW_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
+    assertEquals("a() , b() , c()", structC.toString());
+
+    final PrologStruct structD = (PrologStruct) new GenericPrologParser(new StringReader("A(),X(),Z()."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR | FLAG_ALLOW_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
+    assertEquals("A() , X() , Z()", structD.toString());
+
+  }
+
+  @Test
   public void testStandardTermOrder() {
     assertEquals("1\n2\n3\n4\n5", parseSortAndJoin("5. 3. 1. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23. 3.6. 1.3. 2. 4."));

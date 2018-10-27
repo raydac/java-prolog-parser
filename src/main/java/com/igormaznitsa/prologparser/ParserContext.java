@@ -31,6 +31,8 @@ public interface ParserContext {
   int FLAG_NONE = 0;
   int FLAG_BLOCK_COMMENTS = 1;
   int FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE = 2;
+  int FLAG_VAR_AS_FUNCTOR = 4;
+  int FLAG_ALLOW_ZERO_STRUCT = 8;
 
   boolean hasOpStartsWith(PrologParser source, String namePrefix);
 

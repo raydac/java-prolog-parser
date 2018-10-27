@@ -240,7 +240,6 @@ public class PrologStructureTest {
   public void testPrologStructureAbstractPrologTermInt() {
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVar(), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInt("5"), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10));
@@ -258,7 +257,6 @@ public class PrologStructureTest {
   public void testPrologStructureAbstractPrologTermIntIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologVar(), 10, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInt("5"), 10, 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10, 2, 1));
