@@ -46,17 +46,17 @@ import static org.mockito.Mockito.*;
 public class IntegrationTest {
 
   private static PrologParser parseCpl(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.join(Op.SWI, Op.SWI_CPL)));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(TOKENIZER_FLAG_BLOCK_COMMENTS | TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.join(Op.SWI, Op.SWI_CPL)));
   }
 
   private static PrologParser parseIso(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.ISO));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(TOKENIZER_FLAG_NONE | TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.ISO));
   }
 
   private static PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getTokenizerFlags()).thenReturn(ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS | TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return parseEd(str, parserContext);
   }
 
@@ -66,20 +66,20 @@ public class IntegrationTest {
 
   private static PrologParser parseEd(final Reader reader, final ParserContext context) {
     return new GenericPrologParser(reader, ParserContextChain.of(
-        DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context));
+        DefaultParserContext.of(TOKENIZER_FLAG_BLOCK_COMMENTS | TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context));
   }
 
   private static PrologParser parseGen(final String str, final ParserContext context) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getTokenizerFlags()).thenReturn(ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS | TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
   }
 
   private static GenericPrologParser parseGen(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getTokenizerFlags()).thenReturn(ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS | TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
   }
 
@@ -560,7 +560,7 @@ public class IntegrationTest {
   }
 
   private void assertReadTerms(final int expected, final String resource, final Op... ops) {
-    final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS, ops);
+    final ParserContext defaultContext = of(ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS, ops);
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
       final PrologParser parser = parseEd(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
@@ -699,7 +699,7 @@ public class IntegrationTest {
 
   @Test
   public void testPairOperatorsWithoutWhitespaces() {
-    final PrologParser parser = parseEd("a=..b.a..b.", of(FLAG_NONE, Op.SWI_CPL));
+    final PrologParser parser = parseEd("a=..b.a..b.", of(TOKENIZER_FLAG_NONE, Op.SWI_CPL));
     assertZFZOperatorStruct("=..", parser.next());
     assertZFZOperatorStruct("..", parser.next());
     assertFalse(parser.hasNext());
@@ -910,10 +910,10 @@ public class IntegrationTest {
     assertEquals(1, ((PrologNumeric) parseGen("1.").next()).getNumber().intValue());
     assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
 
-    assertEquals(-1, ((PrologNumeric) parseGen("-1.", of(FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().intValue());
-    assertEquals("+ 1", parseGen("+1.", of(FLAG_NONE, Op.GNU_UNARY_PLUS)).next().toString());
-    assertEquals("+ 1.1", parseGen("+1.1.", of(FLAG_NONE, Op.GNU_UNARY_PLUS)).next().toString());
-    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", of(FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
+    assertEquals(-1, ((PrologNumeric) parseGen("-1.", of(TOKENIZER_FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().intValue());
+    assertEquals("+ 1", parseGen("+1.", of(TOKENIZER_FLAG_NONE, Op.GNU_UNARY_PLUS)).next().toString());
+    assertEquals("+ 1.1", parseGen("+1.1.", of(TOKENIZER_FLAG_NONE, Op.GNU_UNARY_PLUS)).next().toString());
+    assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", of(TOKENIZER_FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
   }
 
   @Test
@@ -927,8 +927,8 @@ public class IntegrationTest {
   @Test
   public void testParseBigGeneratedPrologSource() throws Exception {
     final int CLAUSES = 1000;
-    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
-    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(TOKENIZER_FLAG_NONE, Op.SWI)).stream().count());
+    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(TOKENIZER_FLAG_NONE, Op.SWI)).stream().count());
   }
 
   @Test
@@ -968,7 +968,7 @@ public class IntegrationTest {
   @Test
   public void testPairOfOperatorsWithIncompatiblePriority() throws Exception {
     assertEquals("-(discontiguous)", parseEd("-discontiguous.").next().toString());
-    assertEquals("a : b :> c :> d", parseEd("a:b:>c:>d.", DefaultParserContext.of(ParserContext.FLAG_NONE, Op.make(500, XFY, ":>"))).next().toString());
+    assertEquals("a : b :> c :> d", parseEd("a:b:>c:>d.", DefaultParserContext.of(ParserContext.TOKENIZER_FLAG_NONE, Op.make(500, XFY, ":>"))).next().toString());
     assertThrows(PrologParserException.class, () -> parseEd("a :- b :- c.").next());
     assertThrows(PrologParserException.class, () -> parseEd("?-mother(pam,bob);").next());
   }
@@ -1018,7 +1018,7 @@ public class IntegrationTest {
             new InputStreamReader(
                 new PrologSourceKoi7Generator(rnd.nextBoolean(),
                     numChars,
-                    false)), new DefaultParserContext(FLAG_BLOCK_COMMENTS));
+                    false)), new DefaultParserContext(TOKENIZER_FLAG_BLOCK_COMMENTS));
 
         while (parser.hasNext()) {
           assertNotNull(parser.next());
@@ -1061,8 +1061,8 @@ public class IntegrationTest {
     }
 
     @Override
-    public int getFlags() {
-      return FLAG_NONE;
+    public int getTokenizerFlags() {
+      return TOKENIZER_FLAG_NONE;
     }
 
     @Override

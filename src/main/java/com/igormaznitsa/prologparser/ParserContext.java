@@ -28,9 +28,9 @@ import java.util.Map;
 
 public interface ParserContext {
 
-  int FLAG_NONE = 0;
-  int FLAG_BLOCK_COMMENTS = 1;
-  int FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE = 2;
+  int TOKENIZER_FLAG_NONE = 0;
+  int TOKENIZER_FLAG_BLOCK_COMMENTS = 1;
+  int TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE = 2;
 
   boolean hasOpStartsWith(PrologParser source, String namePrefix);
 
@@ -42,5 +42,5 @@ public interface ParserContext {
     return Integer.MAX_VALUE;
   }
 
-  int getFlags();
+  int getTokenizerFlags();
 }

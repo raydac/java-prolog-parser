@@ -55,11 +55,8 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   public PrologList(final PrologTerm[] array) {
     this();
-
-    PrologList current = this;
-
-    for (final PrologTerm term : array) {
-      current = current.addAsNewListToEndOfListChain(term);
+    for (final PrologTerm prologTerm : array) {
+      this.addAsNewListToEndOfListChain(prologTerm);
     }
   }
 
@@ -139,38 +136,39 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     }
   }
 
-  public PrologList addAsNewListToEndOfListChain(
-      final PrologTerm term) {
+  public PrologList addAsNewListToEndOfListChain(final PrologTerm term) {
+
+    PrologList result = this;
 
     if (isEmpty()) {
       setHead(term);
       setTail(new PrologList());
-      return this;
     } else {
-      PrologList current = this;
-      while (true) {
-        if (current.isEmpty()) {
-          current.setHead(term);
-          current.setTail(new PrologList());
-          return current;
+      while (!Thread.currentThread().isInterrupted()) {
+        if (result.isEmpty()) {
+          result.setHead(term);
+          result.setTail(new PrologList());
+          break;
         } else {
-          final PrologTerm leftTail = current.elements[1];
+          final PrologTerm leftTail = result.elements[1];
           if (leftTail.getTermType() == TermType.LIST) {
-            current = (PrologList) leftTail;
+            result = (PrologList) leftTail;
           } else {
             final PrologList newOne = new PrologList(term, new PrologList());
-            current.setTail(newOne);
-            return newOne;
+            result.setTail(newOne);
+            result = newOne;
+            break;
           }
         }
       }
     }
+    return result;
   }
 
   public void replaceTail(final PrologTerm newTailElement) {
 
     PrologList curList = this;
-    while (true) {
+    while (!Thread.currentThread().isInterrupted()) {
       final PrologTerm tail = curList.elements[1];
       if (tail.getTermType() == TermType.LIST) {
         final PrologList leftTail = (PrologList) tail;
@@ -194,7 +192,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   @Override
   public void setElementAt(final int index, final PrologTerm term) {
     if (index < 0 || index >= 2) {
-      throw new ArrayIndexOutOfBoundsException();
+      throw new ArrayIndexOutOfBoundsException(index);
     }
     this.elements[index] = AssertUtils.assertNotNull(term);
   }
@@ -215,7 +213,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
       boolean notFirst = false;
       PrologTerm list = this;
 
-      while (true) {
+      while (!Thread.currentThread().isInterrupted()) {
         if (list.getTermType() == TermType.LIST) {
           final PrologList asList = (PrologList) list;
 

@@ -34,13 +34,15 @@ import static java.util.Arrays.stream;
 
 public class ParserContextChain implements ParserContext {
   private final ParserContext[] contexts;
-  private final int flags;
+  private final int tokenizerFlags;
   private final int minDetectedAllowedBufferSize;
 
   public ParserContextChain(final ParserContext... contexts) {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
     this.minDetectedAllowedBufferSize = Stream.of(this.contexts).mapToInt(ParserContext::getMaxTokenizerBufferLength).min().orElse(Integer.MAX_VALUE);
-    this.flags = stream(this.contexts).mapToInt(ParserContext::getFlags).reduce(FLAG_NONE, (a, b) -> a | b);
+    this.tokenizerFlags = stream(this.contexts)
+        .mapToInt(ParserContext::getTokenizerFlags)
+        .reduce(TOKENIZER_FLAG_NONE, (a, b) -> a | b);
   }
 
   public static ParserContext of(final ParserContext... contexts) {
@@ -91,7 +93,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public int getFlags() {
-    return this.flags;
+  public int getTokenizerFlags() {
+    return this.tokenizerFlags;
   }
 }

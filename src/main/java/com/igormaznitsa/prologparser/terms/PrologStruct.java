@@ -133,7 +133,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   public void setElementAt(final int index, final PrologTerm term) {
     if (index < 0 || index >= getArity()) {
-      throw new ArrayIndexOutOfBoundsException();
+      throw new ArrayIndexOutOfBoundsException(index);
     }
     this.elements[index] = AssertUtils.assertNotNull(term);
   }

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PrologTermTest {
 
   private PrologParser parserFor(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(ParserContext.FLAG_NONE, Op.SWI));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(ParserContext.TOKENIZER_FLAG_NONE, Op.SWI));
   }
 
   @Test

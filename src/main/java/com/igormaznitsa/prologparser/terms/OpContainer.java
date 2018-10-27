@@ -27,7 +27,7 @@ import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 /**
- * Container of operators with the same name.
+ * Container of operators which have same name.
  */
 public final class OpContainer extends SpecServiceCompound {
 
@@ -68,28 +68,28 @@ public final class OpContainer extends SpecServiceCompound {
     switch (operator.getOpAssoc()) {
       case FX:
       case FY:
-        if (opFZ != null) {
+        if (this.opFZ != null) {
           return false;
         }
-        opFZ = operator;
-        numberAtContainer++;
+        this.opFZ = operator;
+        this.numberAtContainer++;
         break;
       case XF:
       case YF:
-        if (opZF != null) {
+        if (this.opZF != null) {
           return false;
         }
-        opZF = operator;
-        numberAtContainer++;
+        this.opZF = operator;
+        this.numberAtContainer++;
         break;
       case XFX:
       case XFY:
       case YFX:
-        if (opZFZ != null) {
+        if (this.opZFZ != null) {
           return false;
         }
-        opZFZ = operator;
-        numberAtContainer++;
+        this.opZFZ = operator;
+        this.numberAtContainer++;
         break;
       default:
         throw new CriticalUnexpectedError();
@@ -98,10 +98,10 @@ public final class OpContainer extends SpecServiceCompound {
   }
 
   public void removeAll() {
-    opFZ = null;
-    opZF = null;
-    opZFZ = null;
-    numberAtContainer = 0;
+    this.opFZ = null;
+    this.opZF = null;
+    this.opZFZ = null;
+    this.numberAtContainer = 0;
   }
 
   /**
@@ -114,15 +114,15 @@ public final class OpContainer extends SpecServiceCompound {
     Op result;
     switch (arity) {
       case 1: {
-        if (opFZ != null) {
-          result = opFZ;
+        if (this.opFZ != null) {
+          result = this.opFZ;
         } else {
-          result = opZF;
+          result = this.opZF;
         }
       }
       break;
       case 2: {
-        result = opZFZ;
+        result = this.opZFZ;
       }
       break;
       default:
@@ -142,22 +142,22 @@ public final class OpContainer extends SpecServiceCompound {
   public boolean remove(final Op op) {
     if (!getTermText().equals(op.getTermText())) {
       throw new IllegalArgumentException(
-          "Wrong operator name for the container");
+          "Unexpected operator: " + op);
     }
 
     boolean result = false;
-    if (opFZ != null && opFZ.equals(op)) {
-      opFZ = null;
-      numberAtContainer--;
+
+    if (op.equals(this.opFZ)) {
+      this.opFZ = null;
+      this.numberAtContainer--;
       result = true;
-    } else if (opZF != null && opZF.equals(op)) {
-      opZF = null;
-      numberAtContainer--;
+    } else if (op.equals(this.opZF)) {
+      this.opZF = null;
+      this.numberAtContainer--;
       result = true;
-    }
-    if (opZFZ != null && opZFZ.equals(op)) {
-      opZFZ = null;
-      numberAtContainer--;
+    } else if (op.equals(this.opZFZ)) {
+      this.opZFZ = null;
+      this.numberAtContainer--;
       result = true;
     }
     return result;
@@ -193,17 +193,17 @@ public final class OpContainer extends SpecServiceCompound {
    * @return the found only operator, null if there are severe operators
    */
   public Op getOperatorIfSingle() {
-    if (numberAtContainer == 1) {
-      if (opZFZ != null) {
-        return opZFZ;
+    Op found = null;
+    if (this.numberAtContainer == 1) {
+      if (this.opZFZ != null) {
+        found = this.opZFZ;
+      } else if (this.opFZ != null) {
+        found = this.opFZ;
+      } else {
+        found = this.opZF;
       }
-      if (opFZ != null) {
-        return opFZ;
-      }
-      return opZF;
     }
-
-    return null;
+    return found;
   }
 
   /**
@@ -217,26 +217,26 @@ public final class OpContainer extends SpecServiceCompound {
     final Op result;
     if (hasLeftArg) {
       if (hasRightArg) {
-        if (opZFZ != null) {
-          result = opZFZ;
-        } else if (opFZ != null) {
-          result = opFZ;
+        if (this.opZFZ != null) {
+          result = this.opZFZ;
+        } else if (this.opFZ != null) {
+          result = this.opFZ;
         } else {
-          result = opZF;
+          result = this.opZF;
         }
       } else {
-        if (opZF != null) {
-          result = opZF;
+        if (this.opZF != null) {
+          result = this.opZF;
         } else {
-          result = opFZ;
+          result = this.opFZ;
         }
       }
     } else {
       if (hasRightArg) {
-        if (opFZ != null) {
-          result = opFZ;
+        if (this.opFZ != null) {
+          result = this.opFZ;
         } else {
-          result = opZF;
+          result = this.opZF;
         }
       } else {
         result = null;
@@ -256,21 +256,21 @@ public final class OpContainer extends SpecServiceCompound {
     switch (type) {
       case FY:
       case FX:
-        if (opFZ != null) {
-          result = opFZ;
+        if (this.opFZ != null) {
+          result = this.opFZ;
         }
         break;
       case XF:
       case YF:
-        if (opZF != null) {
-          result = opZF;
+        if (this.opZF != null) {
+          result = this.opZF;
         }
         break;
       case XFX:
       case YFX:
       case XFY:
-        if (opZFZ != null) {
-          result = opZFZ;
+        if (this.opZFZ != null) {
+          result = this.opZFZ;
         }
         break;
       default:
@@ -322,22 +322,22 @@ public final class OpContainer extends SpecServiceCompound {
     switch (type) {
       case FX:
       case FY:
-        if (opFZ != null && opFZ.getOpAssoc() == type) {
-          opFZ = null;
+        if (this.opFZ != null && this.opFZ.getOpAssoc() == type) {
+          this.opFZ = null;
           result = true;
         }
         break;
       case XF:
       case YF:
-        if (opZF != null && opZF.getOpAssoc() == type) {
-          opZF = null;
+        if (this.opZF != null && this.opZF.getOpAssoc() == type) {
+          this.opZF = null;
           result = true;
         }
         break;
       case XFX:
       case YFX:
       case XFY:
-        if (opZFZ != null && opZFZ.getOpAssoc() == type) {
+        if (this.opZFZ != null && this.opZFZ.getOpAssoc() == type) {
           opZFZ = null;
           result = true;
         }
@@ -358,7 +358,7 @@ public final class OpContainer extends SpecServiceCompound {
     final StringBuilderEx result = new StringBuilderEx("OpContainer [");
 
     boolean added = false;
-    final Op[] ops = new Op[] {opFZ, opZF, opZFZ};
+    final Op[] ops = new Op[] {this.opFZ, this.opZF, this.opZFZ};
     for (final Op op : ops) {
       if (op != null) {
         if (added) {

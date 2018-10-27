@@ -21,12 +21,14 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.AssertUtils;
-
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
+
+import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
+import static com.igormaznitsa.prologparser.utils.AssertUtils.assertStringNotNullAndNotEmpty;
 
 /**
  * Representation of integer numeric term.
@@ -34,10 +36,12 @@ import java.util.stream.IntStream;
 public final class PrologInteger extends PrologNumeric {
 
   private static final long serialVersionUID = 6955747225309951985L;
-  private static final Map<String, BigInteger> cachedValues = new HashMap<>(128);
+  private static final Map<String, BigInteger> cachedValues;
 
   static {
-    IntStream.range(-99, 100).forEach(x -> cachedValues.put(Integer.toString(x), BigInteger.valueOf((long) x)));
+    final Map<String, BigInteger> map = new HashMap<>();
+    IntStream.range(-99, 100).forEach(x -> map.put(String.valueOf(x), BigInteger.valueOf(x)));
+    cachedValues = Collections.unmodifiableMap(map);
   }
 
   private final BigInteger value;
@@ -61,16 +65,16 @@ public final class PrologInteger extends PrologNumeric {
 
   public PrologInteger(final BigInteger value) {
     super();
-    this.value = AssertUtils.assertNotNull(value);
+    this.value = assertNotNull(value);
   }
 
   public PrologInteger(final BigInteger value, final int line, final int pos) {
     super(line, pos);
-    this.value = AssertUtils.assertNotNull(value);
+    this.value = assertNotNull(value);
   }
 
   private static BigInteger valueOf(final String text) {
-    AssertUtils.assertStringNotNullAndNotEmpty(text);
+    assertStringNotNullAndNotEmpty(text);
     BigInteger result = null;
     if (text.charAt(0) == '-') {
       if (text.length() < 4) {

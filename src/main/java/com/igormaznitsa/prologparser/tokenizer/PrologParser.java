@@ -94,7 +94,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
-    this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
+    this.context = context == null ? of(ParserContext.TOKENIZER_FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
 
     this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {

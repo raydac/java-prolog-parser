@@ -41,14 +41,14 @@ public class TokenizerTest {
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
     ParserContext context = mock(ParserContext.class);
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(context.getFlags()).thenReturn(allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
+    when(context.getTokenizerFlags()).thenReturn(allowBlockComment ? ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS : ParserContext.TOKENIZER_FLAG_NONE);
     return this.tokenizeOf(str, context);
   }
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
     return new Tokenizer(
         new GenericPrologParser(new StringReader(str),
-            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context)),
+            new ParserContextChain(new DefaultParserContext(ParserContext.TOKENIZER_FLAG_BLOCK_COMMENTS | ParserContext.TOKENIZER_FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context)),
         new StringReader(str));
   }
 
@@ -232,8 +232,8 @@ public class TokenizerTest {
 
   @Test
   public void testExceptionForReachBufferLimit() {
-    assertEquals("Char buffer limit is reached: 123456", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 5).readNextToken()).getMessage());
-    assertEquals("Char buffer limit is reached: 1234", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 3).readNextToken()).getMessage());
+    assertEquals("123456", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 5).readNextToken()).getBufferText());
+    assertEquals("1234", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 3).readNextToken()).getBufferText());
   }
 
   @Test
