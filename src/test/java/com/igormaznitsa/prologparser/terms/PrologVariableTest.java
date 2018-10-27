@@ -85,7 +85,7 @@ public class PrologVariableTest {
   }
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     final PrologVariable var = new PrologVariable("Hello");
     assertEquals(0, var.getPrecedence());
   }

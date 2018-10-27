@@ -97,7 +97,7 @@ public class PrologIntegerNumberTest {
   }
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(0, new PrologInteger("97239847324").getPrecedence());
     assertEquals(0, new PrologInteger(123L).getPrecedence());
   }

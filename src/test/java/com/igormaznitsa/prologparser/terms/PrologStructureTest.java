@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PrologStructureTest {
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(new PrologStruct("hello").getPrecedence(), 0);
     assertEquals(0,
         new PrologStruct(new PrologAtom("hello")).getPrecedence());

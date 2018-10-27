@@ -375,10 +375,9 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           break;
         }
 
-        // the variable contains calculated item priority (it can be not the
-        // same as the nature priority)
-        int readAtomPriority = 0; // we make it as zero (the highest
-        // priority) default
+        // the variable contains calculated item precedence (it can be not the
+        // same as the natural precedence)
+        int readAtomPrecedence = 0; // we make it as highest precedence
 
         switch (readAtom.getTermType()) {
           case __OPERATOR_CONTAINER__: {
@@ -421,8 +420,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 throw new PrologParserException("Incompatible operator type [" + readAtomContainer.getResult().getTermText() + ']',
                     readAtomContainer.getLine(), readAtomContainer.getPos());
               }
-              // we have found needed operator so get its priority
-              readAtomPriority = readAtom.getPrecedence();
+              // we have found needed operator so get its precedence
+              readAtomPrecedence = readAtom.getPrecedence();
             } else {
               readAtom = readOperator;
               final String operatorText = readOperator.getTermText();
@@ -434,7 +433,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                     readAtom = readList(readAtomContainer);
                     readAtom.setPos(readAtomContainer.getPos());
                     readAtom.setLine(readAtomContainer.getLine());
-                    readAtomPriority = 0;
+                    readAtomPrecedence = 0;
                   }
                   break;
                   case '(': {
@@ -466,12 +465,12 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   }
                   break;
                   default: {
-                    readAtomPriority = readOperator.getPrecedence();
+                    readAtomPrecedence = readOperator.getPrecedence();
                   }
                   break;
                 }
               } else {
-                readAtomPriority = readOperator.getPrecedence();
+                readAtomPrecedence = readOperator.getPrecedence();
               }
             }
           }
@@ -532,18 +531,18 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           // not first
           if (currentTreeItem.getType() == TermType.OPERATOR) {
             // it's not first operator
-            if (currentTreeItem.getPrecedence() <= readAtomPriority) {
-              // new has low priority
-              // make it as ascendent
-              final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPriority(readAtomPriority);
-              if (foundItem.getPrecedence() < readAtomPriority) {
+            if (currentTreeItem.getPrecedence() <= readAtomPrecedence) {
+              // new has lower or equal precedence
+              // make it as ascendant one
+              final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPrecedence(readAtomPrecedence);
+              if (foundItem.getPrecedence() < readAtomPrecedence) {
                 // make as parent
                 currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
-              } else if (foundItem.getPrecedence() > readAtomPriority) {
-                // make new as right subbranch
+              } else if (foundItem.getPrecedence() > readAtomPrecedence) {
+                // make new as right sub-branch
                 currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
               } else {
-                // equals priority
+                // equal precedence
                 switch (foundItem.getOperatorType()) {
                   case XF:
                   case YF:
@@ -561,8 +560,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                 }
               }
 
-            } else if (currentTreeItem.getPrecedence() > readAtomPriority) {
-              // new has great priority
+            } else if (currentTreeItem.getPrecedence() > readAtomPrecedence) {
+              // new has greater precedence
               if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
                 // it's a ground atom and its right branch is not empty
                 throw new PrologParserException(

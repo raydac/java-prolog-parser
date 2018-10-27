@@ -64,7 +64,7 @@ public class PrologBaseTermTest {
   }
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(0, new StubAbstractPrologTermTest("test").getPrecedence());
   }
 

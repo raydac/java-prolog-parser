@@ -966,7 +966,7 @@ public class IntegrationTest {
   }
 
   @Test
-  public void testPairOfOperatorsWithIncompatiblePriority() throws Exception {
+  public void testPairOfOperatorsWithIncompatiblePrecedence() throws Exception {
     assertEquals("-(discontiguous)", parseEd("-discontiguous.").next().toString());
     assertEquals("a : b :> c :> d", parseEd("a:b:>c:>d.", DefaultParserContext.of(ParserContext.TOKENIZER_FLAG_NONE, Op.make(500, XFY, ":>"))).next().toString());
     assertThrows(PrologParserException.class, () -> parseEd("a :- b :- c.").next());

@@ -143,12 +143,12 @@ final class TreeItem {
     return result;
   }
 
-  TreeItem findFirstNodeWithSuchOrLowerPriority(final int priority) {
+  TreeItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
     TreeItem result = this;
 
     while (!Thread.currentThread().isInterrupted()) {
       final TreeItem itsParent = result.parentItem;
-      if (itsParent == null || result.getPrecedence() >= priority) {
+      if (itsParent == null || result.getPrecedence() >= precedence) {
         break;
       } else {
         result = itsParent;
@@ -268,7 +268,7 @@ final class TreeItem {
               }
             }
 
-            throw new PrologParserException("Operator priority clash or missing operator: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+            throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 
           final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();

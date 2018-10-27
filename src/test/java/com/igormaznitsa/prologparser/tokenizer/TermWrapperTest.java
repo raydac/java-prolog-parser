@@ -22,7 +22,7 @@ public class TermWrapperTest {
   }
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(testWrapped.getPrecedence(), pool.find().getPrecedence());
   }
 

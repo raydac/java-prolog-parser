@@ -193,7 +193,7 @@ public final class Op extends SpecServiceCompound {
   /**
    * Make operator descriptor describing bunch of operators with same characteristics but differently named.
    *
-   * @param precedence the priority
+   * @param precedence the pricedence
    * @param type       the type of operators
    * @param names      names of operators, must not be empty or contain null
    * @return generated operator descriptor

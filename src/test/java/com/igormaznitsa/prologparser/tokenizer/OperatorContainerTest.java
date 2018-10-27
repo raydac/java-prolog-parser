@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class OperatorContainerTest {
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(make(Op.make(1000, OpAssoc.FX,
         "<>")).getPrecedence(), 0);
   }

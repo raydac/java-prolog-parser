@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class PrologAtomTest {
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(new PrologAtom("Hello").getPrecedence(), 0);
   }
 

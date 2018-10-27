@@ -54,7 +54,7 @@ public class PrologFloatNumberTest {
   }
 
   @Test
-  public void testGetPriority() {
+  public void testGetPrecedence() {
     assertEquals(0, new PrologFloat(23412213.002131d).getPrecedence());
     assertEquals(0, new PrologFloat(-000.002131d).getPrecedence());
   }
