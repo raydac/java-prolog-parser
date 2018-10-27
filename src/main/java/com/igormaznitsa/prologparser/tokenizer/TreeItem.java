@@ -132,7 +132,7 @@ final class TreeItem {
 
   TreeItem findRoot() {
     TreeItem result = this;
-    while (true) {
+    while (!Thread.currentThread().isInterrupted()) {
       final TreeItem theParent = result.parentItem;
       if (theParent == null) {
         break;
@@ -146,7 +146,7 @@ final class TreeItem {
   TreeItem findFirstNodeWithSuchOrLowerPriority(final int priority) {
     TreeItem result = this;
 
-    while (true) {
+    while (!Thread.currentThread().isInterrupted()) {
       final TreeItem itsParent = result.parentItem;
       if (itsParent == null || result.getPrecedence() >= priority) {
         break;
