@@ -44,7 +44,7 @@ public final class Op extends SpecServiceCompound {
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
 
-  public static final Op SWI_UNARY_PLUS = make(200, FY, "+");
+  public static final Op GNU_UNARY_PLUS = make(200, FY, "+");
   public static final Op ISO_BITWISE_NEGATION = make(200, FY, "\\");
   public static final Op ISO_UNARY_MINUS = make(200, FY, "-");
   public static final Op ISO_UNIFICATION = make(700, XFX, "=", "\\=", "=..");
@@ -56,6 +56,7 @@ public final class Op extends SpecServiceCompound {
   public static final Op ISO_ARITH_MUL_DIV = make(400, YFX, "*", "/");
   public static final Op ISO_ARITH_POWER = make(200, OpAssoc.XFX, "**");
   public static final Op ISO_ARITH_DIVIDE = make(400, OpAssoc.YFX, "//", "mod", "rem");
+  public static final Op ISO_NEGATE = make(900, OpAssoc.FY, "\\+");
 
   public static final Op ISO_CLAUSES = make(1200, OpAssoc.XFX, ":-", "-->");
   public static final Op ISO_DIRECTIVES = make(1200, OpAssoc.FX, "?-", ":-");
@@ -66,13 +67,15 @@ public final class Op extends SpecServiceCompound {
 
   public static final Op ISO_OR = make(1100, OpAssoc.XFY, ";");
   public static final Op ISO_THEN = make(1050, OpAssoc.XFY, "->");
-  public static final Op SWI_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
+  public static final Op GNU_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
+  public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
 
   public static final Op[] ISO = {
       ISO_CLAUSES,
       ISO_DIRECTIVES,
       ISO_OR,
       ISO_THEN,
+      ISO_NEGATE,
       ISO_UNIFICATION,
       ISO_ORDER_ARITH,
       ISO_ORDER_TERM,
@@ -89,24 +92,22 @@ public final class Op extends SpecServiceCompound {
   };
 
   public static final Op[] GNU_SPECIFIC = {
-      SWI_STAR_THEN,
-      make(900, OpAssoc.FY, "\\+"),
-      make(600, XFY, ":"),
+      GNU_STAR_THEN,
+      GNU_DOUBLE_DOT,
       GNU_DIV_RDIV,
-      SWI_UNARY_PLUS,
+      GNU_UNARY_PLUS,
   };
 
   public static final Op[] SWI_SPECIFIC = {
       make(1150, OpAssoc.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
-      SWI_STAR_THEN,
+      GNU_STAR_THEN,
       make(990, OpAssoc.FY, ":="),
-      make(900, OpAssoc.FY, "\\+"),
       make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
-      make(600, OpAssoc.XFY, ":"),
+      GNU_DOUBLE_DOT,
       make(500, OpAssoc.YFX, "xor"),
       make(500, OpAssoc.FX, "?"),
       GNU_DIV_RDIV,
-      SWI_UNARY_PLUS,
+      GNU_UNARY_PLUS,
       make(1, OpAssoc.FX, "$")
   };
 

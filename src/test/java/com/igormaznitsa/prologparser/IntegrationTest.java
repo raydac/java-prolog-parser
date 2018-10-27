@@ -911,8 +911,8 @@ public class IntegrationTest {
     assertEquals(1.1f, ((PrologNumeric) parseGen("1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
 
     assertEquals(-1, ((PrologNumeric) parseGen("-1.", of(FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().intValue());
-    assertEquals("+ 1", parseGen("+1.", of(FLAG_NONE, Op.SWI_UNARY_PLUS)).next().toString());
-    assertEquals("+ 1.1", parseGen("+1.1.", of(FLAG_NONE, Op.SWI_UNARY_PLUS)).next().toString());
+    assertEquals("+ 1", parseGen("+1.", of(FLAG_NONE, Op.GNU_UNARY_PLUS)).next().toString());
+    assertEquals("+ 1.1", parseGen("+1.1.", of(FLAG_NONE, Op.GNU_UNARY_PLUS)).next().toString());
     assertEquals(-1.1f, ((PrologNumeric) parseGen("-1.1.", of(FLAG_NONE, Op.ISO_UNARY_MINUS)).next()).getNumber().floatValue(), Float.MIN_NORMAL);
   }
 
