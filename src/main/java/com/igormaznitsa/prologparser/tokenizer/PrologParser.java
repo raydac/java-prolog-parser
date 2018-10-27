@@ -119,7 +119,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     };
   }
 
-  public static Op findSystemOperatorForNameAndType(final String text, final OpAssoc type) {
+  public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
     if (text.length() != 1) {
       return null;
     }
@@ -256,7 +256,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     while (doRead && !Thread.currentThread().isInterrupted()) {
       final PrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-      final TokenizerResult nextAtom = tokenizer.readNextToken();
+      final TokenizerResult nextAtom = this.tokenizer.readNextToken();
       if (nextAtom == null) {
         throw new PrologParserException("Can't read next token in list", this.tokenizer.getLine(), this.tokenizer.getPos());
       }

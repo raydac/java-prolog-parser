@@ -41,6 +41,9 @@ import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
 import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
+/**
+ * Internal tokenizer to gen next token from reader.
+ */
 final class Tokenizer {
 
   private final StringBuilderEx strBuf;

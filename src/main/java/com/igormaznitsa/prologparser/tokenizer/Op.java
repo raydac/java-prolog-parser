@@ -408,7 +408,7 @@ public final class Op extends SpecServiceCompound {
   }
 
   private Object readResolve() {
-    final Object result = GenericPrologParser.findSystemOperatorForNameAndType(this.text, this.opAssoc);
+    final Object result = GenericPrologParser.findBaseMetaOperator(this.text, this.opAssoc);
     return result == null ? this : result;
   }
 }

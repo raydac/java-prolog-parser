@@ -23,8 +23,6 @@ package com.igormaznitsa.prologparser.exceptions;
 
 /**
  * Unexpected error breaks functionality of the library.
- *
- * @since 2.0.0
  */
 public class CriticalUnexpectedError extends Error {
   private static final long serialVersionUID = -8219655356191420973L;

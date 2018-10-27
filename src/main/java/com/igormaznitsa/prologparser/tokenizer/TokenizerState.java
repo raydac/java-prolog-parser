@@ -21,6 +21,9 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+/**
+ * Internal tokenizer state.
+ */
 enum TokenizerState {
 
   LOOK_FOR,

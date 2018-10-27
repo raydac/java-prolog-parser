@@ -25,6 +25,9 @@ import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
+/**
+ * Internal object representing tokenizer result.
+ */
 final class TokenizerResult {
   private final SoftObjectPool<TokenizerResult> pool;
   private TokenizerState parserState;

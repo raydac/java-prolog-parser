@@ -38,7 +38,7 @@ import java.util.stream.StreamSupport;
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
 /**
- * Representation of prolog structure term.
+ * Representation of prolog structure.
  */
 public class PrologStruct extends PrologCompound implements Iterable<PrologTerm> {
 
@@ -62,7 +62,11 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     this.functor = functor;
   }
 
-  public PrologStruct(final PrologTerm functor, final PrologTerm[] elements, final int line, final int pos) {
+  public PrologStruct(
+      final PrologTerm functor,
+      final PrologTerm[] elements,
+      final int line, final int pos
+  ) {
     this(functor, elements);
     setPos(pos);
     setLine(line);
