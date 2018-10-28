@@ -228,7 +228,7 @@ final class TreeItem {
               Op operator = (Op) wrapper.getWrappedTerm();
               final PrologTerm blockContent = ((PrologStruct) rightTerm).getElementAt(0);
               if (blockContent.getTermType() == TermType.STRUCT) {
-                final PrologTerm[] terms = ((PrologStruct) blockContent).fillElementsForComma(new ArrayList<>()).toArray(PrologParser.EMPTY_TERM_ARRAY);
+                final PrologTerm[] terms = blockContent.flatComma(new ArrayList<>()).toArray(PrologParser.EMPTY_TERM_ARRAY);
                 if (operator.getArity() == terms.length) {
                   return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 } else {

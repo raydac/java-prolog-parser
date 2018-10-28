@@ -26,6 +26,10 @@ import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * Container of operators which have same name.
  */
@@ -97,7 +101,7 @@ public final class OpContainer extends SpecServiceCompound {
     return true;
   }
 
-  public void removeAll() {
+  public void clear() {
     this.opFZ = null;
     this.opZF = null;
     this.opZFZ = null;
@@ -192,7 +196,7 @@ public final class OpContainer extends SpecServiceCompound {
    *
    * @return the found only operator, null if there are severe operators
    */
-  public Op getOperatorIfSingle() {
+  public Op getIfSingle() {
     Op found = null;
     if (this.numberAtContainer == 1) {
       if (this.opZFZ != null) {
@@ -277,10 +281,7 @@ public final class OpContainer extends SpecServiceCompound {
         throw new CriticalUnexpectedError();
     }
 
-    if (result != null && result.getOpAssoc() == type) {
-      return result;
-    }
-    return null;
+    return result == null || result.getOpAssoc() != type ? null : result;
   }
 
   /**
@@ -355,20 +356,11 @@ public final class OpContainer extends SpecServiceCompound {
 
   @Override
   public String toString() {
-    final StringBuilderEx result = new StringBuilderEx("OpContainer [");
-
-    boolean added = false;
-    final Op[] ops = new Op[] {this.opFZ, this.opZF, this.opZFZ};
-    for (final Op op : ops) {
-      if (op != null) {
-        if (added) {
-          result.append(' ');
-        }
-        result.append(op.toString());
-        added = true;
-      }
-    }
-
-    return result.append(']').toString();
+    final StringBuilderEx result = new StringBuilderEx("OpContainer ");
+    result.append(Stream.of(this.opFZ, this.opZF, this.opZFZ)
+        .filter(Objects::nonNull)
+        .map(Op::toString)
+        .collect(Collectors.joining(" ", "[", "]")));
+    return result.toString();
   }
 }

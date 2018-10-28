@@ -70,6 +70,9 @@ public final class Op extends SpecServiceCompound {
   public static final Op GNU_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
   public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
 
+  /**
+   * Set of operators for ISO Prolog standard.
+   */
   public static final Op[] ISO = {
       ISO_CLAUSES,
       ISO_DIRECTIVES,
@@ -91,6 +94,9 @@ public final class Op extends SpecServiceCompound {
       make(100, OpAssoc.XFX, "@")
   };
 
+  /**
+   * Set of operators is specific for GNU Prolog use.
+   */
   public static final Op[] GNU_SPECIFIC = {
       GNU_STAR_THEN,
       GNU_DOUBLE_DOT,
@@ -98,6 +104,9 @@ public final class Op extends SpecServiceCompound {
       GNU_UNARY_PLUS,
   };
 
+  /**
+   * Set of operators is specific for SWI Prolog use
+   */
   public static final Op[] SWI_SPECIFIC = {
       make(1150, OpAssoc.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
       GNU_STAR_THEN,
@@ -111,8 +120,14 @@ public final class Op extends SpecServiceCompound {
       make(1, OpAssoc.FX, "$")
   };
 
+  /**
+   * Set of operators for SWI Prolog.
+   */
   public static final Op[] SWI = Op.join(ISO, SWI_SPECIFIC);
 
+  /**
+   * Set of Finite Domain operators for GNU Prolog.
+   */
   public static final Op[] GNU_FD = {
       make(750, XFY, "#<=>", "#\\<=>"),
       make(740, XFY, "#==>", "#\\==>"),
@@ -123,8 +138,14 @@ public final class Op extends SpecServiceCompound {
       make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#", "#>=#")
   };
 
+  /**
+   * Set of operators for GNU Prolog.
+   */
   public static final Op[] GNU = Op.join(ISO, GNU_SPECIFIC);
 
+  /**
+   * Set of Constraint Logic Programming operators for SWI Prolog.
+   */
   public static final Op[] SWI_CPL = {
       make(300, FY, "~"),
       make(500, YFX, "#"),

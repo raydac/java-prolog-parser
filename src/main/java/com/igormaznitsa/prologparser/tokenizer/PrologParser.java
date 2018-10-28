@@ -387,7 +387,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             // it is operator list
             // try to get the single operator from the list if the list
             // contains only one
-            final Op readOperator = ((OpContainer) readAtom).getOperatorIfSingle();
+            final Op readOperator = ((OpContainer) readAtom).getIfSingle();
 
             // check that the operator is single
             if (readOperator == null) {
@@ -623,7 +623,12 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   }
 
   public Stream<PrologTerm> stream() {
-    return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL), false);
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(
+            this,
+            Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL),
+        false
+    );
   }
 
   @Override

@@ -162,17 +162,13 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     return this.functor == Op.VIRTUAL_OPERATOR_BLOCK;
   }
 
-  public List<PrologTerm> fillElementsForComma(final List<PrologTerm> list) {
+  public List<PrologTerm> flatComma(final List<PrologTerm> list) {
     if (this.functor == Op.METAOPERATOR_COMMA) {
       for (final PrologTerm t : this.elements) {
-        if (t instanceof PrologStruct) {
-          ((PrologStruct) t).fillElementsForComma(list);
-        } else {
-          list.add(t);
-        }
+        t.flatComma(list);
       }
     } else {
-      list.add(this);
+      super.flatComma(list);
     }
     return list;
   }

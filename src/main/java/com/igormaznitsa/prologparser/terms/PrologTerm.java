@@ -26,6 +26,7 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
@@ -75,6 +76,11 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       }
     }
     return result;
+  }
+
+  public List<PrologTerm> flatComma(final List<PrologTerm> list) {
+    list.add(this);
+    return list;
   }
 
   public int getArity() {

@@ -60,7 +60,7 @@ public class OperatorContainerTest {
     final Op operator = Op.make(100, OpAssoc.FX, "<>");
     final OpContainer container = make(operator);
     assertEquals(1, container.size());
-    assertSame(operator, container.getOperatorIfSingle());
+    assertSame(operator, container.getIfSingle());
   }
 
   @Test
@@ -105,7 +105,7 @@ public class OperatorContainerTest {
     assertTrue(container.add(operatorYF));
 
     assertEquals(3, container.size());
-    container.removeAll();
+    container.clear();
     assertEquals(0, container.size());
     assertNull(container.findForType(OpAssoc.FX));
     assertNull(container.findForType(OpAssoc.XFX));
@@ -151,7 +151,7 @@ public class OperatorContainerTest {
     final OpContainer container = make(operatorFX);
 
     assertEquals(1, container.size());
-    container.removeAll();
+    container.clear();
     assertEquals(0, container.size());
     container.add(operatorFX);
     assertEquals(1, container.size());
@@ -169,16 +169,16 @@ public class OperatorContainerTest {
 
     final OpContainer container = make(operatorFX);
 
-    assertSame(operatorFX, container.getOperatorIfSingle());
+    assertSame(operatorFX, container.getIfSingle());
     container.add(operatorYF);
-    assertNull(container.getOperatorIfSingle());
+    assertNull(container.getIfSingle());
     container.add(operatorXFX);
-    assertNull(container.getOperatorIfSingle());
-    container.removeAll();
-    assertNull(container.getOperatorIfSingle());
+    assertNull(container.getIfSingle());
+    container.clear();
+    assertNull(container.getIfSingle());
 
     container.add(operatorYF);
-    assertEquals(operatorYF, container.getOperatorIfSingle());
+    assertEquals(operatorYF, container.getIfSingle());
   }
 
   @Test

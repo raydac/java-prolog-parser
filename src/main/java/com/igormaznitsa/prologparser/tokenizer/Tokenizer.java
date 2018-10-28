@@ -233,15 +233,13 @@ final class Tokenizer {
   }
 
   private void skipUntilBlockCommentEnd() throws IOException {
-    boolean star = false;
+    boolean starCharDetected = false;
     while (!Thread.currentThread().isInterrupted()) {
       final int readChar = this.readChar();
-      if (readChar < 0) {
-        break;
-      } else if (readChar == '/' && star) {
+      if (readChar < 0 || readChar == '/' && starCharDetected) {
         break;
       } else {
-        star = readChar == '*';
+        starCharDetected = readChar == '*';
       }
     }
   }
