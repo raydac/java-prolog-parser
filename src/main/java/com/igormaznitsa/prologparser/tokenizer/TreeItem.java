@@ -254,7 +254,7 @@ final class TreeItem {
           }
 
           if (!isPrecedenceOrderOk()) {
-            if (this.rightBranch != null || this.leftBranch != null) {
+            if (this.rightBranch != null ^ this.leftBranch != null) {
               final Op operator = (Op) wrapper.getWrappedTerm();
               if (operator.getOpAssoc() == OpAssoc.XF || operator.getOpAssoc() == OpAssoc.YF || operator.getOpAssoc() == OpAssoc.FX || operator.getOpAssoc() == OpAssoc.FY) {
                 final PrologTerm that = this.rightBranch != null
