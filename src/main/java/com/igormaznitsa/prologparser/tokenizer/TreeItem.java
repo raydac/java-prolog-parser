@@ -170,11 +170,33 @@ final class TreeItem {
     }
   }
 
-  OpAssoc getOperatorType() {
+  OpAssoc getOpAssoc() {
     return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpAssoc();
   }
 
-  private boolean isPrecedenceOrderOk() {
+  private boolean isOperandsOk() {
+    if (this.savedTerm.getTermType() == TermType.OPERATOR) {
+      final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
+      switch (wrappedOperator.getOpAssoc()) {
+        case FX:
+        case FY:
+          return this.leftBranch == null && this.rightBranch != null;
+        case YF:
+        case XF:
+          return this.leftBranch != null && this.rightBranch == null;
+        case XFX:
+        case XFY:
+        case YFX:
+          return this.leftBranch != null && this.rightBranch != null;
+        default:
+          throw new CriticalUnexpectedError();
+      }
+    } else {
+      return this.leftBranch == null && this.rightBranch == null;
+    }
+  }
+
+  private boolean isPrecedenceOk() {
     if (this.savedTerm.getTermType() == TermType.OPERATOR) {
       final int thisPrecedence = this.getPrecedence();
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
@@ -203,6 +225,10 @@ final class TreeItem {
 
   private boolean isBlock() {
     return this.savedTerm.getTermType() == TermType.STRUCT && ((PrologStruct) this.savedTerm).getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK;
+  }
+
+  private boolean isOperator() {
+    return this.savedTerm.getTermType() == TermType.OPERATOR;
   }
 
   @Override
@@ -253,29 +279,23 @@ final class TreeItem {
             return this.leftBranch.convertToTermAndRelease();
           }
 
-          if (!isPrecedenceOrderOk()) {
-            if (this.rightBranch != null ^ this.leftBranch != null) {
-              final Op operator = (Op) wrapper.getWrappedTerm();
-              if (operator.getOpAssoc() == OpAssoc.XF || operator.getOpAssoc() == OpAssoc.YF || operator.getOpAssoc() == OpAssoc.FX || operator.getOpAssoc() == OpAssoc.FY) {
-                final PrologTerm that = this.rightBranch != null
-                    ? this.rightBranch.convertToTermAndRelease()
-                    : this.leftBranch.convertToTermAndRelease();
-                if (that.getTermType() != TermType.STRUCT && that.getTermType() != TermType.VAR) {
-                  return new PrologStruct(that, new PrologTerm[] {
-                      new PrologAtom(operator.getTermText())
-                  }, operator.getLine(), operator.getPos());
-                }
-              }
-            }
-
-            throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+          if (!isOperandsOk()) {
+            throw new PrologParserException("No operands: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 
-          final PrologTerm left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
-          final PrologTerm right = this.rightBranch == null ? null : this.rightBranch.convertToTermAndRelease();
+          final PrologTerm left;
+          final PrologTerm right;
 
-          if (left == null && right == null) {
-            throw new PrologParserException("Op without operands", wrapper.getLine(), wrapper.getPos());
+          if (!isPrecedenceOk()) {
+            if (this.rightBranch != null && this.rightBranch.isOperator() && this.rightBranch.getOpAssoc().isPrefix()) {
+              left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
+              right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {this.rightBranch.convertToTermAndRelease()});
+            } else {
+              throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+            }
+          } else {
+            left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
+            right = this.rightBranch == null ? null : this.rightBranch.convertToTermAndRelease();
           }
 
           // this code replaces '-'(number) to '-number'

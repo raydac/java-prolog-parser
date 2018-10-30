@@ -71,6 +71,14 @@ public enum OpAssoc {
     return Stream.of(values()).filter(x -> x.text.equals(str)).findFirst();
   }
 
+  public boolean isPostfix() {
+    return this == XF || this == YF;
+  }
+
+  public boolean isPrefix() {
+    return this == FX || this == FY;
+  }
+
   public int getArity() {
     return this.arity;
   }

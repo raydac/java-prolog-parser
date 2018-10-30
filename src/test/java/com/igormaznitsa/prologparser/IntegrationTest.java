@@ -37,8 +37,7 @@ import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -95,7 +94,7 @@ public class IntegrationTest {
     assertEquals("V in inf .. -2 \\/ 0 \\/ 2 .. 16 \\/ 18 .. sup", parseCpl("V in inf.. -2 \\/ 0 \\/ 2..16 \\/ 18..sup.").next().toString());
     assertEquals("X #> Y #==> X - N #>= Y #/\\ X - M - 1 #< Y , X #=< Y #==> Y - N #>= X #/\\ Y - M - 1 #< X", parseCpl("X#>Y#==>X-N#>=Y#/\\X-M-1#<Y,X #=< Y #==> Y - N #>= X #/\\ Y - M - 1 #< X.").next().toString());
     assertEquals("clpfd : run_propagator(even(X), MState) :- (integer(X) -> clpfd : kill(MState) , 0 is X mod 2 ; true)", parseCpl("clpfd:run_propagator(even(X),MState):-(integer(X)->clpfd:kill(MState),0is X mod 2;true).").next().toString());
-    assertThrows(PrologParserException.class, () -> parseCpl("#\\X..#\\Y.").next());
+    assertEquals("#\\ X .. (#\\ Y)", parseCpl("#\\X..#\\Y.").next().toString());
   }
 
   @Test
@@ -572,6 +571,16 @@ public class IntegrationTest {
 
   @Test
   public void testParseSourceFiles() {
+    assertReadTerms(36, "cover.p", Op.make(400, FY, "private"), Op.make(400, XFX, "is_atom"));
+    assertReadTerms(70, "sincos.p");
+    assertReadTerms(49, "moddiv.p");
+    assertReadTerms(48, "eqless.p");
+    assertReadTerms(34, "bitwise.p");
+    assertReadTerms(64, "basic.p");
+    assertReadTerms(74, "signal.p");
+    assertReadTerms(21, "pred.p");
+    assertReadTerms(85, "logical.p");
+    assertReadTerms(67, "kernel.p");
     assertReadTerms(20, "ConcurrentList.pl");
     assertReadTerms(5, "points_test.pl", Op.make(800, XFX, "<-"), Op.make(850, XFY, "returns"));
     assertReadTerms(6, "points_test2.pl", Op.make(800, XFX, "<-"), Op.make(850, XFY, "returns"));
@@ -967,9 +976,11 @@ public class IntegrationTest {
 
   @Test
   public void testPairOfOperatorsWithIncompatiblePrecedence() throws Exception {
-    assertEquals("-(discontiguous)", parseEd("-discontiguous.").next().toString());
+    assertEquals("- (discontiguous)", parseEd("-discontiguous.").next().toString());
+    assertEquals("2 ** (-1)", parseEd("2**-1.").next().toString());
+    assertEquals("0.2 is 5 ** (-1)", parseEd("0.2 is 5** -1.").next().toString());
     assertEquals("a : b :> c :> d", parseEd("a:b:>c:>d.", DefaultParserContext.of(ParserContext.FLAG_NONE, Op.make(500, XFY, ":>"))).next().toString());
-    assertThrows(PrologParserException.class, () -> parseEd("X=(a,b,c; dynamic d).").next());
+    assertEquals("X = (a , b , c ; (dynamic d))", parseEd("X=(a,b,c; dynamic d).").next().toString());
     assertThrows(PrologParserException.class, () -> parseEd("a :- b :- c.").next());
     assertThrows(PrologParserException.class, () -> parseEd("?-mother(pam,bob);").next());
   }

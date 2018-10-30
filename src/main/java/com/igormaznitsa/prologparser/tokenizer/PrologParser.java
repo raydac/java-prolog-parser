@@ -550,34 +550,38 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           if (currentTreeItem.getType() == TermType.OPERATOR) {
             // it's not first operator
             if (currentTreeItem.getPrecedence() <= readAtomPrecedence) {
-              // new has lower or equal precedence
-              // make it as ascendant one
-              final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPrecedence(readAtomPrecedence);
-              if (foundItem.getPrecedence() < readAtomPrecedence) {
-                // make as parent
-                currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
-              } else if (foundItem.getPrecedence() > readAtomPrecedence) {
-                // make new as right sub-branch
-                currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
+              if (readAtom.getTermType() == TermType.OPERATOR && ((Op) readAtom).getOpAssoc().isPrefix()) {
+                // it is a prefix operator so that it can be there
+                currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);
               } else {
-                // equal precedence
-                switch (foundItem.getOperatorType()) {
-                  case XF:
-                  case YF:
-                  case FX:
-                  case XFX:
-                  case YFX:
-                    currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
-                    break;
-                  case FY:
-                  case XFY:
-                    currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
-                    break;
-                  default:
-                    throw new CriticalUnexpectedError();
+                // new has lower or equal precedence
+                // make it as ascendant one
+                final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPrecedence(readAtomPrecedence);
+                if (foundItem.getPrecedence() < readAtomPrecedence) {
+                  // make as parent
+                  currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
+                } else if (foundItem.getPrecedence() > readAtomPrecedence) {
+                  // make new as right sub-branch
+                  currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
+                } else {
+                  // equal precedence
+                  switch (foundItem.getOpAssoc()) {
+                    case XF:
+                    case YF:
+                    case FX:
+                    case XFX:
+                    case YFX:
+                      currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);
+                      break;
+                    case FY:
+                    case XFY:
+                      currentTreeItem = foundItem.makeAsRightBranch(readAtomTreeItem);
+                      break;
+                    default:
+                      throw new CriticalUnexpectedError();
+                  }
                 }
               }
-
             } else if (currentTreeItem.getPrecedence() > readAtomPrecedence) {
               // new has greater precedence
               if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
