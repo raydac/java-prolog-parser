@@ -233,7 +233,7 @@ final class TreeItem {
 
   @Override
   public String toString() {
-    return savedTerm.toString();
+    return "TreeItem[" + (this.savedTerm == null ? "null" : this.savedTerm.toString()) + ']';
   }
 
   PrologTerm convertToTermAndRelease() {
@@ -298,9 +298,10 @@ final class TreeItem {
             right = this.rightBranch == null ? null : this.rightBranch.convertToTermAndRelease();
           }
 
-          // this code replaces '-'(number) to '-number'
-          if (right instanceof PrologNumeric && wrapper.getQuotingType() == PrologTerm.QuotingType.NO_QUOTED && left == null && right.getTermType() == TermType.ATOM) {
-            if ("-".equals(wrapper.getTermText())) {
+          // this code replaces '-'(number) to '-number' if number is not negative one
+          if ("-".equals(wrapper.getTermText()) && left == null && right instanceof PrologNumeric) {
+            final PrologNumeric numeric = (PrologNumeric) right;
+            if (!numeric.isNegative()) {
               result = ((PrologNumeric) right).neg();
               break;
             }

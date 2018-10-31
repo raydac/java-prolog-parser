@@ -113,4 +113,9 @@ public final class PrologInt extends PrologNumeric {
   public BigInteger getIntValue() {
     return this.value;
   }
+
+  @Override
+  public boolean isNegative() {
+    return this.value.signum() < 0;
+  }
 }

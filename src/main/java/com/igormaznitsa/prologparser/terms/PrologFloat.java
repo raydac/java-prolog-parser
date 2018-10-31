@@ -80,4 +80,9 @@ public final class PrologFloat extends PrologNumeric {
     final String result = this.value.toEngineeringString();
     return result.indexOf('.') < 0 ? result + ".0" : result;
   }
+
+  @Override
+  public boolean isNegative() {
+    return this.value.signum() < 0;
+  }
 }

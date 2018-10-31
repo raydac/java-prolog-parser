@@ -263,8 +263,6 @@ public class IntegrationTest {
     checkIntegerWithoutPPE("0", 0);
     checkIntegerWithoutPPE("1", 1);
     checkIntegerWithoutPPE("1313", 1313);
-    checkIntegerWithoutPPE("-0", 0);
-    checkIntegerWithoutPPE("-97", -97);
     checkIntegerWithoutPPE("-97", -97);
     checkIntegerWithoutPPE(Long.toString(Long.MAX_VALUE), Long.MAX_VALUE);
 

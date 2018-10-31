@@ -48,5 +48,7 @@ public abstract class PrologNumeric extends PrologTerm {
     return toString();
   }
 
+  public abstract boolean isNegative();
+
   public abstract PrologNumeric neg();
 }
