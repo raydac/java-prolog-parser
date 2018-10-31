@@ -21,11 +21,6 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.INTEGER;
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
-import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
-
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
@@ -41,6 +36,9 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
+
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.*;
+import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
 /**
  * Internal tokenizer to gen next token from reader.
@@ -427,18 +425,14 @@ final class Tokenizer {
                     letterOrDigitOnly = Character.isLetterOrDigit(chr);
                     final String operator = String.valueOf(chr);
 
-                    if (Character.isLowerCase(chr)) {
-                      state = TokenizerState.ATOM;
+                    if (hasOperatorStartsWith(operator)) {
+                      lastFoundFullOperator = findOperatorForName(operator);
+                      state = TokenizerState.OPERATOR;
                     } else {
-                      if (hasOperatorStartsWith(operator)) {
-                        lastFoundFullOperator = findOperatorForName(operator);
-                        state = TokenizerState.OPERATOR;
+                      if (Character.isDigit(chr)) {
+                        state = TokenizerState.INTEGER;
                       } else {
-                        if (Character.isDigit(chr)) {
-                          state = TokenizerState.INTEGER;
-                        } else {
-                          state = TokenizerState.ATOM;
-                        }
+                        state = TokenizerState.ATOM;
                       }
                     }
                   }
@@ -607,16 +601,27 @@ final class Tokenizer {
               if (chr != '_' && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
                 push(chr);
 
-                if (lastFoundFullOperator == null) {
-                  return this.tokenizerResultPool.find().setData(
-                      makeTermFromString(strBuffer.toString(), quoting, state),
-                      state,
-                      getLastTokenLine(),
-                      getLastTokenPos()
-                  );
+                if (lastFoundFullOperator == null || letterOrDigitOnly) {
+                  final String textInBuffer = strBuffer.toString();
+
+                  if (lastFoundFullOperator != null && lastFoundFullOperator.getTermText().equals(textInBuffer)) {
+                    return this.tokenizerResultPool.find().setData(
+                        lastFoundFullOperator,
+                        state,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  } else {
+                    return this.tokenizerResultPool.find().setData(
+                        makeTermFromString(textInBuffer, quoting, ATOM),
+                        ATOM,
+                        getLastTokenLine(),
+                        getLastTokenPos()
+                    );
+                  }
                 } else {
                   calcDiffAndPushResultBack(
-                          lastFoundFullOperator.getTermText(), strBuffer);
+                      lastFoundFullOperator.getTermText(), strBuffer);
                   return this.tokenizerResultPool.find().setData(
                       lastFoundFullOperator,
                       state,
