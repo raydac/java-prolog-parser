@@ -571,6 +571,9 @@ public class IntegrationTest {
 
   @Test
   public void testParseSourceFiles() {
+    assertReadTerms(17, "calc.p");
+    assertReadTerms(23, "tictac.p");
+    assertReadTerms(33, "poly.p");
     assertReadTerms(36, "cover.p", Op.make(400, FY, "private"), Op.make(400, XFX, "is_atom"));
     assertReadTerms(70, "sincos.p");
     assertReadTerms(49, "moddiv.p");
@@ -976,6 +979,10 @@ public class IntegrationTest {
 
   @Test
   public void testPairOfOperatorsWithIncompatiblePrecedence() throws Exception {
+//    assertEquals("", parseEd("1---1.").next().toString());
+    assertEquals("1 + 1 * a * a + a - 1", parseEd("1+1*a*a+a-1.").next().toString());
+    assertEquals("-1 + 2 ** (- 3 ** (-4))", parseEd("-1+2**-3**-4.").next().toString());
+    assertEquals("X = (discontiguous)", parseEd("X=discontiguous.").next().toString());
     assertEquals("- (discontiguous)", parseEd("-discontiguous.").next().toString());
     assertEquals("2 ** (-1)", parseEd("2**-1.").next().toString());
     assertEquals("0.2 is 5 ** (-1)", parseEd("0.2 is 5** -1.").next().toString());
