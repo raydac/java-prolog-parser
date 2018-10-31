@@ -21,6 +21,11 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.INTEGER;
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
+import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
+
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
@@ -36,10 +41,6 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
-
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
-import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
 /**
  * Internal tokenizer to gen next token from reader.
@@ -614,6 +615,8 @@ final class Tokenizer {
                       getLastTokenPos()
                   );
                 } else {
+                  calcDiffAndPushResultBack(
+                          lastFoundFullOperator.getTermText(), strBuffer);
                   return this.tokenizerResultPool.find().setData(
                       lastFoundFullOperator,
                       state,

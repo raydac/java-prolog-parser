@@ -1,5 +1,33 @@
 package com.igormaznitsa.prologparser;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ALLOW_ZERO_STRUCT;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.BACK_QUOTED;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.DOUBLE_QUOTED;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.NO_QUOTED;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.SINGLE_QUOTED;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FY;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -31,16 +59,6 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.*;
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
-import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
-import static java.util.stream.Collectors.joining;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
 
@@ -977,7 +995,7 @@ public class IntegrationTest {
 
   @Test
   public void testPairOfOperatorsWithIncompatiblePrecedence() throws Exception {
-//    assertEquals("", parseEd("1---1.").next().toString());
+    assertEquals("1 - - -1", parseEd("1---1.").next().toString());
     assertEquals("1 + 1 * a * a + a - 1", parseEd("1+1*a*a+a-1.").next().toString());
     assertEquals("-1 + 2 ** (- 3 ** (-4))", parseEd("-1+2**-3**-4.").next().toString());
     assertEquals("X = (discontiguous)", parseEd("X=discontiguous.").next().toString());
