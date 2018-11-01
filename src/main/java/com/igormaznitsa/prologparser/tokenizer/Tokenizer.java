@@ -36,6 +36,7 @@ import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigInteger;
 
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.*;
 import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
@@ -273,6 +274,8 @@ final class Tokenizer {
 
     PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;
 
+    int radix = 10;
+
     TokenizerState state = LOOK_FOR;
     boolean specCharDetected = false;
     boolean charCodeAsInt = false;
@@ -309,8 +312,8 @@ final class Tokenizer {
                 push('.');
                 // it is Integer
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.INTEGER),
-                    TokenizerState.ATOM,
+                    makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.INTEGER),
+                    TokenizerState.INTEGER,
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
@@ -318,7 +321,7 @@ final class Tokenizer {
                 // it is just integer number or an atom
                 final String text = strBuffer.toString();
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
+                    makeTermFromString(text, radix, PrologTerm.findAppropriateQuoting(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -348,7 +351,7 @@ final class Tokenizer {
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(strBuffer.toString(), quoting, state),
+                    makeTermFromString(strBuffer.toString(), radix, quoting, state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -459,7 +462,7 @@ final class Tokenizer {
                 }
 
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
+                    makeTermFromString(text, radix, PrologTerm.findAppropriateQuoting(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
@@ -482,7 +485,7 @@ final class Tokenizer {
                   }
                 }
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(text, PrologTerm.findAppropriateQuoting(text), state),
+                    makeTermFromString(text, radix, PrologTerm.findAppropriateQuoting(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
@@ -493,7 +496,7 @@ final class Tokenizer {
             }
             break;
             case INTEGER: {
-              if (Character.isDigit(chr)) {
+              if (isCharAllowedForRadix(chr, radix)) {
                 foundUnderscoreInNumber = false;
                 strBuffer.append(chr);
               } else if (chr == '_') {
@@ -515,14 +518,33 @@ final class Tokenizer {
                     throw new PrologParserException("Unexpected underscore", this.prevLine, this.prevPos);
                   }
 
-                  if (this.zeroSingleQuotationAllowed && chr == '\'' && strBuffer.isSingleChar('0')) {
-                    state = STRING;
-                    charCodeAsInt = true;
-                    strBuffer.clear();
+                  if (chr == '\'') {
+                    if (strBuffer.isSingleChar('0')) {
+                      if (this.zeroSingleQuotationAllowed) {
+                        state = STRING;
+                        charCodeAsInt = true;
+                        strBuffer.clear();
+                      } else {
+                        push(chr);
+                        return this.tokenizerResultPool.find().setData(
+                            makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                            TokenizerState.INTEGER,
+                            getLastTokenLine(),
+                            getLastTokenPos());
+                      }
+                    } else {
+                      radix = Integer.parseInt(strBuffer.toString());
+                      if (radix < 2 || radix > 36) {
+                        throw new PrologParserException("Radix must be 2..36: " + radix,
+                            getLastTokenLine(),
+                            getLastTokenPos());
+                      }
+                      strBuffer.clear();
+                    }
                   } else {
                     push(chr);
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        makeTermFromString(strBuffer.toString(), radix, quoting, state),
                         TokenizerState.INTEGER,
                         getLastTokenLine(),
                         getLastTokenPos());
@@ -548,7 +570,7 @@ final class Tokenizer {
                   } else {
                     push(chr);
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, TokenizerState.FLOAT),
+                        makeTermFromString(strBuffer.toString(), radix, quoting, TokenizerState.FLOAT),
                         TokenizerState.FLOAT,
                         getLastTokenLine(),
                         getLastTokenPos());
@@ -563,7 +585,7 @@ final class Tokenizer {
                   } else {
                     push(chr);
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.FLOAT),
+                        makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.FLOAT),
                         TokenizerState.FLOAT,
                         getLastTokenLine(),
                         getLastTokenPos());
@@ -580,14 +602,14 @@ final class Tokenizer {
                     // it was an integer
                     push('.');
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toStringExcludeLastChar(), quoting, TokenizerState.INTEGER),
+                        makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.INTEGER),
                         TokenizerState.INTEGER,
                         getLastTokenLine(),
                         getLastTokenPos());
                   } else {
                     // it is float
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        makeTermFromString(strBuffer.toString(), radix, quoting, state),
                         state,
                         getLastTokenLine(),
                         getLastTokenPos()
@@ -613,7 +635,7 @@ final class Tokenizer {
                     );
                   } else {
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(textInBuffer, quoting, ATOM),
+                        makeTermFromString(textInBuffer, radix, quoting, ATOM),
                         ATOM,
                         getLastTokenLine(),
                         getLastTokenPos()
@@ -687,7 +709,7 @@ final class Tokenizer {
                   strBuffer.append('\n');
                   if (charCodeAsInt) {
                     return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), quoting, state),
+                        makeTermFromString(strBuffer.toString(), radix, quoting, state),
                         state,
                         getLastTokenLine(),
                         getLastTokenPos()
@@ -717,7 +739,7 @@ final class Tokenizer {
                   case '\'':
                     if (quoting == PrologTerm.QuotingType.SINGLE_QUOTED) {
                       return this.tokenizerResultPool.find().setData(
-                          makeTermFromString(strBuffer.toString(), quoting, state),
+                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -738,7 +760,7 @@ final class Tokenizer {
                   case '`':
                     if (quoting == PrologTerm.QuotingType.BACK_QUOTED) {
                       return this.tokenizerResultPool.find().setData(
-                          makeTermFromString(strBuffer.toString(), quoting, state),
+                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -759,7 +781,7 @@ final class Tokenizer {
                   case '\"':
                     if (quoting == PrologTerm.QuotingType.DOUBLE_QUOTED) {
                       return this.tokenizerResultPool.find().setData(
-                          makeTermFromString(strBuffer.toString(), quoting, state),
+                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -827,13 +849,30 @@ final class Tokenizer {
     }
   }
 
-  PrologTerm makeTermFromString(final String str, final PrologTerm.QuotingType quotingType, final TokenizerState state) {
+  private static boolean isCharAllowedForRadix(final char chr, final int radix) {
+    if (radix == 10) {
+      return Character.isDigit(chr);
+    } else if (radix < 10) {
+      return chr >= '0' && chr < ('0' + radix);
+    } else {
+      if (chr >= '0' && chr <= '9') {
+        return true;
+      }
+      final int diff = radix - 10;
+      if (chr >= 'A' && chr < ('A' + diff)) {
+        return true;
+      }
+      return chr >= 'a' && chr < ('a' + diff);
+    }
+  }
+
+  PrologTerm makeTermFromString(final String str, final int radix, final PrologTerm.QuotingType quotingType, final TokenizerState state) {
     PrologTerm result;
 
     switch (state) {
       case INTEGER: {
         try {
-          result = new PrologInt(str);
+          result = radix == 10 ? new PrologInt(str) : new PrologInt(new BigInteger(str, radix));
         } catch (NumberFormatException ex) {
           result = null;
         }

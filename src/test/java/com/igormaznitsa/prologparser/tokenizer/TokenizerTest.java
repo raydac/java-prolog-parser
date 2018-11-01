@@ -246,6 +246,10 @@ public class TokenizerTest {
 
   @Test
   public void testUnderscoreInNumbers_Normal() {
+    assertEquals(6384, ((PrologInt) tokenizeOf("2'001_1000_1111_0000.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) tokenizeOf("16'F_F.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) tokenizeOf("16'f_f.").readNextToken().getResult()).getNumber().intValue());
+
     assertEquals(12345, ((PrologInt) tokenizeOf("12_345.").readNextToken().getResult()).getNumber().intValue());
     assertEquals(12345, ((PrologInt) tokenizeOf("12_34_5.").readNextToken().getResult()).getNumber().intValue());
     assertEquals(12345, ((PrologInt) tokenizeOf("1_2_34_5.").readNextToken().getResult()).getNumber().intValue());
@@ -261,55 +265,55 @@ public class TokenizerTest {
   @Test
   public void testMakeTermFromString() {
     final Tokenizer tokenizer = tokenizeOf("792394382");
-    PrologTerm term = tokenizer.makeTermFromString("792394382", NO_QUOTED, TokenizerState.INTEGER);
+    PrologTerm term = tokenizer.makeTermFromString("792394382", 10, NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals("792394382", term.getTermText());
 
-    term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), NO_QUOTED, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), 10, NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MIN_VALUE), term.getTermText());
 
-    term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), NO_QUOTED, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), 10, NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MAX_VALUE), term.getTermText());
 
-    term = tokenizer.makeTermFromString("0.003422", NO_QUOTED, TokenizerState.FLOAT);
+    term = tokenizer.makeTermFromString("0.003422", 10, NO_QUOTED, TokenizerState.FLOAT);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologFloat.class);
     assertEquals("0.003422", term.getTermText());
 
-    term = tokenizer.makeTermFromString("a0.003422b", NO_QUOTED, TokenizerState.FLOAT);
+    term = tokenizer.makeTermFromString("a0.003422b", 10, NO_QUOTED, TokenizerState.FLOAT);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a0.003422b", term.getTermText());
 
-    term = tokenizer.makeTermFromString("a12345b", NO_QUOTED, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString("a12345b", 10, NO_QUOTED, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a12345b", term.getTermText());
 
-    term = tokenizer.makeTermFromString("123", SINGLE_QUOTED, ATOM);
+    term = tokenizer.makeTermFromString("123", 10, SINGLE_QUOTED, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123", term.getTermText());
 
-    term = tokenizer.makeTermFromString("123.123", SINGLE_QUOTED, ATOM);
+    term = tokenizer.makeTermFromString("123.123", 10, SINGLE_QUOTED, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123.123", term.getTermText());
 
-    term = tokenizer.makeTermFromString("abcd", NO_QUOTED, ATOM);
+    term = tokenizer.makeTermFromString("abcd", 10, NO_QUOTED, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
