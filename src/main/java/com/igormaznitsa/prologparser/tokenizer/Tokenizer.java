@@ -785,7 +785,7 @@ final class Tokenizer {
                     final char theChar;
 
                     if (Character.isISOControl(chr)) {
-                      theChar = StringUtils.isAllowedEscapeChar(chr) ? chr : '→';
+                      throw new PrologParserException("Unexpected control char: 0x" + Integer.toHexString(chr), this.prevLine, this.prevPos);
                     } else {
                       theChar = chr;
                     }

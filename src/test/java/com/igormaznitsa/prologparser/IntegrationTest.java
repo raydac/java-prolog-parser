@@ -99,17 +99,17 @@ public class IntegrationTest {
 
   @Test
   public void testParseStringWithSpecialChars() {
-    final PrologParser parser = parseEd("'0\\'a \u0008Hello\\\nWorld\u0021\\r'.\"0'a \\xFF\\Another String\u0007\".");
+    final PrologParser parser = parseEd("'0\\'a Hello\\\nWorld\u0021\\r'.\"0'a \\xFF\\Another String\".");
     PrologTerm term = parser.next();
 
     assertEquals(ATOM, term.getTermType());
     assertEquals(PrologTerm.QuotingType.SINGLE_QUOTED, term.getQuotingType());
-    assertEquals("0\\'a \\bHello\\nWorld!\\r", StringUtils.escapeString(term.getTermText(), SINGLE_QUOTED));
+    assertEquals("0\\'a Hello\\nWorld!\\r", StringUtils.escapeString(term.getTermText(), SINGLE_QUOTED));
 
     term = parser.next();
     assertNotNull(term);
     assertEquals(PrologTerm.QuotingType.DOUBLE_QUOTED, term.getQuotingType());
-    assertEquals("0'a \u00FFAnother String\u0007", term.getTermText());
+    assertEquals("0'a ÿAnother String", term.getTermText());
 
   }
 
@@ -896,10 +896,9 @@ public class IntegrationTest {
 
   @Test
   public void testStringWithIsoControl() {
-    assertEquals("'hello→world'", parseSortAndJoin("'hello\u0000world'."));
-    assertEquals("'hello→world'", parseSortAndJoin("'hello\u0001world'."));
-    assertEquals("'hello\\nworld'", parseSortAndJoin("'hello\\\nworld'."));
-    assertEquals("'hello\\nworld'", parseSortAndJoin("'hello\\\r\nworld'."));
+    assertThrows(PrologParserException.class, ()-> parseEd("'hello\u0000world'.").next());
+    assertEquals("'hello\\nworld'", parseEd("'hello\\\nworld'.").next().toString());
+    assertEquals("'hello\\nworld'", parseEd("'hello\\\r\nworld'.").next().toString());
   }
 
   @Test
