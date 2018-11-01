@@ -91,6 +91,23 @@ final class Tokenizer {
     this.tokenizerResultPool.fill();
   }
 
+  private static boolean isCharAllowedForRadix(final char chr, final int radix) {
+    if (radix == 10) {
+      return Character.isDigit(chr);
+    } else if (radix < 10) {
+      return chr >= '0' && chr < ('0' + radix);
+    } else {
+      if (chr >= '0' && chr <= '9') {
+        return true;
+      }
+      final int diff = radix - 10;
+      if (chr >= 'A' && chr < ('A' + diff)) {
+        return true;
+      }
+      return chr >= 'a' && chr < ('a' + diff);
+    }
+  }
+
   TokenizerResult getLastPushed() {
     return this.lastPushedTerm;
   }
@@ -542,12 +559,30 @@ final class Tokenizer {
                       strBuffer.clear();
                     }
                   } else {
-                    push(chr);
-                    return this.tokenizerResultPool.find().setData(
-                        makeTermFromString(strBuffer.toString(), radix, quoting, state),
-                        TokenizerState.INTEGER,
-                        getLastTokenLine(),
-                        getLastTokenPos());
+                    boolean radixCharFound = false;
+                    if (radix == 10 && strBuffer.isSingleChar('0')) {
+                      if (chr == 'x') {
+                        radixCharFound = true;
+                        radix = 16;
+                        strBuffer.clear();
+                      } else if (chr == 'o') {
+                        radixCharFound = true;
+                        radix = 8;
+                        strBuffer.clear();
+                      } else if (chr == 'b') {
+                        radixCharFound = true;
+                        radix = 2;
+                        strBuffer.clear();
+                      }
+                    }
+                    if (!radixCharFound) {
+                      push(chr);
+                      return this.tokenizerResultPool.find().setData(
+                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                          TokenizerState.INTEGER,
+                          getLastTokenLine(),
+                          getLastTokenPos());
+                    }
                   }
                 }
               }
@@ -846,23 +881,6 @@ final class Tokenizer {
       return null;
     } catch (IOException ex) {
       throw new PrologParserException("IO exception during read char", this.prevLine, this.prevPos, ex);
-    }
-  }
-
-  private static boolean isCharAllowedForRadix(final char chr, final int radix) {
-    if (radix == 10) {
-      return Character.isDigit(chr);
-    } else if (radix < 10) {
-      return chr >= '0' && chr < ('0' + radix);
-    } else {
-      if (chr >= '0' && chr <= '9') {
-        return true;
-      }
-      final int diff = radix - 10;
-      if (chr >= 'A' && chr < ('A' + diff)) {
-        return true;
-      }
-      return chr >= 'a' && chr < ('a' + diff);
     }
   }
 

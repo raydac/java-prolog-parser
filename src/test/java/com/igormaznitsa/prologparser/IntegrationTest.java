@@ -896,7 +896,7 @@ public class IntegrationTest {
 
   @Test
   public void testStringWithIsoControl() {
-    assertThrows(PrologParserException.class, ()-> parseEd("'hello\u0000world'.").next());
+    assertThrows(PrologParserException.class, () -> parseEd("'hello\u0000world'.").next());
     assertEquals("'hello\\nworld'", parseEd("'hello\\\nworld'.").next().toString());
     assertEquals("'hello\\nworld'", parseEd("'hello\\\r\nworld'.").next().toString());
   }

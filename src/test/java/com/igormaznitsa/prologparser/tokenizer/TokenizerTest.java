@@ -247,8 +247,13 @@ public class TokenizerTest {
   @Test
   public void testUnderscoreInNumbers_Normal() {
     assertEquals(6384, ((PrologInt) tokenizeOf("2'001_1000_1111_0000.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(6384, ((PrologInt) tokenizeOf("0b001_1000_1111_0000.").readNextToken().getResult()).getNumber().intValue());
     assertEquals(255, ((PrologInt) tokenizeOf("16'F_F.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) tokenizeOf("0xF_F.").readNextToken().getResult()).getNumber().intValue());
     assertEquals(255, ((PrologInt) tokenizeOf("16'f_f.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) tokenizeOf("0xf_f.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(511, ((PrologInt) tokenizeOf("8'77_7.").readNextToken().getResult()).getNumber().intValue());
+    assertEquals(511, ((PrologInt) tokenizeOf("0o77_7.").readNextToken().getResult()).getNumber().intValue());
 
     assertEquals(12345, ((PrologInt) tokenizeOf("12_345.").readNextToken().getResult()).getNumber().intValue());
     assertEquals(12345, ((PrologInt) tokenizeOf("12_34_5.").readNextToken().getResult()).getNumber().intValue());
