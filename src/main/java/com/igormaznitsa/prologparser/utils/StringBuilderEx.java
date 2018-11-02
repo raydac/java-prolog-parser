@@ -144,6 +144,6 @@ public final class StringBuilderEx {
   }
 
   public boolean isFirstCharDigit() {
-    return this.stringBuilder.length()>0 && Character.isDigit(this.stringBuilder.charAt(0));
+    return this.stringBuilder.length() > 0 && Character.isDigit(this.stringBuilder.charAt(0));
   }
 }
