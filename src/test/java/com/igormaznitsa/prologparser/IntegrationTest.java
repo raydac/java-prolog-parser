@@ -992,8 +992,8 @@ public class IntegrationTest {
 
   @Test
   public void testOperatorAsFunctorWithUnsupportedArity() throws Exception {
-    assertEquals("'+'(1, 2, 3)", parseEd("+(1,2,3).").next().toString());
     assertEquals("':'(1, 2, 3)", parseEd(":(1,2,3).").next().toString());
+    assertEquals("'+'(1, 2, 3)", parseEd("+(1,2,3).").next().toString());
     assertEquals("':'(1, (2 , 3), 4)", parseEd(":(1,(2,3),4).").next().toString());
     assertEquals("':'(1)", parseEd(":(1).").next().toString());
   }
@@ -1108,6 +1108,10 @@ public class IntegrationTest {
   @Test
   public void testConformity() {
 
+    assertEquals("writeq(a - b)", parseEd("writeq(-((a,b))).").next().toString());
+    assertEquals("writeq(- a ^ 2)", parseEd("writeq(-(a^2)).").next().toString());
+    assertEquals("writeq(- 1 ^ 2)", parseEd("writeq(-(1^2)).").next().toString());
+    assertEquals("writeq(- -1)", parseEd("writeq(-(-1)).").next().toString());
     assertEquals("writeq('\\e')", parseEd("writeq('\\033\\').").next().toString());
 
     assertEquals("writeq('a\\n b')", parseEd("writeq('a\\\n b'). % \"a\\\\\\n b\" ").next().toString());
@@ -1118,6 +1122,8 @@ public class IntegrationTest {
     assertEquals("writeq('\\na')", parseEd("writeq('\\\na'). % \"\\\\\\na\" ").next().toString());
     assertEquals("writeq('\\n')", parseEd("writeq('\\\n'). % \"\\\\\\n\" ").next().toString());
 
+    assertThrows(PrologParserException.class, () -> parseEd("writeq(//*.*/).").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq(//*).").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\. .").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\.").next());
     assertThrows(PrologParserException.class, () -> parseEd("'\\\n''.").next());
@@ -1135,12 +1141,12 @@ public class IntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\t'). % horiz. tab ").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\n').").next());
 
+    assertEquals("writeq('*/')", parseEd("writeq('*/').").next().toString());
+    assertEquals("writeq('/**')", parseEd("writeq('/**').").next().toString());
     assertEquals("writeq('\\n')", parseEd("writeq('\\n').").next().toString());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\\9\\').").next());
     assertEquals("writeq('\\0\\')", parseEd("writeq('\\0\\').").next().toString());
     assertEquals("writeq('\\a')", parseEd("writeq('\\7\\').").next().toString());
-    assertEquals("writeq('*/')", parseEd("writeq('*/').").next().toString());
-    assertEquals("writeq('/**')", parseEd("writeq('/**').").next().toString());
     assertEquals("writeq(a * (b + c))", parseEd("writeq(a*(b+c)).").next().toString());
     assertEquals("writeq(f(;, '|', ';;'))", parseEd("writeq(f(;,'|',';;')).").next().toString());
     assertEquals("writeq('a\\n b')", parseEd("writeq('a\\\n b'). % \"a\\\\\\n b\"").next().toString());

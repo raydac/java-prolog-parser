@@ -395,8 +395,12 @@ final class Tokenizer {
           if (this.strBuf.isSingleChar('/')) {
             this.strBuf.pop();
             state = this.strBuf.isEmpty() ? LOOK_FOR : state;
+          } else if (state == OPERATOR) {
+            throw new PrologParserException("Operator can be mixed with comment block: " + this.strBuf.toString() + chr, getLastTokenLine(), getLastTokenPos());
           }
+
           skipUntilBlockCommentEnd();
+
         } else {
           switch (state) {
             case LOOK_FOR: {

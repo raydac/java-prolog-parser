@@ -146,4 +146,17 @@ public final class StringBuilderEx {
   public boolean isFirstCharDigit() {
     return this.stringBuilder.length() > 0 && Character.isDigit(this.stringBuilder.charAt(0));
   }
+
+  public boolean endsWith(final String str) {
+    if (this.stringBuilder.length() < str.length()) {
+      return false;
+    }
+    int p = this.stringBuilder.length();
+    for (int i = str.length() - 1; i >= 0; i--) {
+      if (this.stringBuilder.charAt(--p) != str.charAt(i)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }
