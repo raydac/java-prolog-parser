@@ -1108,6 +1108,13 @@ public class IntegrationTest {
   @Test
   public void testConformity() {
 
+    assertEquals("writeq(- - 1)", parseEd("writeq(-(-(1))).").next().toString());
+    assertEquals("writeq(- - a)", parseEd("writeq(-(-a)).").next().toString());
+    assertEquals("writeq(- - - a)", parseEd("writeq(-(-(-a))).").next().toString());
+    assertEquals("writeq(- p(c))", parseEd("writeq(-p(c)).").next().toString());
+    assertEquals("writeq(- ['-'])", parseEd("writeq(-[-]).").next().toString());
+    assertEquals("writeq(- '-')", parseEd("writeq(-(-)).").next().toString());
+    assertEquals("writeq(- a)", parseEd("writeq(-a).").next().toString());
     assertEquals("writeq(a - b)", parseEd("writeq(-((a,b))).").next().toString());
     assertEquals("writeq(- a ^ 2)", parseEd("writeq(-(a^2)).").next().toString());
     assertEquals("writeq(- 1 ^ 2)", parseEd("writeq(-(1^2)).").next().toString());
