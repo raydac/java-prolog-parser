@@ -768,6 +768,10 @@ final class Tokenizer {
                       strBuffer.append(result.getDecoded());
                     }
                   }
+                } else {
+                  if (!(chr == '\r' && specCharBuffer.isEmpty())) {
+                    throw new PrologParserException("Unexpected char: 0x" + Integer.toHexString(chr), this.prevLine, this.prevPos);
+                  }
                 }
               } else {
                 switch (chr) {
@@ -847,12 +851,16 @@ final class Tokenizer {
                       theChar = chr;
                     }
                     if (charCodeAsInt) {
-                      return this.tokenizerResultPool.find().setData(
-                          new PrologInt(theChar),
-                          state,
-                          getLastTokenLine(),
-                          getLastTokenPos()
-                      );
+                      if (Character.isWhitespace(chr)) {
+                        throw new PrologParserException("Unexpected whitespace char: 0x" + Integer.toHexString(chr), this.prevLine, this.prevPos);
+                      } else {
+                        return this.tokenizerResultPool.find().setData(
+                            new PrologInt(theChar),
+                            state,
+                            getLastTokenLine(),
+                            getLastTokenPos()
+                        );
+                      }
                     } else {
                       strBuffer.append(theChar);
                     }

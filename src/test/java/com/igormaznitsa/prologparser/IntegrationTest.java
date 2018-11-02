@@ -1107,6 +1107,35 @@ public class IntegrationTest {
    */
   @Test
   public void testConformity() {
+
+    assertEquals("writeq('\\e')", parseEd("writeq('\\033\\').").next().toString());
+
+    assertEquals("writeq('a\\n b')", parseEd("writeq('a\\\n b'). % \"a\\\\\\n b\" ").next().toString());
+    assertEquals("writeq('a\\nb')", parseEd("writeq('a\\\nb'). % \"a\\\\\\nb\" ").next().toString());
+    assertEquals("writeq('\\n')", parseEd("writeq('\\\n'). % \"\\\\ \\n\"").next().toString());
+    assertEquals("writeq('a\\n b')", parseEd("writeq('a\\\n b'). % \"a\\\\\\n b\"").next().toString());
+    assertEquals("writeq('a\\nb')", parseEd("writeq('a\\\nb'). % \"a\\\\\\nb\" ").next().toString());
+    assertEquals("writeq('\\na')", parseEd("writeq('\\\na'). % \"\\\\\\na\" ").next().toString());
+    assertEquals("writeq('\\n')", parseEd("writeq('\\\n'). % \"\\\\\\n\" ").next().toString());
+
+    assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\. .").next());
+    assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\.").next());
+    assertThrows(PrologParserException.class, () -> parseEd("'\\\n''.").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq(.").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('").next());
+    assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\u1.").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('\\u1').").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('\\\t'). % \"\\\\\\t\"").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('\\ \n'). % \"\\\\ \\n\"").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('\\ ').").next());
+    assertThrows(PrologParserException.class, () -> parseEd("0'\\t=0' . % horiz. tab").next());
+    assertThrows(PrologParserException.class, () -> parseEd("'").next());
+    assertThrows(PrologParserException.class, () -> parseEd(")").next());
+    assertThrows(NoSuchElementException.class, () -> parseEd(".").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('\t'). % horiz. tab ").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq('\n').").next());
+
+    assertEquals("writeq('\\n')", parseEd("writeq('\\n').").next().toString());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\\9\\').").next());
     assertEquals("writeq('\\0\\')", parseEd("writeq('\\0\\').").next().toString());
     assertEquals("writeq('\\a')", parseEd("writeq('\\7\\').").next().toString());
