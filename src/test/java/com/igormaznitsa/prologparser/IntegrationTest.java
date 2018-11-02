@@ -1,5 +1,34 @@
 package com.igormaznitsa.prologparser;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ALLOW_ZERO_STRUCT;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.BACK_QUOTED;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.DOUBLE_QUOTED;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.NO_QUOTED;
+import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.SINGLE_QUOTED;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FY;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XF;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -31,16 +60,6 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.*;
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
-import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
-import static java.util.stream.Collectors.joining;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
 
@@ -1100,6 +1119,28 @@ public class IntegrationTest {
     assertEquals("[]\n[1, 2]\n[1, 2, 3]\n[5, 6, 7]\n[8]", parseSortAndJoin("[1,2,3].[1,2].[].[5,6,7].[8]."));
     assertEquals("u(8)\nl(1, 2)\ng(5, 6, 7)\nh(1, 2, 3)", parseSortAndJoin("h(1,2,3).l(1,2).g(5,6,7).u(8)."));
     assertEquals("X\nY\n_\n34.112\n112\natm\n[]\nm(34)\n[1, 2, 3]\na(1, 2)", parseSortAndJoin("a(1,2).[1,2,3].X.112.Y.34.112. atm. [].m(34)._."));
+  }
+
+  /**
+   * Based on cases represented on <a href="https://www.complang.tuwien.ac.at/ulrich/iso-prolog/conformity_testing">the page</a>
+   */
+  @Test
+  public void testConformity() {
+    assertThrows(PrologParserException.class, ()->parseEd("writeq('\\9\\').").next());
+    assertEquals("writeq('\\0\\')", parseEd("writeq('\\0\\').").next().toString());
+    assertEquals("writeq('\\a')", parseEd("writeq('\\7\\').").next().toString());
+    assertEquals("writeq('*/')", parseEd("writeq('*/').").next().toString());
+    assertEquals("writeq('/**')", parseEd("writeq('/**').").next().toString());
+    assertEquals("writeq(a * (b + c))", parseEd("writeq(a*(b+c)).").next().toString());
+    assertEquals("writeq(f(;, '|', ';;'))", parseEd("writeq(f(;,'|',';;')).").next().toString());
+    assertEquals("writeq('a\\n b')", parseEd("writeq('a\\\n b'). % \"a\\\\\\n b\"").next().toString());
+    assertEquals("writeq(('-') - ('-'))", parseEd("writeq((-)-(-)).").next().toString());
+    assertEquals("writeq(((':-') :- (':-')))", parseEd("writeq(((:-):-(:-))).").next().toString());
+    assertEquals("writeq((*) = (*))", parseEd("writeq((*)=(*)).").next().toString());
+    assertEquals("writeq([':-', '-'])", parseEd("writeq([:-,-]).").next().toString());
+    assertThrows(PrologParserException.class, ()->parseEd("Finis ().").next());
+    assertEquals("writeq('\\b\\r\\f\\t\\n')", parseEd("writeq('\\b\\r\\f\\t\\n').").next().toString());
+    assertEquals("writeq('^`')", parseEd("writeq('^`').").next().toString());
   }
 
   private static class StubContext implements ParserContext {
