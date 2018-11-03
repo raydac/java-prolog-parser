@@ -47,6 +47,7 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.*;
+import static com.igormaznitsa.prologparser.terms.TermType.__OPERATOR_CONTAINER__;
 import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 
 /**
@@ -159,7 +160,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       return false;
     }
 
-    return operator.getTermType() == TermType.__OPERATOR_CONTAINER__ && endOperators.contains(operator.getTermText());
+    return operator.getTermType() == __OPERATOR_CONTAINER__ && endOperators.contains(operator.getTermText());
   }
 
   public ParserContext getContext() {
@@ -385,157 +386,152 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         // same as the natural precedence)
         int readAtomPrecedence = 0; // we make it as highest precedence
 
-        switch (readAtom.getTermType()) {
-          case __OPERATOR_CONTAINER__: {
-            // it is operator list
-            // try to get the single operator from the list if the list
-            // contains only one
-            final Op readOperator = ((OpContainer) readAtom).getIfSingle();
+        if (readAtom.getTermType() == __OPERATOR_CONTAINER__) {
+          // it is operator list
+          // try to get the single operator from the list if the list
+          // contains only one
+          final Op readOperator = ((OpContainer) readAtom).getIfSingle();
 
-            // check that the operator is single
-            if (readOperator == null) {
+          // check that the operator is single
+          if (readOperator == null) {
 
-              // there are a few operators in the list so we need to
-              // select one
-              final OpContainer readOperators = (OpContainer) readAtom;
+            // there are a few operators in the list so we need to
+            // select one
+            final OpContainer readOperators = (OpContainer) readAtom;
 
-              boolean leftPresented = false;
+            boolean leftPresented = false;
 
-              if (currentTreeItem != null) {
-                if (currentTreeItem.getType() == TermType.OPERATOR) {
-                  if (currentTreeItem.getRightBranch() != null) {
-                    leftPresented = true;
-                  }
-                } else {
+            if (currentTreeItem != null) {
+              if (currentTreeItem.getType() == TermType.OPERATOR) {
+                if (currentTreeItem.getRightBranch() != null) {
                   leftPresented = true;
                 }
-              }
-
-              final TokenizerResult peekResult = this.tokenizer.peek();
-              final boolean rightPresented = peekResult != null && !isEndOperator(peekResult.getResult(), endOperators);
-
-              readAtom = readOperators.findSimilar(leftPresented, rightPresented);
-
-              if (readAtom == null) {
-                if (currentTreeItem == null && !(leftPresented || rightPresented)) {
-                  // alone operator, it is an atom
-                  return new PrologAtom(readOperators.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, readOperators.getLine(), readOperators.getPos());
-                }
-                // we didn't get any operator for our criteria, so throw
-                // an exception
-                throw new PrologParserException("Operator clash detected [" + readAtomContainer.getResult().getTermText() + ']',
-                    readAtomContainer.getLine(), readAtomContainer.getPos());
-              }
-              // we have found needed operator so get its precedence
-              readAtomPrecedence = readAtom.getPrecedence();
-            } else {
-              readAtom = readOperator;
-              final String operatorText = readOperator.getTermText();
-
-              if (operatorText.length() == 1) {
-                switch (findFirstCharCode(operatorText)) {
-                  case '[': {
-                    // it's a list
-                    readAtom = readList(readAtomContainer);
-                    readAtom.setPos(readAtomContainer.getPos());
-                    readAtom.setLine(readAtomContainer.getLine());
-                    readAtomPrecedence = 0;
-                  }
-                  break;
-                  case '(': {
-                    // read sub-block
-                    readAtom = readBlock(OPERATORS_SUBBLOCK);
-
-                    if (readAtom == null) {
-                      throw new PrologParserException("Illegal start of term",
-                          readAtomContainer.getLine(), readAtomContainer.getPos());
-                    }
-
-                    readAtom.setLine(readAtomContainer.getLine());
-                    readAtom.setPos(readAtomContainer.getPos());
-                    readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
-
-                    final TokenizerResult token = this.tokenizer.readNextToken();
-
-                    final PrologTerm closingAtom;
-                    if (token == null) {
-                      closingAtom = null;
-                    } else {
-                      closingAtom = token.getResult();
-                      token.release();
-                    }
-
-                    if (closingAtom == null || !closingAtom.getTermText().equals(OPERATOR_RIGHTBRACKET.getTermText())) {
-                      throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
-                    }
-                  }
-                  break;
-                  default: {
-                    readAtomPrecedence = readOperator.getPrecedence();
-                  }
-                  break;
-                }
               } else {
-                readAtomPrecedence = readOperator.getPrecedence();
+                leftPresented = true;
               }
             }
-          }
-          break;
-          default: {
-            if (readAtom.getTermType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
-              TokenizerResult nextToken = this.tokenizer.readNextToken();
 
-              if (nextToken == null) {
-                throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
+            final TokenizerResult peekResult = this.tokenizer.peek();
+            final boolean rightPresented = peekResult != null && !isEndOperator(peekResult.getResult(), endOperators);
+
+            readAtom = readOperators.findSimilar(leftPresented, rightPresented);
+
+            if (readAtom == null) {
+              if (currentTreeItem == null && !(leftPresented || rightPresented)) {
+                // alone operator, it is an atom
+                return new PrologAtom(readOperators.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, readOperators.getLine(), readOperators.getPos());
               }
+              // we didn't get any operator for our criteria, so throw
+              // an exception
+              throw new PrologParserException("Operator clash detected [" + readAtomContainer.getResult().getTermText() + ']',
+                  readAtomContainer.getLine(), readAtomContainer.getPos());
+            }
+            // we have found needed operator so get its precedence
+            readAtomPrecedence = readAtom.getPrecedence();
+          } else {
+            readAtom = readOperator;
+            final String operatorText = readOperator.getTermText();
 
-              try {
-                if (nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
-                  final int nextTokenLineNumber = nextToken.getLine();
-                  final int nextTokenStrPosition = nextToken.getPos();
+            if (operatorText.length() == 1) {
+              switch (findFirstCharCode(operatorText)) {
+                case '[': {
+                  // it's a list
+                  readAtom = readList(readAtomContainer);
+                  readAtom.setPos(readAtomContainer.getPos());
+                  readAtom.setLine(readAtomContainer.getLine());
+                  readAtomPrecedence = 0;
+                }
+                break;
+                case '(': {
+                  // read sub-block
+                  readAtom = readBlock(OPERATORS_SUBBLOCK);
 
-                  // it is a structure
-                  if (
-                      readAtom.getTermType() == TermType.ATOM
-                          || (readAtom.getTermType() == TermType.VAR
-                          && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)
-                  ) {
+                  if (readAtom == null) {
+                    throw new PrologParserException("Illegal start of term",
+                        readAtomContainer.getLine(), readAtomContainer.getPos());
+                  }
 
-                    final PrologTerm prev = readAtom;
-                    readAtom = readStruct(readAtom);
-                    if (readAtom == null) {
-                      // we have met the empty brackets
-                      if ((this.parserFlags & FLAG_ALLOW_ZERO_STRUCT) == 0) {
-                        throw new PrologParserException("Empty structure is not allowed",
-                            nextTokenLineNumber, nextTokenStrPosition);
+                  readAtom.setLine(readAtomContainer.getLine());
+                  readAtom.setPos(readAtomContainer.getPos());
+                  readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
+
+                  final TokenizerResult token = this.tokenizer.readNextToken();
+
+                  final PrologTerm closingAtom;
+                  if (token == null) {
+                    closingAtom = null;
+                  } else {
+                    closingAtom = token.getResult();
+                    token.release();
+                  }
+
+                  if (closingAtom == null || !closingAtom.getTermText().equals(OPERATOR_RIGHTBRACKET.getTermText())) {
+                    throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
+                  }
+                }
+                break;
+                default: {
+                  readAtomPrecedence = readOperator.getPrecedence();
+                }
+                break;
+              }
+            } else {
+              readAtomPrecedence = readOperator.getPrecedence();
+            }
+          }
+        } else {
+          if (readAtom.getTermType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
+            TokenizerResult nextToken = this.tokenizer.readNextToken();
+
+            if (nextToken == null) {
+              throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
+            }
+
+            try {
+              if (nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
+                final int nextTokenLineNumber = nextToken.getLine();
+                final int nextTokenStrPosition = nextToken.getPos();
+
+                // it is a structure
+                if (
+                    readAtom.getTermType() == TermType.ATOM
+                        || (readAtom.getTermType() == TermType.VAR
+                        && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)
+                ) {
+
+                  final PrologTerm prev = readAtom;
+                  readAtom = readStruct(readAtom);
+                  if (readAtom == null) {
+                    // we have met the empty brackets
+                    if ((this.parserFlags & FLAG_ALLOW_ZERO_STRUCT) == 0) {
+                      throw new PrologParserException("Empty structure is not allowed",
+                          nextTokenLineNumber, nextTokenStrPosition);
+                    } else {
+                      final TokenizerResult pushed = this.tokenizer.pop();
+                      if (pushed.getResult() == OPERATOR_RIGHTBRACKET) {
+                        readAtom = new PrologStruct(prev);
                       } else {
-                        final TokenizerResult pushed = this.tokenizer.pop();
-                        if (pushed.getResult() == OPERATOR_RIGHTBRACKET) {
-                          readAtom = new PrologStruct(prev);
-                        } else {
-                          throw new CriticalUnexpectedError();
-                        }
+                        throw new CriticalUnexpectedError();
                       }
                     }
-                  } else {
-                    tokenizer.push(nextToken);
-                    nextToken = null;
-                    throw new PrologParserException("You must have an atom as the structure functor",
-                        nextTokenLineNumber, nextTokenStrPosition);
                   }
                 } else {
-                  // push back the next atom
                   tokenizer.push(nextToken);
                   nextToken = null;
+                  throw new PrologParserException("You must have an atom as the structure functor",
+                      nextTokenLineNumber, nextTokenStrPosition);
                 }
-              } finally {
-                if (nextToken != null) {
-                  nextToken.release();
-                }
+              } else {
+                // push back the next atom
+                tokenizer.push(nextToken);
+                nextToken = null;
+              }
+            } finally {
+              if (nextToken != null) {
+                nextToken.release();
               }
             }
           }
-          break;
         }
 
         final TreeItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
@@ -623,7 +619,17 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
 
   @Override
   public Iterator<PrologTerm> iterator() {
-    return this;
+    return new Iterator<PrologTerm>() {
+      @Override
+      public boolean hasNext() {
+        return PrologParser.this.hasNext();
+      }
+
+      @Override
+      public PrologTerm next() {
+        return PrologParser.this.next();
+      }
+    };
   }
 
   public Stream<PrologTerm> stream() {
