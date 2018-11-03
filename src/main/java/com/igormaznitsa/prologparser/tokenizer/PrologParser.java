@@ -482,10 +482,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           }
           break;
           default: {
-            if (readAtom.getTermType() == TermType.VAR && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) == 0) {
-              // do nothing
-            } else {
-
+            if (readAtom.getTermType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
               TokenizerResult nextToken = this.tokenizer.readNextToken();
 
               if (nextToken == null) {

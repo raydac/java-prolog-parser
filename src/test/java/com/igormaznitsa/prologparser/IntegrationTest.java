@@ -1186,7 +1186,6 @@ public class IntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("/**/ write_canonical(fy yf).").next());
     assertThrows(PrologParserException.class, () -> parseEd("/**/ write_canonical(f f).").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(0'f').", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(100, XF, "f"))).next());
-
     assertThrows(PrologParserException.class, () -> parseEd("/**/ X = 1.e.", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(100, XF, "f"))).next());
     assertThrows(PrologParserException.class, () -> parseEd("/**/ writeq(1 .2).").next());
     assertThrows(PrologParserException.class, () -> parseEd("is 0'mod'1.").next());
@@ -1219,6 +1218,7 @@ public class IntegrationTest {
     assertThrows(NoSuchElementException.class, () -> parseEd(".").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\t'). % horiz. tab ").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\n').").next());
+    assertThrows(PrologParserException.class, () -> parseEd("Finis ().").next());
 
     assertEquals("writeq('*/')", parseEd("writeq('*/').").next().toString());
     assertEquals("writeq('/**')", parseEd("writeq('/**').").next().toString());
@@ -1233,7 +1233,6 @@ public class IntegrationTest {
     assertEquals("writeq(((':-') :- (':-')))", parseEd("writeq(((:-):-(:-))).").next().toString());
     assertEquals("writeq((*) = (*))", parseEd("writeq((*)=(*)).").next().toString());
     assertEquals("writeq([':-', '-'])", parseEd("writeq([:-,-]).").next().toString());
-    assertThrows(PrologParserException.class, () -> parseEd("Finis ().").next());
     assertEquals("writeq('\\b\\r\\f\\t\\n')", parseEd("writeq('\\b\\r\\f\\t\\n').").next().toString());
     assertEquals("writeq('^`')", parseEd("writeq('^`').").next().toString());
   }
