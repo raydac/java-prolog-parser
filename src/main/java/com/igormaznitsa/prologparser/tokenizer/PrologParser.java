@@ -414,13 +414,13 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
               readAtom = readOperators.findSimilar(leftPresented, rightPresented);
 
               if (readAtom == null) {
-                if (!(leftPresented || rightPresented)) {
+                if (currentTreeItem == null && !(leftPresented || rightPresented)) {
                   // alone operator, it is an atom
                   return new PrologAtom(readOperators.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, readOperators.getLine(), readOperators.getPos());
                 }
                 // we didn't get any operator for our criteria, so throw
                 // an exception
-                throw new PrologParserException("Incompatible operator type [" + readAtomContainer.getResult().getTermText() + ']',
+                throw new PrologParserException("Operator clash detected [" + readAtomContainer.getResult().getTermText() + ']',
                     readAtomContainer.getLine(), readAtomContainer.getPos());
               }
               // we have found needed operator so get its precedence
