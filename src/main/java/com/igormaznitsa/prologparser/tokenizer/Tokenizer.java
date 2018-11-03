@@ -655,6 +655,9 @@ final class Tokenizer {
                         getLastTokenPos());
                   } else {
                     // it is float
+                    if (!Character.isDigit(strBuffer.getLastChar())) {
+                      throw new PrologParserException("Unexpected end of float: " + strBuffer.toString(), this.prevLine, this.prevPos);
+                    }
                     return this.tokenizerResultPool.find().setData(
                         makeTermFromString(strBuffer.toString(), radix, quoting, state),
                         state,

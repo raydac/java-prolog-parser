@@ -1190,8 +1190,7 @@ public class IntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("/**/ write_canonical(f f).").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(0'f').", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(100, XF, "f"))).next());
 
-
-    //    assertThrows(PrologParserException.class, () -> parseEd("/**/ X = 1.e.", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(100, XF, "f"))).next());
+    assertThrows(PrologParserException.class, () -> parseEd("/**/ X = 1.e.", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(100, XF, "f"))).next());
     assertThrows(PrologParserException.class, () -> parseEd("/**/ writeq(1 .2).").next());
 //    assertThrows(PrologParserException.class, () -> parseEd("X = 2'1.").next());
     assertThrows(PrologParserException.class, () -> parseEd("is 0'mod'1.").next());
