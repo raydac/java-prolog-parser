@@ -293,10 +293,6 @@ public class IntegrationTest {
     final PrologTerm val = parseEd("298723987493287423423.00002342342300043324234324E+75.").next();
     assertEquals(ATOM, val.getTermType());
     assertEquals(PrologFloat.class, val.getClass());
-
-    final PrologTerm valAtom = parseEd("2.0E.").next();
-    assertEquals(ATOM, valAtom.getTermType());
-    assertEquals(PrologAtom.class, valAtom.getClass());
   }
 
   @Test
@@ -1107,6 +1103,8 @@ public class IntegrationTest {
    */
   @Test
   public void testConformity() {
+    assertEquals("writeq([a, b|','])", parseEd("writeq([a,b|',']).").next().toString());
+    assertEquals("X = 1", parseEd("X = 2'1.").next().toString());
     assertEquals("writeq(- - 1)", parseEd("writeq(-(-(1))).").next().toString());
     assertEquals("writeq(- - a)", parseEd("writeq(-(-a)).").next().toString());
     assertEquals("writeq(- - - a)", parseEd("writeq(-(-(-a))).").next().toString());
@@ -1168,7 +1166,6 @@ public class IntegrationTest {
     assertEquals("writeq(-- a)", parseEd("writeq(--(a)).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(0, FY, "--"))).next().toString());
     assertEquals("writeq(10 mod 2)", parseEd("writeq(0xamod 2).").next().toString());
 
-
     assertThrows(PrologParserException.class, () -> parseEd("integer(0'').").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\\^J').").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(00'a).").next());
@@ -1192,14 +1189,13 @@ public class IntegrationTest {
 
     assertThrows(PrologParserException.class, () -> parseEd("/**/ X = 1.e.", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(100, XF, "f"))).next());
     assertThrows(PrologParserException.class, () -> parseEd("/**/ writeq(1 .2).").next());
-//    assertThrows(PrologParserException.class, () -> parseEd("X = 2'1.").next());
     assertThrows(PrologParserException.class, () -> parseEd("is 0'mod'1.").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = '\\77777777777\\'.").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = '\\N'.").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = '\\9'.").next());
     assertThrows(PrologParserException.class, () -> parseEd("a = '\\141'.").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = [] (1).").next());
-//    assertThrows(PrologParserException.class, () -> parseEd("writeq([a,b|,]).").next());
+    assertThrows(PrologParserException.class, () -> parseEd("writeq([a,b|,]).").next());
     assertThrows(PrologParserException.class, () -> parseEd("(- - - -) = -(-(-(-))).").next());
     assertThrows(PrologParserException.class, () -> parseEd("(- - -) = -(-(-)).").next());
     assertThrows(PrologParserException.class, () -> parseEd("(- -) = -(-).").next());

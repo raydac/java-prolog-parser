@@ -336,7 +336,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     if (hasSeparator) {
       // '|' separator was found at the list
       if (rightPart == null) {
-        throw new PrologParserException("There is not any term as the tail at the list", tokenizer.getLastTokenLine(), tokenizer.getLastTokenPos());
+        throw new PrologParserException("There is not any term as the tail at the list", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
+      }
+      if (rightPart.getTermType() == TermType.ATOM && rightPart.getQuotingType() == PrologTerm.QuotingType.NO_QUOTED && ",".equals(rightPart.getTermText())) {
+        throw new PrologParserException("Comma operator in list tail", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
       leftPartFirst.replaceTail(rightPart);
     }
