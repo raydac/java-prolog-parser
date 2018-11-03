@@ -1138,7 +1138,7 @@ public class IntegrationTest {
     assertEquals("write_canonical(1 p (p p 2))", parseEd("write_canonical(1 p p p 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, FY, "p"), Op.make(9, YFX, "p"))).next().toString());
     assertEquals("write_canonical(1 p p p 2)", parseEd("write_canonical(1 p p p 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, FY, "p"), Op.make(9, XFY, "p"))).next().toString());
     assertEquals("write_canonical(1 p p p 2)", parseEd("write_canonical(1 p p p 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(7, FY, "p"), Op.make(9, YFX, "p"))).next().toString());
-//    assertEquals("atom('.\'-\'.')",parseEd("atom('.\'-\'.').").next().toString());
+    assertEquals("atom('.\\\'-\\\'.')", parseEd("atom('.\\\'-\\\'.').").next().toString());
     assertEquals("op(0, xfy, '|')", parseEd("op(0,xfy,'|').").next().toString());
     assertEquals("writeq((a | b))", parseEd("/**/ writeq((a|b)).").next().toString());
     assertEquals("X is 10.0 ** (-323)", parseEd("X is 10.0** -323.").next().toString());
@@ -1156,12 +1156,12 @@ public class IntegrationTest {
     assertEquals("writeq(nop(1))", parseEd("writeq(nop (1)).").next().toString());
     assertEquals("writeq(1 = f)", parseEd("/**/ writeq(1 = f).").next().toString());
     assertEquals("write_canonical(a - - - b)", parseEd("write_canonical(a- - -b).").next().toString());
-//    assertEquals("writeq(0 bop 2)",parseEd("writeq(0bop 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop","bo","b","op","xor"))).next().toString());
+    assertEquals("writeq(0 bop 2)", parseEd("writeq(0bop 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop", "bo", "b", "op", "xor"))).next().toString());
     assertEquals("writeq(0 bop 2)", parseEd("/**/ writeq(0 bop 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop", "bo", "b", "op", "xor"))).next().toString());
-//    assertEquals("writeq(0 bo 2)",parseEd("/**/ writeq(0bo 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop","bo","b","op","xor"))).next().toString());
-//    assertEquals("writeq(0 b 2)",parseEd("/**/ writeq(0b 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop","bo","b","op","xor"))).next().toString());
-//    assertEquals("writeq(0 op 2)",parseEd("/**/ writeq(0op 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop","bo","b","op","xor"))).next().toString());
-//    assertEquals("writeq(0 xor 2)",parseEd("/**/ writeq(0xor 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop","bo","b","op","xor"))).next().toString());
+    assertEquals("writeq(0 bo 2)", parseEd("/**/ writeq(0bo 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop", "bo", "b", "op", "xor"))).next().toString());
+    assertEquals("writeq(0 b 2)", parseEd("/**/ writeq(0b 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop", "bo", "b", "op", "xor"))).next().toString());
+    assertEquals("writeq(0 op 2)", parseEd("/**/ writeq(0op 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop", "bo", "b", "op", "xor"))).next().toString());
+    assertEquals("writeq(0 xor 2)", parseEd("/**/ writeq(0xor 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, YFX, "bop", "bo", "b", "op", "xor"))).next().toString());
     assertEquals("writeq('^`')", parseEd("writeq('^`').").next().toString());
     assertEquals("writeq('\\b\\r\\f\\t\\n')", parseEd("writeq('\\b\\r\\f\\t\\n').").next().toString());
     assertEquals("writeq(-- a)", parseEd("writeq(--(a)).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(20, FX, "--"))).next().toString());

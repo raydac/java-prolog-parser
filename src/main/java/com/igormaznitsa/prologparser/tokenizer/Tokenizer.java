@@ -292,6 +292,7 @@ final class Tokenizer {
     PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;
 
     int radix = 10;
+    char detectedRadixChar = ' ';
 
     TokenizerState state = LOOK_FOR;
     boolean specCharDetected = false;
@@ -568,19 +569,26 @@ final class Tokenizer {
                       if (chr == 'x') {
                         radixCharFound = true;
                         radix = 16;
+                        detectedRadixChar = chr;
                         strBuffer.clear();
                       } else if (chr == 'o') {
                         radixCharFound = true;
                         radix = 8;
+                        detectedRadixChar = chr;
                         strBuffer.clear();
                       } else if (chr == 'b') {
                         radixCharFound = true;
                         radix = 2;
+                        detectedRadixChar = chr;
                         strBuffer.clear();
                       }
                     }
                     if (!radixCharFound) {
                       push(chr);
+                      if (strBuffer.isEmpty() && detectedRadixChar != ' ') {
+                        push(detectedRadixChar);
+                        strBuffer.append('0');
+                      }
                       return this.tokenizerResultPool.find().setData(
                           makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           TokenizerState.INTEGER,
