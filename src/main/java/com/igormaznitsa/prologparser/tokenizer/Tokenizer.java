@@ -789,12 +789,7 @@ final class Tokenizer {
                       );
                     } else {
                       if (charCodeAsInt) {
-                        return this.tokenizerResultPool.find().setData(
-                            new PrologInt(chr),
-                            state,
-                            getLastTokenLine(),
-                            getLastTokenPos()
-                        );
+                        throw new PrologParserException("Char '\'' must be escaped in such case", this.prevLine, this.prevPos);
                       } else {
                         strBuffer.append(chr);
                       }

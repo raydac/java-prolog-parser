@@ -131,7 +131,7 @@ public class IntegrationTest {
     assertPrologInteger('\u1234', "0'\\u1234.");
     assertPrologInteger('\n', "0'\\n.");
     assertPrologInteger('\"', "0'\".");
-    assertPrologInteger('\'', "0'\'.");
+    assertPrologInteger('\'', "0'\\\'.");
     assertPrologInteger('`', "0'`.");
     checkWrongClauseReadingWithPPE("0'ab.", 4);
   }
@@ -1107,7 +1107,6 @@ public class IntegrationTest {
    */
   @Test
   public void testConformity() {
-
     assertEquals("writeq(- - 1)", parseEd("writeq(-(-(1))).").next().toString());
     assertEquals("writeq(- - a)", parseEd("writeq(-(-a)).").next().toString());
     assertEquals("writeq(- - - a)", parseEd("writeq(-(-(-a))).").next().toString());
@@ -1170,7 +1169,7 @@ public class IntegrationTest {
     assertEquals("writeq(10 mod 2)", parseEd("writeq(0xamod 2).").next().toString());
 
 
-//    assertThrows(PrologParserException.class, () -> parseEd("integer(0'').").next());
+    assertThrows(PrologParserException.class, () -> parseEd("integer(0'').").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq('\\^J').").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(00'a).").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(00'+'1).").next());
