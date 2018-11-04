@@ -253,6 +253,7 @@ public final class Op extends SpecServiceCompound {
         : new Op(precedence, type, ".system.", assertOpValidOpName(names));
   }
 
+  @SafeVarargs
   public static List<Op> join(final List<Op>... args) {
     final List<Op> result = new ArrayList<>();
     for (final List<Op> l : args) {
