@@ -21,8 +21,8 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
@@ -58,8 +58,8 @@ final class TermWrapper extends SpecServiceCompound {
   }
 
   @Override
-  public PrologAtom.QuotingType getQuotingType() {
-    return this.wrappedTerm.getQuotingType();
+  public Quotation getQuotation() {
+    return this.wrappedTerm.getQuotation();
   }
 
   @Override

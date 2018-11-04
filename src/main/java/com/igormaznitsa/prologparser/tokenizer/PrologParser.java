@@ -29,6 +29,7 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
@@ -339,7 +340,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       if (rightPart == null) {
         throw new PrologParserException("There is not any term as the tail at the list", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
-      if (rightPart.getTermType() == TermType.ATOM && rightPart.getQuotingType() == PrologTerm.QuotingType.NO_QUOTED && ",".equals(rightPart.getTermText())) {
+      if (rightPart.getTermType() == TermType.ATOM && rightPart.getQuotation() == Quotation.NONE && ",".equals(rightPart.getTermText())) {
         throw new PrologParserException("Comma operator in list tail", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
       leftPartFirst.replaceTail(rightPart);
@@ -419,7 +420,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             if (readAtom == null) {
               if (currentTreeItem == null && !(leftPresented || rightPresented)) {
                 // alone operator, it is an atom
-                return new PrologAtom(readOperators.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, readOperators.getLine(), readOperators.getPos());
+                return new PrologAtom(readOperators.getTermText(), Quotation.SINGLE, readOperators.getLine(), readOperators.getPos());
               }
               // we didn't get any operator for our criteria, so throw
               // an exception

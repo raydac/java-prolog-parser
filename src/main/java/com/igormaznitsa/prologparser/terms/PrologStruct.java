@@ -44,7 +44,7 @@ import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
  */
 public class PrologStruct extends PrologCompound implements Iterable<PrologTerm> {
 
-  public static final PrologAtom EMPTY_ATOM = new PrologAtom("", PrologAtom.QuotingType.SINGLE_QUOTED);
+  public static final PrologAtom EMPTY_ATOM = new PrologAtom("", Quotation.SINGLE);
   private static final long serialVersionUID = 9000641998734217154L;
 
   protected final PrologTerm functor;

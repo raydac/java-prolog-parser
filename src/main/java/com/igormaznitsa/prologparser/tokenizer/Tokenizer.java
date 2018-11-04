@@ -30,6 +30,7 @@ import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVar;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import com.igormaznitsa.prologparser.utils.StringUtils;
@@ -289,7 +290,7 @@ final class Tokenizer {
       return pop();
     }
 
-    PrologTerm.QuotingType quoting = PrologTerm.QuotingType.NO_QUOTED;
+    Quotation quoting = Quotation.NONE;
 
     int radix = 10;
     char detectedRadixChar = ' ';
@@ -339,7 +340,7 @@ final class Tokenizer {
                 // it is just integer number or an atom
                 final String text = strBuffer.toString();
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(text, radix, PrologTerm.findAppropriateQuoting(text), state),
+                    makeTermFromString(text, radix, PrologTerm.findQuotation(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -422,19 +423,19 @@ final class Tokenizer {
                 break;
                 case '\'': {
                   fixPosition();
-                  quoting = PrologTerm.QuotingType.SINGLE_QUOTED;
+                  quoting = Quotation.SINGLE;
                   state = TokenizerState.STRING;
                 }
                 break;
                 case '\"': {
                   fixPosition();
-                  quoting = PrologTerm.QuotingType.DOUBLE_QUOTED;
+                  quoting = Quotation.DOUBLE;
                   state = TokenizerState.STRING;
                 }
                 break;
                 case '`': {
                   fixPosition();
-                  quoting = PrologTerm.QuotingType.BACK_QUOTED;
+                  quoting = Quotation.BACK_TICK;
                   state = TokenizerState.STRING;
                 }
                 break;
@@ -472,7 +473,7 @@ final class Tokenizer {
               } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
                 final String text = strBuffer.toString();
 
-                if (quoting == PrologTerm.QuotingType.NO_QUOTED) {
+                if (quoting == Quotation.NONE) {
                   final OpContainer operator = findOperatorForName(text);
                   if (operator != null) {
                     return this.tokenizerResultPool.find().setData(
@@ -484,7 +485,7 @@ final class Tokenizer {
                 }
 
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(text, radix, PrologTerm.findAppropriateQuoting(text), state),
+                    makeTermFromString(text, radix, PrologTerm.findQuotation(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
@@ -496,7 +497,7 @@ final class Tokenizer {
                 push(chr);
                 final String text = strBuffer.toString();
 
-                if (quoting == PrologTerm.QuotingType.NO_QUOTED) {
+                if (quoting == Quotation.NONE) {
                   final OpContainer operator = findOperatorForName(text);
                   if (operator != null) {
                     return this.tokenizerResultPool.find().setData(
@@ -507,7 +508,7 @@ final class Tokenizer {
                   }
                 }
                 return this.tokenizerResultPool.find().setData(
-                    makeTermFromString(text, radix, PrologTerm.findAppropriateQuoting(text), state),
+                    makeTermFromString(text, radix, PrologTerm.findQuotation(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
@@ -791,7 +792,7 @@ final class Tokenizer {
               } else {
                 switch (chr) {
                   case '\'':
-                    if (quoting == PrologTerm.QuotingType.SINGLE_QUOTED) {
+                    if (quoting == Quotation.SINGLE) {
                       return this.tokenizerResultPool.find().setData(
                           makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           state,
@@ -807,7 +808,7 @@ final class Tokenizer {
                     }
                     break;
                   case '`':
-                    if (quoting == PrologTerm.QuotingType.BACK_QUOTED) {
+                    if (quoting == Quotation.BACK_TICK) {
                       return this.tokenizerResultPool.find().setData(
                           makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           state,
@@ -828,7 +829,7 @@ final class Tokenizer {
                     }
                     break;
                   case '\"':
-                    if (quoting == PrologTerm.QuotingType.DOUBLE_QUOTED) {
+                    if (quoting == Quotation.DOUBLE) {
                       return this.tokenizerResultPool.find().setData(
                           makeTermFromString(strBuffer.toString(), radix, quoting, state),
                           state,
@@ -902,7 +903,7 @@ final class Tokenizer {
     }
   }
 
-  PrologTerm makeTermFromString(final String str, final int radix, final PrologTerm.QuotingType quotingType, final TokenizerState state) {
+  PrologTerm makeTermFromString(final String str, final int radix, final Quotation quotingType, final TokenizerState state) {
     PrologTerm result;
 
     switch (state) {

@@ -12,6 +12,7 @@ import com.igormaznitsa.prologparser.terms.PrologFloat;
 import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import org.junit.jupiter.api.Test;
@@ -20,8 +21,8 @@ import org.junit.jupiter.api.function.Executable;
 import java.io.StringReader;
 
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.NO_QUOTED;
-import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.SINGLE_QUOTED;
+import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
+import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -238,10 +239,10 @@ public class TokenizerTest {
 
   @Test
   public void testQuoting() {
-    assertEquals(PrologTerm.QuotingType.NO_QUOTED, tokenizeOf("abc.").readNextToken().getResult().getQuotingType());
-    assertEquals(PrologTerm.QuotingType.SINGLE_QUOTED, tokenizeOf("'abc'.").readNextToken().getResult().getQuotingType());
-    assertEquals(PrologTerm.QuotingType.DOUBLE_QUOTED, tokenizeOf("\"abc\".").readNextToken().getResult().getQuotingType());
-    assertEquals(PrologTerm.QuotingType.BACK_QUOTED, tokenizeOf("`abc`.").readNextToken().getResult().getQuotingType());
+    assertEquals(Quotation.NONE, tokenizeOf("abc.").readNextToken().getResult().getQuotation());
+    assertEquals(Quotation.SINGLE, tokenizeOf("'abc'.").readNextToken().getResult().getQuotation());
+    assertEquals(Quotation.DOUBLE, tokenizeOf("\"abc\".").readNextToken().getResult().getQuotation());
+    assertEquals(Quotation.BACK_TICK, tokenizeOf("`abc`.").readNextToken().getResult().getQuotation());
   }
 
   @Test
@@ -270,55 +271,55 @@ public class TokenizerTest {
   @Test
   public void testMakeTermFromString() {
     final Tokenizer tokenizer = tokenizeOf("792394382");
-    PrologTerm term = tokenizer.makeTermFromString("792394382", 10, NO_QUOTED, TokenizerState.INTEGER);
+    PrologTerm term = tokenizer.makeTermFromString("792394382", 10, NONE, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals("792394382", term.getTermText());
 
-    term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), 10, NO_QUOTED, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), 10, NONE, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MIN_VALUE), term.getTermText());
 
-    term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), 10, NO_QUOTED, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), 10, NONE, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MAX_VALUE), term.getTermText());
 
-    term = tokenizer.makeTermFromString("0.003422", 10, NO_QUOTED, TokenizerState.FLOAT);
+    term = tokenizer.makeTermFromString("0.003422", 10, NONE, TokenizerState.FLOAT);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologFloat.class);
     assertEquals("0.003422", term.getTermText());
 
-    term = tokenizer.makeTermFromString("a0.003422b", 10, NO_QUOTED, TokenizerState.FLOAT);
+    term = tokenizer.makeTermFromString("a0.003422b", 10, NONE, TokenizerState.FLOAT);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a0.003422b", term.getTermText());
 
-    term = tokenizer.makeTermFromString("a12345b", 10, NO_QUOTED, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString("a12345b", 10, NONE, TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("a12345b", term.getTermText());
 
-    term = tokenizer.makeTermFromString("123", 10, SINGLE_QUOTED, ATOM);
+    term = tokenizer.makeTermFromString("123", 10, SINGLE, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123", term.getTermText());
 
-    term = tokenizer.makeTermFromString("123.123", 10, SINGLE_QUOTED, ATOM);
+    term = tokenizer.makeTermFromString("123.123", 10, SINGLE, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);
     assertEquals("123.123", term.getTermText());
 
-    term = tokenizer.makeTermFromString("abcd", 10, NO_QUOTED, ATOM);
+    term = tokenizer.makeTermFromString("abcd", 10, NONE, ATOM);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getTermType());
     assertSame(term.getClass(), PrologAtom.class);

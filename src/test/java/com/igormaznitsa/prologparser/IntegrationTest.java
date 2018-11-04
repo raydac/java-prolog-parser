@@ -10,6 +10,7 @@ import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVar;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.PrologTerm.QuotingType.*;
+import static com.igormaznitsa.prologparser.terms.Quotation.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
 import static java.util.stream.Collectors.joining;
@@ -104,12 +105,12 @@ public class IntegrationTest {
     PrologTerm term = parser.next();
 
     assertEquals(ATOM, term.getTermType());
-    assertEquals(PrologTerm.QuotingType.SINGLE_QUOTED, term.getQuotingType());
-    assertEquals("0\\'a Hello\\nWorld!\\r", StringUtils.escapeString(term.getTermText(), SINGLE_QUOTED));
+    assertEquals(Quotation.SINGLE, term.getQuotation());
+    assertEquals("0\\'a Hello\\nWorld!\\r", StringUtils.escapeString(term.getTermText(), SINGLE));
 
     term = parser.next();
     assertNotNull(term);
-    assertEquals(PrologTerm.QuotingType.DOUBLE_QUOTED, term.getQuotingType());
+    assertEquals(Quotation.DOUBLE, term.getQuotation());
     assertEquals("0'a ÿAnother String", term.getTermText());
 
   }
@@ -214,10 +215,10 @@ public class IntegrationTest {
 
   @Test
   public void testQuoting() {
-    checkParseAtomQuoting("test.", "test", NO_QUOTED);
-    checkParseAtomQuoting("\'t\"es`t\'.", "'t\"es`t'", SINGLE_QUOTED);
-    checkParseAtomQuoting("`t'\\`e\'s\"t`.", "`t'\\`e's\"t`", BACK_QUOTED);
-    checkParseAtomQuoting("\"t`e\'s\\\"\".", "\"t`e's\\\"\"", DOUBLE_QUOTED);
+    checkParseAtomQuoting("test.", "test", NONE);
+    checkParseAtomQuoting("\'t\"es`t\'.", "'t\"es`t'", SINGLE);
+    checkParseAtomQuoting("`t'\\`e\'s\"t`.", "`t'\\`e's\"t`", BACK_TICK);
+    checkParseAtomQuoting("\"t`e\'s\\\"\".", "\"t`e's\\\"\"", DOUBLE);
   }
 
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) {
@@ -227,10 +228,10 @@ public class IntegrationTest {
     assertEquals(expectedAtomText, atom.getTermText());
   }
 
-  private void checkParseAtomQuoting(final String atomToBeChecked, final String expectedAtomText, final PrologTerm.QuotingType expectedType) {
+  private void checkParseAtomQuoting(final String atomToBeChecked, final String expectedAtomText, final Quotation expectedType) {
     final PrologTerm atom = parseEd(atomToBeChecked + '.').next();
     assertEquals(ATOM, atom.getTermType());
-    assertEquals(expectedType, atom.getQuotingType());
+    assertEquals(expectedType, atom.getQuotation());
     assertEquals(PrologAtom.class, atom.getClass());
     assertEquals(expectedAtomText, atom.toString());
   }

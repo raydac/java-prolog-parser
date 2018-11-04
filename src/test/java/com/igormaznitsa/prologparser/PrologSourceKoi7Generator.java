@@ -21,7 +21,7 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.Quotation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -206,21 +206,21 @@ public final class PrologSourceKoi7Generator extends InputStream {
   }
 
   private String generateString() {
-    final PrologTerm.QuotingType type;
+    final Quotation type;
     switch (this.rnd.nextInt(3)) {
       case 0:
-        type = PrologTerm.QuotingType.SINGLE_QUOTED;
+        type = Quotation.SINGLE;
         break;
       case 1:
-        type = PrologTerm.QuotingType.BACK_QUOTED;
+        type = Quotation.BACK_TICK;
         break;
       default:
-        type = PrologTerm.QuotingType.DOUBLE_QUOTED;
+        type = Quotation.DOUBLE;
         break;
     }
 
     final int len = this.rnd.nextInt(32) + 1;
-    final StringBuilder buffer = new StringBuilder(type.getDelimiter());
+    final StringBuilder buffer = new StringBuilder(type.getQuotationMark());
 
     for (int i = 0; i < len; i++) {
       if (i == 0) {
@@ -288,7 +288,7 @@ public final class PrologSourceKoi7Generator extends InputStream {
       }
     }
 
-    buffer.append(type.getDelimiter());
+    buffer.append(type.getQuotationMark());
 
     return buffer.toString();
   }

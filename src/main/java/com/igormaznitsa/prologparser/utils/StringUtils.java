@@ -21,7 +21,7 @@
 
 package com.igormaznitsa.prologparser.utils;
 
-import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.Quotation;
 
 @SuppressWarnings("serial")
 public final class StringUtils {
@@ -175,7 +175,7 @@ public final class StringUtils {
     }
   }
 
-  public static String escapeString(final String str, final PrologTerm.QuotingType quotingType) {
+  public static String escapeString(final String str, final Quotation quotingType) {
     final StringBuilder result = new StringBuilder(str.length() << 1);
 
     final int strLen = str.length();
@@ -198,7 +198,7 @@ public final class StringUtils {
           result.append("\\r");
           break;
         case '`':
-          if (quotingType == PrologTerm.QuotingType.BACK_QUOTED) {
+          if (quotingType == Quotation.BACK_TICK) {
             result.append("\\`");
           } else {
             result.append('`');
@@ -211,14 +211,14 @@ public final class StringUtils {
           result.append("\\t");
           break;
         case '\"':
-          if (quotingType == PrologTerm.QuotingType.DOUBLE_QUOTED) {
+          if (quotingType == Quotation.DOUBLE) {
             result.append("\\\"");
           } else {
             result.append('\"');
           }
           break;
         case '\'':
-          if (quotingType == PrologTerm.QuotingType.SINGLE_QUOTED) {
+          if (quotingType == Quotation.SINGLE) {
             result.append("\\'");
           } else {
             result.append('\'');

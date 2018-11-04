@@ -29,11 +29,11 @@ public abstract class PrologNumeric extends PrologTerm {
   private static final long serialVersionUID = -1815562758090770438L;
 
   public PrologNumeric() {
-    super("", QuotingType.NO_QUOTED);
+    super("", Quotation.NONE);
   }
 
   public PrologNumeric(final int line, final int pos) {
-    super("", QuotingType.NO_QUOTED, line, pos);
+    super("", Quotation.NONE, line, pos);
   }
 
   public abstract Number getNumber();

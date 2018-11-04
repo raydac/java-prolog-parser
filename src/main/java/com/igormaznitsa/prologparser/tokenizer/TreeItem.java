@@ -27,6 +27,7 @@ import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
@@ -245,7 +246,7 @@ final class TreeItem {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any argument
-            return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getQuotingType(), wrapper.getPos(), wrapper.getLine());
+            return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getQuotation(), wrapper.getPos(), wrapper.getLine());
           }
 
           if (this.leftBranch == null) {
@@ -261,7 +262,7 @@ final class TreeItem {
                   operator = this.parser.context.findOpForName(this.parser, operator.getTermText()).findForArity(terms.length);
                   return operator == null
                       ? new PrologStruct(
-                      new PrologAtom(wrapper.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, wrapper.getLine(), wrapper.getPos()),
+                      new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()),
                       terms, wrapper.getLine(), wrapper.getPos())
                       : new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 }
@@ -270,7 +271,7 @@ final class TreeItem {
                   return new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                 } else {
                   operator = this.parser.context.findOpForName(this.parser, operator.getTermText()).findForArity(1);
-                  return operator == null ? new PrologStruct(new PrologAtom(wrapper.getTermText(), PrologTerm.QuotingType.SINGLE_QUOTED, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
+                  return operator == null ? new PrologStruct(new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
                       : new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                 }
               }

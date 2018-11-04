@@ -22,13 +22,13 @@
 package com.igormaznitsa.prologparser.terms;
 
 /**
- * Abstract class for all compound terms.
+ * Abstract class for all compound prolog terms.
  */
 public abstract class PrologCompound extends PrologTerm {
   private static final long serialVersionUID = 723482637840123123L;
 
   public PrologCompound(final String text) {
-    super(text, QuotingType.NO_QUOTED);
+    super(text, Quotation.NONE);
   }
 
   public abstract PrologTerm getElementAt(int position);

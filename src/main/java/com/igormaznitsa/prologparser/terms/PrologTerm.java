@@ -22,13 +22,16 @@
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
-import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
+import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static com.igormaznitsa.prologparser.terms.TermType.VAR;
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
 /**
@@ -37,39 +40,39 @@ import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 public abstract class PrologTerm implements Serializable, Comparable<PrologTerm> {
 
   private static final long serialVersionUID = 1402429096900255841L;
-  protected final QuotingType quotingType;
+  protected final Quotation quotation;
   protected final String text;
   private int line;
   private int pos;
 
-  public PrologTerm(final String text, final QuotingType quotingType) {
+  public PrologTerm(final String text, final Quotation quotation) {
     this.text = assertNotNull(text);
     this.pos = -1;
     this.line = -1;
-    this.quotingType = quotingType;
+    this.quotation = quotation == null ? NONE : quotation;
   }
 
-  public PrologTerm(final String text, final QuotingType quotingType, final int line, final int pos) {
-    this(text, quotingType);
+  public PrologTerm(final String text, final Quotation quotation, final int line, final int pos) {
+    this(text, quotation);
     setLine(line);
     setPos(pos);
   }
 
-  public static QuotingType findAppropriateQuoting(final String atomText) {
-    QuotingType result = QuotingType.NO_QUOTED;
+  public static Quotation findQuotation(final String atomText) {
+    Quotation result = NONE;
 
     if (atomText.length() == 0) {
-      result = QuotingType.SINGLE_QUOTED;
+      result = SINGLE;
     } else {
       char chr = atomText.charAt(0);
       if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr) || Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-        result = QuotingType.SINGLE_QUOTED;
+        result = SINGLE;
       } else {
 
         for (int i = 1; i < atomText.length(); i++) {
           chr = atomText.charAt(i);
           if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr)) || Character.isISOControl(chr)) {
-            result = QuotingType.SINGLE_QUOTED;
+            result = SINGLE;
             break;
           }
         }
@@ -91,8 +94,8 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return false;
   }
 
-  public QuotingType getQuotingType() {
-    return this.quotingType;
+  public Quotation getQuotation() {
+    return this.quotation;
   }
 
   public final int getPos() {
@@ -122,10 +125,10 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   @Override
   public String toString() {
     final String result;
-    if (this.quotingType == QuotingType.NO_QUOTED) {
+    if (this.quotation == NONE) {
       result = this.text;
     } else {
-      result = this.quotingType.makeString(this.text);
+      result = this.quotation.quotateString(this.text);
     }
     return result;
   }
@@ -145,7 +148,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     final int result;
     switch (this.getTermType()) {
       case VAR: {
-        if (that.getTermType() == TermType.VAR) {
+        if (that.getTermType() == VAR) {
           result = this.getTermText().compareTo(that.getTermText());
         } else {
           result = -1;
@@ -153,7 +156,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       }
       break;
       case ATOM: {
-        if (that.getTermType() == TermType.ATOM) {
+        if (that.getTermType() == ATOM) {
           if (this instanceof PrologNumeric) {
             if (that instanceof PrologNumeric) {
               if (this instanceof PrologInt) {
@@ -175,7 +178,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
           } else {
             result = this.getTermText().compareTo(that.getTermText());
           }
-        } else if (that.getTermType() == TermType.VAR) {
+        } else if (that.getTermType() == VAR) {
           result = 1;
         } else {
           result = -1;
@@ -207,27 +210,6 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
         throw new CriticalUnexpectedError();
     }
     return result;
-  }
-
-  public enum QuotingType {
-    NO_QUOTED(""),
-    SINGLE_QUOTED("\'"),
-    DOUBLE_QUOTED("\""),
-    BACK_QUOTED("`");
-
-    private final String quote;
-
-    QuotingType(final String quote) {
-      this.quote = quote;
-    }
-
-    public String getDelimiter() {
-      return this.quote;
-    }
-
-    public String makeString(final String atomText) {
-      return this.quote + StringUtils.escapeString(atomText, this) + this.quote;
-    }
   }
 
 }

@@ -28,29 +28,29 @@ public final class PrologAtom extends PrologTerm {
 
   private static final long serialVersionUID = -1829006002358498466L;
 
-  public PrologAtom(final String text, final QuotingType quotingType) {
+  public PrologAtom(final String text, final Quotation quotingType) {
     super(text, quotingType);
   }
 
   public PrologAtom(final String text) {
-    this(text, findAppropriateQuoting(text));
+    this(text, findQuotation(text));
   }
 
   public PrologAtom(final PrologTerm term) {
-    super(term.getTermText(), findAppropriateQuoting(term.getTermText()), term.getLine(), term.getPos());
+    super(term.getTermText(), findQuotation(term.getTermText()), term.getLine(), term.getPos());
   }
 
   public PrologAtom(final String text, final int line, final int pos) {
-    this(text, findAppropriateQuoting(text), line, pos);
+    this(text, findQuotation(text), line, pos);
   }
 
-  public PrologAtom(final String text, final QuotingType quotingType, final int line, final int pos) {
+  public PrologAtom(final String text, final Quotation quotingType, final int line, final int pos) {
     super(text, quotingType, line, pos);
   }
 
   @Override
-  public QuotingType getQuotingType() {
-    return this.quotingType;
+  public Quotation getQuotation() {
+    return this.quotation;
   }
 
   @Override
