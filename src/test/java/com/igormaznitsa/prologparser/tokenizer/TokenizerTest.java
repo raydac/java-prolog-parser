@@ -4,6 +4,7 @@ import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.ParserContextChain;
+import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -42,7 +43,7 @@ public class TokenizerTest {
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
     ParserContext context = mock(ParserContext.class);
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(context.getParseFlags()).thenReturn(allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
+    when(context.getFlags()).thenReturn(allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
     return this.tokenizeOf(str, context);
   }
 
@@ -50,6 +51,7 @@ public class TokenizerTest {
     return new Tokenizer(
         new GenericPrologParser(new StringReader(str),
             new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context)),
+        PrologParser.findMetaOps(),
         new StringReader(str));
   }
 

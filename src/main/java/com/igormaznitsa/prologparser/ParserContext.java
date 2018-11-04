@@ -22,7 +22,6 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Map;
 
@@ -44,5 +43,5 @@ public interface ParserContext {
     return Integer.MAX_VALUE;
   }
 
-  int getParseFlags();
+  int getFlags();
 }

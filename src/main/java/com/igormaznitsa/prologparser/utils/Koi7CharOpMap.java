@@ -19,9 +19,10 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser.tokenizer;
+package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
+import com.igormaznitsa.prologparser.tokenizer.Op;
 
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static java.util.Arrays.stream;
@@ -29,19 +30,29 @@ import static java.util.Arrays.stream;
 /**
  * Auxiliary mapping class allows to map a single char KOI7 to its related operator data container.
  */
-final class Koi7CharOpMap {
+public final class Koi7CharOpMap {
 
-  private final OpContainer[] charMap = new OpContainer[0x80];
+  private final OpContainer[] charMap;
 
   private Koi7CharOpMap(final OpContainer... containers) {
+    this.charMap = new OpContainer[0x80];
     stream(containers).forEach(x -> put(x.getTermText(), x));
   }
 
-  static Koi7CharOpMap ofOps(final OpContainer... containers) {
+  private Koi7CharOpMap(final Koi7CharOpMap source) {
+    this.charMap = source.charMap.clone();
+  }
+
+  public static Koi7CharOpMap copyOf(final Koi7CharOpMap source) {
+    return new Koi7CharOpMap(source);
+  }
+
+  public static Koi7CharOpMap ofOps(final OpContainer... containers) {
     return new Koi7CharOpMap(containers);
   }
 
-  OpContainer add(final Op operator) {
+
+  public OpContainer add(final Op operator) {
     final String text = operator.getTermText();
 
     if (text.length() != 1) {
@@ -59,7 +70,7 @@ final class Koi7CharOpMap {
   }
 
 
-  boolean contains(final String key) {
+  public boolean contains(final String key) {
     if (key.length() != 1) {
       return false;
     }
@@ -67,7 +78,7 @@ final class Koi7CharOpMap {
     return chr < 0x80 && this.charMap[chr] != null;
   }
 
-  void put(final String key, final OpContainer container) {
+  public void put(final String key, final OpContainer container) {
     if (key.length() != 1) {
       throw new IllegalArgumentException("Wrong key [" + key + ']');
     }
@@ -80,7 +91,7 @@ final class Koi7CharOpMap {
     this.charMap[chr] = container;
   }
 
-  OpContainer get(final String key) {
+  public OpContainer get(final String key) {
     if (key.length() != 1) {
       return null;
     }
@@ -96,7 +107,7 @@ final class Koi7CharOpMap {
     return result;
   }
 
-  OpContainer get(final char c) {
+  public OpContainer get(final char c) {
     return c > 0x7F ? null : this.charMap[c];
   }
 }

@@ -23,7 +23,6 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,32 +35,36 @@ import java.util.stream.Stream;
 
 import static java.util.stream.IntStream.rangeClosed;
 
+/**
+ * Default implementation of parser context.
+ * <b>It is not thread safe one!</b>
+ */
 public class DefaultParserContext implements ParserContext {
 
   protected static final Op[] EMPTY = new Op[0];
   protected final Set<String> opPrefixes = new HashSet<>();
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
-  protected final int flags;
+  protected final int parserContextFlags;
 
-  public DefaultParserContext(final int flags, final List<Op> operators) {
-    this.flags = flags;
+  public DefaultParserContext(final int parserContextFlags, final List<Op> operators) {
+    this.parserContextFlags = parserContextFlags;
     this.addOps(operators.toArray(EMPTY));
   }
 
-  public DefaultParserContext(final int flags) {
-    this(flags, Collections.emptyList());
+  public DefaultParserContext(final int parserContextFlags) {
+    this(parserContextFlags, Collections.emptyList());
   }
 
-  public static ParserContext of(final int flags) {
-    return new DefaultParserContext(flags);
+  public static ParserContext of(final int parserContextFlags) {
+    return new DefaultParserContext(parserContextFlags);
   }
 
-  public static ParserContext of(final int flags, final Op... operators) {
-    return new DefaultParserContext(flags, Arrays.asList(operators));
+  public static ParserContext of(final int parserContextFlags, final Op... operators) {
+    return new DefaultParserContext(parserContextFlags, Arrays.asList(operators));
   }
 
-  public static ParserContext of(final int flags, final List<Op> operators) {
-    return new DefaultParserContext(flags, operators);
+  public static ParserContext of(final int parserContextFlags, final List<Op> operators) {
+    return new DefaultParserContext(parserContextFlags, operators);
   }
 
   @Override
@@ -70,8 +73,8 @@ public class DefaultParserContext implements ParserContext {
   }
 
   @Override
-  public int getParseFlags() {
-    return this.flags;
+  public int getFlags() {
+    return this.parserContextFlags;
   }
 
   protected void fillPrefixes(final String name) {

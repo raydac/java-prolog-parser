@@ -23,10 +23,19 @@ package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
 
+/**
+ * Wrapper of StringBuilder provides some extra operations.
+ */
 public final class StringBuilderEx {
 
+  /**
+   * Maximum allowed char number in buffer.
+   */
   private final int limit;
 
+  /**
+   * Internal buffer.
+   */
   private final StringBuilder stringBuilder;
 
   public StringBuilderEx(final String initialString) {
@@ -145,18 +154,5 @@ public final class StringBuilderEx {
 
   public boolean isFirstCharDigit() {
     return this.stringBuilder.length() > 0 && Character.isDigit(this.stringBuilder.charAt(0));
-  }
-
-  public boolean endsWith(final String str) {
-    if (this.stringBuilder.length() < str.length()) {
-      return false;
-    }
-    int p = this.stringBuilder.length();
-    for (int i = str.length() - 1; i >= 0; i--) {
-      if (this.stringBuilder.charAt(--p) != str.charAt(i)) {
-        return false;
-      }
-    }
-    return true;
   }
 }

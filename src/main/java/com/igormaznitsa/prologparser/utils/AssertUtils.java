@@ -21,10 +21,21 @@
 
 package com.igormaznitsa.prologparser.utils;
 
+/**
+ * Auxiliary class to check values.
+ */
 public final class AssertUtils {
   private AssertUtils() {
   }
 
+  /**
+   * Check value for null.
+   *
+   * @param value value to be checked
+   * @param <T>   type of value
+   * @return the same value if it is not null
+   * @throws NullPointerException it will be thrown if the value is null
+   */
   public static <T> T assertNotNull(final T value) {
     if (value == null) {
       throw new NullPointerException();
@@ -32,6 +43,14 @@ public final class AssertUtils {
     return value;
   }
 
+  /**
+   * Check string is not null and is not empty
+   *
+   * @param value the string to check
+   * @return the same value if it is not null and not empty
+   * @throws NullPointerException     it will be thrown if the string is null
+   * @throws IllegalArgumentException it will be thrown if the string is empty one
+   */
   public static String assertStringNotNullAndNotEmpty(final String value) {
     if (assertNotNull(value).isEmpty()) {
       throw new IllegalArgumentException("String is empty");

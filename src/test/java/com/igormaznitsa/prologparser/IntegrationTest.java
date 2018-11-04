@@ -14,7 +14,6 @@ import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +56,7 @@ public class IntegrationTest {
   private static PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getParseFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return parseEd(str, parserContext);
   }
 
@@ -73,14 +72,14 @@ public class IntegrationTest {
   private static PrologParser parseGen(final String str, final ParserContext context) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getParseFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
   }
 
   private static GenericPrologParser parseGen(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getParseFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
   }
 
@@ -144,7 +143,7 @@ public class IntegrationTest {
 
     final Set<PrologVar> varSet = new HashSet<>();
     for (int li = 0; li < structure.getArity(); li++) {
-      final PrologVar currentVar = (PrologVar) structure.getElementAt(li);
+      final PrologVar currentVar = (PrologVar) structure.getTermAt(li);
       assertFalse(varSet.contains(currentVar));
       varSet.add(currentVar);
     }
@@ -156,9 +155,9 @@ public class IntegrationTest {
   public void testVariablesAtClauseBounds() {
     PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C).").next();
 
-    final PrologVar varA = (PrologVar) structure.getElementAt(0);
-    final PrologVar varB = (PrologVar) structure.getElementAt(1);
-    final PrologVar varC = (PrologVar) structure.getElementAt(2);
+    final PrologVar varA = (PrologVar) structure.getTermAt(0);
+    final PrologVar varB = (PrologVar) structure.getTermAt(1);
+    final PrologVar varC = (PrologVar) structure.getTermAt(2);
 
     assertNotSame(varA, varB);
     assertNotSame(varA, varC);
@@ -169,9 +168,9 @@ public class IntegrationTest {
     assertEquals("C", varC.getTermText());
 
     for (int li = 3; li < structure.getArity(); ) {
-      assertNotSame(varA, structure.getElementAt(li++));
-      assertNotSame(varB, structure.getElementAt(li++));
-      assertNotSame(varC, structure.getElementAt(li++));
+      assertNotSame(varA, structure.getTermAt(li++));
+      assertNotSame(varB, structure.getTermAt(li++));
+      assertNotSame(varC, structure.getTermAt(li++));
     }
   }
 
@@ -348,13 +347,13 @@ public class IntegrationTest {
     assertEquals(ATOM, struct.getFunctor().getTermType());
     assertEquals("date", struct.getFunctor().getTermText());
     assertEquals(3, struct.getArity());
-    assertEquals(TermType.VAR, struct.getElementAt(0).getTermType());
-    assertEquals("Day", struct.getElementAt(0).getTermText());
-    assertEquals(ATOM, struct.getElementAt(1).getTermType());
-    assertEquals("may", struct.getElementAt(1).getTermText());
-    assertEquals(ATOM, struct.getElementAt(2).getTermType());
+    assertEquals(TermType.VAR, struct.getTermAt(0).getTermType());
+    assertEquals("Day", struct.getTermAt(0).getTermText());
+    assertEquals(ATOM, struct.getTermAt(1).getTermType());
+    assertEquals("may", struct.getTermAt(1).getTermText());
+    assertEquals(ATOM, struct.getTermAt(2).getTermType());
     assertEquals(2001L,
-        ((PrologInt) struct.getElementAt(2)).getNumber().longValue());
+        ((PrologInt) struct.getTermAt(2)).getNumber().longValue());
   }
 
   @Test
@@ -403,8 +402,8 @@ public class IntegrationTest {
     assertEquals(2, struct.getArity());
     assertEquals(OpAssoc.XFX,
         ((Op) struct.getFunctor()).getOpAssoc());
-    assertEquals("hello", struct.getElementAt(0).getTermText());
-    assertEquals("world", struct.getElementAt(1).getTermText());
+    assertEquals("hello", struct.getTermAt(0).getTermText());
+    assertEquals("world", struct.getTermAt(1).getTermText());
 
     clearInvocations(mockContext);
     parser = parseEd(":-test.", mockContext);
@@ -416,7 +415,7 @@ public class IntegrationTest {
     assertEquals(1, struct.getArity());
     assertEquals(OpAssoc.FX,
         ((Op) struct.getFunctor()).getOpAssoc());
-    assertEquals("test", struct.getElementAt(0).getTermText());
+    assertEquals("test", struct.getTermAt(0).getTermText());
 
     clearInvocations(mockContext);
     parser = parseEd("X is X+1.", mockContext);
@@ -428,14 +427,14 @@ public class IntegrationTest {
     assertEquals(2, struct.getArity());
     assertEquals(OpAssoc.XFX,
         ((Op) struct.getFunctor()).getOpAssoc());
-    assertEquals("X", struct.getElementAt(0).getTermText());
-    assertEquals(TermType.STRUCT, struct.getElementAt(1).getTermType());
-    assertEquals("+", ((PrologStruct) struct.getElementAt(1)).getFunctor().getTermText());
+    assertEquals("X", struct.getTermAt(0).getTermText());
+    assertEquals(TermType.STRUCT, struct.getTermAt(1).getTermType());
+    assertEquals("+", ((PrologStruct) struct.getTermAt(1)).getFunctor().getTermText());
     assertEquals(OpAssoc.YFX,
-        ((Op) ((PrologStruct) struct.getElementAt(1)).getFunctor()).getOpAssoc());
-    assertEquals(2, ((PrologStruct) struct.getElementAt(1)).getArity());
-    assertEquals("X", ((PrologStruct) struct.getElementAt(1)).getElementAt(0).getTermText());
-    assertEquals("1", ((PrologStruct) struct.getElementAt(1)).getElementAt(1).getTermText());
+        ((Op) ((PrologStruct) struct.getTermAt(1)).getFunctor()).getOpAssoc());
+    assertEquals(2, ((PrologStruct) struct.getTermAt(1)).getArity());
+    assertEquals("X", ((PrologStruct) struct.getTermAt(1)).getTermAt(0).getTermText());
+    assertEquals("1", ((PrologStruct) struct.getTermAt(1)).getTermAt(1).getTermText());
 
     assertEquals("+ - + a", parseEd("+-+a.").next().toString());
     assertEquals("+ - + 1", parseEd("+-+1.").next().toString());
@@ -471,8 +470,8 @@ public class IntegrationTest {
     final PrologTerm term = parseEd("+++++++++++ 3.", contextStub).next();
 
     assertSame(firstOperator, ((PrologStruct) term).getFunctor());
-    assertSame(secondOperator, ((PrologStruct) (((PrologStruct) term).getElementAt(0))).getFunctor());
-    assertSame(thirdOperator, ((PrologStruct) ((PrologStruct) (((PrologStruct) term).getElementAt(0))).getElementAt(0)).getFunctor());
+    assertSame(secondOperator, ((PrologStruct) (((PrologStruct) term).getTermAt(0))).getFunctor());
+    assertSame(thirdOperator, ((PrologStruct) ((PrologStruct) (((PrologStruct) term).getTermAt(0))).getTermAt(0)).getFunctor());
 
   }
 
@@ -491,13 +490,13 @@ public class IntegrationTest {
       if (term.getTermType() == TermType.STRUCT) {
         final PrologStruct structure = (PrologStruct) term;
         if (structure.getArity() == 1 && structure.getFunctor().getTermText().equals(":-")) {
-          final PrologStruct operatorstructure = (PrologStruct) structure.getElementAt(0);
+          final PrologStruct operatorstructure = (PrologStruct) structure.getTermAt(0);
 
           if (operatorstructure.getArity() == 3 && operatorstructure.getFunctor().getTermText().equals("op")) {
             final Op newoperator = Op.make(
-                ((PrologInt) operatorstructure.getElementAt(0)).getNumber().intValue(),
-                OpAssoc.findForName(operatorstructure.getElementAt(1).getTermText()).get(),
-                operatorstructure.getElementAt(2).getTermText());
+                ((PrologInt) operatorstructure.getTermAt(0)).getNumber().intValue(),
+                OpAssoc.findForName(operatorstructure.getTermAt(1).getTermText()).get(),
+                operatorstructure.getTermAt(2).getTermText());
 
             OpContainer container = operators.get(newoperator.getTermText());
 
@@ -520,8 +519,8 @@ public class IntegrationTest {
     assertEquals(2, ((PrologStruct) term).getArity());
     assertEquals(800, term.getPrecedence());
 
-    final PrologStruct leftBranch = (PrologStruct) ((PrologStruct) term).getElementAt(0);
-    final PrologStruct rightBranch = (PrologStruct) ((PrologStruct) term).getElementAt(1);
+    final PrologStruct leftBranch = (PrologStruct) ((PrologStruct) term).getTermAt(0);
+    final PrologStruct rightBranch = (PrologStruct) ((PrologStruct) term).getTermAt(1);
 
     assertEquals(500, leftBranch.getPrecedence());
     assertEquals("~", leftBranch.getTermText());
@@ -531,25 +530,25 @@ public class IntegrationTest {
     assertEquals("v", rightBranch.getTermText());
     assertEquals(2, rightBranch.getArity());
 
-    final PrologStruct leftBranch2 = (PrologStruct) leftBranch.getElementAt(0);
-    final PrologStruct rightBranchL = (PrologStruct) rightBranch.getElementAt(0);
-    final PrologStruct rightBranchR = (PrologStruct) rightBranch.getElementAt(1);
+    final PrologStruct leftBranch2 = (PrologStruct) leftBranch.getTermAt(0);
+    final PrologStruct rightBranchL = (PrologStruct) rightBranch.getTermAt(0);
+    final PrologStruct rightBranchR = (PrologStruct) rightBranch.getTermAt(1);
 
     assertEquals(600, leftBranch2.getPrecedence());
     assertEquals("&", leftBranch2.getTermText());
     assertEquals(2, leftBranch2.getArity());
-    assertEquals("A", leftBranch2.getElementAt(0).getTermText());
-    assertEquals("B", leftBranch2.getElementAt(1).getTermText());
+    assertEquals("A", leftBranch2.getTermAt(0).getTermText());
+    assertEquals("B", leftBranch2.getTermAt(1).getTermText());
 
     assertEquals(500, rightBranchL.getPrecedence());
     assertEquals("~", rightBranchL.getTermText());
     assertEquals(1, rightBranchL.getArity());
-    assertEquals("A", rightBranchL.getElementAt(0).getTermText());
+    assertEquals("A", rightBranchL.getTermAt(0).getTermText());
 
     assertEquals(500, rightBranchR.getPrecedence());
     assertEquals("~", rightBranchR.getTermText());
     assertEquals(1, rightBranchR.getArity());
-    assertEquals("B", rightBranchR.getElementAt(0).getTermText());
+    assertEquals("B", rightBranchR.getTermAt(0).getTermText());
 
     assertEquals("~ (A & B) <===> ~ A v ~ B", term.toString());
   }
@@ -670,35 +669,35 @@ public class IntegrationTest {
     assertEquals(23, mainterm.getPos());
     assertEquals(2, mainterm.getLine());
 
-    final PrologStruct leftPart = (PrologStruct) mainterm.getElementAt(0);
+    final PrologStruct leftPart = (PrologStruct) mainterm.getTermAt(0);
     // 'cube(X,Y)'
     assertEquals(1, leftPart.getPos());
     assertEquals(2, leftPart.getLine());
     // 'X'
-    assertEquals(7, leftPart.getElementAt(0).getPos());
-    assertEquals(2, leftPart.getElementAt(0).getLine());
+    assertEquals(7, leftPart.getTermAt(0).getPos());
+    assertEquals(2, leftPart.getTermAt(0).getLine());
     // 'hello'
-    assertEquals(9, leftPart.getElementAt(1).getPos());
-    assertEquals(2, leftPart.getElementAt(1).getLine());
+    assertEquals(9, leftPart.getTermAt(1).getPos());
+    assertEquals(2, leftPart.getTermAt(1).getLine());
     // 1000
-    assertEquals(17, leftPart.getElementAt(2).getPos());
-    assertEquals(2, leftPart.getElementAt(2).getLine());
+    assertEquals(17, leftPart.getTermAt(2).getPos());
+    assertEquals(2, leftPart.getTermAt(2).getLine());
 
-    final PrologStruct rightPart = (PrologStruct) mainterm.getElementAt(1);
+    final PrologStruct rightPart = (PrologStruct) mainterm.getTermAt(1);
     // 'is'
     assertEquals(4, rightPart.getPos());
     assertEquals(3, rightPart.getLine());
     // 'Y'
-    assertEquals(2, rightPart.getElementAt(0).getPos());
-    assertEquals(3, rightPart.getElementAt(0).getLine());
+    assertEquals(2, rightPart.getTermAt(0).getPos());
+    assertEquals(3, rightPart.getTermAt(0).getLine());
 
     final PrologStruct structure = (PrologStruct) parseEd("test(\n1,  \n2, 4*2,  \n3,4,\n5,6*7,8).").next();
     // 4*2
-    assertEquals(5, structure.getElementAt(2).getPos());
-    assertEquals(3, structure.getElementAt(2).getLine());
+    assertEquals(5, structure.getTermAt(2).getPos());
+    assertEquals(3, structure.getTermAt(2).getLine());
     // 6*7
-    assertEquals(4, structure.getElementAt(6).getPos());
-    assertEquals(5, structure.getElementAt(6).getLine());
+    assertEquals(4, structure.getTermAt(6).getPos());
+    assertEquals(5, structure.getTermAt(6).getLine());
   }
 
   private void assertZFZOperatorStruct(final String operator, final PrologTerm term) {
@@ -721,10 +720,10 @@ public class IntegrationTest {
   public void testSingleOperatorAsAtom() {
     final PrologStruct structure = (PrologStruct) parseEd("not/stream.").next();
     assertZFZOperatorStruct("/", structure);
-    assertEquals(ATOM, structure.getElementAt(0).getTermType());
-    assertEquals("not", structure.getElementAt(0).getTermText());
-    assertEquals(ATOM, structure.getElementAt(1).getTermType());
-    assertEquals("stream", structure.getElementAt(1).getTermText());
+    assertEquals(ATOM, structure.getTermAt(0).getTermType());
+    assertEquals("not", structure.getTermAt(0).getTermText());
+    assertEquals(ATOM, structure.getTermAt(1).getTermType());
+    assertEquals("stream", structure.getTermAt(1).getTermText());
   }
 
   @Test
@@ -736,8 +735,8 @@ public class IntegrationTest {
 
     final PrologStruct structure = (PrologStruct) parseEd("(((hello....", stubContext).next();
     assertEquals("...", structure.getFunctor().getTermText());
-    assertEquals("(((", ((PrologStruct) structure.getElementAt(0)).getFunctor().getTermText());
-    assertEquals("hello", ((PrologStruct) structure.getElementAt(0)).getElementAt(0).getTermText());
+    assertEquals("(((", ((PrologStruct) structure.getTermAt(0)).getFunctor().getTermText());
+    assertEquals("hello", ((PrologStruct) structure.getTermAt(0)).getTermAt(0).getTermText());
   }
 
   @Test
@@ -766,12 +765,12 @@ public class IntegrationTest {
   public void testAtomInSequenceWithNameSimilarOperator() {
     final PrologStruct structure = (PrologStruct) parseEd("functor(1,2,3,'mod',5,6).").next();
     assertEquals(6, structure.getArity());
-    assertEquals("1", structure.getElementAt(0).getTermText());
-    assertEquals("2", structure.getElementAt(1).getTermText());
-    assertEquals("3", structure.getElementAt(2).getTermText());
-    assertEquals("mod", structure.getElementAt(3).getTermText());
-    assertEquals("5", structure.getElementAt(4).getTermText());
-    assertEquals("6", structure.getElementAt(5).getTermText());
+    assertEquals("1", structure.getTermAt(0).getTermText());
+    assertEquals("2", structure.getTermAt(1).getTermText());
+    assertEquals("3", structure.getTermAt(2).getTermText());
+    assertEquals("mod", structure.getTermAt(3).getTermText());
+    assertEquals("5", structure.getTermAt(4).getTermText());
+    assertEquals("6", structure.getTermAt(5).getTermText());
   }
 
   @Test
@@ -807,8 +806,8 @@ public class IntegrationTest {
   @Test
   public void testHelloWorld() {
     final PrologStruct rule = (PrologStruct) parseEd("hello :- world,!.").next();
-    final PrologStruct and = (PrologStruct) rule.getElementAt(1);
-    assertEquals("hello world!", rule.getElementAt(0).getTermText() + ' ' + and.getElementAt(0).getTermText() + and.getElementAt(1).getTermText());
+    final PrologStruct and = (PrologStruct) rule.getTermAt(1);
+    assertEquals("hello world!", rule.getTermAt(0).getTermText() + ' ' + and.getTermAt(0).getTermText() + and.getTermAt(1).getTermText());
   }
 
   @Test
@@ -833,7 +832,7 @@ public class IntegrationTest {
     assertEquals(ELEMENTS, struct.getArity());
     assertEquals("test", struct.getFunctor().getTermText());
     for (int i = 0; i < ELEMENTS; i++) {
-      assertEquals(i - 100, ((PrologInt) struct.getElementAt(i)).getNumber().intValue());
+      assertEquals(i - 100, ((PrologInt) struct.getTermAt(i)).getNumber().intValue());
     }
   }
 
@@ -1071,14 +1070,14 @@ public class IntegrationTest {
 
     final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("X(a),Y(b),_Z(d)."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR)).next();
     assertEquals(structB.getFunctor(), Op.METAOPERATOR_COMMA);
-    assertEquals(TermType.VAR, ((PrologStruct) structB.getElementAt(0)).getFunctor().getTermType());
-    assertEquals("X", ((PrologStruct) structB.getElementAt(0)).getFunctor().getTermText());
+    assertEquals(TermType.VAR, ((PrologStruct) structB.getTermAt(0)).getFunctor().getTermType());
+    assertEquals("X", ((PrologStruct) structB.getTermAt(0)).getFunctor().getTermText());
 
-    final PrologStruct structC = (PrologStruct) structB.getElementAt(1);
-    assertEquals(TermType.VAR, ((PrologStruct) structC.getElementAt(0)).getFunctor().getTermType());
-    assertEquals("Y", ((PrologStruct) structC.getElementAt(0)).getFunctor().getTermText());
-    assertEquals(TermType.VAR, ((PrologStruct) structC.getElementAt(1)).getFunctor().getTermType());
-    assertEquals("_Z", ((PrologStruct) structC.getElementAt(1)).getFunctor().getTermText());
+    final PrologStruct structC = (PrologStruct) structB.getTermAt(1);
+    assertEquals(TermType.VAR, ((PrologStruct) structC.getTermAt(0)).getFunctor().getTermType());
+    assertEquals("Y", ((PrologStruct) structC.getTermAt(0)).getFunctor().getTermText());
+    assertEquals(TermType.VAR, ((PrologStruct) structC.getTermAt(1)).getFunctor().getTermType());
+    assertEquals("_Z", ((PrologStruct) structC.getTermAt(1)).getFunctor().getTermText());
     assertEquals("X(a) , Y(b) , _Z(d)", structB.toString());
   }
 
@@ -1271,7 +1270,7 @@ public class IntegrationTest {
     }
 
     @Override
-    public int getParseFlags() {
+    public int getFlags() {
       return FLAG_NONE;
     }
 

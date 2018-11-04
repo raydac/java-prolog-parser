@@ -23,12 +23,21 @@ package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.terms.Quotation;
 
+/**
+ * Miscelaneous utils to work with strings.
+ */
 @SuppressWarnings("serial")
 public final class StringUtils {
 
   private StringUtils() {
   }
 
+  /**
+   * Unescape special char which definition is in the buffer.
+   *
+   * @param stringAfterEscMarker buffer contains string
+   * @return result container, must not be null
+   */
   public static UnescapeResult tryUnescapeCharacter(final StringBuilderEx stringAfterEscMarker) {
     if (stringAfterEscMarker == null || stringAfterEscMarker.isEmpty()) {
       return new UnescapeResult('_', false, true);
@@ -106,7 +115,7 @@ public final class StringUtils {
             if (len > 5) {
               return new UnescapeResult('u', false, true);
             } else {
-              if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHex(stringAfterEscMarker.getLastChar())) {
+              if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
                 return new UnescapeResult('u', false, true);
               }
               return new UnescapeResult('u', true, false);
@@ -123,7 +132,7 @@ public final class StringUtils {
             }
             return new UnescapeResult((char) decoded, false, false);
           } else {
-            if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHex(stringAfterEscMarker.getLastChar())) {
+            if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
               return new UnescapeResult('x', false, true);
             }
             return new UnescapeResult('x', true, false);
@@ -152,27 +161,8 @@ public final class StringUtils {
     return Character.isLetterOrDigit(chr) || chr == '_';
   }
 
-  public static boolean isCharNotAppropriateForHex(final char chr) {
+  public static boolean isCharNotAppropriateForHexNum(final char chr) {
     return (chr < '0' || chr > '9') && (chr < 'a' || chr > 'f') && (chr < 'A' || chr > 'F');
-  }
-
-  public static boolean isAllowedEscapeChar(final char chr) {
-    switch (chr) {
-      case 7:
-      case 8:
-      case '\f':
-      case '\n':
-      case '\r':
-      case '`':
-      case '"':
-      case 27:
-      case '\t':
-      case '\'':
-      case 11:
-        return true;
-      default:
-        return false;
-    }
   }
 
   public static String escapeString(final String str, final Quotation quotingType) {
@@ -240,6 +230,9 @@ public final class StringUtils {
     return result.toString();
   }
 
+  /**
+   * Internal auxiliary class to represent result of unescaping.
+   */
   public static final class UnescapeResult {
     private final boolean needsMore;
     private final boolean error;

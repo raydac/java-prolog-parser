@@ -241,7 +241,7 @@ public final class Op extends SpecServiceCompound {
         : new Op(precedence, type, ".multi.", assertOpValidOpName(names));
   }
 
-  static Op makeSystem(final int precedence, final OpAssoc type, final String... names) {
+  public static Op makeSystem(final int precedence, final OpAssoc type, final String... names) {
     AssertUtils.assertNotNull(type);
     AssertUtils.assertNotNull(names);
 
@@ -291,7 +291,7 @@ public final class Op extends SpecServiceCompound {
   }
 
   @Override
-  public PrologTerm getElementAt(final int position) {
+  public PrologTerm getTermAt(final int position) {
     throw new UnsupportedOperationException("Can't get positioned element from operator");
   }
 
@@ -324,13 +324,13 @@ public final class Op extends SpecServiceCompound {
             break;
             case XF:
             case FX: {
-              final PrologTerm atom = struct.getElementAt(0);
+              final PrologTerm atom = struct.getTermAt(0);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
             case YF:
             case FY: {
-              final PrologTerm atom = struct.getElementAt(0);
+              final PrologTerm atom = struct.getTermAt(0);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;
@@ -345,8 +345,8 @@ public final class Op extends SpecServiceCompound {
             case XFY:
             case XFX:
             case YFX: {
-              final PrologTerm elementLeft = struct.getElementAt(0);
-              final PrologTerm elementRight = struct.getElementAt(1);
+              final PrologTerm elementLeft = struct.getTermAt(0);
+              final PrologTerm elementRight = struct.getTermAt(1);
 
               if (elementLeft == null || elementRight == null) {
                 result = false;
@@ -376,14 +376,14 @@ public final class Op extends SpecServiceCompound {
 
             case XF:
             case FX: {
-              final PrologTerm atom = struct.getElementAt(this.opAssoc == OpAssoc.XF ? 0 : 1);
+              final PrologTerm atom = struct.getTermAt(this.opAssoc == OpAssoc.XF ? 0 : 1);
               result = atom != null && atom.getPrecedence() < getPrecedence();
             }
             break;
 
             case YF:
             case FY: {
-              final PrologTerm atom = struct.getElementAt(this.opAssoc == OpAssoc.YF ? 0 : 1);
+              final PrologTerm atom = struct.getTermAt(this.opAssoc == OpAssoc.YF ? 0 : 1);
               result = atom != null && atom.getPrecedence() <= getPrecedence();
             }
             break;

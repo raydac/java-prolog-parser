@@ -22,6 +22,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.ParserContext;
+import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -31,6 +32,7 @@ import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.PrologVar;
 import com.igormaznitsa.prologparser.terms.Quotation;
+import com.igormaznitsa.prologparser.utils.Koi7CharOpMap;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import com.igormaznitsa.prologparser.utils.StringUtils;
@@ -45,7 +47,7 @@ import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUn
 /**
  * Internal tokenizer to gen next token from reader.
  */
-final class Tokenizer {
+public final class Tokenizer {
 
   private final StringBuilderEx strBuf;
   private final StringBuilderEx specCharBuf;
@@ -55,6 +57,7 @@ final class Tokenizer {
   private final Reader reader;
   private final PrologParser parser;
   private final SoftObjectPool<TokenizerResult> tokenizerResultPool;
+  private final Koi7CharOpMap metaOperators;
   private TokenizerResult lastPushedTerm;
   private int prevTokenLine;
   private int prevTokenPos;
@@ -65,14 +68,15 @@ final class Tokenizer {
   private int pos;
   private int line;
 
-  Tokenizer(final PrologParser parser, final Reader reader) {
+  public Tokenizer(final PrologParser parser, final Koi7CharOpMap metaOperators, final Reader reader) {
     super();
+    this.metaOperators = metaOperators;
     this.reader = reader;
     this.parser = parser;
 
-    final int maxAllowedCharBufferSize = parser.context == null ? Integer.MAX_VALUE : parser.context.getMaxTokenizerBufferLength();
-    this.blockCommentsAllowed = parser.context != null && ((parser.context.getParseFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
-    this.zeroSingleQuotationAllowed = parser.context != null && ((parser.context.getParseFlags() & ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
+    final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE : parser.getContext().getMaxTokenizerBufferLength();
+    this.blockCommentsAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
+    this.zeroSingleQuotationAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
 
     this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
     this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
@@ -92,7 +96,7 @@ final class Tokenizer {
     this.tokenizerResultPool.fill();
   }
 
-  private static boolean isCharAllowedForRadix(final char chr, final int radix) {
+  public static boolean isCharAllowedForRadix(final char chr, final int radix) {
     if (radix == 10) {
       return Character.isDigit(chr);
     } else if (radix < 10) {
@@ -109,11 +113,11 @@ final class Tokenizer {
     }
   }
 
-  TokenizerResult getLastPushed() {
+  public TokenizerResult getLastPushed() {
     return this.lastPushedTerm;
   }
 
-  int readChar() throws IOException {
+  public int readChar() throws IOException {
     int ch;
     if (this.insideCharBuffer.isEmpty()) {
       ch = this.reader.read();
@@ -134,7 +138,7 @@ final class Tokenizer {
     return ch;
   }
 
-  private void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
+  public void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
     int chars = buffer.length() - etalon.length();
     int bufferPosition = buffer.length() - 1;
 
@@ -162,7 +166,7 @@ final class Tokenizer {
     this.prevLine = locLinePrev;
   }
 
-  private void push(final char ch) {
+  public void push(final char ch) {
     this.insideCharBuffer.push(ch);
     if (ch == '\n') {
       this.pos = 1;
@@ -172,15 +176,15 @@ final class Tokenizer {
     }
   }
 
-  void close() throws IOException {
+  public void close() throws IOException {
     this.lastPushedTerm = null;
     this.strBuf.clear();
     this.reader.close();
   }
 
-  boolean hasOperatorStartsWith(final String operatorNameStartSubstring) {
+  public boolean hasOperatorStartsWith(final String operatorNameStartSubstring) {
     boolean result = false;
-    if (PrologParser.META_OP_MAP.contains(operatorNameStartSubstring)) {
+    if (this.metaOperators.contains(operatorNameStartSubstring)) {
       result = true;
     } else if (parser != null) {
       final ParserContext ctx = parser.getContext();
@@ -191,12 +195,12 @@ final class Tokenizer {
     return result;
   }
 
-  OpContainer findOperatorForName(final String operatorName) {
+  public OpContainer findOperatorForName(final String operatorName) {
     OpContainer result = null;
 
     // check meta-operators as the first ones
     if (operatorName.length() == 1) {
-      result = PrologParser.META_OP_MAP.get(operatorName);
+      result = this.metaOperators.get(operatorName);
     }
     if (result == null) {
       // check user defined operators because a user can replace a system operator
@@ -209,22 +213,22 @@ final class Tokenizer {
     return result;
   }
 
-  private OpContainer findOperatorForSingleChar(final char c) {
-    OpContainer result = PrologParser.META_OP_MAP.get(c);
+  public OpContainer findOperatorForSingleChar(final char c) {
+    OpContainer result = this.metaOperators.get(c);
     if (result == null) {
       return findOperatorForName(String.valueOf(c));
     }
     return result;
   }
 
-  void push(final TokenizerResult object) {
+  public void push(final TokenizerResult object) {
     if (this.lastPushedTerm != null) {
       throw new IllegalStateException("There is already pushed term");
     }
     this.lastPushedTerm = object;
   }
 
-  TokenizerResult peek() {
+  public TokenizerResult peek() {
     TokenizerResult result;
     if (this.lastPushedTerm == null) {
       result = readNextToken();
@@ -235,15 +239,15 @@ final class Tokenizer {
     return result;
   }
 
-  int getLastTokenPos() {
+  public int getLastTokenPos() {
     return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
   }
 
-  int getLastTokenLine() {
+  public int getLastTokenLine() {
     return this.lastPushedTerm == null ? this.lastTokenLine : this.prevTokenLine;
   }
 
-  private void fixPosition() {
+  public void fixPosition() {
     this.prevTokenLine = this.lastTokenLine;
     this.prevTokenPos = this.lastTokenPos;
     this.lastTokenLine = this.line;
@@ -271,7 +275,7 @@ final class Tokenizer {
     }
   }
 
-  TokenizerResult pop() {
+  public TokenizerResult pop() {
     try {
       return this.lastPushedTerm;
     } finally {
@@ -284,7 +288,7 @@ final class Tokenizer {
    *
    * @return next token or null if not found or thread interruption detected
    */
-  TokenizerResult readNextToken() {
+  public TokenizerResult readNextToken() {
 
     if (this.lastPushedTerm != null) {
       return pop();
@@ -903,7 +907,7 @@ final class Tokenizer {
     }
   }
 
-  PrologTerm makeTermFromString(final String str, final int radix, final Quotation quotingType, final TokenizerState state) {
+  public PrologTerm makeTermFromString(final String str, final int radix, final Quotation quotingType, final TokenizerState state) {
     PrologTerm result;
 
     switch (state) {
@@ -936,11 +940,11 @@ final class Tokenizer {
     return result;
   }
 
-  int getLine() {
+  public int getLine() {
     return this.line;
   }
 
-  int getPos() {
+  public int getPos() {
     return this.pos;
   }
 }

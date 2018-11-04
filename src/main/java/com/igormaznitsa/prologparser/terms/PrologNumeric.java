@@ -36,6 +36,11 @@ public abstract class PrologNumeric extends PrologTerm {
     super("", Quotation.NONE, line, pos);
   }
 
+  /**
+   * Get numeric repreentation of the saved number.
+   *
+   * @return the saved number
+   */
   public abstract Number getNumber();
 
   @Override
@@ -48,7 +53,17 @@ public abstract class PrologNumeric extends PrologTerm {
     return toString();
   }
 
+  /**
+   * Check that the number is negative one
+   *
+   * @return true if the number is negative one, false otherwise
+   */
   public abstract boolean isNegative();
 
-  public abstract PrologNumeric neg();
+  /**
+   * Make negative representation of the numeric term
+   *
+   * @return the negative variant of the numeric
+   */
+  public abstract PrologNumeric makeNeg();
 }

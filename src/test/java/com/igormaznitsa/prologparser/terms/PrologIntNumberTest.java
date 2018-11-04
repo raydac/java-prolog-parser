@@ -18,8 +18,8 @@ public class PrologIntNumberTest {
 
   @Test
   public void testNeg() {
-    assertEquals(-66324377324L, ((PrologInt) new PrologInt("66324377324").neg()).getNumber().longValue());
-    assertEquals(21334324324L, ((PrologInt) new PrologInt("-21334324324").neg()).getNumber().longValue());
+    assertEquals(-66324377324L, ((PrologInt) new PrologInt("66324377324").makeNeg()).getNumber().longValue());
+    assertEquals(21334324324L, ((PrologInt) new PrologInt("-21334324324").makeNeg()).getNumber().longValue());
   }
 
   @Test

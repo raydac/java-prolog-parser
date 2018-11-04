@@ -22,7 +22,6 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.Map;
@@ -41,7 +40,7 @@ public class ParserContextChain implements ParserContext {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
     this.minDetectedAllowedBufferSize = Stream.of(this.contexts).mapToInt(ParserContext::getMaxTokenizerBufferLength).min().orElse(Integer.MAX_VALUE);
     this.tokenizerFlags = stream(this.contexts)
-        .mapToInt(ParserContext::getParseFlags)
+        .mapToInt(ParserContext::getFlags)
         .reduce(FLAG_NONE, (a, b) -> a | b);
   }
 
@@ -93,7 +92,7 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public int getParseFlags() {
+  public int getFlags() {
     return this.tokenizerFlags;
   }
 }

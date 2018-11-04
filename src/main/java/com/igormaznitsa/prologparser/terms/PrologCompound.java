@@ -31,5 +31,11 @@ public abstract class PrologCompound extends PrologTerm {
     super(text, Quotation.NONE);
   }
 
-  public abstract PrologTerm getElementAt(int position);
+  /**
+   * Get element for its position
+   *
+   * @param position zero-based element position
+   * @return element in position
+   */
+  public abstract PrologTerm getTermAt(int position);
 }

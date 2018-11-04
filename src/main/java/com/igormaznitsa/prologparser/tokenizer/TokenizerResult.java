@@ -28,7 +28,7 @@ import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 /**
  * Internal object representing tokenizer result.
  */
-final class TokenizerResult {
+public final class TokenizerResult {
   private final SoftObjectPool<TokenizerResult> pool;
   private TokenizerState parserState;
   private PrologTerm resultTerm;
@@ -52,7 +52,7 @@ final class TokenizerResult {
     return this;
   }
 
-  void release() {
+  public void release() {
     this.parserState = null;
     this.resultTerm = null;
     this.pos = -1;
@@ -60,19 +60,19 @@ final class TokenizerResult {
     this.pool.push(this);
   }
 
-  TokenizerState getTokenizerState() {
+  public TokenizerState getTokenizerState() {
     return this.parserState;
   }
 
-  PrologTerm getResult() {
+  public PrologTerm getResult() {
     return this.resultTerm;
   }
 
-  int getPos() {
+  public int getPos() {
     return this.pos;
   }
 
-  int getLine() {
+  public int getLine() {
     return this.line;
   }
 

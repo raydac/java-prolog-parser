@@ -249,7 +249,7 @@ public class PrologStructureTest {
 
     final PrologStruct struct = new PrologStruct(testAtom, 10);
     for (int index = 0; index < 10; index++) {
-      assertEquals("", struct.getElementAt(index).getTermText());
+      assertEquals("", struct.getTermAt(index).getTermText());
     }
   }
 
@@ -293,11 +293,11 @@ public class PrologStructureTest {
     final PrologStruct structure = new PrologStruct(new PrologAtom(
         "functor"), terms);
     for (int li = 0; li < strings.length; li++) {
-      assertEquals(strings[li], structure.getElementAt(li).getTermText());
+      assertEquals(strings[li], structure.getTermAt(li).getTermText());
     }
 
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElementAt(-1));
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getElementAt(strings.length));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getTermAt(-1));
+    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.getTermAt(strings.length));
   }
 
   @Test
@@ -319,7 +319,7 @@ public class PrologStructureTest {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElementAt(terms.length, new PrologList()));
 
     for (int li = 0; li < terms.length; li++) {
-      assertSame(terms[li], structure.getElementAt(li));
+      assertSame(terms[li], structure.getTermAt(li));
     }
   }
 
@@ -356,7 +356,7 @@ public class PrologStructureTest {
 
     assertEquals(newFunctor, copy.getFunctor());
     assertEquals(1, copy.getArity());
-    assertEquals(element, copy.getElementAt(0));
+    assertEquals(element, copy.getTermAt(0));
     assertEquals(-1, copy.getPos());
     assertEquals(-1, copy.getLine());
   }

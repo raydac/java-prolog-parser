@@ -19,9 +19,8 @@
  * under the License.
  */
 
-package com.igormaznitsa.prologparser.tokenizer;
+package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -31,7 +30,14 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
+import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
+import com.igormaznitsa.prologparser.tokenizer.Tokenizer;
+import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
+import com.igormaznitsa.prologparser.tokenizer.TreeItem;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
+import com.igormaznitsa.prologparser.utils.Koi7CharOpMap;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 import java.io.Closeable;
@@ -49,7 +55,7 @@ import java.util.stream.StreamSupport;
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.terms.TermType.__OPERATOR_CONTAINER__;
-import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
+import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
 
 /**
  * Abstract base Prolog parser.
@@ -57,7 +63,7 @@ import static com.igormaznitsa.prologparser.tokenizer.Koi7CharOpMap.ofOps;
 public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
 
   public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
-  static final Koi7CharOpMap META_OP_MAP;
+  protected static final Koi7CharOpMap META_OP_MAP;
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private static final OpContainer OPERATOR_COMMA;
   private static final OpContainer OPERATOR_LEFTBRACKET;
@@ -99,8 +105,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
-    this.tokenizer = new Tokenizer(this, AssertUtils.assertNotNull(source));
-    this.parserFlags = context == null ? FLAG_NONE : context.getParseFlags();
+    this.tokenizer = new Tokenizer(this, META_OP_MAP, AssertUtils.assertNotNull(source));
+    this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
 
     this.termArrayListPool = new SoftObjectPool<List<PrologTerm>>(MAX_INTERNAL_POOL_SIZE) {
       @Override
@@ -150,6 +156,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     } else {
       return text.charAt(0);
     }
+  }
+
+  public static Koi7CharOpMap findMetaOps() {
+    return Koi7CharOpMap.copyOf(META_OP_MAP);
   }
 
   private boolean isEndOperator(final PrologTerm operator, final Koi7CharOpMap endOperators) {

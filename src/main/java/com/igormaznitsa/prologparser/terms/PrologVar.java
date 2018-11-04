@@ -58,6 +58,11 @@ public final class PrologVar extends PrologTerm {
     setLine(line);
   }
 
+  /**
+   * Check that the variable anonymous one.
+   *
+   * @return true if the variable is anonymous one, false otherwise
+   */
   public boolean isAnonymous() {
     return anonymous;
   }

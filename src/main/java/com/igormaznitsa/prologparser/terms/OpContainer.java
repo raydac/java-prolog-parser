@@ -178,7 +178,7 @@ public final class OpContainer extends SpecServiceCompound {
   }
 
   @Override
-  public PrologTerm getElementAt(int position) {
+  public PrologTerm getTermAt(int position) {
     throw new UnsupportedOperationException("Can't get element from operator container");
   }
 

@@ -91,7 +91,7 @@ public final class PrologInt extends PrologNumeric {
   }
 
   @Override
-  public PrologNumeric neg() {
+  public PrologNumeric makeNeg() {
     return new PrologInt(value.negate());
   }
 

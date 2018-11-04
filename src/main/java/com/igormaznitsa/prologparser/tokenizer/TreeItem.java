@@ -21,6 +21,7 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -33,7 +34,7 @@ import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 import java.util.ArrayList;
 
-final class TreeItem {
+public final class TreeItem {
 
   private final SoftObjectPool<TreeItem> pool;
 
@@ -44,13 +45,13 @@ final class TreeItem {
   private TreeItem parentItem;
   private PrologTerm savedTerm;
 
-  TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
+  public TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
     this.parser = parser;
     this.pool = pool;
     this.termWrapperPool = termWrapperPool;
   }
 
-  TreeItem setData(final PrologTerm term, final int line, final int pos) {
+  public TreeItem setData(final PrologTerm term, final int line, final int pos) {
     if (term == null) {
       this.replaceSavedTerm(null);
     } else {
@@ -74,7 +75,7 @@ final class TreeItem {
     this.savedTerm = newValue;
   }
 
-  void release() {
+  public void release() {
     this.leftBranch = null;
     this.rightBranch = null;
     this.parentItem = null;
@@ -84,11 +85,11 @@ final class TreeItem {
     this.pool.push(this);
   }
 
-  int getPrecedence() {
+  public int getPrecedence() {
     return this.savedTerm.getPrecedence();
   }
 
-  TreeItem makeAsRightBranch(final TreeItem item) {
+  public TreeItem makeAsRightBranch(final TreeItem item) {
     final TreeItem currentSubbranch = rightBranch;
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
@@ -99,13 +100,13 @@ final class TreeItem {
     return result;
   }
 
-  TreeItem makeAsOwnerWithLeftBranch(final TreeItem item) {
+  public TreeItem makeAsOwnerWithLeftBranch(final TreeItem item) {
     this.replaceForOwner(item);
     item.setLeftBranch(this);
     return item;
   }
 
-  TreeItem getRightBranch() {
+  public TreeItem getRightBranch() {
     return rightBranch;
   }
 
@@ -127,11 +128,11 @@ final class TreeItem {
     }
   }
 
-  TermType getType() {
+  public TermType getType() {
     return savedTerm.getTermType();
   }
 
-  TreeItem findRoot() {
+  public TreeItem findRoot() {
     TreeItem result = this;
     while (!Thread.currentThread().isInterrupted()) {
       final TreeItem theParent = result.parentItem;
@@ -144,7 +145,7 @@ final class TreeItem {
     return result;
   }
 
-  TreeItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
+  public TreeItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
     TreeItem result = this;
 
     while (!Thread.currentThread().isInterrupted()) {
@@ -171,7 +172,7 @@ final class TreeItem {
     }
   }
 
-  OpAssoc getOpAssoc() {
+  public OpAssoc getOpAssoc() {
     return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpAssoc();
   }
 
@@ -237,7 +238,7 @@ final class TreeItem {
     return "TreeItem[" + (this.savedTerm == null ? "null" : this.savedTerm.toString()) + ']';
   }
 
-  PrologTerm convertToTermAndRelease() {
+  public PrologTerm convertToTermAndRelease() {
     try {
       PrologTerm result;
 
@@ -253,13 +254,13 @@ final class TreeItem {
             if (this.rightBranch.getType() == TermType.STRUCT && this.rightBranch.savedTerm.isBlock()) {
               final PrologTerm rightTerm = this.rightBranch.convertToTermAndRelease();
               Op operator = (Op) wrapper.getWrappedTerm();
-              final PrologTerm blockContent = ((PrologStruct) rightTerm).getElementAt(0);
+              final PrologTerm blockContent = ((PrologStruct) rightTerm).getTermAt(0);
               if (blockContent.getTermType() == TermType.STRUCT) {
                 final PrologTerm[] terms = blockContent.flatComma(new ArrayList<>()).toArray(PrologParser.EMPTY_TERM_ARRAY);
                 if (operator.getArity() == terms.length) {
                   return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 } else {
-                  operator = this.parser.context.findOpForName(this.parser, operator.getTermText()).findForArity(terms.length);
+                  operator = this.parser.getContext().findOpForName(this.parser, operator.getTermText()).findForArity(terms.length);
                   return operator == null
                       ? new PrologStruct(
                       new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()),
@@ -270,7 +271,7 @@ final class TreeItem {
                 if (operator.getArity() == 1) {
                   return new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                 } else {
-                  operator = this.parser.context.findOpForName(this.parser, operator.getTermText()).findForArity(1);
+                  operator = this.parser.getContext().findOpForName(this.parser, operator.getTermText()).findForArity(1);
                   return operator == null ? new PrologStruct(new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
                       : new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                 }
@@ -303,7 +304,7 @@ final class TreeItem {
           if ("-".equals(wrapper.getTermText()) && left == null && right instanceof PrologNumeric) {
             final PrologNumeric numeric = (PrologNumeric) right;
             if (!numeric.isNegative()) {
-              result = ((PrologNumeric) right).neg();
+              result = ((PrologNumeric) right).makeNeg();
               break;
             }
           }
@@ -321,7 +322,7 @@ final class TreeItem {
           final PrologStruct thisStruct = (PrologStruct) this.savedTerm;
           if (thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
               && thisStruct.getArity() == 1) {
-            final PrologTerm thatTerm = thisStruct.getElementAt(0);
+            final PrologTerm thatTerm = thisStruct.getTermAt(0);
             if (thatTerm.getTermType() == TermType.STRUCT && ((PrologStruct) thatTerm).getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK) {
               result = thatTerm;
             } else {

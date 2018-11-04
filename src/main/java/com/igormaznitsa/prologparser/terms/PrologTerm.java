@@ -194,7 +194,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
           }
           if (leftResult == 0) {
             for (int i = 0; i < this.getArity(); i++) {
-              leftResult = ((PrologCompound) this).getElementAt(i).compareTo(((PrologCompound) that).getElementAt(i));
+              leftResult = ((PrologCompound) this).getTermAt(i).compareTo(((PrologCompound) that).getTermAt(i));
               if (leftResult != 0) {
                 break;
               }

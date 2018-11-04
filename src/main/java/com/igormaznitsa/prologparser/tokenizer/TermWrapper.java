@@ -27,18 +27,21 @@ import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
-final class TermWrapper extends SpecServiceCompound {
+/**
+ * Internal term wrapper to build AST.
+ */
+public final class TermWrapper extends SpecServiceCompound {
 
   private static final long serialVersionUID = 9006607815982718325L;
   private final transient SoftObjectPool<TermWrapper> pool;
   private transient PrologTerm wrappedTerm;
 
-  TermWrapper(final SoftObjectPool<TermWrapper> pool) {
+  public TermWrapper(final SoftObjectPool<TermWrapper> pool) {
     super(".wrapper");
     this.pool = pool;
   }
 
-  void release() {
+  public void release() {
     this.wrappedTerm = null;
     this.pool.push(this);
   }
@@ -48,11 +51,11 @@ final class TermWrapper extends SpecServiceCompound {
     return this.wrappedTerm.getArity();
   }
 
-  PrologTerm getWrappedTerm() {
+  public PrologTerm getWrappedTerm() {
     return this.wrappedTerm;
   }
 
-  TermWrapper setWrappedTerm(final PrologTerm wrappedTerm) {
+  public TermWrapper setWrappedTerm(final PrologTerm wrappedTerm) {
     this.wrappedTerm = wrappedTerm;
     return this;
   }

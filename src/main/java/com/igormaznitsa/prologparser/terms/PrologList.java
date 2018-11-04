@@ -105,8 +105,8 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   }
 
   @Override
-  public PrologTerm getElementAt(final int index) {
-    final PrologTerm result = super.getElementAt(index);
+  public PrologTerm getTermAt(final int index) {
+    final PrologTerm result = super.getTermAt(index);
     return result == null ? EMPTY_ANONYMOUS_VAR : result;
   }
 

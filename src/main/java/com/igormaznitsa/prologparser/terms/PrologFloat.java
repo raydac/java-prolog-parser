@@ -62,7 +62,7 @@ public final class PrologFloat extends PrologNumeric {
   }
 
   @Override
-  public PrologNumeric neg() {
+  public PrologNumeric makeNeg() {
     return new PrologFloat(value.negate());
   }
 

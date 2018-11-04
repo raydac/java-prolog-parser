@@ -57,8 +57,8 @@ public class PrologListTest {
   public void testPrologList() {
     final PrologList list = new PrologList();
     assertTrue(list.isEmpty());
-    assertNotNull(list.getElementAt(0));
-    assertNotNull(list.getElementAt(1));
+    assertNotNull(list.getTermAt(0));
+    assertNotNull(list.getTermAt(1));
     assertEquals(0, list.getArity());
   }
 

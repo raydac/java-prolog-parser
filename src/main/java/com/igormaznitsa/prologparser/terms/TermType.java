@@ -25,11 +25,28 @@ package com.igormaznitsa.prologparser.terms;
  * Type of prolog term.
  */
 public enum TermType {
-
+  /**
+   * Variable.
+   */
   VAR,
+  /**
+   * Atom.
+   */
   ATOM,
+  /**
+   * Structure.
+   */
   STRUCT,
+  /**
+   * List.
+   */
   LIST,
+  /**
+   * Operator term.
+   */
   OPERATOR,
+  /**
+   * Internal auxiliary term contains defined operators.
+   */
   __OPERATOR_CONTAINER__
 }

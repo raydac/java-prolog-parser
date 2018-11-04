@@ -21,10 +21,11 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.tokenizer.PrologParser;
-
 import java.io.Reader;
 
+/**
+ * Generic version of prolog parser.
+ */
 public class GenericPrologParser extends PrologParser {
   public GenericPrologParser(final Reader reader, final ParserContext context) {
     super(reader, context);

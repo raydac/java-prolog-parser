@@ -35,7 +35,7 @@ public abstract class SpecServiceCompound extends PrologCompound {
   }
 
   @Override
-  public PrologTerm getElementAt(int position) {
+  public PrologTerm getTermAt(int position) {
     throw new UnsupportedOperationException();
   }
 
