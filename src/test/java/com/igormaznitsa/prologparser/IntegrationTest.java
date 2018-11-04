@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -550,6 +551,10 @@ public class IntegrationTest {
     assertEquals("B", rightBranchR.getElementAt(0).getTermText());
 
     assertEquals("~ (A & B) <===> ~ A v ~ B", term.toString());
+  }
+
+  private void assertReadTerms(final int expected, final String resource, final List<Op> ops) {
+    assertReadTerms(expected, resource, ops.toArray(new Op[0]));
   }
 
   private void assertReadTerms(final int expected, final String resource, final Op... ops) {

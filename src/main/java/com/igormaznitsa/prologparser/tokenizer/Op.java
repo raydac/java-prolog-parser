@@ -29,7 +29,10 @@ import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,7 +76,7 @@ public final class Op extends SpecServiceCompound {
   /**
    * Set of operators for ISO Prolog standard.
    */
-  public static final Op[] ISO = {
+  public static final List<Op> ISO = Collections.unmodifiableList(Arrays.asList(
       ISO_CLAUSES,
       ISO_DIRECTIVES,
       ISO_OR,
@@ -92,22 +95,22 @@ public final class Op extends SpecServiceCompound {
       ISO_UNARY_MINUS,
       ISO_BITWISE_NEGATION,
       make(100, OpAssoc.XFX, "@")
-  };
+  ));
 
   /**
    * Set of operators is specific for GNU Prolog use.
    */
-  public static final Op[] GNU_SPECIFIC = {
+  public static final List<Op> GNU_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
       GNU_STAR_THEN,
       GNU_DOUBLE_DOT,
       GNU_DIV_RDIV,
-      GNU_UNARY_PLUS,
-  };
+      GNU_UNARY_PLUS
+  ));
 
   /**
    * Set of operators is specific for SWI Prolog use
    */
-  public static final Op[] SWI_SPECIFIC = {
+  public static final List<Op> SWI_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
       make(1150, OpAssoc.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
       GNU_STAR_THEN,
       make(990, OpAssoc.FY, ":="),
@@ -118,17 +121,17 @@ public final class Op extends SpecServiceCompound {
       GNU_DIV_RDIV,
       GNU_UNARY_PLUS,
       make(1, OpAssoc.FX, "$")
-  };
+  ));
 
   /**
    * Set of operators for SWI Prolog.
    */
-  public static final Op[] SWI = Op.join(ISO, SWI_SPECIFIC);
+  public static final List<Op> SWI = Collections.unmodifiableList(Op.join(ISO, SWI_SPECIFIC));
 
   /**
    * Set of Finite Domain operators for GNU Prolog.
    */
-  public static final Op[] GNU_FD = {
+  public static final List<Op> GNU_FD = Collections.unmodifiableList(Arrays.asList(
       make(750, XFY, "#<=>", "#\\<=>"),
       make(740, XFY, "#==>", "#\\==>"),
       make(730, XFY, "##"),
@@ -136,17 +139,17 @@ public final class Op extends SpecServiceCompound {
       make(720, YFX, "#/\\", "#\\/\\"),
       make(710, FY, "#\\"),
       make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#", "#>=#")
-  };
+  ));
 
   /**
    * Set of operators for GNU Prolog.
    */
-  public static final Op[] GNU = Op.join(ISO, GNU_SPECIFIC);
+  public static final List<Op> GNU = Collections.unmodifiableList(Op.join(ISO, GNU_SPECIFIC));
 
   /**
    * Set of Constraint Logic Programming operators for SWI Prolog.
    */
-  public static final Op[] SWI_CPL = {
+  public static final List<Op> SWI_CPL = Collections.unmodifiableList(Arrays.asList(
       make(300, FY, "~"),
       make(500, YFX, "#"),
       make(760, YFX, "#<==>"),
@@ -157,8 +160,8 @@ public final class Op extends SpecServiceCompound {
       make(720, YFX, "#/\\"),
       make(710, FY, "#\\"),
       make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
-      make(450, XFX, ".."),
-  };
+      make(450, XFX, "..")
+  ));
 
   public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpAssoc.FX, "()");
   public static final Op METAOPERATOR_COMMA = makeSystem(1000, OpAssoc.XFY, ",");
@@ -250,8 +253,12 @@ public final class Op extends SpecServiceCompound {
         : new Op(precedence, type, ".system.", assertOpValidOpName(names));
   }
 
-  public static Op[] join(Op[]... args) {
-    return of(args).flatMap(Stream::of).toArray(Op[]::new);
+  public static List<Op> join(final List<Op>... args) {
+    final List<Op> result = new ArrayList<>();
+    for (final List<Op> l : args) {
+      result.addAll(l);
+    }
+    return result;
   }
 
   public static Op[] add(Op[] args, Op... ops) {

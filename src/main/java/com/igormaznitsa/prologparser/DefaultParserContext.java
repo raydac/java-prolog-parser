@@ -25,9 +25,11 @@ import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.PrologParser;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -36,14 +38,18 @@ import static java.util.stream.IntStream.rangeClosed;
 
 public class DefaultParserContext implements ParserContext {
 
+  private static final Op[] EMPTY = new Op[0];
   protected final Set<String> opPrefixes = new HashSet<>();
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
-
   protected final int flags;
 
-  public DefaultParserContext(final int flags, final Op... operators) {
+  public DefaultParserContext(final int flags, final List<Op> operators) {
     this.flags = flags;
-    this.addOps(operators);
+    this.addOps(operators.toArray(EMPTY));
+  }
+
+  public DefaultParserContext(final int flags) {
+    this(flags, Collections.emptyList());
   }
 
   public static ParserContext of(final int flags) {
@@ -51,6 +57,10 @@ public class DefaultParserContext implements ParserContext {
   }
 
   public static ParserContext of(final int flags, final Op... operators) {
+    return new DefaultParserContext(flags, Arrays.asList(operators));
+  }
+
+  public static ParserContext of(final int flags, final List<Op> operators) {
     return new DefaultParserContext(flags, operators);
   }
 
