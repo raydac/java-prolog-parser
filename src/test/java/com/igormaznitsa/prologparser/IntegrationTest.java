@@ -1045,6 +1045,15 @@ public class IntegrationTest {
   }
 
   @Test
+  public void testNonLatinChars() {
+    assertEquals("Ы is П + Ш", parseEd("Ы is П + Ш.").next().toString());
+    assertEquals("Привет123", parseEd("Привет123.").next().toString());
+    assertThrows(PrologParserException.class, () -> parseEd("Привет123(a).").next().toString());
+    assertEquals("привет123", parseEd("привет123.").next().toString());
+    assertEquals("привет", parseEd("привет.").next().toString());
+  }
+
+  @Test
   public void testVarAsFunctor() {
     assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("X(a)."), DefaultParserContext.of(FLAG_NONE)).next());
 
