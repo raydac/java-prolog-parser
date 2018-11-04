@@ -55,6 +55,7 @@ public enum Quotation {
 
   /**
    * Get quotation mark.
+   *
    * @return the quotation mark as string
    */
   public String getQuotationMark() {
@@ -63,6 +64,7 @@ public enum Quotation {
 
   /**
    * Quotate string.
+   *
    * @param str string to quotate, can be null
    * @return quotated string
    */

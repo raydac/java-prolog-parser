@@ -38,7 +38,7 @@ import static java.util.stream.IntStream.rangeClosed;
 
 public class DefaultParserContext implements ParserContext {
 
-  private static final Op[] EMPTY = new Op[0];
+  protected static final Op[] EMPTY = new Op[0];
   protected final Set<String> opPrefixes = new HashSet<>();
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
   protected final int flags;
