@@ -466,7 +466,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   if (onlyCharCode == '(') {
                     readAtom = readBlock(OPERATORS_SUBBLOCK);
                   } else {
-                    if ((this.parserFlags & ParserContext.FLAG_CURLY_BRACKETS_ALLOWED) == 0) {
+                    if ((this.parserFlags & ParserContext.FLAG_CURLY_BRACKETS) == 0) {
                       readAtomPrecedence = readOperator.getPrecedence();
                       processReadAtom = false;
                     } else {
@@ -534,7 +534,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   readAtom = readStruct(readAtom);
                   if (readAtom == null) {
                     // we have met the empty brackets
-                    if ((this.parserFlags & FLAG_ZERO_STRUCT_ALLOWED) == 0) {
+                    if ((this.parserFlags & FLAG_ZERO_STRUCT) == 0) {
                       throw new PrologParserException("Empty structure is not allowed",
                           nextTokenLineNumber, nextTokenStrPosition);
                     } else {

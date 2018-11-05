@@ -26,13 +26,34 @@ import com.igormaznitsa.prologparser.terms.OpContainer;
 import java.util.Map;
 
 public interface ParserContext {
-
+  /**
+   * Empty flags, no any flag defined.
+   */
   int FLAG_NONE = 0;
+  /**
+   * Flag allows block comments.
+   */
   int FLAG_BLOCK_COMMENTS = 1;
-  int FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE = 2;
+  /**
+   * Flag allows construction 0'{char} to get char code.
+   * Example: 0'a, 0'\r
+   */
+  int FLAG_ZERO_QUOTATION_CHARCODE = 2;
+  /**
+   * Flag allows variable as structure functor.
+   * Example: Var(a,b,c).
+   */
   int FLAG_VAR_AS_FUNCTOR = 4;
-  int FLAG_ZERO_STRUCT_ALLOWED = 8;
-  int FLAG_CURLY_BRACKETS_ALLOWED = 16;
+  /**
+   * Flag allows zero-arity structures.
+   * Example: a().
+   */
+  int FLAG_ZERO_STRUCT = 8;
+  /**
+   * Flag allows blocks bounded by curly brackets.
+   * Example: {a,{b,!,c}}
+   */
+  int FLAG_CURLY_BRACKETS = 16;
 
   boolean hasOpStartsWith(PrologParser source, String namePrefix);
 

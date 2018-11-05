@@ -47,17 +47,17 @@ import static org.mockito.Mockito.*;
 public class IntegrationTest {
 
   private static PrologParser parseCpl(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.join(Op.SWI, Op.SWI_CPL)));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.join(Op.SWI, Op.SWI_CPL)));
   }
 
   private static PrologParser parseIso(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.ISO));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE | FLAG_ZERO_QUOTATION_CHARCODE, Op.ISO));
   }
 
   private static PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
     return parseEd(str, parserContext);
   }
 
@@ -67,20 +67,20 @@ public class IntegrationTest {
 
   private static PrologParser parseEd(final Reader reader, final ParserContext context) {
     return new GenericPrologParser(reader, ParserContextChain.of(
-        DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE, Op.SWI), context));
+        DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI), context));
   }
 
   private static PrologParser parseGen(final String str, final ParserContext context) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
     return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
   }
 
   private static GenericPrologParser parseGen(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE);
+    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
   }
 
@@ -570,7 +570,7 @@ public class IntegrationTest {
   }
 
   private ParserContext makeSictusContext(final Op... ops) {
-    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS_ALLOWED, Op.join(Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops)));
+    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS, Op.join(Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops)));
   }
 
   private void assertReadSictusTerms(final int expected, final String resource, final Op... ops) {
@@ -586,9 +586,9 @@ public class IntegrationTest {
 
   @Test
   public void testCurlyBracket() {
-    assertEquals("{1 , 2 , 3 , 4 , 5}", new GenericPrologParser(new StringReader("{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS_ALLOWED)).next().toString());
-    assertEquals("{1 , {2 , {3 , {4} , 5}}}", new GenericPrologParser(new StringReader("{1,{2,{3,{4},5}}}."), of(FLAG_CURLY_BRACKETS_ALLOWED)).next().toString());
-    assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("test{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS_ALLOWED)).next());
+    assertEquals("{1 , 2 , 3 , 4 , 5}", new GenericPrologParser(new StringReader("{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS)).next().toString());
+    assertEquals("{1 , {2 , {3 , {4} , 5}}}", new GenericPrologParser(new StringReader("{1,{2,{3,{4},5}}}."), of(FLAG_CURLY_BRACKETS)).next().toString());
+    assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("test{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS)).next());
   }
 
   @Test
@@ -1161,19 +1161,19 @@ public class IntegrationTest {
   @Test
   public void testAllowZeroStruct() {
     assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_NONE)).next());
-    final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_ZERO_STRUCT_ALLOWED)).next();
+    final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_ZERO_STRUCT)).next();
     final PrologAtom functor = (PrologAtom) struct.getFunctor();
     assertEquals("a", functor.getTermText());
     assertEquals(0, struct.getArity());
     assertEquals("a()", struct.toString());
 
-    final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("a(/*some comment*/)."), DefaultParserContext.of(FLAG_ZERO_STRUCT_ALLOWED | FLAG_BLOCK_COMMENTS)).next();
+    final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("a(/*some comment*/)."), DefaultParserContext.of(FLAG_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
     assertEquals("a()", structB.toString());
 
-    final PrologStruct structC = (PrologStruct) new GenericPrologParser(new StringReader("a(),b(),c()."), DefaultParserContext.of(FLAG_ZERO_STRUCT_ALLOWED | FLAG_BLOCK_COMMENTS)).next();
+    final PrologStruct structC = (PrologStruct) new GenericPrologParser(new StringReader("a(),b(),c()."), DefaultParserContext.of(FLAG_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
     assertEquals("a() , b() , c()", structC.toString());
 
-    final PrologStruct structD = (PrologStruct) new GenericPrologParser(new StringReader("A(),X(),Z()."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR | FLAG_ZERO_STRUCT_ALLOWED | FLAG_BLOCK_COMMENTS)).next();
+    final PrologStruct structD = (PrologStruct) new GenericPrologParser(new StringReader("A(),X(),Z()."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR | FLAG_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
     assertEquals("A() , X() , Z()", structD.toString());
 
   }

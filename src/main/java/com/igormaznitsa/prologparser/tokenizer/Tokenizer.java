@@ -76,7 +76,7 @@ public final class Tokenizer {
 
     final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE : parser.getContext().getMaxTokenizerBufferLength();
     this.blockCommentsAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
-    this.zeroSingleQuotationAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_ZERO_SINGLE_QUOTATION_CHAR_CODE) != 0);
+    this.zeroSingleQuotationAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_ZERO_QUOTATION_CHARCODE) != 0);
 
     this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
     this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
