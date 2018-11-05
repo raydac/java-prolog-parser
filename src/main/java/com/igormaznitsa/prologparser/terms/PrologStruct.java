@@ -159,7 +159,12 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   @Override
   public boolean isBlock() {
-    return this.functor == Op.VIRTUAL_OPERATOR_BLOCK;
+    return this.functor == Op.VIRTUAL_OPERATOR_BLOCK || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
+  }
+
+  @Override
+  public boolean isCurlyBlock() {
+    return this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
   }
 
   @Override
@@ -180,7 +185,11 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
     if (this.functor.getTermType() == TermType.OPERATOR) {
       if (this.isBlock()) {
-        builder.append('(').append(this.elements[0].toString()).append(')');
+        if (this.isCurlyBlock()) {
+          builder.append('{').append(this.elements[0].toString()).append('}');
+        } else {
+          builder.append('(').append(this.elements[0].toString()).append(')');
+        }
       } else {
         final Op operatorFunctor = (Op) functor;
         final String opName = operatorFunctor.getTermText();

@@ -65,6 +65,14 @@ public final class Op extends SpecServiceCompound {
   public static final Op ISO_DIRECTIVES = make(1200, OpAssoc.FX, "?-", ":-");
   public static final Op ISO_BITWISE_AND_OR = make(500, OpAssoc.YFX, "/\\", "\\/");
 
+  public static final Op MODIFIERS = make(1150, OpAssoc.FX,
+      "public",
+      "dynamic",
+      "volatile",
+      "discontiguous",
+      "multifile",
+      "initialization"
+  );
 
   public static final Op GNU_DIV_RDIV = make(400, OpAssoc.YFX, "div", "rdiv");
 
@@ -72,6 +80,16 @@ public final class Op extends SpecServiceCompound {
   public static final Op ISO_THEN = make(1050, OpAssoc.XFY, "->");
   public static final Op GNU_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
   public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
+
+  public static final List<Op> SICTUS_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
+      MODIFIERS,
+      make(1150, FX, "mode", "block", "meta_predicate"),
+      make(1100, XFY, "do"),
+      make(900, FY, "spy", "nospy"),
+      make(550, XFY, ":"),
+      make(500, YFX, "\\"),
+      GNU_UNARY_PLUS
+  ));
 
   /**
    * Set of operators for ISO Prolog standard.
@@ -111,7 +129,8 @@ public final class Op extends SpecServiceCompound {
    * Set of operators is specific for SWI Prolog use
    */
   public static final List<Op> SWI_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      make(1150, OpAssoc.FX, "dynamic", "discontiguous", "initialization", "meta_predicate", "module_transparent", "multifile", "public", "thread_local", "thread_initialization", "volatile"),
+      MODIFIERS,
+      make(1150, OpAssoc.FX, "meta_predicate", "module_transparent", "thread_local", "thread_initialization"),
       GNU_STAR_THEN,
       make(990, OpAssoc.FY, ":="),
       make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
@@ -164,9 +183,12 @@ public final class Op extends SpecServiceCompound {
   ));
 
   public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpAssoc.FX, "()");
+  public static final Op VIRTUAL_OPERATOR_CURLY_BLOCK = makeSystem(-1, OpAssoc.FX, "{}");
   public static final Op METAOPERATOR_COMMA = makeSystem(1000, OpAssoc.XFY, ",");
   public static final Op METAOPERATOR_LEFT_BRACKET = makeSystem(-1, OpAssoc.FX, "(");
+  public static final Op METAOPERATOR_LEFT_CURLY_BRACKET = makeSystem(-1, OpAssoc.FX, "{");
   public static final Op METAOPERATOR_RIGHT_BRACKET = makeSystem(-1, OpAssoc.XF, ")");
+  public static final Op METAOPERATOR_RIGHT_CURLY_BRACKET = makeSystem(-1, OpAssoc.XF, "}");
   public static final Op METAOPERATOR_LEFT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.FX, "[");
   public static final Op METAOPERATOR_RIGHT_SQUARE_BRACKET = makeSystem(-1, OpAssoc.XF, "]");
   public static final Op METAOPERATOR_DOT = makeSystem(Integer.MAX_VALUE, OpAssoc.XF, ".");

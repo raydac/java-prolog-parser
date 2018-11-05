@@ -67,7 +67,9 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final int MAX_INTERNAL_POOL_SIZE = 96;
   private static final OpContainer OPERATOR_COMMA;
   private static final OpContainer OPERATOR_LEFTBRACKET;
+  private static final OpContainer OPERATOR_LEFTCURLYBRACKET;
   private static final OpContainer OPERATOR_RIGHTBRACKET;
+  private static final OpContainer OPERATOR_RIGHTCURLYBRACKET;
   private static final OpContainer OPERATOR_RIGHTSQUAREBRACKET;
   private static final OpContainer OPERATOR_DOT;
   private static final OpContainer OPERATOR_VERTICALBAR;
@@ -76,13 +78,16 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   private static final Koi7CharOpMap OPERATORS_END_LIST;
   private static final Koi7CharOpMap OPERATORS_INSIDE_STRUCT;
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK;
+  private static final Koi7CharOpMap OPERATORS_SUBBLOCK_CURLY;
 
   static {
     META_OP_MAP = ofOps();
 
     OPERATOR_DOT = META_OP_MAP.add(Op.METAOPERATOR_DOT);
     OPERATOR_LEFTBRACKET = META_OP_MAP.add(Op.METAOPERATOR_LEFT_BRACKET);
+    OPERATOR_LEFTCURLYBRACKET = META_OP_MAP.add(Op.METAOPERATOR_LEFT_CURLY_BRACKET);
     OPERATOR_RIGHTBRACKET = META_OP_MAP.add(Op.METAOPERATOR_RIGHT_BRACKET);
+    OPERATOR_RIGHTCURLYBRACKET = META_OP_MAP.add(Op.METAOPERATOR_RIGHT_CURLY_BRACKET);
     META_OP_MAP.add(Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
     OPERATOR_RIGHTSQUAREBRACKET = META_OP_MAP.add(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
     OPERATOR_VERTICALBAR = META_OP_MAP.add(Op.METAOPERATOR_VERTICAL_BAR);
@@ -93,6 +98,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     OPERATORS_END_LIST = ofOps(OPERATOR_RIGHTSQUAREBRACKET);
     OPERATORS_INSIDE_STRUCT = ofOps(OPERATOR_COMMA, OPERATOR_RIGHTBRACKET);
     OPERATORS_SUBBLOCK = ofOps(OPERATOR_RIGHTBRACKET);
+    OPERATORS_SUBBLOCK_CURLY = ofOps(OPERATOR_RIGHTCURLYBRACKET);
   }
 
   protected final ParserContext context;
@@ -150,7 +156,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     return result;
   }
 
-  private static int findFirstCharCode(final String text) {
+  private static int getOnlyCharCode(final String text) {
     if (text == null || text.length() != 1) {
       return -1;
     } else {
@@ -233,7 +239,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         try {
           final String nextText = nextAtom.getResult().getTermText();
 
-          switch (findFirstCharCode(nextText)) {
+          switch (getOnlyCharCode(nextText)) {
             case ',': {
               listOfAtoms.add(block);
             }
@@ -279,7 +285,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       try {
         final String text = nextAtom.getResult().getTermText();
 
-        switch (findFirstCharCode(text)) {
+        switch (getOnlyCharCode(text)) {
           case ']': {
             doRead = false;
             if (block == null) {
@@ -444,7 +450,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             final String operatorText = readOperator.getTermText();
 
             if (operatorText.length() == 1) {
-              switch (findFirstCharCode(operatorText)) {
+              final int onlyCharCode = getOnlyCharCode(operatorText);
+              switch (onlyCharCode) {
                 case '[': {
                   // it's a list
                   readAtom = readList(readAtomContainer);
@@ -453,31 +460,44 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   readAtomPrecedence = 0;
                 }
                 break;
+                case '{':
                 case '(': {
-                  // read sub-block
-                  readAtom = readBlock(OPERATORS_SUBBLOCK);
-
-                  if (readAtom == null) {
-                    throw new PrologParserException("Illegal start of term",
-                        readAtomContainer.getLine(), readAtomContainer.getPos());
-                  }
-
-                  readAtom.setLine(readAtomContainer.getLine());
-                  readAtom.setPos(readAtomContainer.getPos());
-                  readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
-
-                  final TokenizerResult token = this.tokenizer.readNextToken();
-
-                  final PrologTerm closingAtom;
-                  if (token == null) {
-                    closingAtom = null;
+                  boolean processReadAtom = true;
+                  if (onlyCharCode == '(') {
+                    readAtom = readBlock(OPERATORS_SUBBLOCK);
                   } else {
-                    closingAtom = token.getResult();
-                    token.release();
+                    if ((this.parserFlags & ParserContext.FLAG_CURLY_BRACKETS_ALLOWED) == 0) {
+                      readAtomPrecedence = readOperator.getPrecedence();
+                      processReadAtom = false;
+                    } else {
+                      readAtom = readBlock(OPERATORS_SUBBLOCK_CURLY);
+                    }
                   }
 
-                  if (closingAtom == null || !closingAtom.getTermText().equals(OPERATOR_RIGHTBRACKET.getTermText())) {
-                    throw new PrologParserException("Non-closed brakes", this.tokenizer.getLine(), this.tokenizer.getPos());
+                  if (processReadAtom) {
+                    if (readAtom == null) {
+                      throw new PrologParserException("Illegal start of term",
+                          readAtomContainer.getLine(), readAtomContainer.getPos());
+                    }
+
+                    readAtom.setLine(readAtomContainer.getLine());
+                    readAtom.setPos(readAtomContainer.getPos());
+
+                    readAtom = new PrologStruct(onlyCharCode == '{' ? Op.VIRTUAL_OPERATOR_CURLY_BLOCK : Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
+
+                    final TokenizerResult token = this.tokenizer.readNextToken();
+
+                    final PrologTerm closingAtom;
+                    if (token == null) {
+                      closingAtom = null;
+                    } else {
+                      closingAtom = token.getResult();
+                      token.release();
+                    }
+
+                    if (closingAtom == null || !closingAtom.getTermText().equals((onlyCharCode == '{' ? OPERATOR_RIGHTCURLYBRACKET : OPERATOR_RIGHTBRACKET).getTermText())) {
+                      throw new PrologParserException("Non-closed brackets: " + onlyCharCode, this.tokenizer.getLine(), this.tokenizer.getPos());
+                    }
                   }
                 }
                 break;
@@ -514,7 +534,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                   readAtom = readStruct(readAtom);
                   if (readAtom == null) {
                     // we have met the empty brackets
-                    if ((this.parserFlags & FLAG_ALLOW_ZERO_STRUCT) == 0) {
+                    if ((this.parserFlags & FLAG_ZERO_STRUCT_ALLOWED) == 0) {
                       throw new PrologParserException("Empty structure is not allowed",
                           nextTokenLineNumber, nextTokenStrPosition);
                     } else {

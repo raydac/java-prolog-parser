@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -568,6 +569,56 @@ public class IntegrationTest {
     }
   }
 
+  private void assertReadSictusTerms(final int expected, final String resource, final Op... ops) {
+    final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS_ALLOWED, Op.join(Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops)));
+    try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("bench/" + resource), StandardCharsets.UTF_8)) {
+      final PrologParser parser = new GenericPrologParser(reader, defaultContext);
+      assertEquals(expected, parser.stream().count());
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      fail("IOException");
+    }
+  }
+
+  @Test
+  public void testCurlyBracket() {
+    assertEquals("{1 , 2 , 3 , 4 , 5}", new GenericPrologParser(new StringReader("{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS_ALLOWED)).next().toString());
+    assertEquals("{1 , {2 , {3 , {4} , 5}}}", new GenericPrologParser(new StringReader("{1,{2,{3,{4},5}}}."), of(FLAG_CURLY_BRACKETS_ALLOWED)).next().toString());
+    assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("test{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS_ALLOWED)).next());
+  }
+
+  @Test
+  public void testParseSictusBench() {
+    assertReadSictusTerms(136, "boyer.pl");
+    assertReadSictusTerms(29, "browse.pl");
+    assertReadSictusTerms(518, "chat_parser.pl");
+    assertReadSictusTerms(30, "crypt.pl");
+    assertReadSictusTerms(17, "deriv.pl");
+    assertReadSictusTerms(9, "dynamic_unit_clause.pl");
+    assertReadSictusTerms(17, "fast_mu.pl");
+    assertReadSictusTerms(57, "flatten.pl");
+    assertReadSictusTerms(10, "harness.pl");
+    assertReadSictusTerms(5, "itak.pl");
+    assertReadSictusTerms(27, "main.pl");
+    assertReadSictusTerms(27, "meta_qsort.pl");
+    assertReadSictusTerms(18, "mu.pl");
+    assertReadSictusTerms(7, "nreverse.pl");
+    assertReadSictusTerms(5, "nreverse_builtin.pl");
+    assertReadSictusTerms(34, "poly.pl");
+    assertReadSictusTerms(11, "primes.pl");
+
+    assertReadSictusTerms(39, "prover.pl", Op.make(950, XFY, "#"), Op.make(850, XFY, "&"), Op.make(500, FX, "-", "+"));
+    assertReadSictusTerms(8, "qsort.pl");
+    assertReadSictusTerms(14, "queens.pl");
+    assertReadSictusTerms(55, "query.pl");
+    assertReadSictusTerms(119, "reducer.pl");
+    assertReadSictusTerms(25, "sendmore.pl");
+    assertReadSictusTerms(144, "simple_analyzer.pl");
+    assertReadSictusTerms(5, "tak.pl");
+    assertReadSictusTerms(64, "unify.pl");
+    assertReadSictusTerms(8, "zebra.pl");
+  }
+
   @Test
   public void testParseSourceFiles() {
     assertReadTerms(17, "calc.p");
@@ -1084,19 +1135,19 @@ public class IntegrationTest {
   @Test
   public void testAllowZeroStruct() {
     assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_NONE)).next());
-    final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_ALLOW_ZERO_STRUCT)).next();
+    final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_ZERO_STRUCT_ALLOWED)).next();
     final PrologAtom functor = (PrologAtom) struct.getFunctor();
     assertEquals("a", functor.getTermText());
     assertEquals(0, struct.getArity());
     assertEquals("a()", struct.toString());
 
-    final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("a(/*some comment*/)."), DefaultParserContext.of(FLAG_ALLOW_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
+    final PrologStruct structB = (PrologStruct) new GenericPrologParser(new StringReader("a(/*some comment*/)."), DefaultParserContext.of(FLAG_ZERO_STRUCT_ALLOWED | FLAG_BLOCK_COMMENTS)).next();
     assertEquals("a()", structB.toString());
 
-    final PrologStruct structC = (PrologStruct) new GenericPrologParser(new StringReader("a(),b(),c()."), DefaultParserContext.of(FLAG_ALLOW_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
+    final PrologStruct structC = (PrologStruct) new GenericPrologParser(new StringReader("a(),b(),c()."), DefaultParserContext.of(FLAG_ZERO_STRUCT_ALLOWED | FLAG_BLOCK_COMMENTS)).next();
     assertEquals("a() , b() , c()", structC.toString());
 
-    final PrologStruct structD = (PrologStruct) new GenericPrologParser(new StringReader("A(),X(),Z()."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR | FLAG_ALLOW_ZERO_STRUCT | FLAG_BLOCK_COMMENTS)).next();
+    final PrologStruct structD = (PrologStruct) new GenericPrologParser(new StringReader("A(),X(),Z()."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR | FLAG_ZERO_STRUCT_ALLOWED | FLAG_BLOCK_COMMENTS)).next();
     assertEquals("A() , X() , Z()", structD.toString());
 
   }

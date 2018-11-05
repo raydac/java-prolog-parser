@@ -94,6 +94,10 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return false;
   }
 
+  public boolean isCurlyBlock() {
+    return false;
+  }
+
   public Quotation getQuotation() {
     return this.quotation;
   }
