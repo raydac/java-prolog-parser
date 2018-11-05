@@ -143,6 +143,10 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return Stream.of(this);
   }
 
+  public PrologTerm getFunctor() {
+    return this;
+  }
+
   @Override
   public int compareTo(final PrologTerm that) {
     if (that instanceof SpecServiceCompound) {

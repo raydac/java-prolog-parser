@@ -13,7 +13,6 @@ import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -29,7 +28,7 @@ public class ParserContextTest {
     when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     final GenericPrologParser parser = new GenericPrologParser(new StringReader("a operator b."), mockContext);
 
-    assertThrows(PrologParserException.class, () -> parser.next());
+    assertThrows(PrologParserException.class, parser::next);
 
     verify(mockContext).findOpForName(parser, "a");
     verify(mockContext).findOpForName(parser, "operator");
@@ -38,7 +37,7 @@ public class ParserContextTest {
   }
 
   @Test
-  public void testFindOperatorForName() throws Exception {
+  public void testFindOperatorForName() {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.findOpForName(any(GenericPrologParser.class), anyString())).then((InvocationOnMock invocation) -> {
       if ("operator".startsWith((String) invocation.getArguments()[1])) {

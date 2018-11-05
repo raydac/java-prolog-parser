@@ -228,8 +228,8 @@ public final class TreeItem {
   private boolean isBlock() {
     return this.savedTerm.getTermType() == TermType.STRUCT
         && (
-        ((PrologStruct) this.savedTerm).getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
-            || ((PrologStruct) this.savedTerm).getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK
+        this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
+            || this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK
     );
   }
 
@@ -327,7 +327,7 @@ public final class TreeItem {
           if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
               && thisStruct.getArity() == 1) {
             final PrologTerm thatTerm = thisStruct.getTermAt(0);
-            if (thatTerm.getTermType() == TermType.STRUCT && (((PrologStruct) thatTerm).getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || ((PrologStruct) thatTerm).getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
+            if (thatTerm.getTermType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
               result = thatTerm;
             } else {
               result = thisStruct;

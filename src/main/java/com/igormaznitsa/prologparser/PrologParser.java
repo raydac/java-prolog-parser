@@ -309,7 +309,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
 
             if (rightPart != null
                 && rightPart.getTermType() == TermType.STRUCT
-                && ((PrologStruct) rightPart).getFunctor().getTermText().equals(OPERATOR_VERTICALBAR.getTermText())) {
+                && rightPart.getFunctor().getTermText().equals(OPERATOR_VERTICALBAR.getTermText())) {
               throw new PrologParserException(
                   "Duplicated list tail definition",
                   tokenizer.getLastTokenLine(),

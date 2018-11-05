@@ -140,6 +140,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     this.elements[index] = AssertUtils.assertNotNull(term);
   }
 
+  @Override
   public PrologTerm getFunctor() {
     return functor;
   }

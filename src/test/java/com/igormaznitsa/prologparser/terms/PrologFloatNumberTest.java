@@ -19,10 +19,10 @@ public class PrologFloatNumberTest {
 
   @Test
   public void testNeg() {
-    assertEquals(345.223d, ((PrologFloat) new PrologFloat(
-        -345.223d).makeNeg()).getNumber().doubleValue(), Double.MIN_NORMAL);
-    assertEquals(-0.0003d, ((PrologFloat) new PrologFloat(
-        0.0003d).makeNeg()).getNumber().doubleValue(), Double.MIN_NORMAL);
+    assertEquals(345.223d, new PrologFloat(
+        -345.223d).makeNeg().getNumber().doubleValue(), Double.MIN_NORMAL);
+    assertEquals(-0.0003d, new PrologFloat(
+        0.0003d).makeNeg().getNumber().doubleValue(), Double.MIN_NORMAL);
   }
 
   @Test

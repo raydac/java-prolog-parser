@@ -154,11 +154,11 @@ public class OperatorTest {
     final Op opFX2 = Op.make(100, OpAssoc.FX, "><");
     final Op opFY = Op.make(100, OpAssoc.FX, ">*<");
 
-    assertFalse(opFX.equals("><"));
-    assertFalse(opFX.equals(null));
-    assertTrue(opFX.equals(opFX));
-    assertTrue(opFX.equals(opFX2));
-    assertFalse(opFX.equals(opFY));
+    assertNotEquals("><", opFX);
+    assertNotEquals(null, opFX);
+    assertEquals(opFX, opFX);
+    assertEquals(opFX, opFX2);
+    assertNotEquals(opFX, opFY);
   }
 
   @Test
