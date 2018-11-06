@@ -25,6 +25,11 @@ import com.igormaznitsa.prologparser.terms.OpContainer;
 
 import java.util.Map;
 
+/**
+ * Context which provides flags and operator storage for a prolog parser.
+ *
+ * @see PrologParser
+ */
 public interface ParserContext {
   /**
    * Empty flags, no any flag defined.

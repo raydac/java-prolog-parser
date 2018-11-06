@@ -31,6 +31,9 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
 
+/**
+ * Auxiliary class allows to make chain of prolog contexts.
+ */
 public class ParserContextChain implements ParserContext {
   private final ParserContext[] contexts;
   private final int tokenizerFlags;

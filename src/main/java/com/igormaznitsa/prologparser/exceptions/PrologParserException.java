@@ -56,7 +56,7 @@ public class PrologParserException extends RuntimeException {
   }
 
   /**
-   * Get the error line
+   * Get the error line, first line has index 1
    *
    * @return the error line, -1 if the line is undefined
    */
@@ -65,7 +65,7 @@ public class PrologParserException extends RuntimeException {
   }
 
   /**
-   * Get the error line position
+   * Get the error line position, first position has index 1
    *
    * @return the error line position, -1 if the position is undefined
    */

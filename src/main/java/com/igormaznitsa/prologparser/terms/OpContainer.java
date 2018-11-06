@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Container of operators which have same name.
+ * Container of operators which have same name but differently associative.
  */
 public final class OpContainer extends SpecServiceCompound {
 

@@ -22,7 +22,7 @@
 package com.igormaznitsa.prologparser.exceptions;
 
 /**
- * Specialized exception shows that allowed char buffer size of one buffers in a tokenizer is reached
+ * Specialized exception shows that allowed char buffer size of one buffers in a tokenizer is reached.
  */
 public class CharBufferOverflowException extends PrologParserException {
 

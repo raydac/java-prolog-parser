@@ -126,7 +126,7 @@ public final class Op extends SpecServiceCompound {
   ));
 
   /**
-   * Set of operators is specific for SWI Prolog use
+   * Set of operators is specific for SWI Prolog use.
    */
   public static final List<Op> SWI_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
       MODIFIERS,

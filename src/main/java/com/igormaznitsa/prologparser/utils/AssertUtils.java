@@ -44,7 +44,7 @@ public final class AssertUtils {
   }
 
   /**
-   * Check string is not null and is not empty
+   * Check string is not null and is not empty.
    *
    * @param value the string to check
    * @return the same value if it is not null and not empty
