@@ -1,37 +1,5 @@
 package com.igormaznitsa.prologparser;
 
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_CURLY_BRACKETS;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_CHARCODE;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_STRUCT;
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.Quotation.BACK_TICK;
-import static com.igormaznitsa.prologparser.terms.Quotation.DOUBLE;
-import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
-import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
-import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FX;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FY;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XF;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.YFX;
-import static java.util.stream.Collectors.joining;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -65,6 +33,16 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.*;
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.Quotation.*;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
+import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
 

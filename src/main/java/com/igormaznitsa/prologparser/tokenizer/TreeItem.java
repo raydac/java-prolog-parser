@@ -255,7 +255,7 @@ public final class TreeItem {
           }
 
           if (this.leftBranch == null) {
-            if (this.rightBranch.getType() == TermType.STRUCT && this.rightBranch.savedTerm.isBlock() && !((PrologStruct)this.rightBranch.savedTerm).isEmpty()) {
+            if (this.rightBranch.getType() == TermType.STRUCT && this.rightBranch.savedTerm.isBlock() && !((PrologStruct) this.rightBranch.savedTerm).isEmpty()) {
               final PrologTerm rightTerm = this.rightBranch.convertToTermAndRelease();
               Op operator = (Op) wrapper.getWrappedTerm();
               final PrologTerm blockContent = ((PrologStruct) rightTerm).getTermAt(0);
@@ -280,7 +280,7 @@ public final class TreeItem {
                   } else {
                     operator = this.parser.getContext().findOpForName(this.parser, operator.getTermText()).findForArity(1);
                     return operator == null ? new PrologStruct(new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
-                            : new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
+                        : new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                   }
                 }
               }

@@ -479,14 +479,15 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                     if (readAtom == null) {
                       if (onlyCharCode == '{') {
                         emptyCurly = true;
-                      } else
-                      throw new PrologParserException("Illegal start of term",
-                          readAtomContainer.getLine(), readAtomContainer.getPos());
+                      } else {
+                        throw new PrologParserException("Illegal start of term",
+                            readAtomContainer.getLine(), readAtomContainer.getPos());
+                      }
                     }
 
                     if (emptyCurly) {
                       readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_CURLY_BLOCK, EMPTY_TERM_ARRAY, readAtomContainer.getLine(), readAtomContainer.getPos());
-                    }else {
+                    } else {
                       readAtom.setLine(readAtomContainer.getLine());
                       readAtom.setPos(readAtomContainer.getPos());
                       readAtom = new PrologStruct(onlyCharCode == '{' ? Op.VIRTUAL_OPERATOR_CURLY_BLOCK : Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
