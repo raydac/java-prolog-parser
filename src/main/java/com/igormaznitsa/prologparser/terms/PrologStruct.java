@@ -187,9 +187,17 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     if (this.functor.getTermType() == TermType.OPERATOR) {
       if (this.isBlock()) {
         if (this.isCurlyBlock()) {
-          builder.append('{').append(this.elements[0].toString()).append('}');
+          if (this.isEmpty()) {
+            builder.append("{}");
+          } else {
+            builder.append('{').append(this.elements[0].toString()).append('}');
+          }
         } else {
-          builder.append('(').append(this.elements[0].toString()).append(')');
+          if (this.isEmpty()) {
+            builder.append("()");
+          } else {
+            builder.append('(').append(this.elements[0].toString()).append(')');
+          }
         }
       } else {
         final Op operatorFunctor = (Op) functor;
@@ -319,6 +327,10 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
     }
     return builder.toString();
+  }
+
+  public boolean isEmpty() {
+    return this.elements.length == 0;
   }
 
   @Override

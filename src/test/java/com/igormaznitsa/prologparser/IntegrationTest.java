@@ -588,6 +588,9 @@ public class IntegrationTest {
   public void testCurlyBracket() {
     assertEquals("{1 , 2 , 3 , 4 , 5}", new GenericPrologParser(new StringReader("{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS)).next().toString());
     assertEquals("{1 , {2 , {3 , {4} , 5}}}", new GenericPrologParser(new StringReader("{1,{2,{3,{4},5}}}."), of(FLAG_CURLY_BRACKETS)).next().toString());
+    assertEquals("[1, {2 , 3}|X]", new GenericPrologParser(new StringReader("[1,{2,3}|X]."), of(FLAG_CURLY_BRACKETS)).next().toString());
+    assertEquals("{}", new GenericPrologParser(new StringReader("{}."), of(FLAG_CURLY_BRACKETS)).next().toString());
+
     assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("test{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS)).next());
   }
 
