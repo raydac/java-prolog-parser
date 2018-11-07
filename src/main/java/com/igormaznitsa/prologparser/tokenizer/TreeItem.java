@@ -55,7 +55,7 @@ public final class TreeItem {
     if (term == null) {
       this.replaceSavedTerm(null);
     } else {
-      final TermType termType = term.getTermType();
+      final TermType termType = term.getType();
       if (termType == TermType.OPERATOR || termType == TermType.__OPERATOR_CONTAINER__) {
         final TermWrapper termWrapper = this.termWrapperPool.find().setWrappedTerm(term);
         this.replaceSavedTerm(termWrapper);
@@ -129,7 +129,7 @@ public final class TreeItem {
   }
 
   public TermType getType() {
-    return savedTerm.getTermType();
+    return savedTerm.getType();
   }
 
   public TreeItem findRoot() {
@@ -177,7 +177,7 @@ public final class TreeItem {
   }
 
   private boolean isOperandsOk() {
-    if (this.savedTerm.getTermType() == TermType.OPERATOR) {
+    if (this.savedTerm.getType() == TermType.OPERATOR) {
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
       switch (wrappedOperator.getOpAssoc()) {
         case FX:
@@ -199,7 +199,7 @@ public final class TreeItem {
   }
 
   private boolean isPrecedenceOk() {
-    if (this.savedTerm.getTermType() == TermType.OPERATOR) {
+    if (this.savedTerm.getType() == TermType.OPERATOR) {
       final int thisPrecedence = this.getPrecedence();
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
       switch (wrappedOperator.getOpAssoc()) {
@@ -226,7 +226,7 @@ public final class TreeItem {
   }
 
   private boolean isBlock() {
-    return this.savedTerm.getTermType() == TermType.STRUCT
+    return this.savedTerm.getType() == TermType.STRUCT
         && (
         this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
             || this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK
@@ -234,7 +234,7 @@ public final class TreeItem {
   }
 
   private boolean isOperator() {
-    return this.savedTerm.getTermType() == TermType.OPERATOR;
+    return this.savedTerm.getType() == TermType.OPERATOR;
   }
 
   @Override
@@ -246,12 +246,12 @@ public final class TreeItem {
     try {
       PrologTerm result;
 
-      switch (savedTerm.getTermType()) {
+      switch (savedTerm.getType()) {
         case OPERATOR: {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
           if (this.leftBranch == null && this.rightBranch == null) {
             // it is an atom because it has not any argument
-            return new PrologAtom(wrapper.getWrappedTerm().getTermText(), wrapper.getQuotation(), wrapper.getPos(), wrapper.getLine());
+            return new PrologAtom(wrapper.getWrappedTerm().getText(), wrapper.getQuotation(), wrapper.getPos(), wrapper.getLine());
           }
 
           if (this.leftBranch == null) {
@@ -259,15 +259,15 @@ public final class TreeItem {
               final PrologTerm rightTerm = this.rightBranch.convertToTermAndRelease();
               Op operator = (Op) wrapper.getWrappedTerm();
               final PrologTerm blockContent = ((PrologStruct) rightTerm).getTermAt(0);
-              if (blockContent.getTermType() == TermType.STRUCT) {
+              if (blockContent.getType() == TermType.STRUCT) {
                 final PrologTerm[] terms = blockContent.flatComma(new ArrayList<>()).toArray(PrologParser.EMPTY_TERM_ARRAY);
                 if (operator.getArity() == terms.length) {
                   return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 } else {
-                  operator = this.parser.getContext().findOpForName(this.parser, operator.getTermText()).findForArity(terms.length);
+                  operator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(terms.length);
                   return operator == null
                       ? new PrologStruct(
-                      new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()),
+                      new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()),
                       terms, wrapper.getLine(), wrapper.getPos())
                       : new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 }
@@ -278,8 +278,8 @@ public final class TreeItem {
                   if (operator.getArity() == 1) {
                     return new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                   } else {
-                    operator = this.parser.getContext().findOpForName(this.parser, operator.getTermText()).findForArity(1);
-                    return operator == null ? new PrologStruct(new PrologAtom(wrapper.getTermText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
+                    operator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(1);
+                    return operator == null ? new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
                         : new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                   }
                 }
@@ -290,7 +290,7 @@ public final class TreeItem {
           }
 
           if (!isOperandsOk()) {
-            throw new PrologParserException("No operands: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+            throw new PrologParserException("No operands: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
           }
 
           final PrologTerm left;
@@ -301,7 +301,7 @@ public final class TreeItem {
               left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
               right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {this.rightBranch.convertToTermAndRelease()});
             } else {
-              throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getTermText() + ']', wrapper.getLine(), wrapper.getPos());
+              throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
             }
           } else {
             left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
@@ -309,7 +309,7 @@ public final class TreeItem {
           }
 
           // this code replaces '-'(number) to '-number' if number is not negative one
-          if ("-".equals(wrapper.getTermText()) && left == null && right instanceof PrologNumeric) {
+          if ("-".equals(wrapper.getText()) && left == null && right instanceof PrologNumeric) {
             final PrologNumeric numeric = (PrologNumeric) right;
             if (!numeric.isNegative()) {
               result = ((PrologNumeric) right).makeNeg();
@@ -331,7 +331,7 @@ public final class TreeItem {
           if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
               && thisStruct.getArity() == 1) {
             final PrologTerm thatTerm = thisStruct.getTermAt(0);
-            if (thatTerm.getTermType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
+            if (thatTerm.getType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
               result = thatTerm;
             } else {
               result = thisStruct;

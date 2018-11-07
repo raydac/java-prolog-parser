@@ -37,20 +37,20 @@ public class PrologFloatNumberTest {
   @Test
   public void testGetType() {
     assertEquals(TermType.ATOM,
-        new PrologFloat(234.23d).getTermType());
+        new PrologFloat(234.23d).getType());
     assertEquals(TermType.ATOM,
-        new PrologFloat("234").getTermType());
+        new PrologFloat("234").getType());
   }
 
   @Test
   public void testGetText() {
-    assertEquals("234.2329834912938", new PrologFloat("234.2329834912938").getTermText());
-    assertEquals("-0.00000242324324", new PrologFloat("-00000.00000242324324").getTermText());
-    assertEquals("0.00000", new PrologFloat("00000.00000").getTermText());
-    assertEquals("0.0", new PrologFloat("0").getTermText());
-    assertEquals("123.0", new PrologFloat("123").getTermText());
-    assertEquals("0.123", new PrologFloat(".123").getTermText());
-    assertEquals("0.00123", new PrologFloat(".00123").getTermText());
+    assertEquals("234.2329834912938", new PrologFloat("234.2329834912938").getText());
+    assertEquals("-0.00000242324324", new PrologFloat("-00000.00000242324324").getText());
+    assertEquals("0.00000", new PrologFloat("00000.00000").getText());
+    assertEquals("0.0", new PrologFloat("0").getText());
+    assertEquals("123.0", new PrologFloat("123").getText());
+    assertEquals("0.123", new PrologFloat(".123").getText());
+    assertEquals("0.00123", new PrologFloat(".00123").getText());
   }
 
   @Test
@@ -61,8 +61,8 @@ public class PrologFloatNumberTest {
 
   @Test
   public void testPrologFloatNumberString() {
-    assertEquals("0.1234221179298734", new PrologFloat("0.123422117929873388").getTermText());
-    assertEquals("-2.987234987239848", new PrologFloat("-2.9872349872398479").getTermText());
+    assertEquals("0.1234221179298734", new PrologFloat("0.123422117929873388").getText());
+    assertEquals("-2.987234987239848", new PrologFloat("-2.9872349872398479").getText());
 
     assertThrows(NullPointerException.class, () -> new PrologFloat((String) null));
     assertThrows(NumberFormatException.class, () -> new PrologFloat("wrong number"));

@@ -66,13 +66,13 @@ public final class TermWrapper extends SpecServiceCompound {
   }
 
   @Override
-  public TermType getTermType() {
-    return this.wrappedTerm.getTermType();
+  public TermType getType() {
+    return this.wrappedTerm.getType();
   }
 
   @Override
-  public String getTermText() {
-    return this.wrappedTerm.getTermText();
+  public String getText() {
+    return this.wrappedTerm.getText();
   }
 
   @Override

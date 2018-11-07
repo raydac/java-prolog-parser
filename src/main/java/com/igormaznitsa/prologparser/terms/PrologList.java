@@ -151,7 +151,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
           break;
         } else {
           final PrologTerm leftTail = result.elements[1];
-          if (leftTail.getTermType() == TermType.LIST) {
+          if (leftTail.getType() == TermType.LIST) {
             result = (PrologList) leftTail;
           } else {
             final PrologList newOne = new PrologList(term, new PrologList());
@@ -165,22 +165,28 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     return result;
   }
 
-  public void replaceTail(final PrologTerm newTailElement) {
+  /**
+   * Replace last tail element in list chain.
+   * @param newTailElement new element
+   */
+  public void replaceEndListElement(final PrologTerm newTailElement) {
+    PrologList current = this;
 
-    PrologList curList = this;
     while (!Thread.currentThread().isInterrupted()) {
-      final PrologTerm tail = curList.elements[1];
-      if (tail.getTermType() == TermType.LIST) {
+      final PrologTerm tail = current.elements[1];
+
+      if (tail.getType() == TermType.LIST) {
         final PrologList leftTail = (PrologList) tail;
         if (leftTail.isEmpty()) {
-          curList.setTail(newTailElement);
+          current.setTail(newTailElement);
           break;
         }
       } else {
-        curList.setTail(newTailElement);
+        current.setTail(newTailElement);
         break;
       }
-      curList = (PrologList) tail;
+
+      current = (PrologList) tail;
     }
   }
 
@@ -199,7 +205,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
 
   @Override
-  public TermType getTermType() {
+  public TermType getType() {
     return TermType.LIST;
   }
 
@@ -214,7 +220,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
       PrologTerm list = this;
 
       while (!Thread.currentThread().isInterrupted()) {
-        if (list.getTermType() == TermType.LIST) {
+        if (list.getType() == TermType.LIST) {
           final PrologList asList = (PrologList) list;
 
           if (asList.isEmpty()) {

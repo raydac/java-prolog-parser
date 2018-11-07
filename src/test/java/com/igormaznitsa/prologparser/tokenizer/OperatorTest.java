@@ -48,8 +48,8 @@ public class OperatorTest {
   public void testGetType() {
     final Op op = Op.make(243, OpAssoc.FX, "<>");
     final Op op2 = Op.make(243, OpAssoc.XFX, "><");
-    assertEquals(TermType.OPERATOR, op.getTermType());
-    assertEquals(TermType.OPERATOR, op2.getTermType());
+    assertEquals(TermType.OPERATOR, op.getType());
+    assertEquals(TermType.OPERATOR, op2.getType());
   }
 
   @Test
@@ -79,7 +79,7 @@ public class OperatorTest {
     final Op operator = Op.make(100, OpAssoc.XFY, "<>");
     assertEquals(100, operator.getPrecedence());
     assertEquals(OpAssoc.XFY, operator.getOpAssoc());
-    assertEquals("<>", operator.getTermText());
+    assertEquals("<>", operator.getText());
   }
 
   @Test
@@ -173,7 +173,7 @@ public class OperatorTest {
 
   @Test
   public void testGetText() {
-    assertEquals("<>", Op.make(121, OpAssoc.FX, "<>").getTermText());
-    assertEquals("><", Op.make(121, OpAssoc.XFX, "><").getTermText());
+    assertEquals("<>", Op.make(121, OpAssoc.FX, "<>").getText());
+    assertEquals("><", Op.make(121, OpAssoc.XFX, "><").getText());
   }
 }

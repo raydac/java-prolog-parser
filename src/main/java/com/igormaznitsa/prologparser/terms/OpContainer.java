@@ -43,7 +43,7 @@ public final class OpContainer extends SpecServiceCompound {
   private int numberAtContainer;
 
   private OpContainer(final Op operator) {
-    super(operator.getTermText());
+    super(operator.getText());
     operator.streamOp().forEach(this::add);
   }
 
@@ -65,8 +65,8 @@ public final class OpContainer extends SpecServiceCompound {
    * @throws IllegalArgumentException if operator has different name
    */
   public boolean add(final Op operator) {
-    if (!getTermText().equals(operator.getTermText())) {
-      throw new IllegalArgumentException("Illegal operator name, must be '" + getTermText() + "'");
+    if (!getText().equals(operator.getText())) {
+      throw new IllegalArgumentException("Illegal operator name, must be '" + getText() + "'");
     }
 
     switch (operator.getOpAssoc()) {
@@ -101,6 +101,9 @@ public final class OpContainer extends SpecServiceCompound {
     return true;
   }
 
+  /**
+   * Remove all saved operators.
+   */
   public void clear() {
     this.opFZ = null;
     this.opZF = null;
@@ -144,7 +147,7 @@ public final class OpContainer extends SpecServiceCompound {
    * @throws IllegalArgumentException if operator name is not compatible with the container
    */
   public boolean remove(final Op op) {
-    if (!getTermText().equals(op.getTermText())) {
+    if (!getText().equals(op.getText())) {
       throw new IllegalArgumentException(
           "Unexpected operator: " + op);
     }
@@ -168,7 +171,7 @@ public final class OpContainer extends SpecServiceCompound {
   }
 
   @Override
-  public TermType getTermType() {
+  public TermType getType() {
     return TermType.__OPERATOR_CONTAINER__;
   }
 

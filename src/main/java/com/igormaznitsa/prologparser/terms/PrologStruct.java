@@ -23,7 +23,6 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.util.Arrays;
@@ -51,7 +50,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   protected final PrologTerm[] elements;
 
   public PrologStruct(final PrologTerm functor, final PrologTerm[] elements) {
-    super(functor.getTermText());
+    super(functor.getText());
     this.functor = assertFunctor(functor);
     this.elements = assertNotNull(elements.clone());
   }
@@ -87,7 +86,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   protected PrologStruct(final PrologTerm functor, final int arity) {
-    super(functor.getTermText());
+    super(functor.getText());
 
     if (arity < 0) {
       throw new IllegalArgumentException("Negative arity");
@@ -107,10 +106,10 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   private static PrologTerm assertFunctor(final PrologTerm functor) {
     if (
-        functor.getTermType() == __OPERATOR_CONTAINER__
-            || functor.getTermType() == LIST
+        functor.getType() == __OPERATOR_CONTAINER__
+            || functor.getType() == LIST
     ) {
-      throw new IllegalArgumentException("Non-allowed functor type: " + functor.getTermType());
+      throw new IllegalArgumentException("Non-allowed functor type: " + functor.getType());
     }
     if (functor instanceof PrologNumeric) {
       throw new IllegalArgumentException("Functor can't be number: " + functor);
@@ -119,7 +118,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   @Override
-  public TermType getTermType() {
+  public TermType getType() {
     return TermType.STRUCT;
   }
 
@@ -133,11 +132,17 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     return this.elements[index];
   }
 
+  /**
+   * Set element for its position.
+   * @param index zero based index
+   * @param term term to set to position
+   * @throws ArrayIndexOutOfBoundsException if wrong index
+   */
   public void setElementAt(final int index, final PrologTerm term) {
     if (index < 0 || index >= getArity()) {
       throw new ArrayIndexOutOfBoundsException(index);
     }
-    this.elements[index] = AssertUtils.assertNotNull(term);
+    this.elements[index] = assertNotNull(term);
   }
 
   @Override
@@ -147,20 +152,27 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   @Override
   public int getPrecedence() {
-    if (functor.getTermType() == TermType.OPERATOR) {
-      return functor.getPrecedence();
+    if (this.functor.getType() == TermType.OPERATOR) {
+      return this.functor.getPrecedence();
     } else {
       return 0;
     }
   }
 
+  /**
+   * Make copy of the structure with replacement of functor.
+   *
+   * @param newFunctor the new functor, must not be null
+   * @return the new instance with replaced functor.
+   */
   public PrologStruct copyWithAnotherFunctor(final PrologTerm newFunctor) {
-    return new PrologStruct(newFunctor, elements);
+    return new PrologStruct(newFunctor, this.elements);
   }
 
   @Override
   public boolean isBlock() {
-    return this.functor == Op.VIRTUAL_OPERATOR_BLOCK || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
+    return this.functor == Op.VIRTUAL_OPERATOR_BLOCK
+        || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
   }
 
   @Override
@@ -184,7 +196,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   public String toString() {
     final StringBuilderEx builder = new StringBuilderEx(64);
 
-    if (this.functor.getTermType() == TermType.OPERATOR) {
+    if (this.functor.getType() == TermType.OPERATOR) {
       if (this.isBlock()) {
         if (this.isCurlyBlock()) {
           if (this.isEmpty()) {
@@ -201,7 +213,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
         }
       } else {
         final Op operatorFunctor = (Op) functor;
-        final String opName = operatorFunctor.getTermText();
+        final String opName = operatorFunctor.getText();
         final int functorPrecedence = operatorFunctor.getPrecedence();
 
         final String text1 = getTermAt(0).toString();
@@ -303,7 +315,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
         }
       }
     } else {
-      String functorText = functor.getTermText();
+      String functorText = functor.getText();
 
       if ("!".equals(functorText) && getArity() == 0) {
         // special structure detected
@@ -329,6 +341,11 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     return builder.toString();
   }
 
+  /**
+   * Check that the structure has elements.
+   *
+   * @return true if there is not elements, false otherwise
+   */
   public boolean isEmpty() {
     return this.elements.length == 0;
   }

@@ -58,6 +58,12 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     setPos(pos);
   }
 
+  /**
+   * Find appropriate quotation for text.
+   *
+   * @param atomText text, must not be null
+   * @return founded quotation
+   */
   public static Quotation findQuotation(final String atomText) {
     Quotation result = NONE;
 
@@ -81,27 +87,58 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return result;
   }
 
+  /**
+   * Flat content of the term for comma, make sense for structures.
+   *
+   * @param list list to be filled by comma separated terms
+   * @return the same list
+   */
   public List<PrologTerm> flatComma(final List<PrologTerm> list) {
     list.add(this);
     return list;
   }
 
+  /**
+   * Arity of element.
+   *
+   * @return arity of element, make sense for compound terms, for primitive terms is 1
+   */
   public int getArity() {
     return 1;
   }
 
+  /**
+   * Check the term describes '()' block.
+   *
+   * @return true if the term is structure with '()' as functor
+   */
   public boolean isBlock() {
     return false;
   }
 
+  /**
+   * Check the term describes '{}' block.
+   *
+   * @return true if the term is structure with '{}' as functor
+   */
   public boolean isCurlyBlock() {
     return false;
   }
 
+  /**
+   * Get quotation for the term.
+   *
+   * @return the quotation for the term, must not be null
+   */
   public Quotation getQuotation() {
     return this.quotation;
   }
 
+  /**
+   * Position of the term in the line, first position is 1
+   *
+   * @return position in line or -1 if unknown
+   */
   public final int getPos() {
     return pos;
   }
@@ -110,6 +147,11 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     this.pos = pos <= 0 ? -1 : pos;
   }
 
+  /**
+   * Line of the term, first line is 1
+   *
+   * @return line or -1 if unknown
+   */
   public final int getLine() {
     return line;
   }
@@ -118,7 +160,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     this.line = line <= 0 ? -1 : line;
   }
 
-  public String getTermText() {
+  public String getText() {
     return this.text;
   }
 
@@ -137,12 +179,17 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return result;
   }
 
-  public abstract TermType getTermType();
+  public abstract TermType getType();
 
   public Stream<PrologTerm> stream() {
     return Stream.of(this);
   }
 
+  /**
+   * Get the functor, make sense of structure and its successors, for primitive returns the same term.
+   *
+   * @return functor for structure or the same term
+   */
   public PrologTerm getFunctor() {
     return this;
   }
@@ -154,17 +201,17 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     }
 
     final int result;
-    switch (this.getTermType()) {
+    switch (this.getType()) {
       case VAR: {
-        if (that.getTermType() == VAR) {
-          result = this.getTermText().compareTo(that.getTermText());
+        if (that.getType() == VAR) {
+          result = this.getText().compareTo(that.getText());
         } else {
           result = -1;
         }
       }
       break;
       case ATOM: {
-        if (that.getTermType() == ATOM) {
+        if (that.getType() == ATOM) {
           if (this instanceof PrologNumeric) {
             if (that instanceof PrologNumeric) {
               if (this instanceof PrologInt) {
@@ -184,9 +231,9 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
           } else if (that instanceof PrologNumeric) {
             result = 1;
           } else {
-            result = this.getTermText().compareTo(that.getTermText());
+            result = this.getText().compareTo(that.getText());
           }
-        } else if (that.getTermType() == VAR) {
+        } else if (that.getType() == VAR) {
           result = 1;
         } else {
           result = -1;
@@ -198,7 +245,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
         if (that instanceof PrologCompound) {
           int leftResult = Integer.compare(this.getArity(), that.getArity());
           if (leftResult == 0) {
-            leftResult = this.getTermText().compareTo(that.getTermText());
+            leftResult = this.getText().compareTo(that.getText());
           }
           if (leftResult == 0) {
             for (int i = 0; i < this.getArity(); i++) {

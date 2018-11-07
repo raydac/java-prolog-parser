@@ -36,7 +36,7 @@ public final class Koi7CharOpMap {
 
   private Koi7CharOpMap(final OpContainer... containers) {
     this.charMap = new OpContainer[0x80];
-    stream(containers).forEach(x -> put(x.getTermText(), x));
+    stream(containers).forEach(x -> put(x.getText(), x));
   }
 
   private Koi7CharOpMap(final Koi7CharOpMap source) {
@@ -53,7 +53,7 @@ public final class Koi7CharOpMap {
 
 
   public OpContainer add(final Op operator) {
-    final String text = operator.getTermText();
+    final String text = operator.getText();
 
     if (text.length() != 1) {
       throw new IllegalArgumentException("Meta operator must be single char: " + text);

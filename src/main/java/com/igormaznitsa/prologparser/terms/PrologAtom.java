@@ -37,7 +37,7 @@ public final class PrologAtom extends PrologTerm {
   }
 
   public PrologAtom(final PrologTerm term) {
-    super(term.getTermText(), findQuotation(term.getTermText()), term.getLine(), term.getPos());
+    super(term.getText(), findQuotation(term.getText()), term.getLine(), term.getPos());
   }
 
   public PrologAtom(final String text, final int line, final int pos) {
@@ -54,7 +54,7 @@ public final class PrologAtom extends PrologTerm {
   }
 
   @Override
-  public TermType getTermType() {
+  public TermType getType() {
     return TermType.ATOM;
   }
 

@@ -9,10 +9,10 @@ public class PrologVarTest {
   @Test
   public void testGetType() {
     final PrologVar var = new PrologVar("X");
-    assertEquals(TermType.VAR, var.getTermType());
+    assertEquals(TermType.VAR, var.getType());
 
     final PrologVar var2 = new PrologVar();
-    assertEquals(TermType.VAR, var2.getTermType());
+    assertEquals(TermType.VAR, var2.getType());
   }
 
   @Test
@@ -38,19 +38,19 @@ public class PrologVarTest {
 
     PrologVar var = new PrologVar("X");
     assertFalse(var.isAnonymous());
-    assertEquals("X", var.getTermText());
+    assertEquals("X", var.getText());
 
     var = new PrologVar("_");
     assertTrue(var.isAnonymous());
-    assertEquals("_", var.getTermText());
+    assertEquals("_", var.getText());
 
     var = new PrologVar("_hello_world");
     assertFalse(var.isAnonymous());
-    assertEquals("_hello_world", var.getTermText());
+    assertEquals("_hello_world", var.getText());
 
     var = new PrologVar("Привет");
     assertFalse(var.isAnonymous());
-    assertEquals("Привет", var.getTermText());
+    assertEquals("Привет", var.getText());
   }
 
   @Test
@@ -78,10 +78,10 @@ public class PrologVarTest {
 
   @Test
   public void testGetText() {
-    assertEquals("_", new PrologVar().getTermText());
-    assertEquals("_", new PrologVar("_").getTermText());
-    assertEquals("X", new PrologVar("X").getTermText());
-    assertEquals("Variable", new PrologVar("Variable").getTermText());
+    assertEquals("_", new PrologVar().getText());
+    assertEquals("_", new PrologVar("_").getText());
+    assertEquals("X", new PrologVar("X").getText());
+    assertEquals("Variable", new PrologVar("Variable").getText());
   }
 
   @Test

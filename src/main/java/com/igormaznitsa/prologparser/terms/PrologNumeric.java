@@ -44,12 +44,12 @@ public abstract class PrologNumeric extends PrologTerm {
   public abstract Number getNumber();
 
   @Override
-  public final TermType getTermType() {
+  public final TermType getType() {
     return TermType.ATOM;
   }
 
   @Override
-  public String getTermText() {
+  public String getText() {
     return toString();
   }
 

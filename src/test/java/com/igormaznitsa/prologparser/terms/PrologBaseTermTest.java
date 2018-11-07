@@ -60,7 +60,7 @@ public class PrologBaseTermTest {
 
   @Test
   public void testGetText() {
-    assertEquals("Test text", new StubAbstractPrologTermTest("Test text").getTermText());
+    assertEquals("Test text", new StubAbstractPrologTermTest("Test text").getText());
   }
 
   @Test
@@ -85,7 +85,7 @@ public class PrologBaseTermTest {
     }
 
     @Override
-    public TermType getTermType() {
+    public TermType getType() {
       throw new UnsupportedOperationException("It's a stub");
     }
   }

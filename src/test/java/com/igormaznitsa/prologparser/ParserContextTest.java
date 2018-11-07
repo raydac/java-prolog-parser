@@ -52,7 +52,7 @@ public class ParserContextTest {
 
     final GenericPrologParser parser = new GenericPrologParser(new StringReader("operator."), mockContext);
     final PrologAtom atom = (PrologAtom) parser.next();
-    assertEquals("operator", atom.getTermText());
+    assertEquals("operator", atom.getText());
 
     verify(mockContext).findOpForName(parser, "operator");
 

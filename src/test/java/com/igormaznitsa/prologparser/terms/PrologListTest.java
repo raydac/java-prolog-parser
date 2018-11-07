@@ -44,13 +44,13 @@ public class PrologListTest {
   @Test
   public void testGetType() {
     PrologList list = new PrologList();
-    assertEquals(TermType.LIST, list.getTermType());
+    assertEquals(TermType.LIST, list.getType());
 
     list = new PrologList(new PrologAtom("Test"));
-    assertEquals(TermType.LIST, list.getTermType());
+    assertEquals(TermType.LIST, list.getType());
 
     list = new PrologList(new PrologAtom("Test"), new PrologAtom("Test2"));
-    assertEquals(TermType.LIST, list.getTermType());
+    assertEquals(TermType.LIST, list.getType());
   }
 
   @Test
@@ -82,7 +82,7 @@ public class PrologListTest {
 
     PrologList list = new PrologList(terms);
     for (final String text : atoms) {
-      assertEquals(text, list.getHead().getTermText());
+      assertEquals(text, list.getHead().getText());
       list = (PrologList) list.getTail();
     }
     assertTrue(list.isEmpty());
@@ -290,12 +290,12 @@ public class PrologListTest {
 
     final PrologAtom atom = new PrologAtom("hello");
 
-    list.replaceTail(atom);
+    list.replaceEndListElement(atom);
     assertSame(atom, list3.getTail());
 
     list3.setTail(new PrologVar());
     final PrologAtom third = new PrologAtom("third");
-    list.replaceTail(third);
+    list.replaceEndListElement(third);
     assertSame(third, list3.getTail());
   }
 }

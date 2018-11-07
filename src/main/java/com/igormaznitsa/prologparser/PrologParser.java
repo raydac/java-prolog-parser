@@ -177,7 +177,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       return false;
     }
 
-    return operator.getTermType() == __OPERATOR_CONTAINER__ && endOperators.contains(operator.getTermText());
+    return operator.getType() == __OPERATOR_CONTAINER__ && endOperators.contains(operator.getText());
   }
 
   public ParserContext getContext() {
@@ -191,7 +191,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       if (found != null) {
         final TokenizerResult endAtom = this.tokenizer.readNextToken();
         try {
-          if (endAtom == null || !endAtom.getResult().getTermText().equals(OPERATOR_DOT.getTermText())) {
+          if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
             throw new PrologParserException("End operator is not found", this.tokenizer.getLine(), this.tokenizer.getPos());
           }
         } finally {
@@ -237,7 +237,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         }
 
         try {
-          final String nextText = nextAtom.getResult().getTermText();
+          final String nextText = nextAtom.getResult().getText();
 
           switch (getOnlyCharCode(nextText)) {
             case ',': {
@@ -283,7 +283,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       }
 
       try {
-        final String text = nextAtom.getResult().getTermText();
+        final String text = nextAtom.getResult().getText();
 
         switch (getOnlyCharCode(text)) {
           case ']': {
@@ -308,8 +308,8 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             rightPart = readBlock(OPERATORS_END_LIST);
 
             if (rightPart != null
-                && rightPart.getTermType() == TermType.STRUCT
-                && rightPart.getFunctor().getTermText().equals(OPERATOR_VERTICALBAR.getTermText())) {
+                && rightPart.getType() == TermType.STRUCT
+                && rightPart.getFunctor().getText().equals(OPERATOR_VERTICALBAR.getText())) {
               throw new PrologParserException(
                   "Duplicated list tail definition",
                   tokenizer.getLastTokenLine(),
@@ -321,7 +321,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
               throw new PrologParserException("Can't find expected token in list", this.tokenizer.getLine(), this.tokenizer.getPos());
             }
             try {
-              if (!nextAtomTwo.getResult().getTermText().equals(OPERATOR_RIGHTSQUAREBRACKET.getTermText())) {
+              if (!nextAtomTwo.getResult().getText().equals(OPERATOR_RIGHTSQUAREBRACKET.getText())) {
                 throw new PrologParserException("Wrong end of the list tail", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
               }
             } finally {
@@ -356,10 +356,10 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       if (rightPart == null) {
         throw new PrologParserException("There is not any term as the tail at the list", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
-      if (rightPart.getTermType() == TermType.ATOM && rightPart.getQuotation() == Quotation.NONE && ",".equals(rightPart.getTermText())) {
+      if (rightPart.getType() == TermType.ATOM && rightPart.getQuotation() == Quotation.NONE && ",".equals(rightPart.getText())) {
         throw new PrologParserException("Comma operator in list tail", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
-      leftPartFirst.replaceTail(rightPart);
+      leftPartFirst.replaceEndListElement(rightPart);
     }
     return leftPartFirst;
   }
@@ -403,7 +403,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         // same as the natural precedence)
         int readAtomPrecedence = 0; // we make it as highest precedence
 
-        if (readAtom.getTermType() == __OPERATOR_CONTAINER__) {
+        if (readAtom.getType() == __OPERATOR_CONTAINER__) {
           // it is operator list
           // try to get the single operator from the list if the list
           // contains only one
@@ -436,18 +436,18 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             if (readAtom == null) {
               if (currentTreeItem == null && !(leftPresented || rightPresented)) {
                 // alone operator, it is an atom
-                return new PrologAtom(readOperators.getTermText(), Quotation.SINGLE, readOperators.getLine(), readOperators.getPos());
+                return new PrologAtom(readOperators.getText(), Quotation.SINGLE, readOperators.getLine(), readOperators.getPos());
               }
               // we didn't get any operator for our criteria, so throw
               // an exception
-              throw new PrologParserException("Operator clash detected [" + readAtomContainer.getResult().getTermText() + ']',
+              throw new PrologParserException("Operator clash detected [" + readAtomContainer.getResult().getText() + ']',
                   readAtomContainer.getLine(), readAtomContainer.getPos());
             }
             // we have found needed operator so get its precedence
             readAtomPrecedence = readAtom.getPrecedence();
           } else {
             readAtom = readOperator;
-            final String operatorText = readOperator.getTermText();
+            final String operatorText = readOperator.getText();
 
             if (operatorText.length() == 1) {
               final int onlyCharCode = getOnlyCharCode(operatorText);
@@ -503,7 +503,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
                       token.release();
                     }
 
-                    if (closingAtom == null || !closingAtom.getTermText().equals((onlyCharCode == '{' ? OPERATOR_RIGHTCURLYBRACKET : OPERATOR_RIGHTBRACKET).getTermText())) {
+                    if (closingAtom == null || !closingAtom.getText().equals((onlyCharCode == '{' ? OPERATOR_RIGHTCURLYBRACKET : OPERATOR_RIGHTBRACKET).getText())) {
                       throw new PrologParserException("Non-closed brackets: " + onlyCharCode, this.tokenizer.getLine(), this.tokenizer.getPos());
                     }
                   }
@@ -519,7 +519,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             }
           }
         } else {
-          if (readAtom.getTermType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
+          if (readAtom.getType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
             TokenizerResult nextToken = this.tokenizer.readNextToken();
 
             if (nextToken == null) {
@@ -527,14 +527,14 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
             }
 
             try {
-              if (nextToken.getResult().getTermText().equals(OPERATOR_LEFTBRACKET.getTermText())) {
+              if (nextToken.getResult().getText().equals(OPERATOR_LEFTBRACKET.getText())) {
                 final int nextTokenLineNumber = nextToken.getLine();
                 final int nextTokenStrPosition = nextToken.getPos();
 
                 // it is a structure
                 if (
-                    readAtom.getTermType() == TermType.ATOM
-                        || (readAtom.getTermType() == TermType.VAR
+                    readAtom.getType() == TermType.ATOM
+                        || (readAtom.getType() == TermType.VAR
                         && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)
                 ) {
 
@@ -585,7 +585,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           if (currentTreeItem.getType() == TermType.OPERATOR) {
             // it's not first operator
             if (currentTreeItem.getPrecedence() <= readAtomPrecedence) {
-              if (readAtom.getTermType() == TermType.OPERATOR && ((Op) readAtom).getOpAssoc().isPrefix()) {
+              if (readAtom.getType() == TermType.OPERATOR && ((Op) readAtom).getOpAssoc().isPrefix()) {
                 // it is a prefix operator so that it can be there
                 currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);
               } else {

@@ -380,7 +380,7 @@ public final class Tokenizer {
                     getLastTokenPos()
                 );
               } else {
-                calcDiffAndPushResultBack(lastFoundFullOperator.getTermText(), strBuffer);
+                calcDiffAndPushResultBack(lastFoundFullOperator.getText(), strBuffer);
                 return this.tokenizerResultPool.find().setData(
                     lastFoundFullOperator,
                     state,
@@ -681,7 +681,7 @@ public final class Tokenizer {
                 if (lastFoundFullOperator == null || letterOrDigitOnly) {
                   final String textInBuffer = strBuffer.toString();
 
-                  if (lastFoundFullOperator != null && lastFoundFullOperator.getTermText().equals(textInBuffer)) {
+                  if (lastFoundFullOperator != null && lastFoundFullOperator.getText().equals(textInBuffer)) {
                     return this.tokenizerResultPool.find().setData(
                         lastFoundFullOperator,
                         state,
@@ -698,7 +698,7 @@ public final class Tokenizer {
                   }
                 } else {
                   calcDiffAndPushResultBack(
-                      lastFoundFullOperator.getTermText(), strBuffer);
+                      lastFoundFullOperator.getText(), strBuffer);
                   return this.tokenizerResultPool.find().setData(
                       lastFoundFullOperator,
                       state,
@@ -733,7 +733,7 @@ public final class Tokenizer {
                         state = TokenizerState.ATOM;
                       } else {
                         calcDiffAndPushResultBack(
-                            previouslyDetectedOperator.getTermText(), strBuffer);
+                            previouslyDetectedOperator.getText(), strBuffer);
                         return this.tokenizerResultPool.find().setData(
                             previouslyDetectedOperator,
                             state, getLastTokenLine(),
@@ -744,7 +744,7 @@ public final class Tokenizer {
                   } else {
                     if (!hasOperatorStartsWith(operator)) {
                       calcDiffAndPushResultBack(
-                          previouslyDetectedOperator.getTermText(), strBuffer);
+                          previouslyDetectedOperator.getText(), strBuffer);
                       return this.tokenizerResultPool.find().setData(
                           previouslyDetectedOperator,
                           state,

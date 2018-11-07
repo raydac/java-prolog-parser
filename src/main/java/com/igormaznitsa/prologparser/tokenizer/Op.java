@@ -318,7 +318,7 @@ public final class Op extends SpecServiceCompound {
   }
 
   @Override
-  public TermType getTermType() {
+  public TermType getType() {
     return TermType.OPERATOR;
   }
 
@@ -456,7 +456,7 @@ public final class Op extends SpecServiceCompound {
     if (isMultiName()) {
       return String.format("op(%d, %s, [%s]).", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
     } else {
-      return String.format("op(%d, %s, '%s').", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), getTermText());
+      return String.format("op(%d, %s, '%s').", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), getText());
     }
   }
 

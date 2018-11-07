@@ -101,7 +101,7 @@ public final class PrologInt extends PrologNumeric {
   }
 
   @Override
-  public String getTermText() {
+  public String getText() {
     return toString();
   }
 

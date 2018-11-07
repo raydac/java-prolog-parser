@@ -12,8 +12,8 @@ public class PrologIntNumberTest {
   @Test
   public void testToString() {
     final PrologInt test = new PrologInt("8192739872198741213");
-    assertNotNull(test.getTermText());
-    assertEquals(test.getTermText(), test.toString());
+    assertNotNull(test.getText());
+    assertEquals(test.getText(), test.toString());
   }
 
   @Test
@@ -84,16 +84,16 @@ public class PrologIntNumberTest {
 
   @Test
   public void testGetType() {
-    assertEquals(TermType.ATOM, new PrologInt(new BigInteger("111")).getTermType());
-    assertEquals(TermType.ATOM, new PrologInt("24324324").getTermType());
+    assertEquals(TermType.ATOM, new PrologInt(new BigInteger("111")).getType());
+    assertEquals(TermType.ATOM, new PrologInt("24324324").getType());
   }
 
   @Test
   public void testGetText() {
-    assertEquals("9879823432", new PrologInt(9879823432L).getTermText());
-    assertEquals("-2342343243", new PrologInt(-2342343243L).getTermText());
-    assertEquals("-23", new PrologInt("-0000023").getTermText());
-    assertEquals("123", new PrologInt("0000000000000000000000000123").getTermText());
+    assertEquals("9879823432", new PrologInt(9879823432L).getText());
+    assertEquals("-2342343243", new PrologInt(-2342343243L).getText());
+    assertEquals("-23", new PrologInt("-0000023").getText());
+    assertEquals("123", new PrologInt("0000000000000000000000000123").getText());
   }
 
   @Test

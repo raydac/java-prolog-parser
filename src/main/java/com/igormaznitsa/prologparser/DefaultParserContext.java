@@ -83,11 +83,11 @@ public class DefaultParserContext implements ParserContext {
 
   public DefaultParserContext addOps(final Op... operators) {
     Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
-      fillPrefixes(x.getTermText());
-      OpContainer container = this.opContainers.get(x.getTermText());
+      fillPrefixes(x.getText());
+      OpContainer container = this.opContainers.get(x.getText());
       if (container == null) {
         container = OpContainer.make(x);
-        this.opContainers.put(x.getTermText(), container);
+        this.opContainers.put(x.getText(), container);
       } else {
         container.add(x);
       }

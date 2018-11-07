@@ -50,7 +50,7 @@ public class OperatorContainerTest {
   @Test
   public void testGetType() {
     assertEquals(TermType.__OPERATOR_CONTAINER__, make(
-        Op.make(1000, OpAssoc.FX, "<>")).getTermType());
+        Op.make(1000, OpAssoc.FX, "<>")).getType());
   }
 
   @Test
@@ -287,6 +287,6 @@ public class OperatorContainerTest {
   @Test
   public void testGetText() {
     assertEquals("<>", make(Op.make(1000,
-        OpAssoc.FX, "<>")).getTermText());
+        OpAssoc.FX, "<>")).getText());
   }
 }
