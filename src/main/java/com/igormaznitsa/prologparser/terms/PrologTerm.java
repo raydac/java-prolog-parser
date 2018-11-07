@@ -160,10 +160,20 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     this.line = line <= 0 ? -1 : line;
   }
 
+  /**
+   * Get the term text.
+   *
+   * @return the term text, must not be null
+   */
   public String getText() {
     return this.text;
   }
 
+  /**
+   * Get precedence of the term.
+   *
+   * @return precedence, must not be negative
+   */
   public int getPrecedence() {
     return 0;
   }
@@ -179,6 +189,11 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     return result;
   }
 
+  /**
+   * Get term type.
+   *
+   * @return term type, must not be null
+   */
   public abstract TermType getType();
 
   public Stream<PrologTerm> stream() {

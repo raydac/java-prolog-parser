@@ -402,7 +402,7 @@ public class IntegrationTest {
     assertEquals(":-", struct.getFunctor().getText());
     assertEquals(2, struct.getArity());
     assertEquals(OpAssoc.XFX,
-        ((Op) struct.getFunctor()).getOpAssoc());
+        ((Op) struct.getFunctor()).getAssoc());
     assertEquals("hello", struct.getTermAt(0).getText());
     assertEquals("world", struct.getTermAt(1).getText());
 
@@ -415,7 +415,7 @@ public class IntegrationTest {
     assertEquals(":-", struct.getFunctor().getText());
     assertEquals(1, struct.getArity());
     assertEquals(OpAssoc.FX,
-        ((Op) struct.getFunctor()).getOpAssoc());
+        ((Op) struct.getFunctor()).getAssoc());
     assertEquals("test", struct.getTermAt(0).getText());
 
     clearInvocations(mockContext);
@@ -427,12 +427,12 @@ public class IntegrationTest {
     assertEquals("is", struct.getFunctor().getText());
     assertEquals(2, struct.getArity());
     assertEquals(OpAssoc.XFX,
-        ((Op) struct.getFunctor()).getOpAssoc());
+        ((Op) struct.getFunctor()).getAssoc());
     assertEquals("X", struct.getTermAt(0).getText());
     assertEquals(TermType.STRUCT, struct.getTermAt(1).getType());
     assertEquals("+", struct.getTermAt(1).getFunctor().getText());
     assertEquals(OpAssoc.YFX,
-        ((Op) struct.getTermAt(1).getFunctor()).getOpAssoc());
+        ((Op) struct.getTermAt(1).getFunctor()).getAssoc());
     assertEquals(2, struct.getTermAt(1).getArity());
     assertEquals("X", ((PrologStruct) struct.getTermAt(1)).getTermAt(0).getText());
     assertEquals("1", ((PrologStruct) struct.getTermAt(1)).getTermAt(1).getText());

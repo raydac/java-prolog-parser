@@ -54,7 +54,7 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.*;
-import static com.igormaznitsa.prologparser.terms.TermType.__OPERATOR_CONTAINER__;
+import static com.igormaznitsa.prologparser.terms.TermType.SPEC_TERM_OPERATOR_CONTAINER;
 import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
 
 /**
@@ -177,7 +177,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
       return false;
     }
 
-    return operator.getType() == __OPERATOR_CONTAINER__ && endOperators.contains(operator.getText());
+    return operator.getType() == SPEC_TERM_OPERATOR_CONTAINER && endOperators.contains(operator.getText());
   }
 
   public ParserContext getContext() {
@@ -403,7 +403,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
         // same as the natural precedence)
         int readAtomPrecedence = 0; // we make it as highest precedence
 
-        if (readAtom.getType() == __OPERATOR_CONTAINER__) {
+        if (readAtom.getType() == SPEC_TERM_OPERATOR_CONTAINER) {
           // it is operator list
           // try to get the single operator from the list if the list
           // contains only one
@@ -585,7 +585,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
           if (currentTreeItem.getType() == TermType.OPERATOR) {
             // it's not first operator
             if (currentTreeItem.getPrecedence() <= readAtomPrecedence) {
-              if (readAtom.getType() == TermType.OPERATOR && ((Op) readAtom).getOpAssoc().isPrefix()) {
+              if (readAtom.getType() == TermType.OPERATOR && ((Op) readAtom).getAssoc().isPrefix()) {
                 // it is a prefix operator so that it can be there
                 currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);
               } else {

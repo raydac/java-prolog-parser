@@ -90,17 +90,17 @@ public class TokenizerTest {
 
     tokenizer = tokenizeOf("/* some text */[]/*other*/.", true);
     result = tokenizer.readNextToken();
-    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getType());
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
     assertEquals("[", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
     result = tokenizer.readNextToken();
-    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getType());
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
     assertEquals("]", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(17, result.getPos());
     result = tokenizer.readNextToken();
-    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getType());
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
     assertEquals(".", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(27, result.getPos());
@@ -171,7 +171,7 @@ public class TokenizerTest {
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getType());
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
@@ -191,12 +191,12 @@ public class TokenizerTest {
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getType());
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(TermType.__OPERATOR_CONTAINER__, result.getResult().getType());
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
     assertEquals("-", result.getResult().getText());
 
     assertNull(tokenizer.readNextToken());

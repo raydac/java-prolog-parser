@@ -56,7 +56,7 @@ public final class TreeItem {
       this.replaceSavedTerm(null);
     } else {
       final TermType termType = term.getType();
-      if (termType == TermType.OPERATOR || termType == TermType.__OPERATOR_CONTAINER__) {
+      if (termType == TermType.OPERATOR || termType == TermType.SPEC_TERM_OPERATOR_CONTAINER) {
         final TermWrapper termWrapper = this.termWrapperPool.find().setWrappedTerm(term);
         this.replaceSavedTerm(termWrapper);
       } else {
@@ -173,13 +173,13 @@ public final class TreeItem {
   }
 
   public OpAssoc getOpAssoc() {
-    return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getOpAssoc();
+    return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getAssoc();
   }
 
   private boolean isOperandsOk() {
     if (this.savedTerm.getType() == TermType.OPERATOR) {
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
-      switch (wrappedOperator.getOpAssoc()) {
+      switch (wrappedOperator.getAssoc()) {
         case FX:
         case FY:
           return this.leftBranch == null && this.rightBranch != null;
@@ -202,7 +202,7 @@ public final class TreeItem {
     if (this.savedTerm.getType() == TermType.OPERATOR) {
       final int thisPrecedence = this.getPrecedence();
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
-      switch (wrappedOperator.getOpAssoc()) {
+      switch (wrappedOperator.getAssoc()) {
         case FX:
           return this.leftBranch == null && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
         case FY:

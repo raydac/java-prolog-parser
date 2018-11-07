@@ -48,5 +48,5 @@ public enum TermType {
   /**
    * Internal auxiliary term contains defined operators.
    */
-  __OPERATOR_CONTAINER__
+  SPEC_TERM_OPERATOR_CONTAINER
 }

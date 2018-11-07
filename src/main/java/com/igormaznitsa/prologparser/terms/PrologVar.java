@@ -30,6 +30,9 @@ public final class PrologVar extends PrologTerm {
   private static final long serialVersionUID = 1158349084517573220L;
   private final boolean anonymous;
 
+  /**
+   * Constructor of anonymous variable.
+   */
   public PrologVar() {
     this("_");
   }

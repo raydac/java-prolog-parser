@@ -284,7 +284,7 @@ public final class Op extends SpecServiceCompound {
     return result;
   }
 
-  public static Op[] add(Op[] args, Op... ops) {
+  public static Op[] add(final Op[] args, final Op... ops) {
     final int newLen = args.length + ops.length;
     final Op[] result = Arrays.copyOf(args, newLen);
 
@@ -322,7 +322,7 @@ public final class Op extends SpecServiceCompound {
     return TermType.OPERATOR;
   }
 
-  public OpAssoc getOpAssoc() {
+  public OpAssoc getAssoc() {
     return this.opAssoc;
   }
 
@@ -454,9 +454,9 @@ public final class Op extends SpecServiceCompound {
   @Override
   public String toString() {
     if (isMultiName()) {
-      return String.format("op(%d, %s, [%s]).", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
+      return String.format("op(%d, %s, [%s]).", getPrecedence(), getAssoc().toString().toLowerCase(Locale.ENGLISH), of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
     } else {
-      return String.format("op(%d, %s, '%s').", getPrecedence(), getOpAssoc().toString().toLowerCase(Locale.ENGLISH), getText());
+      return String.format("op(%d, %s, '%s').", getPrecedence(), getAssoc().toString().toLowerCase(Locale.ENGLISH), getText());
     }
   }
 

@@ -30,7 +30,7 @@ public abstract class SpecServiceCompound extends PrologCompound {
 
   private static final long serialVersionUID = 71286378126323213L;
 
-  public SpecServiceCompound(String text) {
+  public SpecServiceCompound(final String text) {
     super(text);
   }
 

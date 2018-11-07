@@ -69,7 +69,7 @@ public final class OpContainer extends SpecServiceCompound {
       throw new IllegalArgumentException("Illegal operator name, must be '" + getText() + "'");
     }
 
-    switch (operator.getOpAssoc()) {
+    switch (operator.getAssoc()) {
       case FX:
       case FY:
         if (this.opFZ != null) {
@@ -172,7 +172,7 @@ public final class OpContainer extends SpecServiceCompound {
 
   @Override
   public TermType getType() {
-    return TermType.__OPERATOR_CONTAINER__;
+    return TermType.SPEC_TERM_OPERATOR_CONTAINER;
   }
 
   @Override
@@ -284,7 +284,7 @@ public final class OpContainer extends SpecServiceCompound {
         throw new CriticalUnexpectedError();
     }
 
-    return result == null || result.getOpAssoc() != type ? null : result;
+    return result == null || result.getAssoc() != type ? null : result;
   }
 
   /**
@@ -326,14 +326,14 @@ public final class OpContainer extends SpecServiceCompound {
     switch (type) {
       case FX:
       case FY:
-        if (this.opFZ != null && this.opFZ.getOpAssoc() == type) {
+        if (this.opFZ != null && this.opFZ.getAssoc() == type) {
           this.opFZ = null;
           result = true;
         }
         break;
       case XF:
       case YF:
-        if (this.opZF != null && this.opZF.getOpAssoc() == type) {
+        if (this.opZF != null && this.opZF.getAssoc() == type) {
           this.opZF = null;
           result = true;
         }
@@ -341,7 +341,7 @@ public final class OpContainer extends SpecServiceCompound {
       case XFX:
       case YFX:
       case XFY:
-        if (this.opZFZ != null && this.opZFZ.getOpAssoc() == type) {
+        if (this.opZFZ != null && this.opZFZ.getAssoc() == type) {
           opZFZ = null;
           result = true;
         }

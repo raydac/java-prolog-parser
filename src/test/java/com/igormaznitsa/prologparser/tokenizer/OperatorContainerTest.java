@@ -49,7 +49,7 @@ public class OperatorContainerTest {
 
   @Test
   public void testGetType() {
-    assertEquals(TermType.__OPERATOR_CONTAINER__, make(
+    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, make(
         Op.make(1000, OpAssoc.FX, "<>")).getType());
   }
 
