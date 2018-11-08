@@ -60,15 +60,45 @@ public interface ParserContext {
    */
   int FLAG_CURLY_BRACKETS = 16;
 
+  /**
+   * Check that the context contains an operator starts with some string
+   * @param source source prolog parser making request, must not be null
+   * @param namePrefix string to be used to look for operator starts with it, must not be null
+   * @return true if there is such operator, false otherwise
+   */
   boolean hasOpStartsWith(PrologParser source, String namePrefix);
 
+  /**
+   * Find operators for their name.
+   * @param source source prolog parser making request, must not be null
+   * @param name name of operators, must not be null
+   * @return operator container if such one is found, null otherwise
+   */
   OpContainer findOpForName(PrologParser source, String name);
 
+  /**
+   * Find all operators registered in context.
+   * @return map of operators to their names registered in the context, must not be null
+   */
   Map<String, OpContainer> findAllOperators();
 
+  /**
+   * Get maximum allowed length value for internal parser text buffers.
+   * @return maximum allowed text parser buffers length in chars
+   */
   default int getMaxTokenizerBufferLength() {
     return Integer.MAX_VALUE;
   }
 
+  /**
+   * get parser flags for the parser context.
+   * @return flags as bit field
+   * @see ParserContext#FLAG_NONE
+   * @see ParserContext#FLAG_VAR_AS_FUNCTOR
+   * @see ParserContext#FLAG_BLOCK_COMMENTS
+   * @see ParserContext#FLAG_CURLY_BRACKETS
+   * @see ParserContext#FLAG_ZERO_QUOTATION_CHARCODE
+   * @see ParserContext#FLAG_ZERO_STRUCT
+   */
   int getFlags();
 }
