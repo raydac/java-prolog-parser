@@ -201,7 +201,7 @@ public class TokenizerTest {
 
     assertNull(tokenizer.readNextToken());
 
-    tokenizer = tokenizeOf(Long.toString(Long.MIN_VALUE + 1) + ' ' + Long.toString(Long.MAX_VALUE));
+    tokenizer = tokenizeOf(Long.toString(Long.MIN_VALUE + 1) + ' ' + Long.MAX_VALUE);
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
