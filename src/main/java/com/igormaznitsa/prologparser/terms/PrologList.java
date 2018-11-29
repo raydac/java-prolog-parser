@@ -110,6 +110,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     return result == null ? EMPTY_ANONYMOUS_VAR : result;
   }
 
+  @Override
   public boolean isEmpty() {
     return this.elements[0] == null && this.elements[1] == null;
   }
@@ -167,6 +168,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   /**
    * Replace last tail element in list chain.
+   *
    * @param newTailElement new element
    */
   public void replaceEndListElement(final PrologTerm newTailElement) {

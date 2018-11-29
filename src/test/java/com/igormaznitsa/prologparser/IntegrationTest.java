@@ -1116,7 +1116,7 @@ public class IntegrationTest {
             new InputStreamReader(
                 new PrologSourceKoi7Generator(rnd.nextBoolean(),
                     numChars,
-                    false)), new DefaultParserContext(FLAG_BLOCK_COMMENTS));
+                    false), StandardCharsets.UTF_8), new DefaultParserContext(FLAG_BLOCK_COMMENTS));
 
         while (parser.hasNext()) {
           assertNotNull(parser.next());

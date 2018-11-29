@@ -60,7 +60,7 @@ import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
 /**
  * Abstract base Prolog parser.
  */
-public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<PrologTerm>, Closeable {
+public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
   protected static final Koi7CharOpMap META_OP_MAP;
@@ -184,7 +184,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     return context;
   }
 
-  @Override
   public boolean hasNext() {
     if (this.lastFoundTerm == null) {
       final PrologTerm found = readBlock(OPERATORS_PHRASE);
@@ -206,7 +205,6 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
     return this.lastFoundTerm != null;
   }
 
-  @Override
   public PrologTerm next() {
     try {
       if (hasNext()) {
@@ -674,7 +672,7 @@ public abstract class PrologParser implements Iterator<PrologTerm>, Iterable<Pro
   public Stream<PrologTerm> stream() {
     return StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(
-            this,
+            this.iterator(),
             Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL),
         false
     );

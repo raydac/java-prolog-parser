@@ -258,7 +258,7 @@ public final class Tokenizer {
     boolean starCharDetected = false;
     while (!Thread.currentThread().isInterrupted()) {
       final int readChar = this.readChar();
-      if (readChar < 0 || readChar == '/' && starCharDetected) {
+      if (readChar < 0 || (readChar == '/' && starCharDetected)) {
         break;
       } else {
         starCharDetected = readChar == '*';

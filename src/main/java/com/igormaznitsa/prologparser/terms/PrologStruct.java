@@ -134,8 +134,9 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   /**
    * Set element for its position.
+   *
    * @param index zero based index
-   * @param term term to set to position
+   * @param term  term to set to position
    * @throws ArrayIndexOutOfBoundsException if wrong index
    */
   public void setElementAt(final int index, final PrologTerm term) {
