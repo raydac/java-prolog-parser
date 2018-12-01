@@ -1192,6 +1192,34 @@ public class IntegrationTest {
     assertEquals("X\nY\n_\n34.112\n112\natm\n[]\nm(34)\n[1, 2, 3]\na(1, 2)", parseSortAndJoin("a(1,2).[1,2,3].X.112.Y.34.112. atm. [].m(34)._."));
   }
 
+  @Test
+  public void testBlockAsOnlyArgument() {
+    final PrologStruct parsed = (PrologStruct) parseEd("test((1,2)).").next();
+    assertEquals("test", parsed.getFunctor().getText());
+    assertEquals(1, parsed.getArity());
+    final PrologStruct arg = (PrologStruct) parsed.getTermAt(0);
+    assertTrue(arg.isBlock());
+    assertFalse(arg.isCurlyBlock());
+    assertEquals("()",arg.getFunctor().getText());
+    assertEquals(1,arg.getFunctor().getArity());
+    assertEquals("1", ((PrologStruct)arg.getTermAt(0)).getTermAt(0).getText());
+    assertEquals("2", ((PrologStruct)arg.getTermAt(0)).getTermAt(1).getText());
+  }
+
+  @Test
+  public void testCurlyBlockAsOnlyArgument() {
+    final PrologStruct parsed = (PrologStruct) parseEd("test({1,2}).").next();
+    assertEquals("test", parsed.getFunctor().getText());
+    assertEquals(1, parsed.getArity());
+    final PrologStruct arg = (PrologStruct) parsed.getTermAt(0);
+    assertTrue(arg.isBlock());
+    assertTrue(arg.isCurlyBlock());
+    assertEquals("{}",arg.getFunctor().getText());
+    assertEquals(1,arg.getFunctor().getArity());
+    assertEquals("1", ((PrologStruct)arg.getTermAt(0)).getTermAt(0).getText());
+    assertEquals("2", ((PrologStruct)arg.getTermAt(0)).getTermAt(1).getText());
+  }
+
   /**
    * Based on cases represented on <a href="https://www.complang.tuwien.ac.at/ulrich/iso-prolog/conformity_testing">the page</a>
    */
