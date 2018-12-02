@@ -41,7 +41,7 @@
     </fileSets>
     <files>
         <file>
-            <source>${basedir}/texts/license.txt</source>
+            <source>${basedir}/LICENSE-2.0.txt</source>
             <outputDirectory>/</outputDirectory>
         </file>
     </files>
