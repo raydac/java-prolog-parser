@@ -110,6 +110,10 @@ public final class PrologInt extends PrologNumeric {
     return this.value;
   }
 
+  /**
+   * Get the value as BigInteger
+   * @return the value as BigInteger
+   */
   public BigInteger getIntValue() {
     return this.value;
   }

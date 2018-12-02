@@ -432,7 +432,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
             readAtom = readOperators.findSimilar(leftPresented, rightPresented);
 
             if (readAtom == null) {
-              if (currentTreeItem == null && !(leftPresented || rightPresented)) {
+              if (currentTreeItem == null && !rightPresented) {
                 // alone operator, it is an atom
                 return new PrologAtom(readOperators.getText(), Quotation.SINGLE, readOperators.getLine(), readOperators.getPos());
               }
@@ -455,7 +455,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
                   readAtom = readList(readAtomContainer);
                   readAtom.setPos(readAtomContainer.getPos());
                   readAtom.setLine(readAtomContainer.getLine());
-                  readAtomPrecedence = 0;
                 }
                 break;
                 case '{':

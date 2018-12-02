@@ -26,7 +26,6 @@ import com.igormaznitsa.prologparser.terms.Quotation;
 /**
  * Miscelaneous utils to work with strings.
  */
-@SuppressWarnings("serial")
 public final class StringUtils {
 
   private StringUtils() {

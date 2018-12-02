@@ -115,10 +115,18 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     return this.elements[0] == null && this.elements[1] == null;
   }
 
+  /**
+   * Get the current head element of the list.
+   * @return the head element, can be null
+   */
   public PrologTerm getHead() {
     return this.elements[0];
   }
 
+  /**
+   * Replace the head element.
+   * @param term the new head term, can be null
+   */
   public void setHead(final PrologTerm term) {
     this.setElementAt(0, term);
     if (this.elements[1] == null) {
@@ -126,10 +134,18 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     }
   }
 
+  /**
+   * Get the current tail element
+   * @return the current tail element, can be null
+   */
   public PrologTerm getTail() {
     return this.elements[1];
   }
 
+  /**
+   * Set the current tail element
+   * @param term the new tail element, can be null
+   */
   public void setTail(final PrologTerm term) {
     this.setElementAt(1, term);
     if (this.elements[0] == null) {
@@ -137,6 +153,11 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     }
   }
 
+  /**
+   * Add term as new list into the end of the list chain.
+   * @param term to be added as new list in the end of chain
+   * @return generated list (may be this)
+   */
   public PrologList addAsNewListToEndOfListChain(final PrologTerm term) {
 
     PrologList result = this;
