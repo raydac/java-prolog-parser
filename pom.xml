@@ -30,7 +30,7 @@
         <developer>
             <id>raydac</id>
             <name>Igor Maznitsa</name>
-            <email>igor.maznitsa@igormaznitsa.com</email>
+            <email>rrg4400@gmail.com</email>
             <url>http://www.igormaznitsa.com</url>
             <timezone>+4</timezone>
             <roles>
@@ -85,7 +85,7 @@
 
     <profiles>
         <profile>
-            <id>distributive</id>
+            <id>publish</id>
             <build>
                 <plugins>
                     <plugin>
