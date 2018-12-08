@@ -24,3 +24,18 @@ Reader reader = new StringReader("hello(world). some({1,2,3}). power(X,Y,Z) :- Z
 PrologParser parser = new GenericPrologParser(reader, new DefaultParserContext(ParserContext.FLAG_CURLY_BRACKETS, Op.SWI));
 parser.forEach(System.out::println);
 ```
+
+# Supported Prolog terms
+The parser supports
+ - atoms (class PrologAtom)
+ - numbers (classes PrologInt and PrologFloat), they are based on big numbers so that their size is not restricted
+ - lists (class PrologList)
+ - structures (class PrologStruct)
+ - variables (class PrologVar)
+
+Supported quotations:
+ - single quote `'`
+ - double quote `"`
+ - back tick
+ 
+Bracketed empty-functor structures represented by structure with functor either `{}` or `()` (depends on bracket type).
