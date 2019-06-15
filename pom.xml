@@ -3,14 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.igormaznitsa</groupId>
-    <artifactId>prologparser</artifactId>
-    <version>2.0.0</version>
+    <artifactId>java-prolog-parser</artifactId>
+    <version>2.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Java Prolog Parser</name>
-    <description>It is a hand-written prolog parser, it allows to parse prolog sources written in Edinburgh Prolog
-        style
-    </description>
+    <name>Edinburg Prolog Parser</name>
+    <description>It is a hand-written prolog parser, it allows to parse prolog sources written in Edinburgh Prolog style</description>
     <url>https://github.com/raydac/java-prolog-parser</url>
 
     <properties>
@@ -66,19 +64,19 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.3.1</version>
+            <version>5.4.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.3.1</version>
+            <version>5.4.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.23.0</version>
+            <version>2.28.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -91,7 +89,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.1.1</version>
                         <configuration>
                             <descriptors>
                                 <descriptor>src/assemble/distribution.xml</descriptor>
@@ -128,7 +126,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>generate-sources</id>
@@ -142,7 +140,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.0</version>
                         <configuration>
                             <failOnError>true</failOnError>
                             <show>protected</show>
@@ -183,7 +181,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <compilerArgument>-Xlint:all</compilerArgument>
                     <source>1.8</source>
@@ -196,7 +194,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.2</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -208,13 +206,13 @@
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
+                <version>3.0.0-M3</version>
             </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.17</version>
+                <version>1.18</version>
                 <executions>
                     <execution>
                         <id>ensure-java-1.8-class-library</id>
