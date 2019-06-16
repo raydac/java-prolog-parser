@@ -67,7 +67,6 @@ public class DefaultParserContext implements ParserContext {
     return new DefaultParserContext(parserContextFlags, operators);
   }
 
-  @Override
   public Map<String, OpContainer> findAllOperators() {
     return Collections.unmodifiableMap(this.opContainers);
   }

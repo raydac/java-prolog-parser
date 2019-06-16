@@ -79,13 +79,6 @@ public interface ParserContext {
   OpContainer findOpForName(PrologParser source, String name);
 
   /**
-   * Find all operators registered in context.
-   *
-   * @return map of operators to their names registered in the context, must not be null
-   */
-  Map<String, OpContainer> findAllOperators();
-
-  /**
    * Get maximum allowed length value for internal parser text buffers.
    *
    * @return maximum allowed text parser buffers length in chars

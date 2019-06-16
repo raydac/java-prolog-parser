@@ -47,6 +47,16 @@ public final class OpContainer extends SpecServiceCompound {
     operator.streamOp().forEach(this::add);
   }
 
+  private OpContainer(final String text, final Op fz, final Op zf, final Op zfz) {
+    super(text);
+    this.opFZ = fz;
+    this.opZF = zf;
+    this.opZFZ = zfz;
+    this.numberAtContainer = (fz == null ? 0 : 1)
+            + (zf == null ? 0 : 1)
+            + (zfz == null ? 0 : 1);
+  }
+  
   /**
    * Create new container based on operator name.
    *
@@ -57,6 +67,10 @@ public final class OpContainer extends SpecServiceCompound {
     return new OpContainer(operator);
   }
 
+  public static OpContainer male(final String text, final Op fz, final Op zf, final Op zfz) {
+    return new OpContainer(text, fz, zf, zfz);
+  }
+  
   /**
    * Add operator into the container.
    *

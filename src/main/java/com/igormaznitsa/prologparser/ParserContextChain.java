@@ -63,14 +63,6 @@ public class ParserContextChain implements ParserContext {
   }
 
   @Override
-  public Map<String, OpContainer> findAllOperators() {
-    return stream(this.contexts)
-        .map(ParserContext::findAllOperators)
-        .flatMap(x -> x.entrySet().stream())
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  @Override
   public boolean hasOpStartsWith(final PrologParser source, final String namePrefix) {
     boolean result = false;
     for (final ParserContext c : this.contexts) {

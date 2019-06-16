@@ -1074,7 +1074,7 @@ public class IntegrationTest {
   @Test
   public void testOperatorAsFunctorWithUnsupportedArity() {
     assertEquals("':'(1, 2, 3)", parseEd(":(1,2,3).").next().toString());
-    assertEquals("'+'(1, 2, 3)", parseEd("+(1,2,3).").next().toString());
+    assertEquals("+ (1 , 2 , 3)", parseEd("+(1,2,3).").next().toString());
     assertEquals("':'(1, (2 , 3), 4)", parseEd(":(1,(2,3),4).").next().toString());
     assertEquals("':'(1)", parseEd(":(1).").next().toString());
   }
@@ -1377,11 +1377,6 @@ public class IntegrationTest {
 
     public StubContext(final Map<String, OpContainer> operators) {
       this.operators = operators;
-    }
-
-    @Override
-    public Map<String, OpContainer> findAllOperators() {
-      return Collections.emptyMap();
     }
 
     @Override
