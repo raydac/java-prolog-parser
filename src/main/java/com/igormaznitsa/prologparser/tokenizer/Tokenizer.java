@@ -45,7 +45,7 @@ import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.*;
 import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
 /**
- * Internal tokenizer to gen next token from reader.
+ * Internal tokenizer to extract next token from reader.
  */
 public final class Tokenizer {
 
@@ -117,7 +117,7 @@ public final class Tokenizer {
     return this.lastPushedTerm;
   }
 
-  public int readChar() throws IOException {
+  public synchronized int readChar() throws IOException {
     int ch;
     if (this.insideCharBuffer.isEmpty()) {
       ch = this.reader.read();
