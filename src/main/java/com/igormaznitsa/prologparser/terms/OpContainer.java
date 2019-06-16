@@ -67,7 +67,7 @@ public final class OpContainer extends SpecServiceCompound {
     return new OpContainer(operator);
   }
 
-  public static OpContainer male(final String text, final Op fz, final Op zf, final Op zfz) {
+  public static OpContainer make(final String text, final Op fz, final Op zf, final Op zfz) {
     return new OpContainer(text, fz, zf, zfz);
   }
   
