@@ -222,15 +222,17 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
         final String opName = operatorFunctor.getText();
         final int functorPrecedence = operatorFunctor.getPrecedence();
 
+        final PrologTerm arg1 = getTermAt(0);
         final String text1 = getTermAt(0).toString();
-        final String text2 = getArity() > 1 ? getTermAt(1).toString()
-            : null;
+
+        final PrologTerm arg2 = getArity()>1 ? getTermAt(1) : null;
+        final String text2 = arg2 == null ? null : getTermAt(1).toString();
 
         switch (operatorFunctor.getAssoc()) {
           case FX: {
             builder.append(opName).append(' ');
 
-            if (getTermAt(0).getPrecedence() >= functorPrecedence) {
+            if (arg1.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -241,7 +243,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
             builder.append(opName);
             builder.append(' ');
 
-            if (getTermAt(0).getPrecedence() > functorPrecedence) {
+            if (arg1.getPrecedence() > functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -249,7 +251,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case XF: {
-            if (getTermAt(0).getPrecedence() >= functorPrecedence) {
+            if (arg1.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -259,7 +261,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case YF: {
-            if (getTermAt(0).getPrecedence() > functorPrecedence) {
+            if (arg1.getPrecedence() > functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -269,7 +271,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case XFX: {
-            if (getTermAt(0).getPrecedence() >= functorPrecedence) {
+            if (arg1.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -277,7 +279,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
             builder.append(' ').append(opName).append(' ');
 
-            if (getTermAt(1).getPrecedence() >= functorPrecedence) {
+            if (arg2.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text2).append(')');
             } else {
               builder.append(text2);
@@ -285,7 +287,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case YFX: {
-            if (getTermAt(0).getPrecedence() > functorPrecedence) {
+            if (arg1.getPrecedence() > functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -293,7 +295,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
             builder.append(' ').append(opName).append(' ');
 
-            if (getTermAt(1).getPrecedence() >= functorPrecedence) {
+            if (arg2.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text2).append(')');
             } else {
               builder.append(text2);
@@ -301,7 +303,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case XFY: {
-            if (getTermAt(0).getPrecedence() >= functorPrecedence) {
+            if (arg1.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -309,7 +311,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
             builder.append(' ').append(opName).append(' ');
 
-            if (getTermAt(1).getPrecedence() > functorPrecedence) {
+            if (arg2.getPrecedence() > functorPrecedence) {
               builder.append('(').append(text2).append(')');
             } else {
               builder.append(text2);
