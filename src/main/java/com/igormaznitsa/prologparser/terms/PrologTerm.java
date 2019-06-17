@@ -108,14 +108,24 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   }
 
   /**
-   * Check the term describes '()' block.
+   * Check the term describes '()' or '{}' block.
    *
-   * @return true if the term is structure with '()' as functor
+   * @return true if the term is structure describes any kind of supported block
+   * @since 2.0.1
    */
-  public boolean isBlock() {
+  public boolean isAnyBlock() {
     return false;
   }
 
+  /**
+   * Check the term describes '()' block.
+   *
+   * @return true if the term is structure with '()' as functor
+  */
+  public boolean isBlock() {
+      return false;
+  }
+  
   /**
    * Check the term describes '{}' block.
    *

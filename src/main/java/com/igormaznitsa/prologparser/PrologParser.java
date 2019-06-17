@@ -34,7 +34,6 @@ import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
 import com.igormaznitsa.prologparser.tokenizer.Tokenizer;
 import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
-import com.igormaznitsa.prologparser.tokenizer.TreeItem;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.Koi7CharOpMap;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
@@ -63,7 +62,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
   protected static final Koi7CharOpMap META_OP_MAP;
-  private static final int MAX_INTERNAL_POOL_SIZE = 96;
+  private static final int MAX_INTERNAL_POOL_SIZE = 32;
   private static final OpContainer OPERATOR_COMMA;
   private static final OpContainer OPERATOR_LEFTBRACKET;
   private static final OpContainer OPERATOR_LEFTCURLYBRACKET;
@@ -102,7 +101,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   protected final ParserContext context;
   protected final int parserFlags;
-  private final SoftObjectPool<TreeItem> treeItemPool;
+  private final SoftObjectPool<AstItem> treeItemPool;
   private final SoftObjectPool<TermWrapper> termWrapperPool;
   private final SoftObjectPool<List<PrologTerm>> termArrayListPool;
   private final Tokenizer tokenizer;
@@ -127,10 +126,10 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
       }
     };
 
-    this.treeItemPool = new SoftObjectPool<TreeItem>(MAX_INTERNAL_POOL_SIZE) {
+    this.treeItemPool = new SoftObjectPool<AstItem>(MAX_INTERNAL_POOL_SIZE) {
       @Override
-      public final TreeItem get() {
-        return new TreeItem(PrologParser.this, this, termWrapperPool);
+      public final AstItem get() {
+        return new AstItem(PrologParser.this, this, termWrapperPool);
       }
     };
   }
@@ -374,7 +373,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
-    TreeItem currentTreeItem = null;
+    AstItem currentTreeItem = null;
 
     while (!Thread.currentThread().isInterrupted()) {
       // read next atom from tokenizer
@@ -571,7 +570,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
           }
         }
 
-        final TreeItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
+        final AstItem readAtomTreeItem = this.treeItemPool.find().setData(readAtom,
                 readAtomContainer.getLine(),
                 readAtomContainer.getPos());
 
@@ -589,7 +588,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
               } else {
                 // new has lower or equal precedence
                 // make it as ascendant one
-                final TreeItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPrecedence(readAtomPrecedence);
+                final AstItem foundItem = currentTreeItem.findFirstNodeWithSuchOrLowerPrecedence(readAtomPrecedence);
                 if (foundItem.getPrecedence() < readAtomPrecedence) {
                   // make as parent
                   currentTreeItem = foundItem.makeAsOwnerWithLeftBranch(readAtomTreeItem);

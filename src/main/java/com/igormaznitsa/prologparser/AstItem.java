@@ -18,9 +18,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.igormaznitsa.prologparser.tokenizer;
+package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
@@ -29,28 +28,31 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
+import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
+import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 import java.util.ArrayList;
 
-public final class TreeItem {
+final class AstItem {
 
-  private final SoftObjectPool<TreeItem> pool;
+  private final SoftObjectPool<AstItem> astItemPool;
 
   private final PrologParser parser;
   private final SoftObjectPool<TermWrapper> termWrapperPool;
-  private TreeItem leftBranch;
-  private TreeItem rightBranch;
-  private TreeItem parentItem;
+  private AstItem leftItem;
+  private AstItem rightItem;
+  private AstItem parentItem;
   private PrologTerm savedTerm;
 
-  public TreeItem(final PrologParser parser, final SoftObjectPool<TreeItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
+  public AstItem(final PrologParser parser, final SoftObjectPool<AstItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
     this.parser = parser;
-    this.pool = pool;
+    this.astItemPool = pool;
     this.termWrapperPool = termWrapperPool;
   }
 
-  public TreeItem setData(final PrologTerm term, final int line, final int pos) {
+  public AstItem setData(final PrologTerm term, final int line, final int pos) {
     if (term == null) {
       this.replaceSavedTerm(null);
     } else {
@@ -75,53 +77,53 @@ public final class TreeItem {
   }
 
   public void release() {
-    this.leftBranch = null;
-    this.rightBranch = null;
+    this.leftItem = null;
+    this.rightItem = null;
     this.parentItem = null;
 
     this.replaceSavedTerm(null);
 
-    this.pool.push(this);
+    this.astItemPool.push(this);
   }
 
   public int getPrecedence() {
     return this.savedTerm.getPrecedence();
   }
 
-  public TreeItem makeAsRightBranch(final TreeItem item) {
-    final TreeItem currentSubbranch = rightBranch;
+  public AstItem makeAsRightBranch(final AstItem item) {
+    final AstItem currentSubbranch = rightItem;
     setRightBranch(item);
     item.setLeftBranch(currentSubbranch);
-    TreeItem result = this;
+    AstItem result = this;
     if (item.getType() == TermType.OPERATOR && item.getPrecedence() != 0) {
       result = item;
     }
     return result;
   }
 
-  public TreeItem makeAsOwnerWithLeftBranch(final TreeItem item) {
+  public AstItem makeAsOwnerWithLeftBranch(final AstItem item) {
     this.replaceForOwner(item);
     item.setLeftBranch(this);
     return item;
   }
 
-  public TreeItem getRightBranch() {
-    return rightBranch;
+  public AstItem getRightBranch() {
+    return rightItem;
   }
 
-  private void setRightBranch(final TreeItem item) {
-    rightBranch = item;
+  private void setRightBranch(final AstItem item) {
+    rightItem = item;
     if (item != null) {
       item.parentItem = this;
     }
   }
 
-  private TreeItem getLeftBranch() {
-    return leftBranch;
+  private AstItem getLeftBranch() {
+    return leftItem;
   }
 
-  private void setLeftBranch(final TreeItem item) {
-    leftBranch = item;
+  private void setLeftBranch(final AstItem item) {
+    leftItem = item;
     if (item != null) {
       item.parentItem = this;
     }
@@ -131,10 +133,10 @@ public final class TreeItem {
     return savedTerm.getType();
   }
 
-  public TreeItem findRoot() {
-    TreeItem result = this;
+  public AstItem findRoot() {
+    AstItem result = this;
     while (!Thread.currentThread().isInterrupted()) {
-      final TreeItem theParent = result.parentItem;
+      final AstItem theParent = result.parentItem;
       if (theParent == null) {
         break;
       } else {
@@ -144,11 +146,11 @@ public final class TreeItem {
     return result;
   }
 
-  public TreeItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
-    TreeItem result = this;
+  public AstItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
+    AstItem result = this;
 
     while (!Thread.currentThread().isInterrupted()) {
-      final TreeItem itsParent = result.parentItem;
+      final AstItem itsParent = result.parentItem;
       if (itsParent == null || result.getPrecedence() >= precedence) {
         break;
       } else {
@@ -159,7 +161,7 @@ public final class TreeItem {
     return result;
   }
 
-  private void replaceForOwner(final TreeItem newItem) {
+  private void replaceForOwner(final AstItem newItem) {
     if (parentItem == null) {
       newItem.parentItem = null;
       return;
@@ -181,19 +183,19 @@ public final class TreeItem {
       switch (wrappedOperator.getAssoc()) {
         case FX:
         case FY:
-          return this.leftBranch == null && this.rightBranch != null;
+          return this.leftItem == null && this.rightItem != null;
         case YF:
         case XF:
-          return this.leftBranch != null && this.rightBranch == null;
+          return this.leftItem != null && this.rightItem == null;
         case XFX:
         case XFY:
         case YFX:
-          return this.leftBranch != null && this.rightBranch != null;
+          return this.leftItem != null && this.rightItem != null;
         default:
           throw new CriticalUnexpectedError();
       }
     } else {
-      return this.leftBranch == null && this.rightBranch == null;
+      return this.leftItem == null && this.rightItem == null;
     }
   }
 
@@ -203,31 +205,36 @@ public final class TreeItem {
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
       switch (wrappedOperator.getAssoc()) {
         case FX:
-          return this.leftBranch == null && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
+          return this.leftItem == null && (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
         case FY:
-          return this.leftBranch == null && (this.rightBranch != null && this.rightBranch.getPrecedence() <= thisPrecedence);
+          return this.leftItem == null && (this.rightItem != null && this.rightItem.getPrecedence() <= thisPrecedence);
         case YF:
-          return (this.leftBranch != null && this.leftBranch.getPrecedence() <= thisPrecedence) && this.rightBranch == null;
+          return (this.leftItem != null && this.leftItem.getPrecedence() <= thisPrecedence) && this.rightItem == null;
         case XF:
-          return (this.leftBranch != null && this.leftBranch.getPrecedence() < thisPrecedence) && this.rightBranch == null;
+          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence) && this.rightItem == null;
         case XFX:
-          return (this.leftBranch != null && this.leftBranch.getPrecedence() < thisPrecedence) && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
+          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence) && (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
         case XFY:
-          return (this.leftBranch != null && this.leftBranch.getPrecedence() < thisPrecedence) && (this.rightBranch != null && this.rightBranch.getPrecedence() <= thisPrecedence);
+          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence) && (this.rightItem != null && this.rightItem.getPrecedence() <= thisPrecedence);
         case YFX:
-          return (this.leftBranch != null && this.leftBranch.getPrecedence() <= thisPrecedence) && (this.rightBranch != null && this.rightBranch.getPrecedence() < thisPrecedence);
+          return (this.leftItem != null && this.leftItem.getPrecedence() <= thisPrecedence) && (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
         default:
           throw new CriticalUnexpectedError();
       }
     } else {
-      return this.leftBranch == null && this.rightBranch == null;
+      return this.leftItem == null && this.rightItem == null;
     }
+  }
+
+  private boolean isAnyBlock() {
+    return this.savedTerm.getType() == TermType.STRUCT
+            && (this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
+            || this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK);
   }
 
   private boolean isBlock() {
     return this.savedTerm.getType() == TermType.STRUCT
-            && (this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
-            || this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK);
+            && this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK;
   }
 
   private boolean isOperator() {
@@ -246,15 +253,15 @@ public final class TreeItem {
       switch (savedTerm.getType()) {
         case OPERATOR: {
           final TermWrapper wrapper = (TermWrapper) this.savedTerm;
-          if (this.leftBranch == null && this.rightBranch == null) {
+          if (this.leftItem == null && this.rightItem == null) {
             // it is an atom because it has not any argument
             return new PrologAtom(wrapper.getWrappedTerm().getText(), wrapper.getQuotation(), wrapper.getPos(), wrapper.getLine());
           }
 
-          if (this.leftBranch == null) {
-            if (this.rightBranch.getType() == TermType.STRUCT && this.rightBranch.savedTerm.isBlock() && !((PrologStruct) this.rightBranch.savedTerm).isEmpty()) {
+          if (this.leftItem == null) {
+            if (this.rightItem.getType() == TermType.STRUCT && this.rightItem.savedTerm.isAnyBlock() && !((PrologStruct) this.rightItem.savedTerm).isEmpty()) {
 
-              final PrologTerm rightTerm = this.rightBranch.convertToTermAndRelease();
+              final PrologTerm rightTerm = this.rightItem.convertToTermAndRelease();
               Op operator = (Op) wrapper.getWrappedTerm();
               final PrologTerm blockContent = ((PrologStruct) rightTerm).getTermAt(0);
 
@@ -265,17 +272,15 @@ public final class TreeItem {
                   return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 } else {
                     final Op appropriateOperator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(terms.length);
-
+                    
                     if (appropriateOperator == null) {
-                      if (operator.getArity() == 1) {
-                        return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
-                      } else {
-                        return new PrologStruct(
-                                new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()),
-                                terms, wrapper.getLine(), wrapper.getPos());
-                      }
+                        if (operator.getArity() == 1) {
+                            return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
+                        } else {
+                            return new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), terms, wrapper.getLine(), wrapper.getPos());
+                        }
                     } else {
-                      return new PrologStruct(appropriateOperator, terms, wrapper.getLine(), wrapper.getPos());
+                        return new PrologStruct(appropriateOperator, terms, wrapper.getLine(), wrapper.getPos());
                     }
                 }
 
@@ -293,8 +298,8 @@ public final class TreeItem {
                 }
               }
             }
-          } else if (this.isBlock() && this.leftBranch.isBlock()) {
-            return this.leftBranch.convertToTermAndRelease();
+          } else if (this.isAnyBlock() && this.leftItem.isAnyBlock()) {
+            return new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{this.leftItem.convertToTermAndRelease()}, wrapper.getLine(), wrapper.getPos());
           }
 
           if (!isOperandsOk()) {
@@ -305,15 +310,15 @@ public final class TreeItem {
           final PrologTerm right;
 
           if (!isPrecedenceOk()) {
-            if (this.rightBranch != null && this.rightBranch.isOperator() && this.rightBranch.getOpAssoc().isPrefix()) {
-              left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
-              right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{this.rightBranch.convertToTermAndRelease()});
+            if (this.rightItem != null && this.rightItem.isOperator() && this.rightItem.getOpAssoc().isPrefix()) {
+              left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease();
+              right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{this.rightItem.convertToTermAndRelease()});
             } else {
               throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
             }
           } else {
-            left = this.leftBranch == null ? null : this.leftBranch.convertToTermAndRelease();
-            right = this.rightBranch == null ? null : this.rightBranch.convertToTermAndRelease();
+            left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease();
+            right = this.rightItem == null ? null : this.rightItem.convertToTermAndRelease();
           }
 
           // this code replaces '-'(number) to '-number' if number is not negative one
@@ -338,9 +343,12 @@ public final class TreeItem {
           final PrologStruct thisStruct = (PrologStruct) this.savedTerm;
           if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
                   && thisStruct.getArity() == 1) {
+
             final PrologTerm thatTerm = thisStruct.getTermAt(0);
+
             if (thatTerm.getType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
-              result = thatTerm;
+                // rolling normal blocks
+                result = thatTerm.isBlock() && (this.isBlock()&& (this.parentItem == null || (this.parentItem != null && this.parentItem.isBlock()))) ? thatTerm : thisStruct;
             } else {
               result = thisStruct;
             }

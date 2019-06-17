@@ -24,7 +24,6 @@ import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1033,17 +1032,8 @@ public class IntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("1.22").next());
   }
 
-  private void assertOperatorAsFunctor(final String expected, final PrologTerm term) {
-    assertTrue(term instanceof PrologStruct);
-    final PrologStruct struct = (PrologStruct) term;
-    assertEquals(TermType.OPERATOR, struct.getFunctor().getType());
-    assertEquals(struct.getFunctor().getArity(), struct.getArity());
-    assertEquals(expected, term.toString());
-  }
-
   @Test
   public void testOperatorAsFunctor() {
-    assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
     assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
     assertOperatorAsFunctor("+ 1", parseEd("+(1).").next());
     assertOperatorAsFunctor("1 + 2 + 3", parseEd("+(1,2)+3.").next());
@@ -1077,6 +1067,13 @@ public class IntegrationTest {
     assertEquals("+ (1 , 2 , 3)", parseEd("+(1,2,3).").next().toString());
     assertEquals("':'(1, (2 , 3), 4)", parseEd(":(1,(2,3),4).").next().toString());
     assertEquals("':'(1)", parseEd(":(1).").next().toString());
+  }
+
+  @Test
+  public void testBlockWithOperators() {
+      assertOperatorAsFunctor("+(!,fail).", "+", YFX, 2);
+      assertOperatorAsFunctor("+((!,fail)).", "+", FY, 1);
+      assertOperatorAsFunctor("+(((!,fail))).", "+", FY, 1);
   }
 
   @Test
@@ -1198,7 +1195,7 @@ public class IntegrationTest {
     assertEquals("test", parsed.getFunctor().getText());
     assertEquals(1, parsed.getArity());
     final PrologStruct arg = (PrologStruct) parsed.getTermAt(0);
-    assertTrue(arg.isBlock());
+    assertTrue(arg.isAnyBlock());
     assertFalse(arg.isCurlyBlock());
     assertEquals("()",arg.getFunctor().getText());
     assertEquals(1,arg.getFunctor().getArity());
@@ -1207,12 +1204,23 @@ public class IntegrationTest {
   }
 
   @Test
+  public void testCurlyBlock() {
+      assertEquals("{a , b , c} = Syntax", parseEd("{a,b,c} = Syntax.").next().toString());
+      assertEquals("{{a , b , c}} = Syntax", parseEd("{{a,b,c}} = Syntax.").next().toString());
+      assertEquals("{{{a , b , c}}} = Syntax", parseEd("{{{a,b,c}}} = Syntax.").next().toString());
+      assertEquals("{{(a , b , c)}} = Syntax", parseEd("{{(a,b,c)}} = Syntax.").next().toString());
+      assertEquals("({(a , b , c)}) = Syntax", parseEd("({(a,b,c)}) = Syntax.").next().toString());
+      assertEquals("{({a , b , c})} = Syntax", parseEd("{({a,b,c})} = Syntax.").next().toString());
+      assertEquals("{(a , b , c)} = Syntax", parseEd("{((a,b,c))} = Syntax.").next().toString());
+  }
+  
+  @Test
   public void testCurlyBlockAsOnlyArgument() {
     final PrologStruct parsed = (PrologStruct) parseEd("test({1,2}).").next();
     assertEquals("test", parsed.getFunctor().getText());
     assertEquals(1, parsed.getArity());
     final PrologStruct arg = (PrologStruct) parsed.getTermAt(0);
-    assertTrue(arg.isBlock());
+    assertTrue(arg.isAnyBlock());
     assertTrue(arg.isCurlyBlock());
     assertEquals("{}",arg.getFunctor().getText());
     assertEquals(1,arg.getFunctor().getArity());
@@ -1246,7 +1254,7 @@ public class IntegrationTest {
     assertEquals("writeq(- ['-'])", parseEd("writeq(-[-]).").next().toString());
     assertEquals("writeq(- '-')", parseEd("writeq(-(-)).").next().toString());
     assertEquals("writeq(- a)", parseEd("writeq(-a).").next().toString());
-    assertEquals("writeq(a - b)", parseEd("writeq(-((a,b))).").next().toString());
+    assertEquals("writeq(- (a , b))", parseEd("writeq(-((a,b))).").next().toString());
     assertEquals("writeq(- a ^ 2)", parseEd("writeq(-(a^2)).").next().toString());
     assertEquals("writeq(- 1 ^ 2)", parseEd("writeq(-(1^2)).").next().toString());
     assertEquals("writeq(- -1)", parseEd("writeq(-(-1)).").next().toString());
@@ -1409,4 +1417,23 @@ public class IntegrationTest {
 
   }
 
+    private static void assertOperatorAsFunctor(final String goal, final String opText, final OpAssoc assoc, final int arity) {
+        final PrologParser parser = parseEd(goal);
+        assertTrue(parser.hasNext());
+        final PrologTerm term = parser.next();
+        assertFalse(parser.hasNext());
+        assertEquals(TermType.OPERATOR, term.getFunctor().getType(), term.toString());
+        assertEquals(opText, term.getText(), term.toString());
+        assertEquals(assoc, ((Op) term.getFunctor()).getAssoc(), term.toString());
+        assertEquals(arity, term.getArity(), term.toString());
+    }
+
+    private void assertOperatorAsFunctor(final String expected, final PrologTerm term) {
+        assertTrue(term instanceof PrologStruct);
+        final PrologStruct struct = (PrologStruct) term;
+        assertEquals(TermType.OPERATOR, struct.getFunctor().getType(), term.toString());
+        assertEquals(struct.getFunctor().getArity(), struct.getArity(), term.toString());
+        assertEquals(expected, term.toString(), term.toString());
+    }
+    
 }

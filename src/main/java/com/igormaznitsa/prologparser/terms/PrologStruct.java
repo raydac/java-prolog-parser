@@ -171,7 +171,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   @Override
-  public boolean isBlock() {
+  public boolean isAnyBlock() {
     return this.functor == Op.VIRTUAL_OPERATOR_BLOCK
         || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
   }
@@ -179,6 +179,11 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   @Override
   public boolean isCurlyBlock() {
     return this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
+  }
+
+  @Override
+  public boolean isBlock() {
+    return this.functor == Op.VIRTUAL_OPERATOR_BLOCK;
   }
 
   @Override
@@ -198,7 +203,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
     final StringBuilderEx builder = new StringBuilderEx(64);
 
     if (this.functor.getType() == TermType.OPERATOR) {
-      if (this.isBlock()) {
+      if (this.isAnyBlock()) {
         if (this.isCurlyBlock()) {
           if (this.isEmpty()) {
             builder.append("{}");
