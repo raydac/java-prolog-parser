@@ -20,6 +20,8 @@
  */
 package com.igormaznitsa.prologparser;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.*;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -29,6 +31,7 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
+import static com.igormaznitsa.prologparser.terms.TermType.SPEC_TERM_OPERATOR_CONTAINER;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
@@ -36,8 +39,8 @@ import com.igormaznitsa.prologparser.tokenizer.Tokenizer;
 import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.Koi7CharOpMap;
+import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
@@ -49,11 +52,6 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.*;
-import static com.igormaznitsa.prologparser.terms.TermType.SPEC_TERM_OPERATOR_CONTAINER;
-import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
 
 /**
  * Abstract base Prolog parser.
@@ -137,7 +135,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   public Tokenizer getInternalTokenizer() {
     return this.tokenizer;
   }
-  
+
   public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
     if (text.length() != 1) {
       return null;
@@ -224,7 +222,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     try {
       PrologStruct result;
       boolean active = true;
-      while (active && !Thread.currentThread().isInterrupted()) {
+      while (active) {
         final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
 
         if (block == null) {
@@ -274,7 +272,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
     boolean doRead = true;
 
-    while (doRead && !Thread.currentThread().isInterrupted()) {
+    while (doRead) {
       final PrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
       final TokenizerResult nextAtom = this.tokenizer.readNextToken();

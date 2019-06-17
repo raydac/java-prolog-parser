@@ -32,7 +32,6 @@ import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
 import com.igormaznitsa.prologparser.utils.SoftObjectPool;
-
 import java.util.ArrayList;
 
 final class AstItem {
@@ -135,13 +134,9 @@ final class AstItem {
 
   public AstItem findRoot() {
     AstItem result = this;
-    while (!Thread.currentThread().isInterrupted()) {
-      final AstItem theParent = result.parentItem;
-      if (theParent == null) {
-        break;
-      } else {
-        result = theParent;
-      }
+    AstItem theParent;
+    while ((theParent = result.parentItem) != null) {
+      result = theParent;
     }
     return result;
   }
@@ -149,13 +144,9 @@ final class AstItem {
   public AstItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
     AstItem result = this;
 
-    while (!Thread.currentThread().isInterrupted()) {
-      final AstItem itsParent = result.parentItem;
-      if (itsParent == null || result.getPrecedence() >= precedence) {
-        break;
-      } else {
-        result = itsParent;
-      }
+    AstItem itsParent;
+    while ((itsParent = result.parentItem) != null && result.getPrecedence() < precedence) {
+      result = itsParent;
     }
 
     return result;
@@ -271,17 +262,17 @@ final class AstItem {
                 if (operator.getArity() == terms.length) {
                   return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
                 } else {
-                    final Op appropriateOperator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(terms.length);
-                    
-                    if (appropriateOperator == null) {
-                        if (operator.getArity() == 1) {
-                            return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
-                        } else {
-                            return new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), terms, wrapper.getLine(), wrapper.getPos());
-                        }
+                  final Op appropriateOperator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(terms.length);
+
+                  if (appropriateOperator == null) {
+                    if (operator.getArity() == 1) {
+                      return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
                     } else {
-                        return new PrologStruct(appropriateOperator, terms, wrapper.getLine(), wrapper.getPos());
+                      return new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), terms, wrapper.getLine(), wrapper.getPos());
                     }
+                  } else {
+                    return new PrologStruct(appropriateOperator, terms, wrapper.getLine(), wrapper.getPos());
+                  }
                 }
 
               } else {
@@ -347,8 +338,8 @@ final class AstItem {
             final PrologTerm thatTerm = thisStruct.getTermAt(0);
 
             if (thatTerm.getType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
-                // rolling normal blocks
-                result = thatTerm.isBlock() && (this.isBlock()&& (this.parentItem == null || (this.parentItem != null && this.parentItem.isBlock()))) ? thatTerm : thisStruct;
+              // rolling normal blocks
+              result = thatTerm.isBlock() && (this.isBlock() && (this.parentItem == null || (this.parentItem != null && this.parentItem.isBlock()))) ? thatTerm : thisStruct;
             } else {
               result = thisStruct;
             }
