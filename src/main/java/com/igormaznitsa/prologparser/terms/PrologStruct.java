@@ -18,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -56,9 +55,9 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   public PrologStruct(
-      final PrologTerm functor,
-      final PrologTerm[] elements,
-      final int line, final int pos
+          final PrologTerm functor,
+          final PrologTerm[] elements,
+          final int line, final int pos
   ) {
     this(functor, elements);
     setPos(pos);
@@ -105,10 +104,8 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   private static PrologTerm assertFunctor(final PrologTerm functor) {
-    if (
-        functor.getType() == SPEC_TERM_OPERATOR_CONTAINER
-            || functor.getType() == LIST
-    ) {
+    if (functor.getType() == SPEC_TERM_OPERATOR_CONTAINER
+            || functor.getType() == LIST) {
       throw new IllegalArgumentException("Non-allowed functor type: " + functor.getType());
     }
     if (functor instanceof PrologNumeric) {
@@ -136,7 +133,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
    * Set element for its position.
    *
    * @param index zero based index
-   * @param term  term to set to position
+   * @param term term to set to position
    * @throws ArrayIndexOutOfBoundsException if wrong index
    */
   public void setElementAt(final int index, final PrologTerm term) {
@@ -173,7 +170,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   @Override
   public boolean isAnyBlock() {
     return this.functor == Op.VIRTUAL_OPERATOR_BLOCK
-        || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
+            || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
   }
 
   @Override
@@ -225,14 +222,14 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
         final PrologTerm arg1 = getTermAt(0);
         final String text1 = getTermAt(0).toString();
 
-        final PrologTerm arg2 = getArity()>1 ? getTermAt(1) : null;
+        final PrologTerm arg2 = getArity() > 1 ? getTermAt(1) : null;
         final String text2 = arg2 == null ? null : getTermAt(1).toString();
 
         switch (operatorFunctor.getAssoc()) {
           case FX: {
             builder.append(opName).append(' ');
 
-            if (arg1.getPrecedence() >= functorPrecedence) {
+            if (arg1.isBlock() || arg1.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -243,7 +240,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
             builder.append(opName);
             builder.append(' ');
 
-            if (arg1.getPrecedence() > functorPrecedence) {
+            if (arg1.isBlock() || arg1.getPrecedence() > functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -251,7 +248,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case XF: {
-            if (arg1.getPrecedence() >= functorPrecedence) {
+            if (arg1.isBlock() || arg1.getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -261,7 +258,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
           }
           break;
           case YF: {
-            if (arg1.getPrecedence() > functorPrecedence) {
+            if (arg1.isBlock() || arg1.getPrecedence() > functorPrecedence) {
               builder.append('(').append(text1).append(')');
             } else {
               builder.append(text1);
@@ -361,10 +358,10 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   @Override
   public Stream<PrologTerm> stream() {
     return StreamSupport.stream(
-        Spliterators.spliterator(
-            this.elements,
-            Spliterator.ORDERED | Spliterator.NONNULL
-        ), false);
+            Spliterators.spliterator(
+                    this.elements,
+                    Spliterator.ORDERED | Spliterator.NONNULL
+            ), false);
   }
 
   @Override
