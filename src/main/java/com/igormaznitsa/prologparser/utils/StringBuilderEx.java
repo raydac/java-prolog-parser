@@ -18,24 +18,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
 
 /**
- * Wrapper of StringBuilder provides some extra operations.
+ * Internal auxiliary class to wrap a StringBuilder instance and provide some
+ * extra methods.
  */
 public final class StringBuilderEx {
 
-  /**
-   * Maximum allowed char number in buffer.
-   */
   private final int limit;
-
-  /**
-   * Internal buffer.
-   */
   private final StringBuilder stringBuilder;
 
   public StringBuilderEx(final String initialString) {

@@ -18,32 +18,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
-import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
+import com.igormaznitsa.prologparser.terms.InternalSpecialCompoundTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
-import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 
 /**
  * Internal term wrapper to build AST.
  */
-public final class TermWrapper extends SpecServiceCompound {
+public final class TermWrapper extends InternalSpecialCompoundTerm {
 
   private static final long serialVersionUID = 9006607815982718325L;
-  private final transient SoftObjectPool<TermWrapper> pool;
-  private transient PrologTerm wrappedTerm;
+  private final PrologTerm wrappedTerm;
 
-  public TermWrapper(final SoftObjectPool<TermWrapper> pool) {
+  public TermWrapper(final PrologTerm term) {
     super(".wrapper");
-    this.pool = pool;
-  }
-
-  public void release() {
-    this.wrappedTerm = null;
-    this.pool.push(this);
+    this.wrappedTerm = term;
   }
 
   @Override
@@ -53,11 +45,6 @@ public final class TermWrapper extends SpecServiceCompound {
 
   public PrologTerm getWrappedTerm() {
     return this.wrappedTerm;
-  }
-
-  public TermWrapper setWrappedTerm(final PrologTerm wrappedTerm) {
-    this.wrappedTerm = wrappedTerm;
-    return this;
   }
 
   @Override

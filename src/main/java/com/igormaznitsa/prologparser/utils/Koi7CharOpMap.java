@@ -18,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -28,7 +27,8 @@ import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static java.util.Arrays.stream;
 
 /**
- * Auxiliary mapping class allows to map a single char KOI7 to its related operator data container.
+ * Auxiliary mapping class allows to map a single char KOI7 to its related
+ * operator data container.
  */
 public final class Koi7CharOpMap {
 
@@ -51,12 +51,11 @@ public final class Koi7CharOpMap {
     return new Koi7CharOpMap(containers);
   }
 
-
   public OpContainer add(final Op operator) {
     final String text = operator.getText();
 
     if (text.length() != 1) {
-      throw new IllegalArgumentException("Meta operator must be single char: " + text);
+      throw new IllegalArgumentException("Must be single char: " + text);
     }
 
     OpContainer container = this.get(text);
@@ -69,7 +68,6 @@ public final class Koi7CharOpMap {
     return container;
   }
 
-
   public boolean contains(final String key) {
     if (key.length() != 1) {
       return false;
@@ -80,12 +78,12 @@ public final class Koi7CharOpMap {
 
   public void put(final String key, final OpContainer container) {
     if (key.length() != 1) {
-      throw new IllegalArgumentException("Wrong key [" + key + ']');
+      throw new IllegalArgumentException("Illegal key, must be single char: " + key);
     }
 
     final int chr = key.charAt(0);
     if (chr > 0x7F) {
-      throw new IllegalArgumentException("The char code is greater than 0x7F");
+      throw new IllegalArgumentException("Illegal char code, must be <128: " + chr);
     }
 
     this.charMap[chr] = container;

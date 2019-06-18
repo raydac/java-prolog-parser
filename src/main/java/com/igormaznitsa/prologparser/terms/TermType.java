@@ -18,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.terms;
 
 /**
@@ -44,9 +43,5 @@ public enum TermType {
   /**
    * Operator term.
    */
-  OPERATOR,
-  /**
-   * Internal auxiliary term contains defined operators.
-   */
-  SPEC_TERM_OPERATOR_CONTAINER
+  OPERATOR
 }

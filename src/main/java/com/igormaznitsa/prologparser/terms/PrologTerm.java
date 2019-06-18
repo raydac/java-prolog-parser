@@ -18,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -35,7 +34,7 @@ import static com.igormaznitsa.prologparser.terms.TermType.VAR;
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
 /**
- * Base class for all prolog terms.
+ * Base class describes a Prolog term
  */
 public abstract class PrologTerm implements Serializable, Comparable<PrologTerm> {
 
@@ -101,7 +100,8 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   /**
    * Arity of element.
    *
-   * @return arity of element, make sense for compound terms, for primitive terms is 1
+   * @return arity of element, make sense for compound terms, for primitive
+   * terms is 1
    */
   public int getArity() {
     return 1;
@@ -121,11 +121,11 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
    * Check the term describes '()' block.
    *
    * @return true if the term is structure with '()' as functor
-  */
+   */
   public boolean isBlock() {
-      return false;
+    return false;
   }
-  
+
   /**
    * Check the term describes '{}' block.
    *
@@ -211,7 +211,8 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   }
 
   /**
-   * Get the functor, make sense of structure and its successors, for primitive returns the same term.
+   * Get the functor, make sense of structure and its successors, for primitive
+   * returns the same term.
    *
    * @return functor for structure or the same term
    */
@@ -221,10 +222,6 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
 
   @Override
   public int compareTo(final PrologTerm that) {
-    if (that instanceof SpecServiceCompound) {
-      return -1;
-    }
-
     final int result;
     switch (this.getType()) {
       case VAR: {

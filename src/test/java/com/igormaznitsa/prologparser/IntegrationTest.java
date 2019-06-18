@@ -43,14 +43,15 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("varargs")
 public class IntegrationTest {
 
   private static PrologParser parseCpl(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.join(Op.SWI, Op.SWI_CPL)));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI, Op.SWI_CPL));
   }
 
   private static PrologParser parseIso(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_NONE | FLAG_ZERO_QUOTATION_CHARCODE, Op.ISO));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_ZERO_QUOTATION_CHARCODE, Op.ISO));
   }
 
   private static PrologParser parseEd(final String str) {
@@ -568,7 +569,7 @@ public class IntegrationTest {
   }
 
   private ParserContext makeSictusContext(final Op... ops) {
-    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS, Op.join(Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops)));
+    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS, Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops));
   }
 
   private void assertReadSictusTerms(final int expected, final String resource, final Op... ops) {

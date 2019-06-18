@@ -18,14 +18,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.terms.SpecServiceCompound;
+import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.utils.AssertUtils;
 
@@ -43,7 +42,8 @@ import static java.util.stream.Stream.of;
 /**
  * Prolog operator definition.
  */
-public final class Op extends SpecServiceCompound {
+public final class Op extends PrologTerm {
+
   public static final int PRECEDENCE_MAX = 0;
   public static final int PRECEDENCE_MIN = 1200;
 
@@ -66,12 +66,12 @@ public final class Op extends SpecServiceCompound {
   public static final Op ISO_BITWISE_AND_OR = make(500, OpAssoc.YFX, "/\\", "\\/");
 
   public static final Op MODIFIERS = make(1150, OpAssoc.FX,
-      "public",
-      "dynamic",
-      "volatile",
-      "discontiguous",
-      "multifile",
-      "initialization"
+          "public",
+          "dynamic",
+          "volatile",
+          "discontiguous",
+          "multifile",
+          "initialization"
   );
 
   public static final Op GNU_DIV_RDIV = make(400, OpAssoc.YFX, "div", "rdiv");
@@ -82,64 +82,64 @@ public final class Op extends SpecServiceCompound {
   public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
 
   public static final List<Op> SICTUS_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      MODIFIERS,
-      make(1150, FX, "mode", "block", "meta_predicate"),
-      make(1100, XFY, "do"),
-      make(900, FY, "spy", "nospy"),
-      make(550, XFY, ":"),
-      make(500, YFX, "\\"),
-      GNU_UNARY_PLUS
+          MODIFIERS,
+          make(1150, FX, "mode", "block", "meta_predicate"),
+          make(1100, XFY, "do"),
+          make(900, FY, "spy", "nospy"),
+          make(550, XFY, ":"),
+          make(500, YFX, "\\"),
+          GNU_UNARY_PLUS
   ));
 
   /**
    * Set of operators for ISO Prolog standard.
    */
   public static final List<Op> ISO = Collections.unmodifiableList(Arrays.asList(
-      ISO_CLAUSES,
-      ISO_DIRECTIVES,
-      ISO_OR,
-      ISO_THEN,
-      ISO_NEGATE,
-      ISO_UNIFICATION,
-      ISO_ORDER_ARITH,
-      ISO_ORDER_TERM,
-      ISO_ARITH_PLUS_MINUS,
-      ISO_BITWISE_AND_OR,
-      ISO_ARITH_MUL_DIV,
-      ISO_BITWISE_SHIFT,
-      ISO_ARITH_DIVIDE,
-      ISO_ARITH_POWER,
-      make(200, OpAssoc.XFY, "^"),
-      ISO_UNARY_MINUS,
-      ISO_BITWISE_NEGATION,
-      make(100, OpAssoc.XFX, "@")
+          ISO_CLAUSES,
+          ISO_DIRECTIVES,
+          ISO_OR,
+          ISO_THEN,
+          ISO_NEGATE,
+          ISO_UNIFICATION,
+          ISO_ORDER_ARITH,
+          ISO_ORDER_TERM,
+          ISO_ARITH_PLUS_MINUS,
+          ISO_BITWISE_AND_OR,
+          ISO_ARITH_MUL_DIV,
+          ISO_BITWISE_SHIFT,
+          ISO_ARITH_DIVIDE,
+          ISO_ARITH_POWER,
+          make(200, OpAssoc.XFY, "^"),
+          ISO_UNARY_MINUS,
+          ISO_BITWISE_NEGATION,
+          make(100, OpAssoc.XFX, "@")
   ));
 
   /**
    * Set of operators is specific for GNU Prolog use.
    */
   public static final List<Op> GNU_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      GNU_STAR_THEN,
-      GNU_DOUBLE_DOT,
-      GNU_DIV_RDIV,
-      GNU_UNARY_PLUS
+          GNU_STAR_THEN,
+          GNU_DOUBLE_DOT,
+          GNU_DIV_RDIV,
+          GNU_UNARY_PLUS
   ));
 
   /**
    * Set of operators is specific for SWI Prolog use.
    */
   public static final List<Op> SWI_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      MODIFIERS,
-      make(1150, OpAssoc.FX, "meta_predicate", "module_transparent", "thread_local", "thread_initialization"),
-      GNU_STAR_THEN,
-      make(990, OpAssoc.FY, ":="),
-      make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
-      GNU_DOUBLE_DOT,
-      make(500, OpAssoc.YFX, "xor"),
-      make(500, OpAssoc.FX, "?"),
-      GNU_DIV_RDIV,
-      GNU_UNARY_PLUS,
-      make(1, OpAssoc.FX, "$")
+          MODIFIERS,
+          make(1150, OpAssoc.FX, "meta_predicate", "module_transparent", "thread_local", "thread_initialization"),
+          GNU_STAR_THEN,
+          make(990, OpAssoc.FY, ":="),
+          make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
+          GNU_DOUBLE_DOT,
+          make(500, OpAssoc.YFX, "xor"),
+          make(500, OpAssoc.FX, "?"),
+          GNU_DIV_RDIV,
+          GNU_UNARY_PLUS,
+          make(1, OpAssoc.FX, "$")
   ));
 
   /**
@@ -151,13 +151,13 @@ public final class Op extends SpecServiceCompound {
    * Set of Finite Domain operators for GNU Prolog.
    */
   public static final List<Op> GNU_FD = Collections.unmodifiableList(Arrays.asList(
-      make(750, XFY, "#<=>", "#\\<=>"),
-      make(740, XFY, "#==>", "#\\==>"),
-      make(730, XFY, "##"),
-      make(730, YFX, "#\\/", "#\\\\/"),
-      make(720, YFX, "#/\\", "#\\/\\"),
-      make(710, FY, "#\\"),
-      make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#", "#>=#")
+          make(750, XFY, "#<=>", "#\\<=>"),
+          make(740, XFY, "#==>", "#\\==>"),
+          make(730, XFY, "##"),
+          make(730, YFX, "#\\/", "#\\\\/"),
+          make(720, YFX, "#/\\", "#\\/\\"),
+          make(710, FY, "#\\"),
+          make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#", "#>=#")
   ));
 
   /**
@@ -169,17 +169,17 @@ public final class Op extends SpecServiceCompound {
    * Set of Constraint Logic Programming operators for SWI Prolog.
    */
   public static final List<Op> SWI_CPL = Collections.unmodifiableList(Arrays.asList(
-      make(300, FY, "~"),
-      make(500, YFX, "#"),
-      make(760, YFX, "#<==>"),
-      make(750, XFY, "#==>"),
-      make(750, YFX, "#<=="),
-      make(740, YFX, "#\\/"),
-      make(730, YFX, "#\\"),
-      make(720, YFX, "#/\\"),
-      make(710, FY, "#\\"),
-      make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
-      make(450, XFX, "..")
+          make(300, FY, "~"),
+          make(500, YFX, "#"),
+          make(760, YFX, "#<==>"),
+          make(750, XFY, "#==>"),
+          make(750, YFX, "#<=="),
+          make(740, YFX, "#\\/"),
+          make(730, YFX, "#\\"),
+          make(720, YFX, "#/\\"),
+          make(710, FY, "#\\"),
+          make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
+          make(450, XFX, "..")
   ));
 
   public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpAssoc.FX, "()");
@@ -202,7 +202,7 @@ public final class Op extends SpecServiceCompound {
   private final String[] multiNames;
 
   private Op(final int precedence, final OpAssoc type, final String name, final String[] multiNames) {
-    super(name);
+    super(name, Quotation.NONE);
 
     assertOpValidOpName(name);
 
@@ -239,11 +239,12 @@ public final class Op extends SpecServiceCompound {
   }
 
   /**
-   * Make operator descriptor describing bunch of operators with same characteristics but differently named.
+   * Make operator descriptor describing bunch of operators with same
+   * characteristics but differently named.
    *
    * @param precedence the pricedence
-   * @param type       the type of operators
-   * @param names      names of operators, must not be empty or contain null
+   * @param type the type of operators
+   * @param names names of operators, must not be empty or contain null
    * @return generated operator descriptor
    * @see OpAssoc
    */
@@ -260,7 +261,7 @@ public final class Op extends SpecServiceCompound {
     }
 
     return names.length == 1 ? new Op(precedence, type, AssertUtils.assertNotNull(names[0]), null)
-        : new Op(precedence, type, ".multi.", assertOpValidOpName(names));
+            : new Op(precedence, type, ".multi.", assertOpValidOpName(names));
   }
 
   public static Op makeSystem(final int precedence, final OpAssoc type, final String... names) {
@@ -272,7 +273,7 @@ public final class Op extends SpecServiceCompound {
     }
 
     return names.length == 1 ? new Op(precedence, type, assertOpValidOpName(names[0]), null)
-        : new Op(precedence, type, ".system.", assertOpValidOpName(names));
+            : new Op(precedence, type, ".system.", assertOpValidOpName(names));
   }
 
   @SafeVarargs
@@ -310,11 +311,6 @@ public final class Op extends SpecServiceCompound {
   @Override
   public int getArity() {
     return this.opAssoc.getArity();
-  }
-
-  @Override
-  public PrologTerm getTermAt(final int position) {
-    throw new UnsupportedOperationException("Can't get positioned element from operator");
   }
 
   @Override
@@ -441,9 +437,9 @@ public final class Op extends SpecServiceCompound {
     } else if (obj instanceof Op) {
       final Op op = (Op) obj;
       if (this.preparedHash == op.preparedHash
-          && this.precedence == op.precedence
-          && this.opAssoc == op.opAssoc
-          && this.text.equals(op.text)) {
+              && this.precedence == op.precedence
+              && this.opAssoc == op.opAssoc
+              && this.text.equals(op.text)) {
         result = true;
       }
     }

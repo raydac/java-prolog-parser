@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.terms.TermType.LIST;
-import static com.igormaznitsa.prologparser.terms.TermType.SPEC_TERM_OPERATOR_CONTAINER;
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 
 /**
@@ -104,8 +103,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   }
 
   private static PrologTerm assertFunctor(final PrologTerm functor) {
-    if (functor.getType() == SPEC_TERM_OPERATOR_CONTAINER
-            || functor.getType() == LIST) {
+    if (functor.getType() == LIST || functor instanceof InternalSpecialCompoundTerm) {
       throw new IllegalArgumentException("Non-allowed functor type: " + functor.getType());
     }
     if (functor instanceof PrologNumeric) {

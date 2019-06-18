@@ -31,68 +31,39 @@ import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
-import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import java.util.ArrayList;
 
 final class AstItem {
 
-  private final SoftObjectPool<AstItem> astItemPool;
-
-  private final PrologParser parser;
-  private final SoftObjectPool<TermWrapper> termWrapperPool;
   private AstItem leftItem;
   private AstItem rightItem;
   private AstItem parentItem;
-  private PrologTerm savedTerm;
+  private final PrologTerm savedTerm;
 
-  public AstItem(final PrologParser parser, final SoftObjectPool<AstItem> pool, final SoftObjectPool<TermWrapper> termWrapperPool) {
-    this.parser = parser;
-    this.astItemPool = pool;
-    this.termWrapperPool = termWrapperPool;
-  }
-
-  public AstItem setData(final PrologTerm term, final int line, final int pos) {
+  AstItem(final PrologTerm term, final int line, final int pos) {
     if (term == null) {
-      this.replaceSavedTerm(null);
+      this.savedTerm = null;
     } else {
       final TermType termType = term.getType();
-      if (termType == TermType.OPERATOR || termType == TermType.SPEC_TERM_OPERATOR_CONTAINER) {
-        final TermWrapper termWrapper = this.termWrapperPool.find().setWrappedTerm(term);
-        this.replaceSavedTerm(termWrapper);
+      if (termType == TermType.OPERATOR) {
+        final TermWrapper termWrapper = new TermWrapper(term);
+        this.savedTerm = termWrapper;
       } else {
-        this.replaceSavedTerm(term);
+        this.savedTerm = term;
       }
       this.savedTerm.setPos(pos);
       this.savedTerm.setLine(line);
     }
-    return this;
   }
 
-  private void replaceSavedTerm(final PrologTerm newValue) {
-    if (this.savedTerm instanceof TermWrapper) {
-      ((TermWrapper) this.savedTerm).release();
-    }
-    this.savedTerm = newValue;
-  }
-
-  public void release() {
-    this.leftItem = null;
-    this.rightItem = null;
-    this.parentItem = null;
-
-    this.replaceSavedTerm(null);
-
-    this.astItemPool.push(this);
-  }
-
-  public int getPrecedence() {
+  int getPrecedence() {
     return this.savedTerm.getPrecedence();
   }
 
-  public AstItem makeAsRightBranch(final AstItem item) {
-    final AstItem currentSubbranch = rightItem;
+  AstItem makeAsRightBranch(final AstItem item) {
+    final AstItem curRightChild = this.rightItem;
     setRightBranch(item);
-    item.setLeftBranch(currentSubbranch);
+    item.setLeftBranch(curRightChild);
     AstItem result = this;
     if (item.getType() == TermType.OPERATOR && item.getPrecedence() != 0) {
       result = item;
@@ -100,39 +71,39 @@ final class AstItem {
     return result;
   }
 
-  public AstItem makeAsOwnerWithLeftBranch(final AstItem item) {
+  AstItem makeAsOwnerWithLeftBranch(final AstItem item) {
     this.replaceForOwner(item);
     item.setLeftBranch(this);
     return item;
   }
 
-  public AstItem getRightBranch() {
-    return rightItem;
+  AstItem getRightBranch() {
+    return this.rightItem;
   }
 
   private void setRightBranch(final AstItem item) {
-    rightItem = item;
+    this.rightItem = item;
     if (item != null) {
       item.parentItem = this;
     }
   }
 
   private AstItem getLeftBranch() {
-    return leftItem;
+    return this.leftItem;
   }
 
   private void setLeftBranch(final AstItem item) {
-    leftItem = item;
+    this.leftItem = item;
     if (item != null) {
       item.parentItem = this;
     }
   }
 
-  public TermType getType() {
+  TermType getType() {
     return savedTerm.getType();
   }
 
-  public AstItem findRoot() {
+  AstItem findRoot() {
     AstItem result = this;
     AstItem theParent;
     while ((theParent = result.parentItem) != null) {
@@ -141,7 +112,7 @@ final class AstItem {
     return result;
   }
 
-  public AstItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
+  AstItem findFirstNodeWithSuchOrLowerPrecedence(final int precedence) {
     AstItem result = this;
 
     AstItem itsParent;
@@ -164,7 +135,7 @@ final class AstItem {
     }
   }
 
-  public OpAssoc getOpAssoc() {
+  OpAssoc getOpAssoc() {
     return ((Op) ((TermWrapper) savedTerm).getWrappedTerm()).getAssoc();
   }
 
@@ -237,127 +208,123 @@ final class AstItem {
     return "TreeItem[" + (this.savedTerm == null ? "null" : this.savedTerm.toString()) + ']';
   }
 
-  public PrologTerm convertToTermAndRelease() {
-    try {
-      PrologTerm result;
+  PrologTerm convertToTermAndRelease(final PrologParser parser) {
+    PrologTerm result;
 
-      switch (savedTerm.getType()) {
-        case OPERATOR: {
-          final TermWrapper wrapper = (TermWrapper) this.savedTerm;
-          if (this.leftItem == null && this.rightItem == null) {
-            // it is an atom because it has not any argument
-            return new PrologAtom(wrapper.getWrappedTerm().getText(), wrapper.getQuotation(), wrapper.getPos(), wrapper.getLine());
-          }
+    switch (savedTerm.getType()) {
+      case OPERATOR: {
+        final TermWrapper wrapper = (TermWrapper) this.savedTerm;
+        if (this.leftItem == null && this.rightItem == null) {
+          // it is an atom because it has not any argument
+          return new PrologAtom(wrapper.getWrappedTerm().getText(), wrapper.getQuotation(), wrapper.getPos(), wrapper.getLine());
+        }
 
-          if (this.leftItem == null) {
-            if (this.rightItem.getType() == TermType.STRUCT && this.rightItem.savedTerm.isAnyBlock() && !((PrologStruct) this.rightItem.savedTerm).isEmpty()) {
+        if (this.leftItem == null) {
+          if (this.rightItem.getType() == TermType.STRUCT && this.rightItem.savedTerm.isAnyBlock() && !((PrologStruct) this.rightItem.savedTerm).isEmpty()) {
 
-              final PrologTerm rightTerm = this.rightItem.convertToTermAndRelease();
-              Op operator = (Op) wrapper.getWrappedTerm();
-              final PrologTerm blockContent = ((PrologStruct) rightTerm).getTermAt(0);
+            final PrologTerm rightTerm = this.rightItem.convertToTermAndRelease(parser);
+            Op operator = (Op) wrapper.getWrappedTerm();
+            final PrologTerm blockContent = ((PrologStruct) rightTerm).getTermAt(0);
 
-              if (blockContent.getType() == TermType.STRUCT) {
-                final PrologTerm[] terms = blockContent.flatComma(new ArrayList<>()).toArray(PrologParser.EMPTY_TERM_ARRAY);
+            if (blockContent.getType() == TermType.STRUCT) {
+              final PrologTerm[] terms = blockContent.flatComma(new ArrayList<>()).toArray(PrologParser.EMPTY_TERM_ARRAY);
 
-                if (operator.getArity() == terms.length) {
-                  return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
-                } else {
-                  final Op appropriateOperator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(terms.length);
-
-                  if (appropriateOperator == null) {
-                    if (operator.getArity() == 1) {
-                      return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
-                    } else {
-                      return new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), terms, wrapper.getLine(), wrapper.getPos());
-                    }
-                  } else {
-                    return new PrologStruct(appropriateOperator, terms, wrapper.getLine(), wrapper.getPos());
-                  }
-                }
-
+              if (operator.getArity() == terms.length) {
+                return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
               } else {
-                if (rightTerm.isCurlyBlock()) {
-                  return new PrologStruct(operator, new PrologTerm[]{rightTerm}, wrapper.getLine(), wrapper.getPos());
-                } else {
+                final Op appropriateOperator = parser.getContext().findOpForName(parser, operator.getText()).findForArity(terms.length);
+
+                if (appropriateOperator == null) {
                   if (operator.getArity() == 1) {
                     return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
                   } else {
-                    operator = this.parser.getContext().findOpForName(this.parser, operator.getText()).findForArity(1);
-                    return operator == null ? new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos())
-                            : new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
+                    return new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), terms, wrapper.getLine(), wrapper.getPos());
                   }
+                } else {
+                  return new PrologStruct(appropriateOperator, terms, wrapper.getLine(), wrapper.getPos());
+                }
+              }
+
+            } else {
+              if (rightTerm.isCurlyBlock()) {
+                return new PrologStruct(operator, new PrologTerm[]{rightTerm}, wrapper.getLine(), wrapper.getPos());
+              } else {
+                if (operator.getArity() == 1) {
+                  return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
+                } else {
+                  operator = parser.getContext().findOpForName(parser, operator.getText()).findForArity(1);
+                  return operator == null ? new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos())
+                          : new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
                 }
               }
             }
-          } else if (this.isAnyBlock() && this.leftItem.isAnyBlock()) {
-            return new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{this.leftItem.convertToTermAndRelease()}, wrapper.getLine(), wrapper.getPos());
           }
-
-          if (!isOperandsOk()) {
-            throw new PrologParserException("No operands: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
-          }
-
-          final PrologTerm left;
-          final PrologTerm right;
-
-          if (!isPrecedenceOk()) {
-            if (this.rightItem != null && this.rightItem.isOperator() && this.rightItem.getOpAssoc().isPrefix()) {
-              left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease();
-              right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{this.rightItem.convertToTermAndRelease()});
-            } else {
-              throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
-            }
-          } else {
-            left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease();
-            right = this.rightItem == null ? null : this.rightItem.convertToTermAndRelease();
-          }
-
-          // this code replaces '-'(number) to '-number' if number is not negative one
-          if ("-".equals(wrapper.getText()) && left == null && right instanceof PrologNumeric) {
-            final PrologNumeric numeric = (PrologNumeric) right;
-            if (!numeric.isNegative()) {
-              result = ((PrologNumeric) right).makeNeg();
-              break;
-            }
-          }
-
-          final PrologStruct operatorStruct;
-          if (left == null) {
-            operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{right}, wrapper.getLine(), wrapper.getPos());
-          } else {
-            operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), right == null ? new PrologTerm[]{left} : new PrologTerm[]{left, right}, wrapper.getLine(), wrapper.getPos());
-          }
-          result = operatorStruct;
+        } else if (this.isAnyBlock() && this.leftItem.isAnyBlock()) {
+          return new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{this.leftItem.convertToTermAndRelease(parser)}, wrapper.getLine(), wrapper.getPos());
         }
-        break;
-        case STRUCT: {
-          final PrologStruct thisStruct = (PrologStruct) this.savedTerm;
-          if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
-                  && thisStruct.getArity() == 1) {
 
-            final PrologTerm thatTerm = thisStruct.getTermAt(0);
+        if (!isOperandsOk()) {
+          throw new PrologParserException("No operands: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
+        }
 
-            if (thatTerm.getType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
-              // rolling normal blocks
-              result = thatTerm.isBlock() && (this.isBlock() && (this.parentItem == null || (this.parentItem != null && this.parentItem.isBlock()))) ? thatTerm : thisStruct;
-            } else {
-              result = thisStruct;
-            }
+        final PrologTerm left;
+        final PrologTerm right;
+
+        if (!isPrecedenceOk()) {
+          if (this.rightItem != null && this.rightItem.isOperator() && this.rightItem.getOpAssoc().isPrefix()) {
+            left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease(parser);
+            right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{this.rightItem.convertToTermAndRelease(parser)});
+          } else {
+            throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
+          }
+        } else {
+          left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease(parser);
+          right = this.rightItem == null ? null : this.rightItem.convertToTermAndRelease(parser);
+        }
+
+        // this code replaces '-'(number) to '-number' if number is not negative one
+        if ("-".equals(wrapper.getText()) && left == null && right instanceof PrologNumeric) {
+          final PrologNumeric numeric = (PrologNumeric) right;
+          if (!numeric.isNegative()) {
+            result = ((PrologNumeric) right).makeNeg();
+            break;
+          }
+        }
+
+        final PrologStruct operatorStruct;
+        if (left == null) {
+          operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{right}, wrapper.getLine(), wrapper.getPos());
+        } else {
+          operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), right == null ? new PrologTerm[]{left} : new PrologTerm[]{left, right}, wrapper.getLine(), wrapper.getPos());
+        }
+        result = operatorStruct;
+      }
+      break;
+      case STRUCT: {
+        final PrologStruct thisStruct = (PrologStruct) this.savedTerm;
+        if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
+                && thisStruct.getArity() == 1) {
+
+          final PrologTerm thatTerm = thisStruct.getTermAt(0);
+
+          if (thatTerm.getType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
+            // rolling normal blocks
+            result = thatTerm.isBlock() && (this.isBlock() && (this.parentItem == null || (this.parentItem != null && this.parentItem.isBlock()))) ? thatTerm : thisStruct;
           } else {
             result = thisStruct;
           }
+        } else {
+          result = thisStruct;
         }
-        break;
-        default: {
-          result = this.savedTerm;
-        }
-        break;
       }
-
-      return result;
-    } finally {
-      this.release();
+      break;
+      default: {
+        result = this.savedTerm;
+      }
+      break;
     }
+
+    return result;
   }
 
 }

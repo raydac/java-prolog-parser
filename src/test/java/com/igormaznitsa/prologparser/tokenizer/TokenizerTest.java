@@ -7,6 +7,7 @@ import com.igormaznitsa.prologparser.ParserContextChain;
 import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.exceptions.CharBufferOverflowException;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.terms.InternalSpecialCompoundTerm;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologFloat;
@@ -15,7 +16,6 @@ import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
-import com.igormaznitsa.prologparser.utils.SoftObjectPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -49,10 +49,10 @@ public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
     return new Tokenizer(
-        new GenericPrologParser(new StringReader(str),
-            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE, Op.SWI), context)),
-        PrologParser.findMetaOps(),
-        new StringReader(str));
+            new GenericPrologParser(new StringReader(str),
+                    new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).addOps(Op.SWI), context)),
+            PrologParser.findMetaOps(),
+            new StringReader(str));
   }
 
   @Test
@@ -60,7 +60,7 @@ public class TokenizerTest {
   public void testPushTermBack() {
     Tokenizer tokenizer = tokenizeOf("");
     assertNull(tokenizer.getLastPushed());
-    final TokenizerResult tokenizerResult = new TokenizerResult(mock(SoftObjectPool.class)).setData(new PrologAtom("test"), ATOM, 2, 1);
+    final TokenizerResult tokenizerResult = new TokenizerResult(new PrologAtom("test"), ATOM, 2, 1);
     tokenizer.push(tokenizerResult);
     assertSame(tokenizerResult, tokenizer.readNextToken());
   }
@@ -90,17 +90,17 @@ public class TokenizerTest {
 
     tokenizer = tokenizeOf("/* some text */[]/*other*/.", true);
     result = tokenizer.readNextToken();
-    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
+    assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals("[", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
     result = tokenizer.readNextToken();
-    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
+    assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals("]", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(17, result.getPos());
     result = tokenizer.readNextToken();
-    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
+    assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals(".", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(27, result.getPos());
@@ -171,7 +171,7 @@ public class TokenizerTest {
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
+    assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
@@ -191,12 +191,12 @@ public class TokenizerTest {
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
+    assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.OPERATOR, result.getTokenizerState());
-    assertEquals(TermType.SPEC_TERM_OPERATOR_CONTAINER, result.getResult().getType());
+    assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals("-", result.getResult().getText());
 
     assertNull(tokenizer.readNextToken());

@@ -18,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -33,7 +32,7 @@ import java.util.stream.Stream;
 /**
  * Container of operators which have same name but differently associative.
  */
-public final class OpContainer extends SpecServiceCompound {
+public final class OpContainer extends InternalSpecialCompoundTerm {
 
   private static final long serialVersionUID = 4946799717661204529L;
 
@@ -56,11 +55,12 @@ public final class OpContainer extends SpecServiceCompound {
             + (zf == null ? 0 : 1)
             + (zfz == null ? 0 : 1);
   }
-  
+
   /**
    * Create new container based on operator name.
    *
-   * @param operator operator which name will be used and which will be added to the new container
+   * @param operator operator which name will be used and which will be added to
+   * the new container
    * @return generated container with the operator
    */
   public static OpContainer make(final Op operator) {
@@ -70,12 +70,13 @@ public final class OpContainer extends SpecServiceCompound {
   public static OpContainer make(final String text, final Op fz, final Op zf, final Op zfz) {
     return new OpContainer(text, fz, zf, zfz);
   }
-  
+
   /**
    * Add operator into the container.
    *
    * @param operator the operator to be added
-   * @return true if the operator has been added, false if it was impossible because similar operator already presented
+   * @return true if the operator has been added, false if it was impossible
+   * because similar operator already presented
    * @throws IllegalArgumentException if operator has different name
    */
   public boolean add(final Op operator) {
@@ -158,12 +159,13 @@ public final class OpContainer extends SpecServiceCompound {
    *
    * @param op operator to be removed
    * @return true if operator was removed, false otherwise
-   * @throws IllegalArgumentException if operator name is not compatible with the container
+   * @throws IllegalArgumentException if operator name is not compatible with
+   * the container
    */
   public boolean remove(final Op op) {
     if (!getText().equals(op.getText())) {
       throw new IllegalArgumentException(
-          "Unexpected operator: " + op);
+              "Unexpected operator: " + op);
     }
 
     boolean result = false;
@@ -186,7 +188,7 @@ public final class OpContainer extends SpecServiceCompound {
 
   @Override
   public TermType getType() {
-    return TermType.SPEC_TERM_OPERATOR_CONTAINER;
+    return TermType.OPERATOR;
   }
 
   @Override
@@ -230,7 +232,7 @@ public final class OpContainer extends SpecServiceCompound {
   /**
    * Find operator for presented arguments.
    *
-   * @param hasLeftArg  should have left argument
+   * @param hasLeftArg should have left argument
    * @param hasRightArg should have right argument
    * @return operator for needed condition, null if not found
    */
@@ -302,7 +304,8 @@ public final class OpContainer extends SpecServiceCompound {
   }
 
   /**
-   * Find operator with similar type. For instance FX is similar to FY and XF is similar to YF.
+   * Find operator with similar type. For instance FX is similar to FY and XF is
+   * similar to YF.
    *
    * @param type type of operator to find
    * @return operator with similar type or null if not found
@@ -375,9 +378,9 @@ public final class OpContainer extends SpecServiceCompound {
   public String toString() {
     final StringBuilderEx result = new StringBuilderEx("OpContainer ");
     result.append(Stream.of(this.opFZ, this.opZF, this.opZFZ)
-        .filter(Objects::nonNull)
-        .map(Op::toString)
-        .collect(Collectors.joining(" ", "[", "]")));
+            .filter(Objects::nonNull)
+            .map(Op::toString)
+            .collect(Collectors.joining(" ", "[", "]")));
     return result.toString();
   }
 }

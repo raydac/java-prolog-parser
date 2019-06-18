@@ -18,18 +18,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -46,13 +45,8 @@ public class DefaultParserContext implements ParserContext {
   protected final Map<String, OpContainer> opContainers = new HashMap<>();
   protected final int parserContextFlags;
 
-  public DefaultParserContext(final int parserContextFlags, final List<Op> operators) {
-    this.parserContextFlags = parserContextFlags;
-    this.addOps(operators.toArray(EMPTY));
-  }
-
   public DefaultParserContext(final int parserContextFlags) {
-    this(parserContextFlags, Collections.emptyList());
+    this.parserContextFlags = parserContextFlags;
   }
 
   public static ParserContext of(final int parserContextFlags) {
@@ -60,11 +54,13 @@ public class DefaultParserContext implements ParserContext {
   }
 
   public static ParserContext of(final int parserContextFlags, final Op... operators) {
-    return new DefaultParserContext(parserContextFlags, Arrays.asList(operators));
+    return new DefaultParserContext(parserContextFlags).addOps(operators);
   }
 
-  public static ParserContext of(final int parserContextFlags, final List<Op> operators) {
-    return new DefaultParserContext(parserContextFlags, operators);
+  @SafeVarargs
+  @SuppressWarnings("varagrs")
+  public static ParserContext of(final int parserContextFlags, final List<Op>... operators) {
+    return new DefaultParserContext(parserContextFlags).addOps(operators);
   }
 
   public Map<String, OpContainer> findAllOperators() {
@@ -80,17 +76,27 @@ public class DefaultParserContext implements ParserContext {
     rangeClosed(1, name.length()).mapToObj(i -> name.substring(0, i)).forEach(this.opPrefixes::add);
   }
 
+  @SafeVarargs
+  @SuppressWarnings("varargs")
+  public final DefaultParserContext addOps(final List<Op>... operators) {
+    Stream.of(operators).filter(Objects::nonNull).forEach(ops -> this.addOps(ops.toArray(EMPTY)));
+    return this;
+  }
+
   public DefaultParserContext addOps(final Op... operators) {
-    Stream.of(operators).flatMap(Op::streamOp).forEach(x -> {
-      fillPrefixes(x.getText());
-      OpContainer container = this.opContainers.get(x.getText());
-      if (container == null) {
-        container = OpContainer.make(x);
-        this.opContainers.put(x.getText(), container);
-      } else {
-        container.add(x);
-      }
-    });
+    Stream.of(operators)
+            .filter(Objects::nonNull)
+            .flatMap(Op::streamOp)
+            .forEach(x -> {
+              fillPrefixes(x.getText());
+              OpContainer container = this.opContainers.get(x.getText());
+              if (container == null) {
+                container = OpContainer.make(x);
+                this.opContainers.put(x.getText(), container);
+              } else {
+                container.add(x);
+              }
+            });
     return this;
   }
 

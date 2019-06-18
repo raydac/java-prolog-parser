@@ -18,13 +18,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.terms.Quotation;
 
 /**
- * Miscelaneous utils to work with strings.
+ * Auxiliary string processing methods.
  */
 public final class StringUtils {
 
@@ -230,14 +229,15 @@ public final class StringUtils {
   }
 
   /**
-   * Internal auxiliary class to represent result of unescaping.
+   * Un-escaped result container.
    */
   public static final class UnescapeResult {
+
     private final boolean needsMore;
     private final boolean error;
     private final char decoded;
 
-    UnescapeResult(final char decoded, final boolean needsMore, final boolean error) {
+    private UnescapeResult(final char decoded, final boolean needsMore, final boolean error) {
       this.decoded = decoded;
       this.needsMore = needsMore;
       this.error = error;

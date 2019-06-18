@@ -18,7 +18,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.igormaznitsa.prologparser.terms;
 
 import java.util.stream.Stream;
@@ -26,11 +25,11 @@ import java.util.stream.Stream;
 /**
  * Base class for special service terms for use on level of parser.
  */
-public abstract class SpecServiceCompound extends PrologCompound {
+public abstract class InternalSpecialCompoundTerm extends PrologCompound {
 
   private static final long serialVersionUID = 71286378126323213L;
 
-  public SpecServiceCompound(final String text) {
+  public InternalSpecialCompoundTerm(final String text) {
     super(text);
   }
 
