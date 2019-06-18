@@ -39,6 +39,7 @@ import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static com.igormaznitsa.prologparser.terms.Quotation.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
+import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -57,7 +58,7 @@ public class IntegrationTest {
   private static PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
+    when(parserContext.getFlags()).thenReturn(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
     return parseEd(str, parserContext);
   }
 
@@ -82,6 +83,30 @@ public class IntegrationTest {
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
+  }
+
+  @Test
+  public void testReadingClausesTokensAndCharsFromSameParser() throws IOException {
+    final PrologParser parser = parseEd("some(a). alone. next(b).c");
+    final PrologTerm term1 = parser.next();
+    assertEquals("some(a)", term1.toString());
+    final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
+    assertEquals("alone", token1.getResult().toString());
+    final TokenizerResult token2 = parser.getInternalTokenizer().readNextToken();
+    assertEquals(".", token2.getResult().getText());
+    final PrologTerm term2 = parser.next();
+    assertEquals("next(b)", term2.toString());
+    assertEquals('c', parser.getInternalTokenizer().readChar());
+    assertFalse(parser.hasNext());
+    assertEquals(-1, parser.getInternalTokenizer().readChar());
+  }
+
+  @Test
+  public void testEmptyAndNonClause() {
+    assertThrows(NoSuchElementException.class, () -> parseEd("").next());
+    assertThrows(NoSuchElementException.class, () -> parseEd(".").next());
+    assertThrows(PrologParserException.class, () -> parseEd("ab").next());
+    assertThrows(PrologParserException.class, () -> parseEd("1").next());
   }
 
   @Test
@@ -975,6 +1000,8 @@ public class IntegrationTest {
 
   @Test
   public void testStringWithIsoControl() {
+    assertEquals("[97, 98, 99]", parseIso("[0'a,0'b,0'c].").next().toString());
+    assertEquals("\u0007\b\f\n\r\t\u000B#\u0013\\\'\"`", parseIso("'\\a\\b\\f\\n\\r\\t\\v\\x23\\\\23\\\\\\\\\'\\\"\\`'.").next().getText());
     assertThrows(PrologParserException.class, () -> parseEd("'hello\u0000world'.").next());
     assertEquals("'hello\\nworld'", parseEd("'hello\\\nworld'.").next().toString());
     assertEquals("'hello\\nworld'", parseEd("'hello\\\r\nworld'.").next().toString());
