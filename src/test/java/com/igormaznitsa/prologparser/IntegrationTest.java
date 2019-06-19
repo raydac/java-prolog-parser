@@ -46,10 +46,10 @@ public class IntegrationTest extends AbstractIntegrationTest {
 
   @Test
   public void testReadingClausesTokensAndCharsFromSameParser() throws IOException {
-    final PrologParser parser = parseEd("some(a). alone. next(b).c");
+    final PrologParser parser = parseEd("lsome(a). alone. next(b).c");
     assertTrue(parser.hasNext());
     final PrologTerm term1 = parser.next();
-    assertEquals("some(a)", term1.toString());
+    assertEquals("lsome(a)", term1.toString());
     assertTrue(parser.hasNext());
     final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
     assertEquals("alone", token1.getResult().toString());
@@ -59,9 +59,8 @@ public class IntegrationTest extends AbstractIntegrationTest {
     assertTrue(parser.hasNext());
     final PrologTerm term2 = parser.next();
     assertEquals("next(b)", term2.toString());
-    assertEquals('c', parser.getInternalTokenizer().readChar());
-    assertFalse(parser.hasNext());
-    assertEquals(-1, parser.getInternalTokenizer().readChar());
+    assertTrue(parser.hasNext());
+    assertThrows(PrologParserException.class, () -> parser.next());
   }
 
   @Test
@@ -74,18 +73,18 @@ public class IntegrationTest extends AbstractIntegrationTest {
 
   @Test
   public void testDot2StructAsList() {
-     assertEquals("'.'(a, [])", parseGen("'.'(a,[]).").next().toString());
-     assertEquals("'.'(a, X)", parseGen("'.'(a,X).").next().toString());
-     assertEquals("'.'(a, b)", parseGen("'.'(a,b).").next().toString());
+    assertEquals("'.'(a, [])", parseGen("'.'(a,[]).").next().toString());
+    assertEquals("'.'(a, X)", parseGen("'.'(a,X).").next().toString());
+    assertEquals("'.'(a, b)", parseGen("'.'(a,b).").next().toString());
 
-     assertEquals("[a]", parseIso("'.'(a,[]).").next().toString());
-     assertEquals("[a|X]", parseIso("'.'(a,X).").next().toString());
-     assertEquals("[a|b]", parseIso("'.'(a,b).").next().toString());
-  
-     assertEquals("[a, b, c]", parseIso("'.'(a,'.'(b,'.'(c,[]))).").next().toString());
-     assertEquals("[a, b, c|X]", parseIso("'.'(a,'.'(b,'.'(c,X))).").next().toString());
+    assertEquals("[a]", parseIso("'.'(a,[]).").next().toString());
+    assertEquals("[a|X]", parseIso("'.'(a,X).").next().toString());
+    assertEquals("[a|b]", parseIso("'.'(a,b).").next().toString());
+
+    assertEquals("[a, b, c]", parseIso("'.'(a,'.'(b,'.'(c,[]))).").next().toString());
+    assertEquals("[a, b, c|X]", parseIso("'.'(a,'.'(b,'.'(c,X))).").next().toString());
   }
-  
+
   @Test
   public void testSwiCpl() {
     assertEquals("X in 5 .. 10 , 5 , Y #=< X + -1 , 6 , Y in 4 .. 8", parseCpl("X in 5..10,5,Y#=<X+ -1,6,Y in 4..8.").next().toString());

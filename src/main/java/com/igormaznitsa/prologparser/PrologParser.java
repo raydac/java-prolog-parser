@@ -96,7 +96,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   protected final ParserContext context;
   protected final int parserFlags;
   private final Tokenizer tokenizer;
-  private PrologTerm lastFoundTerm;
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
@@ -157,30 +156,20 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   }
 
   public boolean hasNext() {
-    if (this.lastFoundTerm == null) {
-      final PrologTerm found = readBlock(OPERATORS_PHRASE);
-      if (found != null) {
-        final TokenizerResult endAtom = this.tokenizer.readNextToken();
-        if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
-          throw new PrologParserException("End operator is not found", this.tokenizer.getLine(), this.tokenizer.getPos());
-        }
-      }
-      this.lastFoundTerm = found;
-    }
-
-    return this.lastFoundTerm != null;
+    return this.tokenizer.peek() != null;
   }
 
   public PrologTerm next() {
-    try {
-      if (hasNext()) {
-        return this.lastFoundTerm;
-      } else {
-        throw new NoSuchElementException("No terms in source");
+    final PrologTerm found = readBlock(OPERATORS_PHRASE);
+    if (found == null) {
+      throw new NoSuchElementException("No terms in source");
+    } else {
+      final TokenizerResult endAtom = this.tokenizer.readNextToken();
+      if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
+        throw new PrologParserException("End operator is not found", this.tokenizer.getLine(), this.tokenizer.getPos());
       }
-    } finally {
-      this.lastFoundTerm = null;
     }
+    return found;
   }
 
   private PrologStruct readStruct(final PrologTerm functor) {
@@ -582,12 +571,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
       return null;
     } else {
       PrologTerm result = currentTreeItem.findRoot().convertToTermAndRelease(this);
-      if ((this.parserFlags & FLAG_DOT2_AS_LIST) != 0 
+      if ((this.parserFlags & FLAG_DOT2_AS_LIST) != 0
               && result.getType() == TermType.STRUCT
-              && result.getText().equals(".") 
+              && result.getText().equals(".")
               && result.getArity() == 2) {
-              final PrologStruct asStruct = (PrologStruct) result;
-              result = new PrologList(asStruct.getTermAt(0), asStruct.getTermAt(1));
+        final PrologStruct asStruct = (PrologStruct) result;
+        result = new PrologList(asStruct.getTermAt(0), asStruct.getTermAt(1));
       }
       return result;
     }

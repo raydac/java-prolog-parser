@@ -102,11 +102,11 @@ public final class Tokenizer {
     }
   }
 
-  public TokenizerResult getLastPushed() {
+  TokenizerResult getLastPushed() {
     return this.lastPushedTerm;
   }
 
-  public synchronized int readChar() throws IOException {
+  private synchronized int doReadChar() throws IOException {
     int ch;
     if (this.insideCharBuffer.isEmpty()) {
       ch = this.reader.read();
@@ -246,7 +246,7 @@ public final class Tokenizer {
   private void skipUntilBlockCommentEnd() throws IOException {
     boolean starCharDetected = false;
     while (!Thread.currentThread().isInterrupted()) {
-      final int readChar = this.readChar();
+      final int readChar = this.doReadChar();
       if (readChar < 0 || (readChar == '/' && starCharDetected)) {
         break;
       } else {
@@ -257,7 +257,7 @@ public final class Tokenizer {
 
   private void skipUntilNextString() throws IOException {
     while (!Thread.currentThread().isInterrupted()) {
-      final int readChar = this.readChar();
+      final int readChar = this.doReadChar();
       if (readChar < 0 || readChar == '\n') {
         break;
       }
@@ -275,7 +275,7 @@ public final class Tokenizer {
   /**
    * Read next token
    *
-   * @return next token or null if not found or thread interruption detected
+   * @return next token or null if not found or stream ended
    */
   public TokenizerResult readNextToken() {
 
@@ -306,7 +306,7 @@ public final class Tokenizer {
 
     try {
       while (!Thread.currentThread().isInterrupted()) {
-        final int readChar = this.readChar();
+        final int readChar = this.doReadChar();
 
         if (readChar < 0) {
           switch (state) {
