@@ -341,8 +341,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
       // check the atom to be the end atom
       if (isEndOperator(readAtom, endOperators)) {
         // it's an end atom so we push it back and end the cycle
-        tokenizer.push(readAtomContainer);
-        readAtomContainer = null;
+        this.tokenizer.push(readAtomContainer);
         break;
       }
 
@@ -498,14 +497,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
               }
             } else {
               tokenizer.push(nextToken);
-              nextToken = null;
               throw new PrologParserException("You must have an atom as the structure functor",
                       nextTokenLineNumber, nextTokenStrPosition);
             }
           } else {
             // push back the next atom
             tokenizer.push(nextToken);
-            nextToken = null;
           }
         }
       }
@@ -584,7 +581,15 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     if (currentTreeItem == null) {
       return null;
     } else {
-      return currentTreeItem.findRoot().convertToTermAndRelease(this);
+      PrologTerm result = currentTreeItem.findRoot().convertToTermAndRelease(this);
+      if ((this.parserFlags & FLAG_DOT2_AS_LIST) != 0 
+              && result.getType() == TermType.STRUCT
+              && result.getText().equals(".") 
+              && result.getArity() == 2) {
+              final PrologStruct asStruct = (PrologStruct) result;
+              result = new PrologList(asStruct.getTermAt(0), asStruct.getTermAt(1));
+      }
+      return result;
     }
   }
 

@@ -19,14 +19,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -45,55 +42,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("varargs")
-public class IntegrationTest {
-
-  private static PrologParser parseCpl(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI, Op.SWI_CPL));
-  }
-
-  private static PrologParser parseIso(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_ZERO_QUOTATION_CHARCODE, Op.ISO));
-  }
-
-  private static PrologParser parseEd(final String str) {
-    final ParserContext parserContext = mock(ParserContext.class);
-    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
-    return parseEd(str, parserContext);
-  }
-
-  private static PrologParser parseEd(final String str, final ParserContext context) {
-    return parseEd(new StringReader(str), context);
-  }
-
-  private static PrologParser parseEd(final Reader reader, final ParserContext context) {
-    return new GenericPrologParser(reader, ParserContextChain.of(
-            DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI), context));
-  }
-
-  private static PrologParser parseGen(final String str, final ParserContext context) {
-    final ParserContext parserContext = mock(ParserContext.class);
-    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
-    return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
-  }
-
-  private static GenericPrologParser parseGen(final String str) {
-    final ParserContext parserContext = mock(ParserContext.class);
-    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE);
-    return new GenericPrologParser(new StringReader(str), parserContext);
-  }
+public class IntegrationTest extends AbstractIntegrationTest {
 
   @Test
   public void testReadingClausesTokensAndCharsFromSameParser() throws IOException {
     final PrologParser parser = parseEd("some(a). alone. next(b).c");
+    assertTrue(parser.hasNext());
     final PrologTerm term1 = parser.next();
     assertEquals("some(a)", term1.toString());
+    assertTrue(parser.hasNext());
     final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
     assertEquals("alone", token1.getResult().toString());
+    assertTrue(parser.hasNext());
     final TokenizerResult token2 = parser.getInternalTokenizer().readNextToken();
     assertEquals(".", token2.getResult().getText());
+    assertTrue(parser.hasNext());
     final PrologTerm term2 = parser.next();
     assertEquals("next(b)", term2.toString());
     assertEquals('c', parser.getInternalTokenizer().readChar());
@@ -109,6 +72,20 @@ public class IntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("1").next());
   }
 
+  @Test
+  public void testDot2StructAsList() {
+     assertEquals("'.'(a, [])", parseGen("'.'(a,[]).").next().toString());
+     assertEquals("'.'(a, X)", parseGen("'.'(a,X).").next().toString());
+     assertEquals("'.'(a, b)", parseGen("'.'(a,b).").next().toString());
+
+     assertEquals("[a]", parseIso("'.'(a,[]).").next().toString());
+     assertEquals("[a|X]", parseIso("'.'(a,X).").next().toString());
+     assertEquals("[a|b]", parseIso("'.'(a,b).").next().toString());
+  
+     assertEquals("[a, b, c]", parseIso("'.'(a,'.'(b,'.'(c,[]))).").next().toString());
+     assertEquals("[a, b, c|X]", parseIso("'.'(a,'.'(b,'.'(c,X))).").next().toString());
+  }
+  
   @Test
   public void testSwiCpl() {
     assertEquals("X in 5 .. 10 , 5 , Y #=< X + -1 , 6 , Y in 4 .. 8", parseCpl("X in 5..10,5,Y#=<X+ -1,6,Y in 4..8.").next().toString());
@@ -273,14 +250,6 @@ public class IntegrationTest {
     checkParseAtomWithoutPPE("\'Jones\'", "Jones");
     checkParseAtomWithoutPPE("\'\'", "");
     checkParseAtomWithoutPPE("x_", "x_");
-  }
-
-  private void checkIntegerWithoutPPE(final String atomToBeChecked, final long expectedNumber) {
-    PrologTerm atom = parseEd(atomToBeChecked + '.').next();
-    assertEquals(ATOM, atom.getType(), "Type: " + atom.getType());
-    assertEquals(PrologInt.class, atom.getClass(), "Class: " + atom.getClass());
-    assertEquals(expectedNumber, ((PrologInt) atom).getNumber().longValue(), "Number: " + ((PrologInt) atom).getNumber().longValue());
-    assertEquals(Long.toString(expectedNumber), atom.getText(), "Text: " + atom.getText());
   }
 
   @Test
@@ -578,36 +547,6 @@ public class IntegrationTest {
     assertEquals("~ (A & B) <===> ~ A v ~ B", term.toString());
   }
 
-  private void assertReadTerms(final int expected, final String resource, final List<Op> ops) {
-    assertReadTerms(expected, resource, ops.toArray(new Op[0]));
-  }
-
-  private void assertReadTerms(final int expected, final String resource, final Op... ops) {
-    final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS, ops);
-    try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
-      final PrologParser parser = parseEd(reader, defaultContext);
-      assertEquals(expected, parser.stream().count());
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      fail("IOException");
-    }
-  }
-
-  private ParserContext makeSictusContext(final Op... ops) {
-    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS, Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops));
-  }
-
-  private void assertReadSictusTerms(final int expected, final String resource, final Op... ops) {
-    final ParserContext defaultContext = makeSictusContext(ops);
-    try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("bench/" + resource), StandardCharsets.UTF_8)) {
-      final PrologParser parser = new GenericPrologParser(reader, defaultContext);
-      assertEquals(expected, parser.stream().count());
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      fail("IOException");
-    }
-  }
-
   @Test
   public void testCurlyBracket() {
     assertEquals("{1 , 2 , 3 , 4 , 5}", new GenericPrologParser(new StringReader("{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS)).next().toString());
@@ -878,66 +817,10 @@ public class IntegrationTest {
   }
 
   @Test
-  public void testVeryLongList() {
-    final int ELEMENTS = 100000;
-
-    final StringBuilder buffer = new StringBuilder(ELEMENTS);
-
-    buffer.append('[');
-    boolean nonFirst = false;
-
-    for (int i = 0; i < ELEMENTS; i++) {
-      if (nonFirst) {
-        buffer.append(',');
-      } else {
-        nonFirst = true;
-      }
-      buffer.append(i);
-    }
-    buffer.append("].");
-
-    PrologList list = (PrologList) parseEd(buffer.toString()).next();
-
-    for (int i = 0; i < ELEMENTS; i++) {
-      final PrologInt head = (PrologInt) list.getHead();
-      assertEquals(i, head.getNumber().intValue());
-      list = (PrologList) list.getTail();
-    }
-
-    assertTrue(list.isEmpty());
-  }
-
-  @Test
   public void testHelloWorld() {
     final PrologStruct rule = (PrologStruct) parseEd("hello :- world,!.").next();
     final PrologStruct and = (PrologStruct) rule.getTermAt(1);
     assertEquals("hello world!", rule.getTermAt(0).getText() + ' ' + and.getTermAt(0).getText() + and.getTermAt(1).getText());
-  }
-
-  @Test
-  public void testVeryLongStructure() {
-    final int ELEMENTS = 100000;
-
-    final StringBuilder buffer = new StringBuilder(ELEMENTS);
-    buffer.append("test(");
-    boolean nonfirst = false;
-    for (int i = 0; i < ELEMENTS; i++) {
-      if (nonfirst) {
-        buffer.append(',');
-      } else {
-        nonfirst = true;
-      }
-      buffer.append(i - 100);
-    }
-    buffer.append(").");
-
-    PrologStruct struct = (PrologStruct) parseEd(buffer.toString()).next();
-
-    assertEquals(ELEMENTS, struct.getArity());
-    assertEquals("test", struct.getFunctor().getText());
-    for (int i = 0; i < ELEMENTS; i++) {
-      assertEquals(i - 100, ((PrologInt) struct.getTermAt(i)).getNumber().intValue());
-    }
   }
 
   @Test
@@ -1037,13 +920,6 @@ public class IntegrationTest {
     assertEquals("'+'", parseEd("+.").next().toString());
     assertEquals("some(a, '+', b)", parseEd("some(a,+,b).").next().toString());
     assertEquals("some('+', '+', '+')", parseEd("some(+,+,+).").next().toString());
-  }
-
-  @Test
-  public void testParseBigGeneratedPrologSource() {
-    final int CLAUSES = 1000;
-    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
-    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
   }
 
   @Test
@@ -1406,64 +1282,6 @@ public class IntegrationTest {
     assertEquals("writeq([':-', '-'])", parseEd("writeq([:-,-]).").next().toString());
     assertEquals("writeq('\\b\\r\\f\\t\\n')", parseEd("writeq('\\b\\r\\f\\t\\n').").next().toString());
     assertEquals("writeq('^`')", parseEd("writeq('^`').").next().toString());
-  }
-
-  private static class StubContext implements ParserContext {
-
-    private final Map<String, OpContainer> operators;
-
-    public StubContext(final Map<String, OpContainer> operators) {
-      this.operators = operators;
-    }
-
-    @Override
-    public int getMaxTokenizerBufferLength() {
-      return 1000;
-    }
-
-    @Override
-    public int getFlags() {
-      return FLAG_NONE;
-    }
-
-    @Override
-    public boolean hasOpStartsWith(final PrologParser source,
-            final String operatorNameStartSubstring) {
-      for (final String string : operators.keySet()) {
-        if (string.startsWith(operatorNameStartSubstring)) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    @Override
-    public OpContainer findOpForName(final PrologParser source,
-            final String operatorName) {
-      return operators.get(operatorName);
-    }
-
-  }
-
-  private static void assertOperatorAsFunctor(final String goal, final String opText, final OpAssoc assoc, final int arity, final String expectedText) {
-    final PrologParser parser = parseEd(goal);
-    assertTrue(parser.hasNext());
-    final PrologTerm term = parser.next();
-    assertFalse(parser.hasNext());
-    assertEquals(TermType.OPERATOR, term.getFunctor().getType(), term.toString());
-    assertEquals(opText, term.getText(), term.toString());
-    assertEquals(assoc, ((Op) term.getFunctor()).getAssoc(), term.toString());
-    assertEquals(arity, term.getArity(), term.toString());
-    assertEquals(expectedText, term.toString());
-  }
-
-  private void assertOperatorAsFunctor(final String expected, final PrologTerm term) {
-    assertTrue(term instanceof PrologStruct);
-    final PrologStruct struct = (PrologStruct) term;
-    assertEquals(TermType.OPERATOR, struct.getFunctor().getType(), term.toString());
-    assertEquals(struct.getFunctor().getArity(), struct.getArity(), term.toString());
-    assertEquals(expected, term.toString(), term.toString());
   }
 
 }

@@ -211,7 +211,7 @@ final class AstItem {
   PrologTerm convertToTermAndRelease(final PrologParser parser) {
     PrologTerm result;
 
-    switch (savedTerm.getType()) {
+    switch (this.savedTerm.getType()) {
       case OPERATOR: {
         final TermWrapper wrapper = (TermWrapper) this.savedTerm;
         if (this.leftItem == null && this.rightItem == null) {

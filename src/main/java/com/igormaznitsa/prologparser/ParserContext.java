@@ -59,6 +59,10 @@ public interface ParserContext {
    * Example: {a,{b,!,c}}
    */
   int FLAG_CURLY_BRACKETS = 16;
+  /**
+   * Recognize '.'(_,_) as a list term.
+   */
+  int FLAG_DOT2_AS_LIST = 32;
 
   /**
    * Check that the context contains an operator starts with some string
