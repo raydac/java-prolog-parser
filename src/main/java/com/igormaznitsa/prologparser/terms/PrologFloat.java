@@ -21,10 +21,10 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.AssertUtils;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Representation for float numeric term.
@@ -53,12 +53,12 @@ public final class PrologFloat extends PrologNumeric {
 
   public PrologFloat(final BigDecimal value) {
     super();
-    this.value = AssertUtils.assertNotNull(value);
+    this.value = requireNonNull(value);
   }
 
   public PrologFloat(final BigDecimal value, final int line, final int pos) {
     super(line, pos);
-    this.value = AssertUtils.assertNotNull(value);
+    this.value = requireNonNull(value);
   }
 
   @Override

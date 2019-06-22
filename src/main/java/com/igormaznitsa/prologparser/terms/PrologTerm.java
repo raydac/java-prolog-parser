@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -31,7 +32,7 @@ import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
 import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
 import static com.igormaznitsa.prologparser.terms.TermType.VAR;
-import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Base class describes a Prolog term
@@ -45,7 +46,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   private int pos;
 
   public PrologTerm(final String text, final Quotation quotation) {
-    this.text = assertNotNull(text);
+    this.text = requireNonNull(text);
     this.pos = -1;
     this.line = -1;
     this.quotation = quotation == null ? NONE : quotation;

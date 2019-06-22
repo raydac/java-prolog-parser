@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.InternalSpecialCompoundTerm;
@@ -33,7 +34,7 @@ public class OperatorContainerTest {
   @Test
   public void testGetPrecedence() {
     assertEquals(make(Op.make(1000, OpAssoc.FX,
-            "<>")).getPrecedence(), 0);
+        "<>")).getPrecedence(), 0);
   }
 
   @Test
@@ -43,14 +44,14 @@ public class OperatorContainerTest {
     container.add(Op.make(300, OpAssoc.XFX, "<>"));
     container.add(Op.make(800, OpAssoc.YF, "<>"));
     assertEquals(
-            "OpContainer [op(100, fx, '<>'). op(800, yf, '<>'). op(300, xfx, '<>').]",
-            container.toString());
+        "OpContainer [op(100, fx, '<>'). op(800, yf, '<>'). op(300, xfx, '<>').]",
+        container.toString());
   }
 
   @Test
   public void testGetType() {
     final OpContainer cont = make(
-            Op.make(1000, OpAssoc.FX, "<>"));
+        Op.make(1000, OpAssoc.FX, "<>"));
     assertEquals(TermType.OPERATOR, cont.getType());
     assertTrue(cont instanceof InternalSpecialCompoundTerm);
   }
@@ -71,7 +72,7 @@ public class OperatorContainerTest {
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
     final Op otheroperatorYF = Op.make(300, OpAssoc.YF,
-            "><");
+        "><");
 
     final OpContainer container = make(operatorFX);
 
@@ -120,7 +121,7 @@ public class OperatorContainerTest {
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
     final Op otheroperatorXFX = Op.make(400, OpAssoc.XFX,
-            "><");
+        "><");
 
     final OpContainer container = make(operatorFX);
     container.add(operatorXFX);
@@ -257,9 +258,9 @@ public class OperatorContainerTest {
     assertThrows(NullPointerException.class, () -> container.findSimilar(null));
 
     assertSame(operatorFX,
-            container.findSimilar(OpAssoc.FY));
+        container.findSimilar(OpAssoc.FY));
     assertSame(operatorXFX,
-            container.findSimilar(OpAssoc.YFX));
+        container.findSimilar(OpAssoc.YFX));
     assertTrue(container.removeForType(OpAssoc.FX));
     assertNull(container.findSimilar(OpAssoc.FY));
 
@@ -289,6 +290,6 @@ public class OperatorContainerTest {
   @Test
   public void testGetText() {
     assertEquals("<>", make(Op.make(1000,
-            OpAssoc.FX, "<>")).getText());
+        OpAssoc.FX, "<>")).getText());
   }
 }

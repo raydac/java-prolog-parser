@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.utils;
 
 import com.igormaznitsa.prologparser.terms.Quotation;

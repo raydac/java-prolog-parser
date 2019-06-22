@@ -22,14 +22,12 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.utils.AssertUtils;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Auxiliary class allows to make chain of prolog contexts.
@@ -50,7 +48,7 @@ public class ParserContextChain implements ParserContext {
   public static ParserContext of(final ParserContext... contexts) {
     final ParserContext result;
     if (contexts.length == 1) {
-      result = AssertUtils.assertNotNull(contexts[0]);
+      result = requireNonNull(contexts[0]);
     } else {
       result = new ParserContextChain(contexts);
     }

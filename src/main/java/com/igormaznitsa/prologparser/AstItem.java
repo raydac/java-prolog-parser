@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -31,14 +32,15 @@ import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.TermWrapper;
+
 import java.util.ArrayList;
 
 final class AstItem {
 
+  private final PrologTerm savedTerm;
   private AstItem leftItem;
   private AstItem rightItem;
   private AstItem parentItem;
-  private final PrologTerm savedTerm;
 
   AstItem(final PrologTerm term, final int line, final int pos) {
     if (term == null) {
@@ -46,8 +48,7 @@ final class AstItem {
     } else {
       final TermType termType = term.getType();
       if (termType == TermType.OPERATOR) {
-        final TermWrapper termWrapper = new TermWrapper(term);
-        this.savedTerm = termWrapper;
+        this.savedTerm = new TermWrapper(term);
       } else {
         this.savedTerm = term;
       }
@@ -190,13 +191,13 @@ final class AstItem {
 
   private boolean isAnyBlock() {
     return this.savedTerm.getType() == TermType.STRUCT
-            && (this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
-            || this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK);
+        && (this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
+        || this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK);
   }
 
   private boolean isBlock() {
     return this.savedTerm.getType() == TermType.STRUCT
-            && this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK;
+        && this.savedTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK;
   }
 
   private boolean isOperator() {
@@ -236,7 +237,7 @@ final class AstItem {
 
                 if (appropriateOperator == null) {
                   if (operator.getArity() == 1) {
-                    return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
+                    return new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                   } else {
                     return new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), terms, wrapper.getLine(), wrapper.getPos());
                   }
@@ -247,20 +248,20 @@ final class AstItem {
 
             } else {
               if (rightTerm.isCurlyBlock()) {
-                return new PrologStruct(operator, new PrologTerm[]{rightTerm}, wrapper.getLine(), wrapper.getPos());
+                return new PrologStruct(operator, new PrologTerm[] {rightTerm}, wrapper.getLine(), wrapper.getPos());
               } else {
                 if (operator.getArity() == 1) {
-                  return new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
+                  return new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                 } else {
                   operator = parser.getContext().findOpForName(parser, operator.getText()).findForArity(1);
-                  return operator == null ? new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos())
-                          : new PrologStruct(operator, new PrologTerm[]{blockContent}, wrapper.getLine(), wrapper.getPos());
+                  return operator == null ? new PrologStruct(new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(), wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos())
+                      : new PrologStruct(operator, new PrologTerm[] {blockContent}, wrapper.getLine(), wrapper.getPos());
                 }
               }
             }
           }
         } else if (this.isAnyBlock() && this.leftItem.isAnyBlock()) {
-          return new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{this.leftItem.convertToTermAndRelease(parser)}, wrapper.getLine(), wrapper.getPos());
+          return new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[] {this.leftItem.convertToTermAndRelease(parser)}, wrapper.getLine(), wrapper.getPos());
         }
 
         if (!isOperandsOk()) {
@@ -273,7 +274,7 @@ final class AstItem {
         if (!isPrecedenceOk()) {
           if (this.rightItem != null && this.rightItem.isOperator() && this.rightItem.getOpAssoc().isPrefix()) {
             left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease(parser);
-            right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{this.rightItem.convertToTermAndRelease(parser)});
+            right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {this.rightItem.convertToTermAndRelease(parser)});
           } else {
             throw new PrologParserException("Operator precedence clash or missing operator: [" + wrapper.getText() + ']', wrapper.getLine(), wrapper.getPos());
           }
@@ -293,9 +294,9 @@ final class AstItem {
 
         final PrologStruct operatorStruct;
         if (left == null) {
-          operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[]{right}, wrapper.getLine(), wrapper.getPos());
+          operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), new PrologTerm[] {right}, wrapper.getLine(), wrapper.getPos());
         } else {
-          operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), right == null ? new PrologTerm[]{left} : new PrologTerm[]{left, right}, wrapper.getLine(), wrapper.getPos());
+          operatorStruct = new PrologStruct(wrapper.getWrappedTerm(), right == null ? new PrologTerm[] {left} : new PrologTerm[] {left, right}, wrapper.getLine(), wrapper.getPos());
         }
         result = operatorStruct;
       }
@@ -303,13 +304,13 @@ final class AstItem {
       case STRUCT: {
         final PrologStruct thisStruct = (PrologStruct) this.savedTerm;
         if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
-                && thisStruct.getArity() == 1) {
+            && thisStruct.getArity() == 1) {
 
           final PrologTerm thatTerm = thisStruct.getTermAt(0);
 
           if (thatTerm.getType() == TermType.STRUCT && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
             // rolling normal blocks
-            result = thatTerm.isBlock() && (this.isBlock() && (this.parentItem == null || (this.parentItem != null && this.parentItem.isBlock()))) ? thatTerm : thisStruct;
+            result = thatTerm.isBlock() && this.isBlock() && (this.parentItem == null || this.parentItem.isBlock()) ? thatTerm : thisStruct;
           } else {
             result = thisStruct;
           }

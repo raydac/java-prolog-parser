@@ -18,10 +18,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.*;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -35,9 +34,8 @@ import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.Tokenizer;
 import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
-import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.Koi7CharOpMap;
-import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
@@ -49,6 +47,11 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.*;
+import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Abstract base Prolog parser.
@@ -99,12 +102,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
-    this.tokenizer = new Tokenizer(this, META_OP_MAP, AssertUtils.assertNotNull(source));
+    this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
     this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
-  }
-
-  public Tokenizer getInternalTokenizer() {
-    return this.tokenizer;
   }
 
   public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
@@ -137,6 +136,10 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public static Koi7CharOpMap findMetaOps() {
     return Koi7CharOpMap.copyOf(META_OP_MAP);
+  }
+
+  public Tokenizer getInternalTokenizer() {
+    return this.tokenizer;
   }
 
   private boolean isEndOperator(final PrologTerm operator, final Koi7CharOpMap endOperators) {
@@ -251,12 +254,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
           rightPart = readBlock(OPERATORS_END_LIST);
 
           if (rightPart != null
-                  && rightPart.getType() == TermType.STRUCT
-                  && rightPart.getFunctor().getText().equals(OPERATOR_VERTICALBAR.getText())) {
+              && rightPart.getType() == TermType.STRUCT
+              && rightPart.getFunctor().getText().equals(OPERATOR_VERTICALBAR.getText())) {
             throw new PrologParserException(
-                    "Duplicated list tail definition",
-                    tokenizer.getLastTokenLine(),
-                    tokenizer.getLastTokenPos(), null);
+                "Duplicated list tail definition",
+                tokenizer.getLastTokenLine(),
+                tokenizer.getLastTokenPos(), null);
           }
 
           final TokenizerResult nextAtomTwo = tokenizer.readNextToken();
@@ -306,6 +309,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     }
   }
 
+  @SuppressWarnings("ConstantConditions")
   private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
@@ -376,7 +380,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
             // we didn't get any operator for our criteria, so throw
             // an exception
             throw new PrologParserException("Operator clash detected [" + readAtomContainer.getResult().getText() + ']',
-                    readAtomContainer.getLine(), readAtomContainer.getPos());
+                readAtomContainer.getLine(), readAtomContainer.getPos());
           }
           // we have found needed operator so get its precedence
           readAtomPrecedence = readAtom.getPrecedence();
@@ -415,7 +419,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
                       emptyCurly = true;
                     } else {
                       throw new PrologParserException("Illegal start of term",
-                              readAtomContainer.getLine(), readAtomContainer.getPos());
+                          readAtomContainer.getLine(), readAtomContainer.getPos());
                     }
                   }
 
@@ -424,7 +428,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
                   } else {
                     readAtom.setLine(readAtomContainer.getLine());
                     readAtom.setPos(readAtomContainer.getPos());
-                    readAtom = new PrologStruct(onlyCharCode == '{' ? Op.VIRTUAL_OPERATOR_CURLY_BLOCK : Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
+                    readAtom = new PrologStruct(onlyCharCode == '{' ? Op.VIRTUAL_OPERATOR_CURLY_BLOCK : Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
 
                   final TokenizerResult token = this.tokenizer.readNextToken();
@@ -465,8 +469,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
             // it is a structure
             if (readAtom.getType() == TermType.ATOM
-                    || (readAtom.getType() == TermType.VAR
-                    && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)) {
+                || (readAtom.getType() == TermType.VAR
+                && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)) {
 
               final PrologTerm prev = readAtom;
               readAtom = readStruct(readAtom);
@@ -474,7 +478,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
                 // we have met the empty brackets
                 if ((this.parserFlags & FLAG_ZERO_STRUCT) == 0) {
                   throw new PrologParserException("Empty structure is not allowed",
-                          nextTokenLineNumber, nextTokenStrPosition);
+                      nextTokenLineNumber, nextTokenStrPosition);
                 } else {
                   final TokenizerResult pushed = this.tokenizer.pop();
                   if (pushed.getResult() == OPERATOR_RIGHTBRACKET) {
@@ -487,7 +491,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
             } else {
               tokenizer.push(nextToken);
               throw new PrologParserException("You must have an atom as the structure functor",
-                      nextTokenLineNumber, nextTokenStrPosition);
+                  nextTokenLineNumber, nextTokenStrPosition);
             }
           } else {
             // push back the next atom
@@ -497,8 +501,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
       }
 
       final AstItem readAtomTreeItem = new AstItem(readAtom,
-              readAtomContainer.getLine(),
-              readAtomContainer.getPos());
+          readAtomContainer.getLine(),
+          readAtomContainer.getPos());
 
       if (currentTreeItem == null) {
         // it's first
@@ -545,9 +549,9 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
             if (readAtomTreeItem.getType() != TermType.OPERATOR && currentTreeItem.getRightBranch() != null) {
               // it's a ground atom and its right branch is not empty
               throw new PrologParserException(
-                      "There is no any operator before the atom",
-                      readAtomContainer.getLine(),
-                      readAtomContainer.getPos());
+                  "There is no any operator before the atom",
+                  readAtomContainer.getLine(),
+                  readAtomContainer.getPos());
             }
             // make it as right
             currentTreeItem = currentTreeItem.makeAsRightBranch(readAtomTreeItem);
@@ -555,11 +559,11 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
         } else {
           // check that it is an operator
           if (currentTreeItem.getType() != TermType.OPERATOR
-                  && readAtomTreeItem.getType() != TermType.OPERATOR) {
+              && readAtomTreeItem.getType() != TermType.OPERATOR) {
             throw new PrologParserException(
-                    "There must be an operator between atoms or structures",
-                    readAtomContainer.getLine(),
-                    readAtomContainer.getPos());
+                "There must be an operator between atoms or structures",
+                readAtomContainer.getLine(),
+                readAtomContainer.getPos());
           }
 
           // make it as left branch
@@ -572,9 +576,9 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     } else {
       PrologTerm result = currentTreeItem.findRoot().convertToTermAndRelease(this);
       if ((this.parserFlags & FLAG_DOT2_AS_LIST) != 0
-              && result.getType() == TermType.STRUCT
-              && result.getText().equals(".")
-              && result.getArity() == 2) {
+          && result.getType() == TermType.STRUCT
+          && result.getText().equals(".")
+          && result.getArity() == 2) {
         final PrologStruct asStruct = (PrologStruct) result;
         result = new PrologList(asStruct.getTermAt(0), asStruct.getTermAt(1));
       }
@@ -599,10 +603,10 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public Stream<PrologTerm> stream() {
     return StreamSupport.stream(
-            Spliterators.spliteratorUnknownSize(
-                    this.iterator(),
-                    Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL),
-            false
+        Spliterators.spliteratorUnknownSize(
+            this.iterator(),
+            Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL),
+        false
     );
   }
 

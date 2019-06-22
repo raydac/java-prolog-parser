@@ -23,8 +23,6 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
 
-import java.util.Map;
-
 /**
  * Context which provides flags and operator storage for a prolog parser.
  *

@@ -21,7 +21,6 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.AssertUtils;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 
 import java.util.Collections;
@@ -31,6 +30,8 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Representation of prolog list term.
@@ -117,6 +118,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   /**
    * Get the current head element of the list.
+   *
    * @return the head element, can be null
    */
   public PrologTerm getHead() {
@@ -125,6 +127,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   /**
    * Replace the head element.
+   *
    * @param term the new head term, can be null
    */
   public void setHead(final PrologTerm term) {
@@ -136,6 +139,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   /**
    * Get the current tail element
+   *
    * @return the current tail element, can be null
    */
   public PrologTerm getTail() {
@@ -144,6 +148,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   /**
    * Set the current tail element
+   *
    * @param term the new tail element, can be null
    */
   public void setTail(final PrologTerm term) {
@@ -155,6 +160,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
 
   /**
    * Add term as new list into the end of the list chain.
+   *
    * @param term to be added as new list in the end of chain
    * @return generated list (may be this)
    */
@@ -223,7 +229,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     if (index < 0 || index >= 2) {
       throw new ArrayIndexOutOfBoundsException(index);
     }
-    this.elements[index] = AssertUtils.assertNotNull(term);
+    this.elements[index] = requireNonNull(term);
   }
 
 

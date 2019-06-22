@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -52,15 +53,15 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
     this.opZF = zf;
     this.opZFZ = zfz;
     this.numberAtContainer = (fz == null ? 0 : 1)
-            + (zf == null ? 0 : 1)
-            + (zfz == null ? 0 : 1);
+        + (zf == null ? 0 : 1)
+        + (zfz == null ? 0 : 1);
   }
 
   /**
    * Create new container based on operator name.
    *
    * @param operator operator which name will be used and which will be added to
-   * the new container
+   *                 the new container
    * @return generated container with the operator
    */
   public static OpContainer make(final Op operator) {
@@ -160,12 +161,12 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
    * @param op operator to be removed
    * @return true if operator was removed, false otherwise
    * @throws IllegalArgumentException if operator name is not compatible with
-   * the container
+   *                                  the container
    */
   public boolean remove(final Op op) {
     if (!getText().equals(op.getText())) {
       throw new IllegalArgumentException(
-              "Unexpected operator: " + op);
+          "Unexpected operator: " + op);
     }
 
     boolean result = false;
@@ -232,7 +233,7 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
   /**
    * Find operator for presented arguments.
    *
-   * @param hasLeftArg should have left argument
+   * @param hasLeftArg  should have left argument
    * @param hasRightArg should have right argument
    * @return operator for needed condition, null if not found
    */
@@ -378,9 +379,9 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
   public String toString() {
     final StringBuilderEx result = new StringBuilderEx("OpContainer ");
     result.append(Stream.of(this.opFZ, this.opZF, this.opZFZ)
-            .filter(Objects::nonNull)
-            .map(Op::toString)
-            .collect(Collectors.joining(" ", "[", "]")));
+        .filter(Objects::nonNull)
+        .map(Op::toString)
+        .collect(Collectors.joining(" ", "[", "]")));
     return result.toString();
   }
 }

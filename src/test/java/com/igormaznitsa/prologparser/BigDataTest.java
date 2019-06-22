@@ -13,87 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
+import org.junit.jupiter.api.Test;
+
 import java.io.InputStreamReader;
+
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Test;
 
 class BigDataTest extends AbstractIntegrationTest {
 
-    @Test
-    public void testBigSource_ClausesSplitted() {
-        final int CLAUSES = 1000;
-        assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+  @Test
+  public void testBigSource_ClausesSplitted() {
+    final int CLAUSES = 1000;
+    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+  }
+
+  @Test
+  public void testBigSource_ClausesNotSplitted() {
+    final int CLAUSES = 1000;
+    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+  }
+
+
+  @Test
+  void testVeryLongStructure() {
+    final int ELEMENTS = 100_000;
+
+    final StringBuilder buffer = new StringBuilder(ELEMENTS);
+    buffer.append("test(");
+    boolean nonfirst = false;
+    for (int i = 0; i < ELEMENTS; i++) {
+      if (nonfirst) {
+        buffer.append(',');
+      } else {
+        nonfirst = true;
+      }
+      buffer.append(i - 100);
+    }
+    buffer.append(").");
+
+    PrologStruct struct = (PrologStruct) parseEd(buffer.toString()).next();
+
+    assertEquals(ELEMENTS, struct.getArity());
+    assertEquals("test", struct.getFunctor().getText());
+    for (int i = 0; i < ELEMENTS; i++) {
+      assertEquals(i - 100, ((PrologInt) struct.getTermAt(i)).getNumber().intValue());
+    }
+  }
+
+  @Test
+  void testVeryLongList() {
+    final int ELEMENTS = 100_000;
+
+    final StringBuilder buffer = new StringBuilder(ELEMENTS);
+
+    buffer.append('[');
+    boolean nonFirst = false;
+
+    for (int i = 0; i < ELEMENTS; i++) {
+      if (nonFirst) {
+        buffer.append(',');
+      } else {
+        nonFirst = true;
+      }
+      buffer.append(i);
+    }
+    buffer.append("].");
+
+    PrologList list = (PrologList) parseEd(buffer.toString()).next();
+
+    for (int i = 0; i < ELEMENTS; i++) {
+      final PrologInt head = (PrologInt) list.getHead();
+      assertEquals(i, head.getNumber().intValue());
+      list = (PrologList) list.getTail();
     }
 
-    @Test
-    public void testBigSource_ClausesNotSplitted() {
-        final int CLAUSES = 1000;
-        assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
-    }
-
-
-    @Test
-    void testVeryLongStructure() {
-        final int ELEMENTS = 100_000;
-
-        final StringBuilder buffer = new StringBuilder(ELEMENTS);
-        buffer.append("test(");
-        boolean nonfirst = false;
-        for (int i = 0; i < ELEMENTS; i++) {
-            if (nonfirst) {
-                buffer.append(',');
-            } else {
-                nonfirst = true;
-            }
-            buffer.append(i - 100);
-        }
-        buffer.append(").");
-
-        PrologStruct struct = (PrologStruct) parseEd(buffer.toString()).next();
-
-        assertEquals(ELEMENTS, struct.getArity());
-        assertEquals("test", struct.getFunctor().getText());
-        for (int i = 0; i < ELEMENTS; i++) {
-            assertEquals(i - 100, ((PrologInt) struct.getTermAt(i)).getNumber().intValue());
-        }
-    }
-
-    @Test
-    void testVeryLongList() {
-        final int ELEMENTS = 100_000;
-
-        final StringBuilder buffer = new StringBuilder(ELEMENTS);
-
-        buffer.append('[');
-        boolean nonFirst = false;
-
-        for (int i = 0; i < ELEMENTS; i++) {
-            if (nonFirst) {
-                buffer.append(',');
-            } else {
-                nonFirst = true;
-            }
-            buffer.append(i);
-        }
-        buffer.append("].");
-
-        PrologList list = (PrologList) parseEd(buffer.toString()).next();
-
-        for (int i = 0; i < ELEMENTS; i++) {
-            final PrologInt head = (PrologInt) list.getHead();
-            assertEquals(i, head.getNumber().intValue());
-            list = (PrologList) list.getTail();
-        }
-
-        assertTrue(list.isEmpty());
-    }
+    assertTrue(list.isEmpty());
+  }
 
 }

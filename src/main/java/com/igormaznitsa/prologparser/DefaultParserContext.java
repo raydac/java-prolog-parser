@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.OpContainer;
@@ -85,18 +86,18 @@ public class DefaultParserContext implements ParserContext {
 
   public DefaultParserContext addOps(final Op... operators) {
     Stream.of(operators)
-            .filter(Objects::nonNull)
-            .flatMap(Op::streamOp)
-            .forEach(x -> {
-              fillPrefixes(x.getText());
-              OpContainer container = this.opContainers.get(x.getText());
-              if (container == null) {
-                container = OpContainer.make(x);
-                this.opContainers.put(x.getText(), container);
-              } else {
-                container.add(x);
-              }
-            });
+        .filter(Objects::nonNull)
+        .flatMap(Op::streamOp)
+        .forEach(x -> {
+          fillPrefixes(x.getText());
+          OpContainer container = this.opContainers.get(x.getText());
+          if (container == null) {
+            container = OpContainer.make(x);
+            this.opContainers.put(x.getText(), container);
+          } else {
+            container.add(x);
+          }
+        });
     return this;
   }
 

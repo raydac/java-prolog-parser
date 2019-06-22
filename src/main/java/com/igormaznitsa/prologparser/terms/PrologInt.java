@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
 import static com.igormaznitsa.prologparser.utils.AssertUtils.assertStringNotNullAndNotEmpty;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Representation of integer numeric term.
@@ -65,12 +65,12 @@ public final class PrologInt extends PrologNumeric {
 
   public PrologInt(final BigInteger value) {
     super();
-    this.value = assertNotNull(value);
+    this.value = requireNonNull(value);
   }
 
   public PrologInt(final BigInteger value, final int line, final int pos) {
     super(line, pos);
-    this.value = assertNotNull(value);
+    this.value = requireNonNull(value);
   }
 
   private static BigInteger valueOf(final String text) {
@@ -112,6 +112,7 @@ public final class PrologInt extends PrologNumeric {
 
   /**
    * Get the value as BigInteger
+   *
    * @return the value as BigInteger
    */
   public BigInteger getIntValue() {

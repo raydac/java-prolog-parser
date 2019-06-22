@@ -18,6 +18,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.terms.TermType.LIST;
-import static com.igormaznitsa.prologparser.utils.AssertUtils.assertNotNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Representation of prolog structure.
@@ -50,13 +51,13 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   public PrologStruct(final PrologTerm functor, final PrologTerm[] elements) {
     super(functor.getText());
     this.functor = assertFunctor(functor);
-    this.elements = assertNotNull(elements.clone());
+    this.elements = requireNonNull(elements.clone());
   }
 
   public PrologStruct(
-          final PrologTerm functor,
-          final PrologTerm[] elements,
-          final int line, final int pos
+      final PrologTerm functor,
+      final PrologTerm[] elements,
+      final int line, final int pos
   ) {
     this(functor, elements);
     setPos(pos);
@@ -131,14 +132,14 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
    * Set element for its position.
    *
    * @param index zero based index
-   * @param term term to set to position
+   * @param term  term to set to position
    * @throws ArrayIndexOutOfBoundsException if wrong index
    */
   public void setElementAt(final int index, final PrologTerm term) {
     if (index < 0 || index >= getArity()) {
       throw new ArrayIndexOutOfBoundsException(index);
     }
-    this.elements[index] = assertNotNull(term);
+    this.elements[index] = requireNonNull(term);
   }
 
   @Override
@@ -168,7 +169,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   @Override
   public boolean isAnyBlock() {
     return this.functor == Op.VIRTUAL_OPERATOR_BLOCK
-            || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
+        || this.functor == Op.VIRTUAL_OPERATOR_CURLY_BLOCK;
   }
 
   @Override
@@ -274,7 +275,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
             builder.append(' ').append(opName).append(' ');
 
-            if (arg2.getPrecedence() >= functorPrecedence) {
+            if (requireNonNull(arg2).getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text2).append(')');
             } else {
               builder.append(text2);
@@ -290,7 +291,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
             builder.append(' ').append(opName).append(' ');
 
-            if (arg2.getPrecedence() >= functorPrecedence) {
+            if (requireNonNull(arg2).getPrecedence() >= functorPrecedence) {
               builder.append('(').append(text2).append(')');
             } else {
               builder.append(text2);
@@ -306,7 +307,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
             builder.append(' ').append(opName).append(' ');
 
-            if (arg2.getPrecedence() > functorPrecedence) {
+            if (requireNonNull(arg2).getPrecedence() > functorPrecedence) {
               builder.append('(').append(text2).append(')');
             } else {
               builder.append(text2);
@@ -356,10 +357,10 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   @Override
   public Stream<PrologTerm> stream() {
     return StreamSupport.stream(
-            Spliterators.spliterator(
-                    this.elements,
-                    Spliterator.ORDERED | Spliterator.NONNULL
-            ), false);
+        Spliterators.spliterator(
+            this.elements,
+            Spliterator.ORDERED | Spliterator.NONNULL
+        ), false);
   }
 
   @Override

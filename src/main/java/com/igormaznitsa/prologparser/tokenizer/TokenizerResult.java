@@ -18,10 +18,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.tokenizer;
 
 import com.igormaznitsa.prologparser.terms.PrologTerm;
-import com.igormaznitsa.prologparser.utils.AssertUtils;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Internal object representing tokenizer result.
@@ -34,13 +36,13 @@ public final class TokenizerResult {
   private final int line;
 
   TokenizerResult(
-          final PrologTerm term,
-          final TokenizerState parserState,
-          final int line,
-          final int pos
+      final PrologTerm term,
+      final TokenizerState parserState,
+      final int line,
+      final int pos
   ) {
-    this.resultTerm = AssertUtils.assertNotNull(term);
-    this.parserState = AssertUtils.assertNotNull(parserState);
+    this.resultTerm = requireNonNull(term);
+    this.parserState = requireNonNull(parserState);
     this.pos = pos;
     this.line = line;
   }

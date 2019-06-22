@@ -49,10 +49,10 @@ public class TokenizerTest {
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
     return new Tokenizer(
-            new GenericPrologParser(new StringReader(str),
-                    new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).addOps(Op.SWI), context)),
-            PrologParser.findMetaOps(),
-            new StringReader(str));
+        new GenericPrologParser(new StringReader(str),
+            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).addOps(Op.SWI), context)),
+        PrologParser.findMetaOps(),
+        new StringReader(str));
   }
 
   @Test

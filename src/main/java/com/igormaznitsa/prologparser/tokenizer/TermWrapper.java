@@ -18,11 +18,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package com.igormaznitsa.prologparser.tokenizer;
 
+import com.igormaznitsa.prologparser.terms.InternalSpecialCompoundTerm;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
-import com.igormaznitsa.prologparser.terms.InternalSpecialCompoundTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 
 /**
