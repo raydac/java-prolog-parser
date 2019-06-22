@@ -75,6 +75,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK;
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK_CURLY;
 
+  private volatile boolean autoCloseReaderFlag;
+
   static {
     META_OP_MAP = ofOps();
 
@@ -104,6 +106,11 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
     this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
+  }
+
+  public PrologParser autoCloseReader(){
+    this.autoCloseReaderFlag = true;
+    return this;
   }
 
   public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
@@ -612,6 +619,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   @Override
   public void close() throws IOException {
-    this.tokenizer.close();
+    this.tokenizer.close(this.autoCloseReaderFlag);
   }
 }

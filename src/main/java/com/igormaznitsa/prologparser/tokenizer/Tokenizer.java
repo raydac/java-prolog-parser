@@ -37,6 +37,7 @@ import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import com.igormaznitsa.prologparser.utils.StringUtils;
 
 import java.io.IOException;
+import java.io.PushbackReader;
 import java.io.Reader;
 import java.math.BigInteger;
 
@@ -166,10 +167,21 @@ public final class Tokenizer {
     }
   }
 
-  public void close() throws IOException {
+  public void close(final boolean closeReader) throws IOException {
     this.lastPushedTerm = null;
-    this.strBuf.clear();
-    this.reader.close();
+    try {
+      if (this.reader instanceof PushbackReader) {
+        final PushbackReader pbReader = (PushbackReader) this.reader;
+        while (!this.strBuf.isEmpty()) {
+          pbReader.unread(this.strBuf.pop());
+        }
+      }
+    } finally {
+      this.strBuf.clear();
+      if (closeReader) {
+        this.reader.close();
+      }
+    }
   }
 
   public boolean hasOperatorStartsWith(final String operatorNameStartSubstring) {
