@@ -27,7 +27,6 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
-import com.igormaznitsa.prologparser.utils.AssertUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,9 +220,7 @@ public final class Op extends PrologTerm {
   }
 
   private static String assertOpValidOpName(final String name) {
-    AssertUtils.assertStringNotNullAndNotEmpty(name);
-
-    final char firstChar = name.charAt(0);
+    final char firstChar = assertNonEmptyString(name).charAt(0);
 
     if (Character.isWhitespace(firstChar) || Character.isISOControl(firstChar)) {
       throw new IllegalArgumentException("Space char as first one");

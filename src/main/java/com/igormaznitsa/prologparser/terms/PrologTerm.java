@@ -26,6 +26,7 @@ import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
@@ -85,6 +86,13 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       }
     }
     return result;
+  }
+
+  protected static String assertNonEmptyString(final String str) {
+    if (Objects.requireNonNull(str).isEmpty()) {
+      throw new IllegalArgumentException("Expected non-empty string");
+    }
+    return str;
   }
 
   /**

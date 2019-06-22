@@ -21,8 +21,6 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.AssertUtils;
-
 /**
  * Representation of prolog variable.
  */
@@ -46,7 +44,7 @@ public final class PrologVar extends PrologTerm {
   public PrologVar(final String text) {
     super(text, Quotation.NONE);
 
-    final char startWith = AssertUtils.assertStringNotNullAndNotEmpty(text).charAt(0);
+    final char startWith = assertNonEmptyString(text).charAt(0);
 
     if (!Character.isUpperCase(startWith) && startWith != '_') {
       throw new IllegalArgumentException("Var must start with upper case char or '_' [" + text + ']');

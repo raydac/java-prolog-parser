@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static com.igormaznitsa.prologparser.utils.AssertUtils.assertStringNotNullAndNotEmpty;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -74,9 +73,8 @@ public final class PrologInt extends PrologNumeric {
   }
 
   private static BigInteger valueOf(final String text) {
-    assertStringNotNullAndNotEmpty(text);
     BigInteger result = null;
-    if (text.charAt(0) == '-') {
+    if (assertNonEmptyString(text).charAt(0) == '-') {
       if (text.length() < 4) {
         result = cachedValues.get(text);
       }
