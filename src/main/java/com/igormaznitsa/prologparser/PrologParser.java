@@ -50,6 +50,8 @@ import java.util.stream.StreamSupport;
 
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.*;
+import static com.igormaznitsa.prologparser.tokenizer.Op.METAOPERATOR_COMMA;
+import static com.igormaznitsa.prologparser.tokenizer.Op.METAOPERATOR_VERTICAL_BAR;
 import static com.igormaznitsa.prologparser.utils.Koi7CharOpMap.ofOps;
 import static java.util.Objects.requireNonNull;
 
@@ -88,7 +90,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     META_OP_MAP.add(Op.METAOPERATOR_LEFT_SQUARE_BRACKET);
     OPERATOR_RIGHTSQUAREBRACKET = META_OP_MAP.add(Op.METAOPERATOR_RIGHT_SQUARE_BRACKET);
     OPERATOR_VERTICALBAR = META_OP_MAP.add(Op.METAOPERATOR_VERTICAL_BAR);
-    OPERATOR_COMMA = META_OP_MAP.add(Op.METAOPERATOR_COMMA);
+    OPERATOR_COMMA = META_OP_MAP.add(METAOPERATOR_COMMA);
 
     OPERATORS_PHRASE = ofOps(OPERATOR_DOT);
     OPERATORS_INSIDE_LIST = ofOps(OPERATOR_COMMA, OPERATOR_RIGHTSQUAREBRACKET, OPERATOR_VERTICALBAR);
@@ -108,7 +110,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
   }
 
-  public PrologParser autoCloseReader(){
+  public PrologParser autoCloseReader() {
     this.autoCloseReaderFlag = true;
     return this;
   }
@@ -302,9 +304,21 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
       if (rightPart == null) {
         throw new PrologParserException("There is not any term as the tail at the list", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
-      if (rightPart.getType() == TermType.ATOM && rightPart.getQuotation() == Quotation.NONE && ",".equals(rightPart.getText())) {
+
+      if (rightPart.getType() == TermType.STRUCT
+          && (rightPart.getFunctor() == METAOPERATOR_COMMA
+          || rightPart.getFunctor() == METAOPERATOR_VERTICAL_BAR)
+      ) {
+        throw new PrologParserException("Unexpected comma or bar in rest of list", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
+      }
+
+      if (rightPart.getType() == TermType.ATOM
+          && rightPart.getQuotation() == Quotation.NONE
+          && ",".equals(rightPart.getText())
+      ) {
         throw new PrologParserException("Comma operator in list tail", this.tokenizer.getLastTokenLine(), this.tokenizer.getLastTokenPos());
       }
+
       leftPartFirst.replaceEndListElement(rightPart);
     }
     return leftPartFirst;

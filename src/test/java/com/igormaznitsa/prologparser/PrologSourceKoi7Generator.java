@@ -181,7 +181,7 @@ public final class PrologSourceKoi7Generator extends InputStream {
     for (int i = 0; i < len; i++) {
       if (i != 0) {
         if (i < len - 1 && !tailAdded && this.rnd.nextInt(10) > 8) {
-          builder.append('|');
+          builder.append("|(");
           tailAdded = true;
         } else {
           builder.append(',');
@@ -192,7 +192,7 @@ public final class PrologSourceKoi7Generator extends InputStream {
     }
 
 
-    builder.append(']');
+    builder.append(tailAdded ? ")]" : "]");
     return builder.toString();
   }
 

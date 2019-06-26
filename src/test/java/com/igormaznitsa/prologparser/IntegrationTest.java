@@ -352,6 +352,12 @@ public class IntegrationTest extends AbstractIntegrationTest {
 
   @Test
   public void testParseList() {
+    assertThrows(PrologParserException.class, ()->parseEd("[1,2|3,4].").next());
+    assertThrows(PrologParserException.class, ()->parseEd("[1,2|3,4,5].").next());
+    assertThrows(PrologParserException.class, ()->parseEd("[1,2|3|4].").next());
+    assertThrows(PrologParserException.class, ()->parseEd("[1,2||4].").next());
+    assertThrows(PrologParserException.class, ()->parseEd("[|4].").next());
+
     PrologList list = (PrologList) parseEd("[].").next();
     assertEquals(TermType.LIST, list.getType());
     assertEquals(PrologList.class, list.getClass());
