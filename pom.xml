@@ -7,7 +7,7 @@
     <version>2.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Edinburg Prolog Parser</name>
+    <name>Edinburgh Prolog parser</name>
     <description>It is a hand-written prolog parser, it allows to parse prolog sources written in Edinburgh Prolog style</description>
     <url>https://github.com/raydac/java-prolog-parser</url>
 
