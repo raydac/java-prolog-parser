@@ -17,6 +17,17 @@ It supports
  - underline splitted numbers
  - curly blocks
 
+# Maven dependency
+
+It is a library without 3th side dependencies, it is published im the Maven central and can be added into project just with:
+```
+<dependency>
+    <groupId>com.igormaznitsa</groupId>
+    <artifactId>java-prolog-parser</artifactId>
+    <version>2.0.1</version>
+</dependency>
+```
+
 # How to use?
 Parser implements stream which sequentially reads prolog terms from reader. By default PrologParser is abstract class but there is GenericPrologParser class provides minimalistic implementation.
 ```
