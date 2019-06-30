@@ -241,7 +241,7 @@ public final class Op extends PrologTerm {
    * Make operator descriptor describing bunch of operators with same
    * characteristics but differently named.
    *
-   * @param precedence the pricedence
+   * @param precedence the precedence
    * @param type       the type of operators
    * @param names      names of operators, must not be empty or contain null
    * @return generated operator descriptor

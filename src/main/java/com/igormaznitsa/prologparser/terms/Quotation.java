@@ -23,6 +23,8 @@ package com.igormaznitsa.prologparser.terms;
 
 import com.igormaznitsa.prologparser.utils.StringUtils;
 
+import static com.igormaznitsa.prologparser.utils.StringUtils.escapeString;
+
 /**
  * Type of quotation for prolog term.
  */
@@ -63,12 +65,12 @@ public enum Quotation {
   }
 
   /**
-   * Quotate string.
+   * Quote string.
    *
-   * @param str string to quotate, can be null
-   * @return quotated string
+   * @param str string to be quoted, can be null
+   * @return quoted string
    */
-  public String quotateString(final String str) {
-    return this.quotationMark + StringUtils.escapeString(str == null ? "" : str, this) + this.quotationMark;
+  public String quoteString(final String str) {
+    return this.quotationMark + escapeString(str == null ? "" : str, this) + this.quotationMark;
   }
 }

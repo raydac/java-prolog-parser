@@ -203,7 +203,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
     if (this.quotation == NONE) {
       result = this.text;
     } else {
-      result = this.quotation.quotateString(this.text);
+      result = this.quotation.quoteString(this.text);
     }
     return result;
   }

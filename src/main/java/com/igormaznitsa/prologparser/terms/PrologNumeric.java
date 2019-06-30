@@ -37,7 +37,7 @@ public abstract class PrologNumeric extends PrologTerm {
   }
 
   /**
-   * Get numeric repreentation of the saved number.
+   * Get numeric representation of the saved number.
    *
    * @return the saved number
    */
