@@ -24,7 +24,7 @@ It is a library without 3th side dependencies, it is published im the Maven cent
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>java-prolog-parser</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -46,6 +46,7 @@ The parser supports
 
 Supported quotations:
  - single quote `'`
+ - special flag turns on whitespace support in single quote mode
  - double quote `"`
  - back tick
  
