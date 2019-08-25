@@ -56,6 +56,13 @@ abstract class AbstractIntegrationTest {
     return parseEd(str, parserContext);
   }
 
+  public PrologParser parseEd(final String str, final int parseFlags) {
+    final ParserContext parserContext = mock(ParserContext.class);
+    when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
+    when(parserContext.getFlags()).thenReturn(parseFlags);
+    return parseEd(str, parserContext);
+  }
+
   public PrologParser parseEd(final String str, final ParserContext context) {
     return parseEd(new StringReader(str), context);
   }
@@ -84,7 +91,7 @@ abstract class AbstractIntegrationTest {
   }
 
   public void assertReadTerms(final int expected, final String resource, final Op... ops) {
-    final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS, ops);
+    final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE | ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR, ops);
     try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
       final PrologParser parser = parseEd(reader, defaultContext);
       assertEquals(expected, parser.stream().count());

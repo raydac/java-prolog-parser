@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 public class IntegrationTest extends AbstractIntegrationTest {
 
   @Test
-  public void testReadingClausesTokensAndCharsFromSameParser() throws IOException {
+  void testReadingClausesTokensAndCharsFromSameParser() throws IOException {
     final PrologParser parser = parseEd("lsome(a). alone. next(b).c");
     assertTrue(parser.hasNext());
     final PrologTerm term1 = parser.next();
@@ -64,7 +64,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testEmptyAndNonClause() {
+  void testEmptyAndNonClause() {
     assertThrows(NoSuchElementException.class, () -> parseEd("").next());
     assertThrows(NoSuchElementException.class, () -> parseEd(".").next());
     assertThrows(PrologParserException.class, () -> parseEd("ab").next());
@@ -72,7 +72,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testDot2StructAsList() {
+  void testDot2StructAsList() {
     assertEquals("'.'(a, [])", parseGen("'.'(a,[]).").next().toString());
     assertEquals("'.'(a, X)", parseGen("'.'(a,X).").next().toString());
     assertEquals("'.'(a, b)", parseGen("'.'(a,b).").next().toString());
@@ -86,7 +86,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testSwiCpl() {
+  void testSwiCpl() {
     assertEquals("X in 5 .. 10 , 5 , Y #=< X + -1 , 6 , Y in 4 .. 8", parseCpl("X in 5..10,5,Y#=<X+ -1,6,Y in 4..8.").next().toString());
     assertEquals("#\\ X", parseCpl("#\\X.").next().toString());
     assertEquals("M #\\= 0 , S #\\= 0", parseCpl("M #\\= 0, S #\\= 0.").next().toString());
@@ -101,7 +101,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseStringWithSpecialChars() {
+  void testParseStringWithSpecialChars() {
     final PrologParser parser = parseEd("'0\\'a Hello\\\nWorld\u0021\\r'.\"0'a \\xFF\\Another String\".");
     PrologTerm term = parser.next();
 
@@ -128,7 +128,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseZeroSingleQuoteChar() {
+  void testParseZeroSingleQuoteChar() {
     assertPrologInteger('a', "0'a.");
     assertPrologInteger(' ', "0'\\s.");
     assertPrologInteger('\u1234', "0'\\u1234.");
@@ -140,7 +140,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testVariableMustBeNotEqualAtClauseBounds() {
+  void testVariableMustBeNotEqualAtClauseBounds() {
     PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,_,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,_,_).").next();
 
     final Set<PrologVar> varSet = new HashSet<>();
@@ -154,7 +154,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testVariablesAtClauseBounds() {
+  void testVariablesAtClauseBounds() {
     PrologStruct structure = (PrologStruct) parseEd("test(A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C,A,B,C).").next();
 
     final PrologVar varA = (PrologVar) structure.getTermAt(0);
@@ -177,7 +177,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testEndOfStream() {
+  void testEndOfStream() {
     final PrologParser parser = parseEd("hello.world.");
     PrologTerm term = parser.next();
 
@@ -196,7 +196,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testErrorListDefinitions() {
+  void testErrorListDefinitions() {
     checkWrongClauseReadingWithPPE(" [,].", 3);
     checkWrongClauseReadingWithPPE(" [|].", 2);
     checkWrongClauseReadingWithPPE(" [345|].", 7);
@@ -207,7 +207,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testQuoting_Wrong() {
+  void testQuoting_Wrong() {
     checkWrongClauseReadingWithPPE("\"abc'.", 1);
     checkWrongClauseReadingWithPPE("'abc\".", 1);
     checkWrongClauseReadingWithPPE("`abc\".", 1);
@@ -215,7 +215,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testQuoting() {
+  void testQuoting() {
     checkParseAtomQuoting("test.", "test", NONE);
     checkParseAtomQuoting("\'t\"es`t\'.", "'t\"es`t'", SINGLE);
     checkParseAtomQuoting("`t'\\`e\'s\"t`.", "`t'\\`e's\"t`", BACK_TICK);
@@ -238,7 +238,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseAtom() {
+  void testParseAtom() {
     checkParseAtomWithoutPPE("a", "a");
     checkParseAtomWithoutPPE("test012", "test012");
     checkParseAtomWithoutPPE("x______y", "x______y");
@@ -252,7 +252,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseInteger() {
+  void testParseInteger() {
     assertThrows(PrologParserException.class, () -> parseEd("1_000_/*more*/000").next());
     checkIntegerWithoutPPE("-17", -17);
     checkIntegerWithoutPPE("0", 0);
@@ -278,7 +278,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseFloat() {
+  void testParseFloat() {
     checkFloatWithoutPPE(new BigDecimal(Math.PI, PrologFloat.MATH_CONTEXT).toEngineeringString(), Math.PI);
     checkFloatWithoutPPE("-2.67e+021", -2.67e+021);
     checkFloatWithoutPPE("-0.0035", -0.0035d);
@@ -291,7 +291,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseVariable() {
+  void testParseVariable() {
     PrologTerm var = parseEd("X.").next();
     assertEquals(TermType.VAR, var.getType());
     assertEquals(PrologVar.class, var.getClass());
@@ -329,7 +329,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseStructure() {
+  void testParseStructure() {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     PrologParser parser = parseEd("date(Day,may,2001).", mockContext);
@@ -351,7 +351,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseList() {
+  void testParseList() {
     assertThrows(PrologParserException.class, ()->parseEd("[1,2|3,4].").next());
     assertThrows(PrologParserException.class, ()->parseEd("[1,2|3,4,5].").next());
     assertThrows(PrologParserException.class, ()->parseEd("[1,2|3|4].").next());
@@ -389,7 +389,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseOperator() {
+  void testParseOperator() {
     final ParserContext mockContext = mock(ParserContext.class);
     when(mockContext.getMaxTokenizerBufferLength()).thenReturn(1024);
     PrologParser parser = parseEd("hello:-world.", mockContext);
@@ -443,7 +443,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testComments() {
+  void testComments() {
     final PrologParser parser = parseEd("  %   zero line %%%% misc%%%% \n%first line\n%second line\n\nhello:-world.%test\n:-test.");
     PrologTerm term = parser.next();
     PrologTerm term2 = parser.next();
@@ -455,7 +455,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testSimilarOperatorInterpretation() {
+  void testSimilarOperatorInterpretation() {
     final Map<String, OpContainer> operators = new HashMap<>();
     final Op firstOperator = Op.make(100, OpAssoc.FY, "++++++");
     final Op secondOperator = Op.make(100, OpAssoc.FY, "+++");
@@ -475,7 +475,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorHierarchy() {
+  void testOperatorHierarchy() {
     final Map<String, OpContainer> operators = new HashMap<>();
 
     final StubContext contextStub = new StubContext(operators);
@@ -553,7 +553,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCurlyBracket() {
+  void testCurlyBracket() {
     assertEquals("{1 , 2 , 3 , 4 , 5}", new GenericPrologParser(new StringReader("{1,2,3,4,5}."), of(FLAG_CURLY_BRACKETS)).next().toString());
     assertEquals("{1 , {2 , {3 , {4} , 5}}}", new GenericPrologParser(new StringReader("{1,{2,{3,{4},5}}}."), of(FLAG_CURLY_BRACKETS)).next().toString());
     assertEquals("[1, {2 , 3}|X]", new GenericPrologParser(new StringReader("[1,{2,3}|X]."), of(FLAG_CURLY_BRACKETS)).next().toString());
@@ -563,7 +563,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorExamplesFromSictusManual() {
+  void testOperatorExamplesFromSictusManual() {
     final ParserContext sictusContext = makeSictusContext();
 
     PrologParser parser = new GenericPrologParser(new StringReader(":-(p;q),r."), sictusContext);
@@ -585,7 +585,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseSictusBench() {
+  void testParseSictusBench() {
     assertReadSictusTerms(136, "boyer.pl");
     assertReadSictusTerms(29, "browse.pl");
     assertReadSictusTerms(518, "chat_parser.pl");
@@ -617,7 +617,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testParseSourceFiles() {
+  void testParseSourceFiles() {
     assertReadTerms(17, "calc.p");
     assertReadTerms(23, "tictac.p");
     assertReadTerms(33, "poly.p");
@@ -686,12 +686,12 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorLooksAsAtomAndPartOfAtom() {
+  void testOperatorLooksAsAtomAndPartOfAtom() {
     assertEquals("module", parseEd("module.").next().getText());
   }
 
   @Test
-  public void testStreamPositionForTerms() {
+  void testStreamPositionForTerms() {
     PrologTerm atom = parseEd("\n     'hello'.").next();
     assertEquals(6, atom.getPos());
     assertEquals(2, atom.getLine());
@@ -757,7 +757,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPairOperatorsWithoutWhitespaces() {
+  void testPairOperatorsWithoutWhitespaces() {
     final PrologParser parser = parseEd("a=..b.a..b.", of(FLAG_NONE, Op.SWI_CPL));
     assertZFZOperatorStruct("=..", parser.next());
     assertZFZOperatorStruct("..", parser.next());
@@ -765,7 +765,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testSingleOperatorAsAtom() {
+  void testSingleOperatorAsAtom() {
     final PrologStruct structure = (PrologStruct) parseEd("not/stream.").next();
     assertZFZOperatorStruct("/", structure);
     assertEquals(ATOM, structure.getTermAt(0).getType());
@@ -775,7 +775,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testRecognizingUserOperatorsWhichSimilarMetaOperators() {
+  void testRecognizingUserOperatorsWhichSimilarMetaOperators() {
     final Map<String, OpContainer> operators = new HashMap<>();
     operators.put("(((", make(Op.make(1, OpAssoc.FX, "(((")));
     operators.put("...", make(Op.make(1200, XF, "...")));
@@ -788,7 +788,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorNameAsAtomicFunctor() {
+  void testOperatorNameAsAtomicFunctor() {
     final PrologStruct structure = (PrologStruct) parseEd("'mod'(_,_,_,_).").next();
     assertEquals("mod", structure.getFunctor().getText());
     assertNotSame(structure.getFunctor().getType(), TermType.OPERATOR);
@@ -796,21 +796,21 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorNameAsFunctor_EmptyBrackets() {
+  void testOperatorNameAsFunctor_EmptyBrackets() {
     final PrologParserException ex = assertThrows(PrologParserException.class, () -> parseEd("+().").next());
     assertEquals(2, ex.getPos());
     assertEquals(1, ex.getLine());
   }
 
   @Test
-  public void testAtomAsFunctor_EmptyBrackets() {
+  void testAtomAsFunctor_EmptyBrackets() {
     final PrologParserException ex = assertThrows(PrologParserException.class, () -> parseEd("'hello'().").next());
     assertEquals(8, ex.getPos());
     assertEquals(1, ex.getLine());
   }
 
   @Test
-  public void testAtomInSequenceWithNameSimilarOperator() {
+  void testAtomInSequenceWithNameSimilarOperator() {
     final PrologStruct structure = (PrologStruct) parseEd("functor(1,2,3,'mod',5,6).").next();
     assertEquals(6, structure.getArity());
     assertEquals("1", structure.getTermAt(0).getText());
@@ -822,14 +822,14 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testHelloWorld() {
+  void testHelloWorld() {
     final PrologStruct rule = (PrologStruct) parseEd("hello :- world,!.").next();
     final PrologStruct and = (PrologStruct) rule.getTermAt(1);
     assertEquals("hello world!", rule.getTermAt(0).getText() + ' ' + and.getTermAt(0).getText() + and.getTermAt(1).getText());
   }
 
   @Test
-  public void testParserStream() {
+  void testParserStream() {
     PrologParser parser = parseEd("z(some).a(X):-[X].b('\\'hello world\\'').list([_|Tail]) :- list(Tail).");
     final String joined = parser.stream().map(PrologTerm::toString).collect(joining(". ", "", "."));
     parser = parseEd(joined);
@@ -838,7 +838,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testStructStream() {
+  void testStructStream() {
     PrologParser parser = parseEd("s(1,2,3,4,5,6,7,8).");
     assertEquals("1\n"
         + "2\n"
@@ -851,7 +851,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testListStream() {
+  void testListStream() {
     PrologParser parser = parseEd("[1,2,3,4,5,6,7,8|_].");
     assertEquals("1\n"
         + "2\n"
@@ -865,7 +865,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testTermStreamFlat() {
+  void testTermStreamFlat() {
     PrologParser parser = parseEd("some(hello,world,[1,2,3|X],end).");
     final String joined = parser.stream()
         .flatMap(PrologTerm::stream)
@@ -887,7 +887,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testStringWithIsoControl() {
+  void testStringWithIsoControl() {
     assertEquals("[97, 98, 99]", parseIso("[0'a,0'b,0'c].").next().toString());
     assertEquals("\u0007\b\f\n\r\t\u000B#\u0013\\\'\"`", parseIso("'\\a\\b\\f\\n\\r\\t\\v\\x23\\\\23\\\\\\\\\'\\\"\\`'.").next().getText());
     assertThrows(PrologParserException.class, () -> parseEd("'hello\u0000world'.").next());
@@ -896,7 +896,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testSignedNumerics_EdingburghParser() {
+  void testSignedNumerics_EdingburghParser() {
     assertEquals(-1, ((PrologNumeric) parseEd("-1.").next()).getNumber().intValue());
     assertEquals(-1.1f, ((PrologNumeric) parseEd("-1.1.").next()).getNumber().floatValue(), Float.MIN_NORMAL);
     assertEquals(1, ((PrologNumeric) parseEd("1.").next()).getNumber().intValue());
@@ -904,7 +904,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testSignedNumerics_GenericParser() {
+  void testSignedNumerics_GenericParser() {
     assertThrows(PrologParserException.class, () -> parseGen("-1.").next());
     assertThrows(PrologParserException.class, () -> parseGen("+1.").next());
     assertThrows(PrologParserException.class, () -> parseGen("-1.1.").next());
@@ -920,7 +920,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testMisc() {
+  void testMisc() {
     assertNotNull(parseEd("''(123_345)**[].").next());
     assertEquals("'+'", parseEd("+.").next().toString());
     assertEquals("some(a, '+', b)", parseEd("some(a,+,b).").next().toString());
@@ -928,7 +928,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testNonCompletedClause() {
+  void testNonCompletedClause() {
     assertThrows(PrologParserException.class, () -> parseEd("a").next());
     assertThrows(PrologParserException.class, () -> parseEd("123").next());
     assertThrows(PrologParserException.class, () -> parseEd("\"dsdsd\"").next());
@@ -940,7 +940,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorAsFunctor() {
+  void testOperatorAsFunctor() {
     assertOperatorAsFunctor("1 + 2", parseEd("+(1,2).").next());
     assertOperatorAsFunctor("+ 1", parseEd("+(1).").next());
     assertOperatorAsFunctor("1 + 2 + 3", parseEd("+(1,2)+3.").next());
@@ -953,7 +953,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testPairOfOperatorsWithIncompatiblePrecedence() {
+  void testPairOfOperatorsWithIncompatiblePrecedence() {
     assertEquals("- ((discontiguous))", parseEd("-discontiguous.").next().toString());
     assertEquals("aab", parseEd("aab.", DefaultParserContext.of(FLAG_NONE, Op.make(400, XF, "aabc"))).next().toString());
     assertEquals("1 - - -1", parseEd("1---1.").next().toString());
@@ -969,7 +969,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOperatorAsFunctorWithUnsupportedArity() {
+  void testOperatorAsFunctorWithUnsupportedArity() {
     assertEquals("':'(1, 2, 3)", parseEd(":(1,2,3).").next().toString());
     assertEquals("+ (1 , 2 , 3)", parseEd("+(1,2,3).").next().toString());
     assertEquals("':'(1, (2 , 3), 4)", parseEd(":(1,(2,3),4).").next().toString());
@@ -977,7 +977,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testBlockWithOperators() {
+  void testBlockWithOperators() {
     assertOperatorAsFunctor("+some.", "+", FY, 1, "+ some");
     assertOperatorAsFunctor("+(!,fail).", "+", YFX, 2, "'!' + fail");
     assertOperatorAsFunctor("+((!,fail)).", "+", FY, 1, "+ (('!' , fail))");
@@ -985,7 +985,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testBlock() {
+  void testBlock() {
     assertEquals("(1)", parseEd("(1).").next().toString());
     assertEquals("(1 , 2)", parseEd("(1,2).").next().toString());
     assertEquals("(1 - 2)", parseEd("(1-2).").next().toString());
@@ -1000,14 +1000,14 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testAloneOperatorAsAtom() {
+  void testAloneOperatorAsAtom() {
     assertEquals(TermType.ATOM, parseEd("/.").next().getType());
     assertEquals(TermType.ATOM, parseEd("-.").next().getType());
     assertEquals(TermType.ATOM, parseEd("+.").next().getType());
   }
 
   @Test
-  public void testUnexpectedlyEndedReadStream() {
+  void testUnexpectedlyEndedReadStream() {
     final Random rnd = new Random(12345);
 
     final AtomicInteger completedClauseCounter = new AtomicInteger();
@@ -1035,7 +1035,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testNonLatinChars() {
+  void testNonLatinChars() {
     assertEquals("Ы is П + Ш", parseEd("Ы is П + Ш.").next().toString());
     assertEquals("Привет123", parseEd("Привет123.").next().toString());
     assertThrows(PrologParserException.class, () -> parseEd("Привет123(a).").next().toString());
@@ -1044,7 +1044,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testVarAsFunctor() {
+  void testVarAsFunctor() {
     assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("X(a)."), DefaultParserContext.of(FLAG_NONE)).next());
 
     final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("X(a)."), DefaultParserContext.of(FLAG_VAR_AS_FUNCTOR)).next();
@@ -1067,7 +1067,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testAllowZeroStruct() {
+  void testAllowZeroStruct() {
     assertThrows(PrologParserException.class, () -> new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_NONE)).next());
     final PrologStruct struct = (PrologStruct) new GenericPrologParser(new StringReader("a()."), DefaultParserContext.of(FLAG_ZERO_STRUCT)).next();
     final PrologAtom functor = (PrologAtom) struct.getFunctor();
@@ -1087,7 +1087,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testStandardTermOrder() {
+  void testStandardTermOrder() {
     assertEquals("1\n2\n3\n4\n5", parseSortAndJoin("5. 3. 1. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23. 3.6. 1.3. 2. 4."));
     assertEquals("1.3\n2\n3.6\n4\n5.23", parseSortAndJoin("5.23.3.6.1.3.2. 4."));
@@ -1098,7 +1098,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testBlockAsOnlyArgument() {
+  void testBlockAsOnlyArgument() {
     final PrologStruct parsed = (PrologStruct) parseEd("test((1,2)).").next();
     assertEquals("test", parsed.getFunctor().getText());
     assertEquals(1, parsed.getArity());
@@ -1112,7 +1112,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCurlyBlock() {
+  void testCurlyBlock() {
     assertEquals("{a , b , c} = Syntax", parseEd("{a,b,c} = Syntax.").next().toString());
     assertEquals("{{a , b , c}} = Syntax", parseEd("{{a,b,c}} = Syntax.").next().toString());
     assertEquals("{{{a , b , c}}} = Syntax", parseEd("{{{a,b,c}}} = Syntax.").next().toString());
@@ -1123,7 +1123,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCurlyBlockAsOnlyArgument() {
+  void testCurlyBlockAsOnlyArgument() {
     final PrologStruct parsed = (PrologStruct) parseEd("test({1,2}).").next();
     assertEquals("test", parsed.getFunctor().getText());
     assertEquals(1, parsed.getArity());
@@ -1142,7 +1142,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
    * page</a>
    */
   @Test
-  public void testConformity() {
+  void testConformity() {
     assertThrows(PrologParserException.class, () -> parseEd("{:- :- c} = {:-(:-,c)}.").next());
     assertThrows(PrologParserException.class, () -> parseEd("{1} = {}(1).").next());
 
@@ -1289,4 +1289,10 @@ public class IntegrationTest extends AbstractIntegrationTest {
     assertEquals("writeq('^`')", parseEd("writeq('^`').").next().toString());
   }
 
+  @Test
+  void testWhiteSpaceInZeroQuotation(){
+    assertThrows(PrologParserException.class, () -> parseEd("0' .", ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).next());
+    assertEquals("32", parseEd("0' .", ParserContext.FLAG_ZERO_QUOTATION_CHARCODE | ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR).next().toString());
+  }
+  
 }

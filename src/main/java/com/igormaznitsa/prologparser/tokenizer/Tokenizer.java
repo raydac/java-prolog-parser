@@ -54,6 +54,7 @@ public final class Tokenizer {
   private final StringBuilderEx insideCharBuffer;
   private final boolean blockCommentsAllowed;
   private final boolean zeroSingleQuotationAllowed;
+  private final boolean zeroQuotationAllowsWhitespaceChar;
   private final Reader reader;
   private final PrologParser parser;
   private final Koi7CharOpMap metaOperators;
@@ -76,6 +77,7 @@ public final class Tokenizer {
     final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE : parser.getContext().getMaxTokenizerBufferLength();
     this.blockCommentsAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
     this.zeroSingleQuotationAllowed = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_ZERO_QUOTATION_CHARCODE) != 0);
+    this.zeroQuotationAllowsWhitespaceChar = parser.getContext() != null && ((parser.getContext().getFlags() & ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR) != 0);
 
     this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
     this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
@@ -865,15 +867,15 @@ public final class Tokenizer {
                       theChar = chr;
                     }
                     if (charCodeAsInt) {
-                      if (Character.isWhitespace(chr)) {
+                      if (Character.isWhitespace(chr) && !this.zeroQuotationAllowsWhitespaceChar) {
                         throw new PrologParserException("Unexpected whitespace char: 0x" + Integer.toHexString(chr), this.prevLine, this.prevPos);
                       } else {
-                        return new TokenizerResult(
-                            new PrologInt(theChar),
-                            state,
-                            getLastTokenLine(),
-                            getLastTokenPos()
-                        );
+                      return new TokenizerResult(
+                          new PrologInt(theChar),
+                          state,
+                          getLastTokenLine(),
+                          getLastTokenPos()
+                      );
                       }
                     } else {
                       strBuffer.append(theChar);

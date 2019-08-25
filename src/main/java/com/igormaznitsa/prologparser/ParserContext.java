@@ -61,6 +61,11 @@ public interface ParserContext {
    * Recognize '.'(_,_) as a list term.
    */
   int FLAG_DOT2_AS_LIST = 32;
+  /**
+   * White-space char is allowed in zero quotation mode.
+   * @since 2.0.2
+   */
+  int FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR = 64;
 
   /**
    * Check that the context contains an operator starts with some string
