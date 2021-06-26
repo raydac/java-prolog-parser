@@ -5,9 +5,9 @@
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
 
 
-# Preword
+# Pre-word
 
-During my development of Java prolog engine (JProl) I had developed parser to parse sources written in Edinburgh style, I decided to extract the module into separated project and 1.0.0 version was published. In 2018 I had decided to make deep refactoring and 2.0.0 version was published. The Parser allows build custom prolog parsers with support of operators and some modern prolog features.
+During [my experiments in Prolog with Java](https://github.com/raydac/jprol), I developed some parser to process Prolog sources written in Edinburgh style. I decided that it is useful stuff, and it would be good to be prepared as separated independent module published in Maven central. In 2018 deep refactoring made the parser better and stronger.
 
 # Features
 
@@ -19,7 +19,7 @@ It supports
 
 # Maven dependency
 
-It is a library without 3th side dependencies, it is published im the Maven central and can be added into project just with:
+The parser is a pure Java library without any 3-th side dependency, it is published im the Maven central and can be injected into project just by adding:
 ```
 <dependency>
     <groupId>com.igormaznitsa</groupId>
@@ -29,17 +29,18 @@ It is a library without 3th side dependencies, it is published im the Maven cent
 ```
 
 # How to use?
-Parser implements stream which sequentially reads prolog terms from reader. By default PrologParser is abstract class but there is GenericPrologParser class provides minimalistic implementation.
+Parser implements stream which sequentially reads prolog terms provided by reader. By default, PrologParser is abstract class but there is pre-defined implementation GenericPrologParser for common cases.
 ```
-Reader reader = new StringReader("hello(world). some({1,2,3}). power(X,Y,Z) :- Z is X ** Y.");
-PrologParser parser = new GenericPrologParser(reader, new DefaultParserContext(ParserContext.FLAG_CURLY_BRACKETS, Op.SWI));
-parser.forEach(System.out::println);
+    Reader reader = new StringReader("hello(world). some({1,2,3}). power(X,Y,Z) :- Z is X ** Y.");
+    ParserContext context = DefaultParserContext.of(ParserContext.FLAG_CURLY_BRACKETS, Op.SWI);
+    PrologParser parser = new GenericPrologParser(reader, context);
+    parser.forEach(System.out::println);
 ```
 
 # Supported Prolog terms
-The parser supports
+Supported tokens:
  - atoms (class PrologAtom)
- - numbers (classes PrologInt and PrologFloat), they are based on big numbers so that their size is not restricted
+ - numbers (classes PrologInt and PrologFloat), they are based on java big number classes so that their size is limited mainly only by heap
  - lists (class PrologList)
  - structures (class PrologStruct)
  - variables (class PrologVar)
