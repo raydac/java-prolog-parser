@@ -363,9 +363,9 @@ public class IntegrationTest extends AbstractIntegrationTest {
     assertEquals(PrologList.class, list.getClass());
     assertTrue((list).isEmpty());
 
-    list = (PrologList) parseEd("[1,2,3,4,5].").next();
+    list = (PrologList) parseEd("[1,2,-3,4,5,-5].").next();
     assertFalse(list.isEmpty());
-    assertEquals("[1, 2, 3, 4, 5]", list.toString());
+    assertEquals("[1, 2, -3, 4, 5, -5]", list.toString());
 
     list = (PrologList) parseEd("[Hello|World].").next();
     assertFalse(list.isEmpty());
