@@ -60,8 +60,8 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
       final int line, final int pos
   ) {
     this(functor, elements);
-    setPos(pos);
-    setLine(line);
+    this.setPos(pos);
+    this.setLine(line);
   }
 
   public PrologStruct(final String text) {
@@ -99,8 +99,8 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   protected PrologStruct(final PrologTerm functor, final int arity, final int line, final int pos) {
     this(functor, arity);
-    setPos(pos);
-    setLine(line);
+    this.setPos(pos);
+    this.setLine(line);
   }
 
   private static PrologTerm assertFunctor(final PrologTerm functor) {

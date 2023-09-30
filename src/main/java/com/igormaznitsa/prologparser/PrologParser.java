@@ -106,8 +106,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public PrologParser(final Reader source, final ParserContext context) {
     this.context = context == null ? of(ParserContext.FLAG_NONE) : context;
-    this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
     this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
+    this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
   }
 
   public PrologParser autoCloseReader() {
