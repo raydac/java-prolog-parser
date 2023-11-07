@@ -22,19 +22,19 @@ It supports
 The parser is a pure Java library without any 3-th side dependency, it is published im the Maven central and can be injected into project just by adding:
 ```xml
 <dependency>
-    <groupId>com.igormaznitsa</groupId>
-    <artifactId>java-prolog-parser</artifactId>
-    <version>2.0.2</version>
+  <groupId>com.igormaznitsa</groupId>
+  <artifactId>java-prolog-parser</artifactId>
+  <version>2.0.2</version>
 </dependency>
 ```
 
 # How to use?
 Parser implements stream which sequentially reads prolog terms provided by reader. By default, PrologParser is abstract class but there is pre-defined implementation GenericPrologParser for common cases.
 ```java
-    Reader reader = new StringReader("hello(world). some({1,2,3}). power(X,Y,Z) :- Z is X ** Y.");
-    ParserContext context = DefaultParserContext.of(ParserContext.FLAG_CURLY_BRACKETS, Op.SWI);
-    PrologParser parser = new GenericPrologParser(reader, context);
-    parser.forEach(System.out::println);
+Reader reader = new StringReader("hello(world). some({1,2,3}). power(X,Y,Z) :- Z is X ** Y.");
+ParserContext context = DefaultParserContext.of(ParserContext.FLAG_CURLY_BRACKETS, Op.SWI);
+PrologParser parser = new GenericPrologParser(reader, context);
+parser.forEach(System.out::println);
 ```
 
 # Supported Prolog terms
