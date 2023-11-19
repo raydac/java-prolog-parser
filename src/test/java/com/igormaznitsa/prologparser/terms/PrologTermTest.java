@@ -11,6 +11,7 @@ import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("resource")
 public class PrologTermTest {
 
   private PrologParser parserFor(final String str) {
@@ -20,7 +21,7 @@ public class PrologTermTest {
   @Test
   public void testToString() {
 
-    assertEquals("\'Hello\\nWorld\'",
+    assertEquals("'Hello\\nWorld'",
         new PrologAtom("Hello\nWorld").toString());
     assertEquals("-9823742321",
         new PrologInt("-9823742321").toString());

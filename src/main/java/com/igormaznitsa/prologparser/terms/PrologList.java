@@ -162,7 +162,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
    * Add term as new list into the end of the list chain.
    *
    * @param term to be added as new list in the end of chain
-   * @return generated list (may be this)
+   * @return generated list, the same list can be returned
    */
   public PrologList addAsNewListToEndOfListChain(final PrologTerm term) {
 
@@ -172,7 +172,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
       setHead(term);
       setTail(new PrologList());
     } else {
-      while (!Thread.currentThread().isInterrupted()) {
+      while (true) {
         if (result.isEmpty()) {
           result.setHead(term);
           result.setTail(new PrologList());
@@ -201,7 +201,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public void replaceEndListElement(final PrologTerm newTailElement) {
     PrologList current = this;
 
-    while (!Thread.currentThread().isInterrupted()) {
+    while (true) {
       final PrologTerm tail = current.elements[1];
 
       if (tail.getType() == TermType.LIST) {
@@ -248,7 +248,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
       boolean notFirst = false;
       PrologTerm list = this;
 
-      while (!Thread.currentThread().isInterrupted()) {
+      while (true) {
         if (list.getType() == TermType.LIST) {
           final PrologList asList = (PrologList) list;
 

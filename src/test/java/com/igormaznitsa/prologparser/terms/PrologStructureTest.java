@@ -5,6 +5,7 @@ import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("DataFlowIssue")
 public class PrologStructureTest {
 
   @Test
@@ -29,7 +31,7 @@ public class PrologStructureTest {
 
   @Test
   public void testToString() {
-    assertEquals("\'Hello World\'()", new PrologStruct(new PrologAtom(
+    assertEquals("'Hello World'()", new PrologStruct(new PrologAtom(
         "Hello World")).toString());
     assertEquals("!", new PrologStruct(new PrologAtom("!")).toString());
 
@@ -41,23 +43,25 @@ public class PrologStructureTest {
         new PrologList(), new PrologVar()}).toString());
 
     final Map<String, OpContainer> contextOperators = ((DefaultParserContext) new GenericPrologParser(new StringReader(""), new DefaultParserContext(ParserContext.FLAG_NONE).addOps(Op.SWI)).getContext()).findAllOperators();
-    assertEquals("hello :- world", new PrologStruct(contextOperators.get(":-").findForType(OpAssoc.XFX),
+    assertEquals("hello :- world", new PrologStruct(
+        Objects.requireNonNull(contextOperators.get(":-").findForType(OpAssoc.XFX)),
         new PrologTerm[] {new PrologAtom("hello"),
             new PrologAtom("world")}).toString());
     assertEquals(":- hello",
-        new PrologStruct(contextOperators.get(":-").findForType(OpAssoc.FX),
+        new PrologStruct(Objects.requireNonNull(contextOperators.get(":-").findForType(OpAssoc.FX)),
             new PrologTerm[] {new PrologAtom("hello")}).toString());
     assertEquals(
         "- 10 * (1 + 2)",
         new PrologStruct(
-            contextOperators.get("*").findForType(
-                OpAssoc.YFX),
+            Objects.requireNonNull(contextOperators.get("*").findForType(
+                OpAssoc.YFX)),
             new PrologTerm[] {
                 new PrologStruct(
-                    contextOperators.get("-").findForType(
-                        OpAssoc.FY),
+                    Objects.requireNonNull(contextOperators.get("-").findForType(
+                        OpAssoc.FY)),
                     new PrologTerm[] {new PrologInt("10")}),
-                new PrologStruct(contextOperators.get("+").findForType(OpAssoc.YFX),
+                new PrologStruct(
+                    Objects.requireNonNull(contextOperators.get("+").findForType(OpAssoc.YFX)),
                     new PrologTerm[] {
                         new PrologInt("1"),
                         new PrologInt("2")})}).toString());
@@ -65,22 +69,22 @@ public class PrologStructureTest {
     assertEquals(
         "- - 10",
         new PrologStruct(
-            contextOperators.get("-").findForType(
-                OpAssoc.FY),
+            Objects.requireNonNull(contextOperators.get("-").findForType(
+                OpAssoc.FY)),
             new PrologTerm[] {new PrologStruct(
-                contextOperators.get("-").findForType(
-                    OpAssoc.FY),
+                Objects.requireNonNull(contextOperators.get("-").findForType(
+                    OpAssoc.FY)),
                 new PrologTerm[] {new PrologInt(
                     "10")})}).toString());
 
     assertEquals(
         "\\ (\\+ 10)",
         new PrologStruct(
-            contextOperators.get("\\").findForType(
-                OpAssoc.FY),
+            Objects.requireNonNull(contextOperators.get("\\").findForType(
+                OpAssoc.FY)),
             new PrologTerm[] {new PrologStruct(
-                contextOperators.get("\\+").findForType(
-                    OpAssoc.FY),
+                Objects.requireNonNull(contextOperators.get("\\+").findForType(
+                    OpAssoc.FY)),
                 new PrologTerm[] {new PrologInt(
                     "10")})}).toString());
     final Op operatorYF = Op.make(800, OpAssoc.YF, "!");

@@ -43,6 +43,7 @@ import static java.util.stream.Stream.of;
 /**
  * Prolog operator definition.
  */
+@SuppressWarnings("unused")
 public final class Op extends PrologTerm {
 
   public static final int PRECEDENCE_MAX = 0;
@@ -238,7 +239,7 @@ public final class Op extends PrologTerm {
   }
 
   /**
-   * Make operator descriptor describing bunch of operators with same
+   * Make operator descriptor describing a bunch of operators with same
    * characteristics but differently named.
    *
    * @param precedence the precedence

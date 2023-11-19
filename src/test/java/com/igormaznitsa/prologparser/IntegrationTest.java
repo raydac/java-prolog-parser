@@ -16,9 +16,9 @@ import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
 import com.igormaznitsa.prologparser.utils.StringUtils;
+import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -41,26 +41,28 @@ import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("varargs")
-public class IntegrationTest extends AbstractIntegrationTest {
+@SuppressWarnings({"varargs", "UnnecessaryUnicodeEscape", "OptionalGetWithoutIsPresent",
+    "resource"})
+class IntegrationTest extends AbstractIntegrationTest {
 
   @Test
-  void testReadingClausesTokensAndCharsFromSameParser() throws IOException {
-    final PrologParser parser = parseEd("lsome(a). alone. next(b).c");
-    assertTrue(parser.hasNext());
-    final PrologTerm term1 = parser.next();
-    assertEquals("lsome(a)", term1.toString());
-    assertTrue(parser.hasNext());
-    final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
-    assertEquals("alone", token1.getResult().toString());
-    assertTrue(parser.hasNext());
-    final TokenizerResult token2 = parser.getInternalTokenizer().readNextToken();
-    assertEquals(".", token2.getResult().getText());
-    assertTrue(parser.hasNext());
-    final PrologTerm term2 = parser.next();
-    assertEquals("next(b)", term2.toString());
-    assertTrue(parser.hasNext());
-    assertThrows(PrologParserException.class, () -> parser.next());
+  void testReadingClausesTokensAndCharsFromSameParser() throws Exception {
+    try(final PrologParser parser = parseEd("lsome(a). alone. next(b).c")) {
+      assertTrue(parser.hasNext());
+      final PrologTerm term1 = parser.next();
+      assertEquals("lsome(a)", term1.toString());
+      assertTrue(parser.hasNext());
+      final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
+      assertEquals("alone", Objects.requireNonNull(token1).getResult().toString());
+      assertTrue(parser.hasNext());
+      final TokenizerResult token2 = parser.getInternalTokenizer().readNextToken();
+      assertEquals(".", Objects.requireNonNull(token2).getResult().getText());
+      assertTrue(parser.hasNext());
+      final PrologTerm term2 = parser.next();
+      assertEquals("next(b)", term2.toString());
+      assertTrue(parser.hasNext());
+      assertThrows(PrologParserException.class, parser::next);
+    }
   }
 
   @Test
@@ -134,7 +136,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
     assertPrologInteger('\u1234', "0'\\u1234.");
     assertPrologInteger('\n', "0'\\n.");
     assertPrologInteger('\"', "0'\".");
-    assertPrologInteger('\'', "0'\\\'.");
+    assertPrologInteger('\'', "0'\\'.");
     assertPrologInteger('`', "0'`.");
     checkWrongClauseReadingWithPPE("0'ab.", 4);
   }
@@ -217,9 +219,9 @@ public class IntegrationTest extends AbstractIntegrationTest {
   @Test
   void testQuoting() {
     checkParseAtomQuoting("test.", "test", NONE);
-    checkParseAtomQuoting("\'t\"es`t\'.", "'t\"es`t'", SINGLE);
-    checkParseAtomQuoting("`t'\\`e\'s\"t`.", "`t'\\`e's\"t`", BACK_TICK);
-    checkParseAtomQuoting("\"t`e\'s\\\"\".", "\"t`e's\\\"\"", DOUBLE);
+    checkParseAtomQuoting("'t\"es`t'.", "'t\"es`t'", SINGLE);
+    checkParseAtomQuoting("`t'\\`e's\"t`.", "`t'\\`e's\"t`", BACK_TICK);
+    checkParseAtomQuoting("\"t`e's\\\"\".", "\"t`e's\\\"\"", DOUBLE);
   }
 
   private void checkParseAtomWithoutPPE(final String atomToBeChecked, final String expectedAtomText) {
@@ -246,8 +248,8 @@ public class IntegrationTest extends AbstractIntegrationTest {
     // test of non-latin chars, "hello" in russian
     checkParseAtomWithoutPPE("привет", "привет");
     checkParseAtomWithoutPPE("miss_Jones", "miss_Jones");
-    checkParseAtomWithoutPPE("\'Jones\'", "Jones");
-    checkParseAtomWithoutPPE("\'\'", "");
+    checkParseAtomWithoutPPE("'Jones'", "Jones");
+    checkParseAtomWithoutPPE("''", "");
     checkParseAtomWithoutPPE("x_", "x_");
   }
 
@@ -513,7 +515,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
       }
     }
 
-    assertEquals(TermType.STRUCT, term.getType());
+    assertEquals(TermType.STRUCT, Objects.requireNonNull(term).getType());
     assertEquals("<===>", term.getText());
     assertEquals(2, term.getArity());
     assertEquals(800, term.getPrecedence());
@@ -711,7 +713,8 @@ public class IntegrationTest extends AbstractIntegrationTest {
     assertEquals(8, list.getHead().getPos());
     assertEquals(5, list.getHead().getLine());
 
-    final PrologStruct mainterm = (PrologStruct) parseEd("  %\ncube (X,\'hello\',1000) :- \n Y is X * X * X.").next();
+    final PrologStruct mainterm = (PrologStruct) parseEd(
+        "  %\ncube (X,'hello',1000) :- \n Y is X * X * X.").next();
 
     // ':-'
     assertEquals(23, mainterm.getPos());
@@ -889,7 +892,8 @@ public class IntegrationTest extends AbstractIntegrationTest {
   @Test
   void testStringWithIsoControl() {
     assertEquals("[97, 98, 99]", parseIso("[0'a,0'b,0'c].").next().toString());
-    assertEquals("\u0007\b\f\n\r\t\u000B#\u0013\\\'\"`", parseIso("'\\a\\b\\f\\n\\r\\t\\v\\x23\\\\23\\\\\\\\\'\\\"\\`'.").next().getText());
+    assertEquals("\u0007\b\f\n\r\t\u000B#\u0013\\'\"`", parseIso(
+        "'\\a\\b\\f\\n\\r\\t\\v\\x23\\\\23\\\\\\\\'\\\"\\`'.").next().getText());
     assertThrows(PrologParserException.class, () -> parseEd("'hello\u0000world'.").next());
     assertEquals("'hello\\nworld'", parseEd("'hello\\\nworld'.").next().toString());
     assertEquals("'hello\\nworld'", parseEd("'hello\\\r\nworld'.").next().toString());
@@ -1188,7 +1192,7 @@ public class IntegrationTest extends AbstractIntegrationTest {
     assertEquals("write_canonical(1 p (p p 2))", parseEd("write_canonical(1 p p p 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, FY, "p"), Op.make(9, YFX, "p"))).next().toString());
     assertEquals("write_canonical(1 p p p 2)", parseEd("write_canonical(1 p p p 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(9, FY, "p"), Op.make(9, XFY, "p"))).next().toString());
     assertEquals("write_canonical(1 p p p 2)", parseEd("write_canonical(1 p p p 2).", DefaultParserContext.of(FLAG_BLOCK_COMMENTS, Op.make(7, FY, "p"), Op.make(9, YFX, "p"))).next().toString());
-    assertEquals("atom('.\\\'-\\\'.')", parseEd("atom('.\\\'-\\\'.').").next().toString());
+    assertEquals("atom('.\\'-\\'.')", parseEd("atom('.\\'-\\'.').").next().toString());
     assertEquals("op(0, xfy, '|')", parseEd("op(0,xfy,'|').").next().toString());
     assertEquals("writeq((a | b))", parseEd("/**/ writeq((a|b)).").next().toString());
     assertEquals("X is 10.0 ** (-323)", parseEd("X is 10.0** -323.").next().toString());

@@ -68,7 +68,7 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
   public static Quotation findQuotation(final String atomText) {
     Quotation result = NONE;
 
-    if (atomText.length() == 0) {
+    if (atomText.isEmpty()) {
       result = SINGLE;
     } else {
       char chr = atomText.charAt(0);
@@ -242,32 +242,37 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       }
       break;
       case ATOM: {
-        if (that.getType() == ATOM) {
-          if (this instanceof PrologNumeric) {
-            if (that instanceof PrologNumeric) {
-              if (this instanceof PrologInt) {
-                if (that instanceof PrologInt) {
-                  result = ((PrologInt) this).getIntValue().compareTo(((PrologInt) that).getIntValue());
+        if (null == that.getType()) {
+            result = -1;
+        } else switch (that.getType()) {
+            case ATOM:
+                if (this instanceof PrologNumeric) {
+                    if (that instanceof PrologNumeric) {
+                        if (this instanceof PrologInt) {
+                            if (that instanceof PrologInt) {
+                                result = ((PrologInt) this).getIntValue().compareTo(((PrologInt) that).getIntValue());
+                            } else {
+                                result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(((PrologFloat) that).getFloatValue());
+                            }
+                        } else if (that instanceof PrologInt) {
+                            result = ((PrologFloat) this).getFloatValue().compareTo((new BigDecimal(((PrologInt) that).getIntValue())));
+                        } else {
+                            result = ((PrologFloat) this).getFloatValue().compareTo(((PrologFloat) that).getFloatValue());
+                        }
+                    } else {
+                        result = -1;
+                    }
+                } else if (that instanceof PrologNumeric) {
+                    result = 1;
                 } else {
-                  result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(((PrologFloat) that).getFloatValue());
-                }
-              } else if (that instanceof PrologInt) {
-                result = ((PrologFloat) this).getFloatValue().compareTo((new BigDecimal(((PrologInt) that).getIntValue())));
-              } else {
-                result = ((PrologFloat) this).getFloatValue().compareTo(((PrologFloat) that).getFloatValue());
-              }
-            } else {
-              result = -1;
-            }
-          } else if (that instanceof PrologNumeric) {
-            result = 1;
-          } else {
-            result = this.getText().compareTo(that.getText());
-          }
-        } else if (that.getType() == VAR) {
-          result = 1;
-        } else {
-          result = -1;
+                    result = this.getText().compareTo(that.getText());
+                }     break;
+            case VAR:
+                result = 1;
+                break;
+            default:
+                result = -1;
+                break;
         }
       }
       break;

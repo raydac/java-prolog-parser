@@ -260,7 +260,7 @@ public final class Tokenizer {
 
   private void skipUntilBlockCommentEnd() throws IOException {
     boolean starCharDetected = false;
-    while (!Thread.currentThread().isInterrupted()) {
+    while (true) {
       final int readChar = this.doReadChar();
       if (readChar < 0 || (readChar == '/' && starCharDetected)) {
         break;
@@ -271,7 +271,7 @@ public final class Tokenizer {
   }
 
   private void skipUntilNextString() throws IOException {
-    while (!Thread.currentThread().isInterrupted()) {
+    while (true) {
       final int readChar = this.doReadChar();
       if (readChar < 0 || readChar == '\n') {
         break;
@@ -320,7 +320,7 @@ public final class Tokenizer {
     boolean foundUnderscoreInNumber = false;
 
     try {
-      while (!Thread.currentThread().isInterrupted()) {
+      while (true) {
         final int readChar = this.doReadChar();
 
         if (readChar < 0) {
@@ -331,7 +331,7 @@ public final class Tokenizer {
             case INTEGER:
             case ATOM: {
               if (foundUnderscoreInNumber) {
-                throw new PrologParserException("Contains unexpected underscore: " + strBuffer.toString(), this.prevLine, this.prevPos);
+                throw new PrologParserException("Contains unexpected underscore: " + strBuffer, this.prevLine, this.prevPos);
               }
 
               if (state == TokenizerState.FLOAT && strBuffer.isLastChar('.')) {
@@ -372,7 +372,7 @@ public final class Tokenizer {
               }
             }
             case STRING: {
-              throw new PrologParserException("Non-completed string: " + strBuffer.toString(), this.lastTokenLine, this.lastTokenPos);
+              throw new PrologParserException("Non-completed string: " + strBuffer, this.lastTokenLine, this.lastTokenPos);
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
@@ -393,7 +393,7 @@ public final class Tokenizer {
               }
             }
             default: {
-              throw new PrologParserException("Non-completed term (" + state + "): " + strBuffer.toString(), this.prevLine, this.prevPos);
+              throw new PrologParserException("Non-completed term (" + state + "): " + strBuffer, this.prevLine, this.prevPos);
             }
           }
         }
@@ -405,7 +405,8 @@ public final class Tokenizer {
             this.strBuf.pop();
             state = this.strBuf.isEmpty() ? LOOK_FOR : state;
           } else if (state == OPERATOR) {
-            throw new PrologParserException("Operator can be mixed with comment block: " + this.strBuf.toString() + chr, getLastTokenLine(), getLastTokenPos());
+            throw new PrologParserException("Operator can be mixed with comment block: " +
+                this.strBuf + chr, getLastTokenLine(), getLastTokenPos());
           }
 
           skipUntilBlockCommentEnd();
@@ -572,22 +573,28 @@ public final class Tokenizer {
                   } else {
                     boolean radixCharFound = false;
                     if (radix == 10 && strBuffer.isSingleChar('0')) {
-                      if (chr == 'x') {
-                        radixCharFound = true;
-                        radix = 16;
-                        detectedRadixChar = chr;
-                        strBuffer.clear();
-                      } else if (chr == 'o') {
-                        radixCharFound = true;
-                        radix = 8;
-                        detectedRadixChar = chr;
-                        strBuffer.clear();
-                      } else if (chr == 'b') {
-                        radixCharFound = true;
-                        radix = 2;
-                        detectedRadixChar = chr;
-                        strBuffer.clear();
-                      }
+                        switch (chr) {
+                            case 'x':
+                                radixCharFound = true;
+                                radix = 16;
+                                detectedRadixChar = chr;
+                                strBuffer.clear();
+                                break;
+                            case 'o':
+                                radixCharFound = true;
+                                radix = 8;
+                                detectedRadixChar = chr;
+                                strBuffer.clear();
+                                break;
+                            case 'b':
+                                radixCharFound = true;
+                                radix = 2;
+                                detectedRadixChar = chr;
+                                strBuffer.clear();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     if (!radixCharFound) {
                       push(chr);
@@ -612,66 +619,67 @@ public final class Tokenizer {
                 strBuffer.append(chr);
               } else if (chr == '_') {
                 if (foundUnderscoreInNumber || strBuffer.isLastChar('.')) {
-                  throw new PrologParserException("Underscore after dot in number: " + strBuffer.toString(), this.prevLine, this.prevPos);
+                  throw new PrologParserException("Underscore after dot in number: " + strBuffer, this.prevLine, this.prevPos);
                 } else {
                   foundUnderscoreInNumber = true;
                 }
               } else {
-                if (chr == '-' || chr == '+') {
-                  if (strBuffer.isLastChar('e')) {
-                    strBuffer.append(chr);
-                  } else {
-                    push(chr);
-                    return new TokenizerResult(
-                        makeTermFromString(strBuffer.toString(), radix, quoting, TokenizerState.FLOAT),
-                        TokenizerState.FLOAT,
-                        getLastTokenLine(),
-                        getLastTokenPos());
+                  switch (chr) {
+                      case '-':
+                      case '+':
+                          if (strBuffer.isLastChar('e')) {
+                              strBuffer.append(chr);
+                          } else {
+                              push(chr);
+                              return new TokenizerResult(
+                                      makeTermFromString(strBuffer.toString(), radix, quoting, TokenizerState.FLOAT),
+                                      TokenizerState.FLOAT,
+                                      getLastTokenLine(),
+                                      getLastTokenPos());
+                          }       break;
+                      case 'e':
+                      case 'E':
+                          if (foundUnderscoreInNumber) {
+                              throw new PrologParserException("Underscore is not allowed before E", this.prevLine, this.prevPos);
+                          }       if (strBuffer.lastIndexOf('e') < 0) {
+                              strBuffer.append('e');
+                          } else {
+                              push(chr);
+                              return new TokenizerResult(
+                                      makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.FLOAT),
+                                      TokenizerState.FLOAT,
+                                      getLastTokenLine(),
+                                      getLastTokenPos());
+                          }       break;
+                      default:
+                          push(chr);
+                          
+                          if (foundUnderscoreInNumber) {
+                              throw new PrologParserException("Unexpected underscore", this.prevLine, this.prevPos);
+                          }
+                          
+                          if (strBuffer.isLastChar('.')) {
+                              // it was an integer
+                              push('.');
+                              return new TokenizerResult(
+                                      makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.INTEGER),
+                                      TokenizerState.INTEGER,
+                                      getLastTokenLine(),
+                                      getLastTokenPos());
+                          } else {
+                              // it is a float
+                              if (!Character.isDigit(strBuffer.getLastChar())) {
+                                  throw new PrologParserException("Unexpected end of float: " +
+                                      strBuffer, this.prevLine, this.prevPos);
+                              }
+                              return new TokenizerResult(
+                                      makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                                      state,
+                                      getLastTokenLine(),
+                                      getLastTokenPos()
+                              );
+                          }
                   }
-                } else if (chr == 'e' || chr == 'E') {
-                  if (foundUnderscoreInNumber) {
-                    throw new PrologParserException("Underscore is not allowed before E", this.prevLine, this.prevPos);
-                  }
-
-                  if (strBuffer.lastIndexOf('e') < 0) {
-                    strBuffer.append('e');
-                  } else {
-                    push(chr);
-                    return new TokenizerResult(
-                        makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.FLOAT),
-                        TokenizerState.FLOAT,
-                        getLastTokenLine(),
-                        getLastTokenPos());
-                  }
-                } else {
-
-                  push(chr);
-
-                  if (foundUnderscoreInNumber) {
-                    throw new PrologParserException("Unexpected underscore", this.prevLine, this.prevPos);
-                  }
-
-                  if (strBuffer.isLastChar('.')) {
-                    // it was an integer
-                    push('.');
-                    return new TokenizerResult(
-                        makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting, TokenizerState.INTEGER),
-                        TokenizerState.INTEGER,
-                        getLastTokenLine(),
-                        getLastTokenPos());
-                  } else {
-                    // it is float
-                    if (!Character.isDigit(strBuffer.getLastChar())) {
-                      throw new PrologParserException("Unexpected end of float: " + strBuffer.toString(), this.prevLine, this.prevPos);
-                    }
-                    return new TokenizerResult(
-                        makeTermFromString(strBuffer.toString(), radix, quoting, state),
-                        state,
-                        getLastTokenLine(),
-                        getLastTokenPos()
-                    );
-                  }
-                }
               }
             }
             break;
@@ -718,7 +726,7 @@ public final class Tokenizer {
                   if (!hasOperatorStartsWith(operator)) {
                     if (hasOperatorStartsWith(String.valueOf(chr))) {
                       // next char can be the start char of an
-                      // operator so we need get back it into the
+                      // operator, so we need get back it into the
                       // buffer
                       strBuffer.pop();
                       push(chr);
@@ -775,7 +783,8 @@ public final class Tokenizer {
                   specCharBuffer.append(chr);
                   final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(specCharBuffer);
                   if (result.isError()) {
-                    throw new PrologParserException("Detected wrong escape char: \\" + specCharBuffer.toString(), this.prevLine, this.prevPos);
+                    throw new PrologParserException("Detected wrong escape char: \\" +
+                        specCharBuffer, this.prevLine, this.prevPos);
                   } else if (!result.doesNeedMore()) {
                     specCharDetected = false;
                     if (charCodeAsInt) {
@@ -806,7 +815,7 @@ public final class Tokenizer {
                       );
                     } else {
                       if (charCodeAsInt) {
-                        throw new PrologParserException("Char '\'' must be escaped in such case", this.prevLine, this.prevPos);
+                        throw new PrologParserException("Char ''' must be escaped in such case", this.prevLine, this.prevPos);
                       } else {
                         strBuffer.append(chr);
                       }
@@ -902,7 +911,6 @@ public final class Tokenizer {
           }
         }
       }
-      return null;
     } catch (IOException ex) {
       throw new PrologParserException("IO exception during read char", this.prevLine, this.prevPos, ex);
     }

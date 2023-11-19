@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
+@SuppressWarnings("unused")
 public final class PrologSourceKoi7Generator extends InputStream {
 
   private final Random rnd = new Random(123);
@@ -226,7 +227,7 @@ public final class PrologSourceKoi7Generator extends InputStream {
       if (i == 0) {
         buffer.append((char) ('a' + this.rnd.nextInt('z' - 'a')));
       } else {
-        switch (this.rnd.nextInt(5)) {
+        switch (this.rnd.nextInt(8)) {
           case 0: {
             buffer.append((char) ('a' + this.rnd.nextInt('z' - 'a')));
           }

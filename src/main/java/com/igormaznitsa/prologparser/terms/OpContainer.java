@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 /**
  * Container of operators which have same name but differently associative.
  */
+@SuppressWarnings("unused")
 public final class OpContainer extends InternalSpecialCompoundTerm {
 
   private static final long serialVersionUID = 4946799717661204529L;
@@ -368,11 +369,6 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
         throw new CriticalUnexpectedError();
     }
     return result;
-  }
-
-  @Override
-  public int getPrecedence() {
-    return 0;
   }
 
   @Override

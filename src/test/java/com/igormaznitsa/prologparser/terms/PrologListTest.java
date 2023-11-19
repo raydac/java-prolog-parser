@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("DataFlowIssue")
 public class PrologListTest {
 
   @Test
@@ -34,7 +35,7 @@ public class PrologListTest {
 
     PrologList list = new PrologList();
     list.setTail(new PrologAtom("test"));
-    assertEquals("[\'\'|test]", list.toString());
+    assertEquals("[''|test]", list.toString());
 
     list = new PrologList();
     list.setHead(new PrologAtom("test"));

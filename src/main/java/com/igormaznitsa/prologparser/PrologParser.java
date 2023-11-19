@@ -58,6 +58,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Abstract base Prolog parser.
  */
+@SuppressWarnings({"GrazieInspection", "unused"})
 public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
@@ -77,7 +78,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK;
   private static final Koi7CharOpMap OPERATORS_SUBBLOCK_CURLY;
 
-  private volatile boolean autoCloseReaderFlag;
+  private boolean autoCloseReaderFlag;
 
   static {
     META_OP_MAP = ofOps();
@@ -110,6 +111,11 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
   }
 
+  /**
+   * Set flag to close provided reader automatically during close.
+   * @return the parser instance
+   * @see PrologParser#close()
+   */
   public PrologParser autoCloseReader() {
     this.autoCloseReaderFlag = true;
     return this;
@@ -330,13 +336,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     }
   }
 
-  @SuppressWarnings("ConstantConditions")
   private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
     AstItem currentTreeItem = null;
 
-    while (!Thread.currentThread().isInterrupted()) {
+    while (true) {
       // read next atom from tokenizer
       TokenizerResult readAtomContainer = this.tokenizer.readNextToken();
 
@@ -434,22 +439,17 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
                 }
 
                 if (processReadAtom) {
-                  boolean emptyCurly = false;
                   if (readAtom == null) {
                     if (onlyCharCode == '{') {
-                      emptyCurly = true;
+                      readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_CURLY_BLOCK, EMPTY_TERM_ARRAY, readAtomContainer.getLine(), readAtomContainer.getPos());
                     } else {
                       throw new PrologParserException("Illegal start of term",
                           readAtomContainer.getLine(), readAtomContainer.getPos());
                     }
-                  }
-
-                  if (emptyCurly) {
-                    readAtom = new PrologStruct(Op.VIRTUAL_OPERATOR_CURLY_BLOCK, EMPTY_TERM_ARRAY, readAtomContainer.getLine(), readAtomContainer.getPos());
                   } else {
-                    readAtom.setLine(readAtomContainer.getLine());
-                    readAtom.setPos(readAtomContainer.getPos());
-                    readAtom = new PrologStruct(onlyCharCode == '{' ? Op.VIRTUAL_OPERATOR_CURLY_BLOCK : Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[] {readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
+                      readAtom.setLine(readAtomContainer.getLine());
+                      readAtom.setPos(readAtomContainer.getPos());
+                      readAtom = new PrologStruct(onlyCharCode == '{' ? Op.VIRTUAL_OPERATOR_CURLY_BLOCK : Op.VIRTUAL_OPERATOR_BLOCK, new PrologTerm[]{readAtom}, readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
 
                   final TokenizerResult token = this.tokenizer.readNextToken();
@@ -635,4 +635,5 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
   public void close() throws IOException {
     this.tokenizer.close(this.autoCloseReaderFlag);
   }
+
 }

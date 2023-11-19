@@ -28,6 +28,7 @@ import com.igormaznitsa.prologparser.terms.OpContainer;
  *
  * @see PrologParser
  */
+@SuppressWarnings("GrazieInspection")
 public interface ParserContext {
   /**
    * Empty flags, no any flag defined.

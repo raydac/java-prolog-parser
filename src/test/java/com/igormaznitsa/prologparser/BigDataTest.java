@@ -20,6 +20,7 @@ import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
+import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStreamReader;
@@ -27,6 +28,7 @@ import java.io.InputStreamReader;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class BigDataTest extends AbstractIntegrationTest {
 
@@ -60,12 +62,15 @@ class BigDataTest extends AbstractIntegrationTest {
     }
     buffer.append(").");
 
-    PrologStruct struct = (PrologStruct) parseEd(buffer.toString()).next();
-
-    assertEquals(ELEMENTS, struct.getArity());
-    assertEquals("test", struct.getFunctor().getText());
-    for (int i = 0; i < ELEMENTS; i++) {
-      assertEquals(i - 100, ((PrologInt) struct.getTermAt(i)).getNumber().intValue());
+    try(final PrologParser parser = parseEd(buffer.toString())) {
+      PrologStruct struct = (PrologStruct) parser.next();
+      assertEquals(ELEMENTS, struct.getArity());
+      assertEquals("test", struct.getFunctor().getText());
+      for (int i = 0; i < ELEMENTS; i++) {
+        assertEquals(i - 100, ((PrologInt) struct.getTermAt(i)).getNumber().intValue());
+      }
+    } catch (IOException ex) {
+      fail(ex);
     }
   }
 
@@ -88,15 +93,19 @@ class BigDataTest extends AbstractIntegrationTest {
     }
     buffer.append("].");
 
-    PrologList list = (PrologList) parseEd(buffer.toString()).next();
+    try (final PrologParser parser = parseEd(buffer.toString())) {
+      PrologList list = (PrologList) parser.next();
 
-    for (int i = 0; i < ELEMENTS; i++) {
-      final PrologInt head = (PrologInt) list.getHead();
-      assertEquals(i, head.getNumber().intValue());
-      list = (PrologList) list.getTail();
+      for (int i = 0; i < ELEMENTS; i++) {
+        final PrologInt head = (PrologInt) list.getHead();
+        assertEquals(i, head.getNumber().intValue());
+        list = (PrologList) list.getTail();
+      }
+
+      assertTrue(list.isEmpty());
+    } catch (IOException ex) {
+      fail(ex);
     }
-
-    assertTrue(list.isEmpty());
   }
 
 }

@@ -21,8 +21,6 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.StringUtils;
-
 import static com.igormaznitsa.prologparser.utils.StringUtils.escapeString;
 
 /**
@@ -37,7 +35,7 @@ public enum Quotation {
    * Term is single quotation
    * example: 'hello'
    */
-  SINGLE("\'"),
+  SINGLE("'"),
   /**
    * Term is double quotation
    * example: "hello"

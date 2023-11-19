@@ -29,16 +29,17 @@ import org.junit.jupiter.api.Test;
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OperatorContainerTest {
+@SuppressWarnings({"DataFlowIssue", "ConstantValue"})
+class OperatorContainerTest {
 
   @Test
-  public void testGetPrecedence() {
+  void testGetPrecedence() {
     assertEquals(make(Op.make(1000, OpAssoc.FX,
         "<>")).getPrecedence(), 0);
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     final Op operator = Op.make(100, OpAssoc.FX, "<>");
     final OpContainer container = make(operator);
     container.add(Op.make(300, OpAssoc.XFX, "<>"));
@@ -49,7 +50,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testGetType() {
+  void testGetType() {
     final OpContainer cont = make(
         Op.make(1000, OpAssoc.FX, "<>"));
     assertEquals(TermType.OPERATOR, cont.getType());
@@ -57,7 +58,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testOperatorContainer() {
+  void testOperatorContainer() {
     assertThrows(NullPointerException.class, () -> make(null));
 
     final Op operator = Op.make(100, OpAssoc.FX, "<>");
@@ -67,7 +68,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testAddOperator() {
+  void testAddOperator() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -95,7 +96,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testRemoveAll() {
+  void testRemoveAll() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -116,7 +117,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testRemove() {
+  void testRemove() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -146,7 +147,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testSize() {
+  void testSize() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -165,7 +166,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testGetOperatorIfSingle() {
+  void testGetOperatorIfSingle() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -185,7 +186,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testFindCompatibleOperator() {
+  void testFindCompatibleOperator() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -223,7 +224,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testGetOperatorForType() {
+  void testGetOperatorForType() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -246,7 +247,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testGetOperatorForSimilarType() {
+  void testGetOperatorForSimilarType() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -267,7 +268,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testRemoveOperatorForType() {
+  void testRemoveOperatorForType() {
     final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
     final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
     final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
@@ -288,7 +289,7 @@ public class OperatorContainerTest {
   }
 
   @Test
-  public void testGetText() {
+  void testGetText() {
     assertEquals("<>", make(Op.make(1000,
         OpAssoc.FX, "<>")).getText());
   }

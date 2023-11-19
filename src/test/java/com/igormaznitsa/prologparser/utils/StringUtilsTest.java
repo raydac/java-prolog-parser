@@ -30,9 +30,6 @@ public class StringUtilsTest {
 
   @Test
   public void testUnescapeCharacter() {
-
-    final AtomicReference<Character> container = new AtomicReference<>();
-
     assertUnescaped((char) 7, "a");
     assertUnescaped((char) 8, "b");
     assertUnescaped((char) 27, "e");
@@ -40,7 +37,7 @@ public class StringUtilsTest {
     assertUnescaped('\r', "r");
     assertUnescaped('\n', "n");
     assertUnescaped('\\', "\\");
-    assertUnescaped('\'', "\'");
+    assertUnescaped('\'', "'");
     assertUnescaped('\f', "f");
     assertUnescaped('\t', "t");
     assertUnescaped('`', "`");
@@ -70,7 +67,7 @@ public class StringUtilsTest {
 
   @Test
   public void testEscapeString() {
-    final String test = "Hello\r\'World\'\nAnd Skolkovo`\f too\t\u0007\u001b\u000b";
+    final String test = "Hello\r'World'\nAnd Skolkovo`\f too\t\u0007\u001b\u000b";
 
     assertEquals(StringUtils.escapeString(test, SINGLE), "Hello\\r\\'World\\'\\nAnd Skolkovo`\\f too\\t\\a\\e\\v");
   }

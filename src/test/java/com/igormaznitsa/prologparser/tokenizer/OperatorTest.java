@@ -30,22 +30,23 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OperatorTest {
+@SuppressWarnings({"AssertBetweenInconvertibleTypes", "EqualsWithItself"})
+class OperatorTest {
 
   @Test
-  public void testGetPrecedence() {
+  void testGetPrecedence() {
     final Op op = Op.make(243, OpAssoc.FX, "<>");
     assertEquals(243, op.getPrecedence());
   }
 
   @Test
-  public void testToString() {
+  void testToString() {
     assertEquals("op(231, xfy, '<>').", Op.make(231, OpAssoc.XFY, "<>").toString());
     assertEquals("op(100, fy, '><').", Op.make(100, OpAssoc.FY, "><").toString());
   }
 
   @Test
-  public void testGetType() {
+  void testGetType() {
     final Op op = Op.make(243, OpAssoc.FX, "<>");
     final Op op2 = Op.make(243, OpAssoc.XFX, "><");
     assertEquals(TermType.OPERATOR, op.getType());
@@ -53,7 +54,7 @@ public class OperatorTest {
   }
 
   @Test
-  public void testMakeOperators() {
+  void testMakeOperators() {
     final String[] names = new String[] {"op1", "op2", "op3", "op4"};
 
     assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MAX - 1, OpAssoc.FX, names));
@@ -66,7 +67,7 @@ public class OperatorTest {
   }
 
   @Test
-  public void testOperatorIntOperatorTypeString() {
+  void testOperatorIntOperatorTypeString() {
     assertThrows(IllegalArgumentException.class, () -> Op.make(-1, OpAssoc.FX, "<>"));
     assertThrows(IllegalArgumentException.class, () -> Op.make(1201, OpAssoc.FX, "<>"));
     assertThrows(NullPointerException.class, () -> Op.make(333, OpAssoc.FX, (String[]) null));
@@ -83,7 +84,7 @@ public class OperatorTest {
   }
 
   @Test
-  public void testGetOperatorType() {
+  void testGetOperatorType() {
     final Op op = Op.make(243, OpAssoc.FX, "<>");
     final Op op2 = Op.make(243, OpAssoc.XFX, "><");
     assertEquals(OpAssoc.FX, op.getAssoc());
@@ -91,7 +92,7 @@ public class OperatorTest {
   }
 
   @Test
-  public void testCompatibleWith() {
+  void testCompatibleWith() {
     final Op opFX = Op.make(100, OpAssoc.FX, "><");
     final Op opFY = Op.make(200, OpAssoc.FY, "><");
     final Op opYFX = Op.make(300, OpAssoc.YFX, "><");
@@ -149,7 +150,7 @@ public class OperatorTest {
   }
 
   @Test
-  public void testEquals() {
+  void testEquals() {
     final Op opFX = Op.make(100, OpAssoc.FX, "><");
     final Op opFX2 = Op.make(100, OpAssoc.FX, "><");
     final Op opFY = Op.make(100, OpAssoc.FX, ">*<");
@@ -162,17 +163,17 @@ public class OperatorTest {
   }
 
   @Test
-  public void testHashCode() {
+  void testHashCode() {
     final Op opFX = Op.make(100, OpAssoc.FX, "><");
     final Op opFX2 = Op.make(100, OpAssoc.FX, "><");
 
-    assertFalse("><".hashCode() == opFX.hashCode());
+    assertNotEquals("><".hashCode(), opFX.hashCode());
     assertEquals(opFX.hashCode(), opFX2.hashCode());
 
   }
 
   @Test
-  public void testGetText() {
+  void testGetText() {
     assertEquals("<>", Op.make(121, OpAssoc.FX, "<>").getText());
     assertEquals("><", Op.make(121, OpAssoc.XFX, "><").getText());
   }

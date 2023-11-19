@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("DataFlowIssue")
 public class PrologAtomTest {
 
   @Test
@@ -14,11 +15,11 @@ public class PrologAtomTest {
 
   @Test
   public void testToString() {
-    assertEquals("\'Hello World\'", new PrologAtom("Hello World").toString());
-    assertEquals("\'Hello\\nWorld\'", new PrologAtom("Hello\nWorld").toString());
-    assertEquals("\'Hello\\\\nWorld\'", new PrologAtom("Hello\\\nWorld").toString());
-    assertEquals("\'Hello\\tWorld\'", new PrologAtom("Hello\tWorld").toString());
-    assertEquals("\'!\'", new PrologAtom("!").toString());
+    assertEquals("'Hello World'", new PrologAtom("Hello World").toString());
+    assertEquals("'Hello\\nWorld'", new PrologAtom("Hello\nWorld").toString());
+    assertEquals("'Hello\\\\nWorld'", new PrologAtom("Hello\\\nWorld").toString());
+    assertEquals("'Hello\\tWorld'", new PrologAtom("Hello\tWorld").toString());
+    assertEquals("'!'", new PrologAtom("!").toString());
   }
 
   @Test

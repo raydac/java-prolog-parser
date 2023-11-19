@@ -40,6 +40,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Representation of prolog structure.
  */
+@SuppressWarnings("SameParameterValue")
 public class PrologStruct extends PrologCompound implements Iterable<PrologTerm> {
 
   public static final PrologAtom EMPTY_ATOM = new PrologAtom("", Quotation.SINGLE);
@@ -348,7 +349,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
   /**
    * Check that the structure has elements.
    *
-   * @return true if there is not elements, false otherwise
+   * @return true if there is no elements, false otherwise
    */
   public boolean isEmpty() {
     return this.elements.length == 0;

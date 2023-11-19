@@ -36,6 +36,7 @@ import java.util.Map;
 import static com.igormaznitsa.prologparser.DefaultParserContext.of;
 import static com.igormaznitsa.prologparser.ParserContext.*;
 import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -92,12 +93,11 @@ abstract class AbstractIntegrationTest {
 
   public void assertReadTerms(final int expected, final String resource, final Op... ops) {
     final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE | ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR, ops);
-    try (Reader reader = new InputStreamReader(getClass().getResourceAsStream(resource), StandardCharsets.UTF_8)) {
+    try (Reader reader = new InputStreamReader(requireNonNull(getClass().getResourceAsStream(resource)), StandardCharsets.UTF_8)) {
       final PrologParser parser = parseEd(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
-      ex.printStackTrace();
-      fail("IOException");
+      fail("IOException", ex);
     }
   }
 
@@ -107,25 +107,27 @@ abstract class AbstractIntegrationTest {
 
   public void assertReadSictusTerms(final int expected, final String resource, final Op... ops) {
     final ParserContext defaultContext = makeSictusContext(ops);
-    try (Reader reader = new InputStreamReader(getClass().getResourceAsStream("bench/" + resource), StandardCharsets.UTF_8)) {
+    try (Reader reader = new InputStreamReader(requireNonNull(getClass().getResourceAsStream("bench/" + resource)), StandardCharsets.UTF_8)) {
       final PrologParser parser = new GenericPrologParser(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
-      ex.printStackTrace();
-      fail("IOException");
+      fail("IOException", ex);
     }
   }
 
   public void assertOperatorAsFunctor(final String goal, final String opText, final OpAssoc assoc, final int arity, final String expectedText) {
-    final PrologParser parser = parseEd(goal);
-    assertTrue(parser.hasNext());
-    final PrologTerm term = parser.next();
-    assertFalse(parser.hasNext());
-    assertEquals(TermType.OPERATOR, term.getFunctor().getType(), term.toString());
-    assertEquals(opText, term.getText(), term.toString());
-    assertEquals(assoc, ((Op) term.getFunctor()).getAssoc(), term.toString());
-    assertEquals(arity, term.getArity(), term.toString());
-    assertEquals(expectedText, term.toString());
+    try (final PrologParser parser = parseEd(goal)) {
+      assertTrue(parser.hasNext());
+      final PrologTerm term = parser.next();
+      assertFalse(parser.hasNext());
+      assertEquals(TermType.OPERATOR, term.getFunctor().getType(), term.toString());
+      assertEquals(opText, term.getText(), term.toString());
+      assertEquals(assoc, ((Op) term.getFunctor()).getAssoc(), term.toString());
+      assertEquals(arity, term.getArity(), term.toString());
+      assertEquals(expectedText, term.toString());
+    } catch (IOException ex) {
+      fail(ex);
+    }
   }
 
   public void assertOperatorAsFunctor(final String expected, final PrologTerm term) {
@@ -137,11 +139,16 @@ abstract class AbstractIntegrationTest {
   }
 
   public void checkIntegerWithoutPPE(final String atomToBeChecked, final long expectedNumber) {
-    PrologTerm atom = parseEd(atomToBeChecked + '.').next();
-    assertEquals(ATOM, atom.getType(), "Type: " + atom.getType());
-    assertEquals(PrologInt.class, atom.getClass(), "Class: " + atom.getClass());
-    assertEquals(expectedNumber, ((PrologInt) atom).getNumber().longValue(), "Number: " + ((PrologInt) atom).getNumber().longValue());
-    assertEquals(Long.toString(expectedNumber), atom.getText(), "Text: " + atom.getText());
+    try (final PrologParser parser = parseEd(atomToBeChecked + '.')) {
+      PrologTerm atom = parser.next();
+      assertEquals(ATOM, atom.getType(), "Type: " + atom.getType());
+      assertEquals(PrologInt.class, atom.getClass(), "Class: " + atom.getClass());
+      assertEquals(expectedNumber, ((PrologInt) atom).getNumber().longValue(),
+          "Number: " + ((PrologInt) atom).getNumber().longValue());
+      assertEquals(Long.toString(expectedNumber), atom.getText(), "Text: " + atom.getText());
+    } catch (IOException ex) {
+      fail(ex);
+    }
   }
 
 

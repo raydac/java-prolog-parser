@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <name>Edinburgh Prolog parser</name>
-    <description>It is a hand-written prolog parser, it allows to parse prolog sources written in Edinburgh Prolog style</description>
+    <description>It is a handwritten prolog parser, it allows to parse prolog sources written in Edinburgh Prolog style</description>
     <url>https://github.com/raydac/java-prolog-parser</url>
 
     <properties>
@@ -208,7 +208,7 @@
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.2</version>
             </plugin>
 
             <plugin>

@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 /**
  * Associativity of Prolog operators.
  */
+@SuppressWarnings("unused")
 public enum OpAssoc {
 
   /**

@@ -49,18 +49,8 @@ public final class PrologAtom extends PrologTerm {
   }
 
   @Override
-  public Quotation getQuotation() {
-    return this.quotation;
-  }
-
-  @Override
   public TermType getType() {
     return TermType.ATOM;
-  }
-
-  @Override
-  public int getPrecedence() {
-    return 0;
   }
 
 }
