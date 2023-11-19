@@ -21,10 +21,10 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+import static java.util.Objects.requireNonNull;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Representation for float numeric term.

@@ -21,13 +21,13 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+import static java.util.Objects.requireNonNull;
+
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Representation of integer numeric term.

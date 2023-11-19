@@ -21,9 +21,9 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
-import com.igormaznitsa.prologparser.terms.PrologTerm;
-
 import static java.util.Objects.requireNonNull;
+
+import com.igormaznitsa.prologparser.terms.PrologTerm;
 
 /**
  * Internal object representing tokenizer result.

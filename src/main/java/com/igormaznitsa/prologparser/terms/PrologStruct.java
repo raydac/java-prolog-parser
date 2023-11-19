@@ -21,10 +21,12 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+import static com.igormaznitsa.prologparser.terms.TermType.LIST;
+import static java.util.Objects.requireNonNull;
+
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
-
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -33,9 +35,6 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static com.igormaznitsa.prologparser.terms.TermType.LIST;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Representation of prolog structure.

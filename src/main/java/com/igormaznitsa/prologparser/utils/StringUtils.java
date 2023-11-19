@@ -114,7 +114,8 @@ public final class StringUtils {
             if (len > 5) {
               return new UnescapeResult('u', false, true);
             } else {
-              if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
+              if (stringAfterEscMarker.hasSeveralChars() &&
+                  isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
                 return new UnescapeResult('u', false, true);
               }
               return new UnescapeResult('u', true, false);
@@ -125,13 +126,15 @@ public final class StringUtils {
           if (stringAfterEscMarker.isLastChar('\\')) {
             final int decoded;
             try {
-              decoded = Integer.parseInt(stringAfterEscMarker.substring(1, stringAfterEscMarker.length() - 1), 16);
+              decoded = Integer.parseInt(
+                  stringAfterEscMarker.substring(1, stringAfterEscMarker.length() - 1), 16);
             } catch (NumberFormatException ex) {
               return new UnescapeResult('x', false, true);
             }
             return new UnescapeResult((char) decoded, false, false);
           } else {
-            if (stringAfterEscMarker.hasSeveralChars() && isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
+            if (stringAfterEscMarker.hasSeveralChars() &&
+                isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
               return new UnescapeResult('x', false, true);
             }
             return new UnescapeResult('x', true, false);

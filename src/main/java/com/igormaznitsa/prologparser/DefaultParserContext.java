@@ -21,9 +21,10 @@
 
 package com.igormaznitsa.prologparser;
 
+import static java.util.stream.IntStream.rangeClosed;
+
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,8 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import static java.util.stream.IntStream.rangeClosed;
 
 /**
  * Default implementation of parser context.
@@ -102,7 +101,8 @@ public class DefaultParserContext implements ParserContext {
   }
 
   @Override
-  public boolean hasOpStartsWith(final PrologParser source, final String operatorNameStartSubstring) {
+  public boolean hasOpStartsWith(final PrologParser source,
+                                 final String operatorNameStartSubstring) {
     return this.opPrefixes.contains(operatorNameStartSubstring);
   }
 

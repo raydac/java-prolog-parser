@@ -21,13 +21,12 @@
 
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.terms.OpContainer;
-
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+
+import com.igormaznitsa.prologparser.terms.OpContainer;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Auxiliary class allows to make chain of prolog contexts.
@@ -39,7 +38,9 @@ public class ParserContextChain implements ParserContext {
 
   public ParserContextChain(final ParserContext... contexts) {
     this.contexts = stream(contexts).filter(Objects::nonNull).toArray(ParserContext[]::new);
-    this.minDetectedAllowedBufferSize = Stream.of(this.contexts).mapToInt(ParserContext::getMaxTokenizerBufferLength).min().orElse(Integer.MAX_VALUE);
+    this.minDetectedAllowedBufferSize =
+        Stream.of(this.contexts).mapToInt(ParserContext::getMaxTokenizerBufferLength).min()
+            .orElse(Integer.MAX_VALUE);
     this.tokenizerFlags = stream(this.contexts)
         .mapToInt(ParserContext::getFlags)
         .reduce(FLAG_NONE, (a, b) -> a | b);

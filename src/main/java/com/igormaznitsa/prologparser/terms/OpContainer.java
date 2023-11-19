@@ -25,7 +25,6 @@ import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.utils.StringBuilderEx;
-
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

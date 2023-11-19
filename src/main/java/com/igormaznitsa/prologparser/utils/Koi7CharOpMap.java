@@ -21,11 +21,11 @@
 
 package com.igormaznitsa.prologparser.utils;
 
-import com.igormaznitsa.prologparser.terms.OpContainer;
-import com.igormaznitsa.prologparser.tokenizer.Op;
-
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
 import static java.util.Arrays.stream;
+
+import com.igormaznitsa.prologparser.terms.OpContainer;
+import com.igormaznitsa.prologparser.tokenizer.Op;
 
 /**
  * Auxiliary mapping class allows to map a single char KOI7 to its related

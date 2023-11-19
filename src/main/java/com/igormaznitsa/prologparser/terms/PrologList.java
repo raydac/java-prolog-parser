@@ -21,8 +21,9 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.utils.StringBuilderEx;
+import static java.util.Objects.requireNonNull;
 
+import com.igormaznitsa.prologparser.utils.StringBuilderEx;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -30,8 +31,6 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Representation of prolog list term.

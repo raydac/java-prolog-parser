@@ -21,19 +21,17 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
+import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
+import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
+import static com.igormaznitsa.prologparser.terms.TermType.VAR;
+import static java.util.Objects.requireNonNull;
 
+import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-
-import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
-import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
-import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static com.igormaznitsa.prologparser.terms.TermType.VAR;
-import static java.util.Objects.requireNonNull;
 
 /**
  * Base class describes a Prolog term
@@ -72,13 +70,15 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       result = SINGLE;
     } else {
       char chr = atomText.charAt(0);
-      if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr) || Character.isISOControl(chr) || Character.isWhitespace(chr)) {
+      if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr) ||
+          Character.isISOControl(chr) || Character.isWhitespace(chr)) {
         result = SINGLE;
       } else {
 
         for (int i = 1; i < atomText.length(); i++) {
           chr = atomText.charAt(i);
-          if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr)) || Character.isISOControl(chr)) {
+          if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr)) ||
+              Character.isISOControl(chr)) {
             result = SINGLE;
             break;
           }
@@ -243,36 +243,43 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       break;
       case ATOM: {
         if (null == that.getType()) {
-            result = -1;
-        } else switch (that.getType()) {
+          result = -1;
+        } else {
+          switch (that.getType()) {
             case ATOM:
-                if (this instanceof PrologNumeric) {
-                    if (that instanceof PrologNumeric) {
-                        if (this instanceof PrologInt) {
-                            if (that instanceof PrologInt) {
-                                result = ((PrologInt) this).getIntValue().compareTo(((PrologInt) that).getIntValue());
-                            } else {
-                                result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(((PrologFloat) that).getFloatValue());
-                            }
-                        } else if (that instanceof PrologInt) {
-                            result = ((PrologFloat) this).getFloatValue().compareTo((new BigDecimal(((PrologInt) that).getIntValue())));
-                        } else {
-                            result = ((PrologFloat) this).getFloatValue().compareTo(((PrologFloat) that).getFloatValue());
-                        }
+              if (this instanceof PrologNumeric) {
+                if (that instanceof PrologNumeric) {
+                  if (this instanceof PrologInt) {
+                    if (that instanceof PrologInt) {
+                      result = ((PrologInt) this).getIntValue()
+                          .compareTo(((PrologInt) that).getIntValue());
                     } else {
-                        result = -1;
+                      result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(
+                          ((PrologFloat) that).getFloatValue());
                     }
-                } else if (that instanceof PrologNumeric) {
-                    result = 1;
+                  } else if (that instanceof PrologInt) {
+                    result = ((PrologFloat) this).getFloatValue()
+                        .compareTo((new BigDecimal(((PrologInt) that).getIntValue())));
+                  } else {
+                    result = ((PrologFloat) this).getFloatValue()
+                        .compareTo(((PrologFloat) that).getFloatValue());
+                  }
                 } else {
-                    result = this.getText().compareTo(that.getText());
-                }     break;
-            case VAR:
+                  result = -1;
+                }
+              } else if (that instanceof PrologNumeric) {
                 result = 1;
-                break;
+              } else {
+                result = this.getText().compareTo(that.getText());
+              }
+              break;
+            case VAR:
+              result = 1;
+              break;
             default:
-                result = -1;
-                break;
+              result = -1;
+              break;
+          }
         }
       }
       break;
@@ -285,7 +292,8 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
           }
           if (leftResult == 0) {
             for (int i = 0; i < this.getArity(); i++) {
-              leftResult = ((PrologCompound) this).getTermAt(i).compareTo(((PrologCompound) that).getTermAt(i));
+              leftResult = ((PrologCompound) this).getTermAt(i)
+                  .compareTo(((PrologCompound) that).getTermAt(i));
               if (leftResult != 0) {
                 break;
               }

@@ -47,7 +47,8 @@ public final class PrologVar extends PrologTerm {
     final char startWith = assertNonEmptyString(text).charAt(0);
 
     if (!Character.isUpperCase(startWith) && startWith != '_') {
-      throw new IllegalArgumentException("Var must start with upper case char or '_' [" + text + ']');
+      throw new IllegalArgumentException(
+          "Var must start with upper case char or '_' [" + text + ']');
     }
 
     this.anonymous = text.length() == 1 && startWith == '_';

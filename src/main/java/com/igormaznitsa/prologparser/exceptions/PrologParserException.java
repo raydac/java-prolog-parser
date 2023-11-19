@@ -49,7 +49,8 @@ public class PrologParserException extends RuntimeException {
    * @param pos   line position where the error has been detected
    * @param cause the root exception
    */
-  public PrologParserException(final String text, final int line, final int pos, final Throwable cause) {
+  public PrologParserException(final String text, final int line, final int pos,
+                               final Throwable cause) {
     super(text, cause);
     this.line = line;
     this.pos = pos;

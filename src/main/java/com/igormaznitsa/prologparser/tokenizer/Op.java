@@ -21,13 +21,20 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FX;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FY;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFY;
+import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.YFX;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Stream.of;
+
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,10 +42,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.*;
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Stream.of;
 
 /**
  * Prolog operator definition.
@@ -54,9 +57,11 @@ public final class Op extends PrologTerm {
   public static final Op ISO_UNARY_MINUS = make(200, FY, "-");
   public static final Op ISO_UNIFICATION = make(700, XFX, "=", "\\=", "=..");
   public static final Op ISO_BITWISE_SHIFT = make(400, YFX, "<<", ">>");
-  public static final Op ISO_ORDER_TERM = make(700, OpAssoc.XFX, "==", "\\==", "@<", "@=<", "@>", "@>=");
+  public static final Op ISO_ORDER_TERM =
+      make(700, OpAssoc.XFX, "==", "\\==", "@<", "@=<", "@>", "@>=");
 
-  public static final Op ISO_ORDER_ARITH = make(700, XFX, "<", "=<", ">", ">=", "=:=", "=\\=", "is");
+  public static final Op ISO_ORDER_ARITH =
+      make(700, XFX, "<", "=<", ">", ">=", "=:=", "=\\=", "is");
   public static final Op ISO_ARITH_PLUS_MINUS = make(500, YFX, "+", "-");
   public static final Op ISO_ARITH_MUL_DIV = make(400, YFX, "*", "/");
   public static final Op ISO_ARITH_POWER = make(200, OpAssoc.XFX, "**");
@@ -75,14 +80,6 @@ public final class Op extends PrologTerm {
       "multifile",
       "initialization"
   );
-
-  public static final Op GNU_DIV_RDIV = make(400, OpAssoc.YFX, "div", "rdiv");
-
-  public static final Op ISO_OR = make(1100, OpAssoc.XFY, ";");
-  public static final Op ISO_THEN = make(1050, OpAssoc.XFY, "->");
-  public static final Op GNU_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
-  public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
-
   public static final List<Op> SICTUS_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
       MODIFIERS,
       make(1150, FX, "mode", "block", "meta_predicate"),
@@ -92,7 +89,9 @@ public final class Op extends PrologTerm {
       make(500, YFX, "\\"),
       GNU_UNARY_PLUS
   ));
-
+  public static final Op GNU_DIV_RDIV = make(400, OpAssoc.YFX, "div", "rdiv");
+  public static final Op ISO_OR = make(1100, OpAssoc.XFY, ";");
+  public static final Op ISO_THEN = make(1050, OpAssoc.XFY, "->");
   /**
    * Set of operators for ISO Prolog standard.
    */
@@ -116,7 +115,8 @@ public final class Op extends PrologTerm {
       ISO_BITWISE_NEGATION,
       make(100, OpAssoc.XFX, "@")
   ));
-
+  public static final Op GNU_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
+  public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
   /**
    * Set of operators is specific for GNU Prolog use.
    */
@@ -126,13 +126,17 @@ public final class Op extends PrologTerm {
       GNU_DIV_RDIV,
       GNU_UNARY_PLUS
   ));
-
+  /**
+   * Set of operators for GNU Prolog.
+   */
+  public static final List<Op> GNU = Collections.unmodifiableList(Op.join(ISO, GNU_SPECIFIC));
   /**
    * Set of operators is specific for SWI Prolog use.
    */
   public static final List<Op> SWI_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
       MODIFIERS,
-      make(1150, OpAssoc.FX, "meta_predicate", "module_transparent", "thread_local", "thread_initialization"),
+      make(1150, OpAssoc.FX, "meta_predicate", "module_transparent", "thread_local",
+          "thread_initialization"),
       GNU_STAR_THEN,
       make(990, OpAssoc.FY, ":="),
       make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
@@ -143,12 +147,10 @@ public final class Op extends PrologTerm {
       GNU_UNARY_PLUS,
       make(1, OpAssoc.FX, "$")
   ));
-
   /**
    * Set of operators for SWI Prolog.
    */
   public static final List<Op> SWI = Collections.unmodifiableList(Op.join(ISO, SWI_SPECIFIC));
-
   /**
    * Set of Finite Domain operators for GNU Prolog.
    */
@@ -159,14 +161,9 @@ public final class Op extends PrologTerm {
       make(730, YFX, "#\\/", "#\\\\/"),
       make(720, YFX, "#/\\", "#\\/\\"),
       make(710, FY, "#\\"),
-      make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#", "#>=#")
+      make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#",
+          "#>=#")
   ));
-
-  /**
-   * Set of operators for GNU Prolog.
-   */
-  public static final List<Op> GNU = Collections.unmodifiableList(Op.join(ISO, GNU_SPECIFIC));
-
   /**
    * Set of Constraint Logic Programming operators for SWI Prolog.
    */
@@ -203,7 +200,8 @@ public final class Op extends PrologTerm {
 
   private final String[] multiNames;
 
-  private Op(final int precedence, final OpAssoc type, final String name, final String[] multiNames) {
+  private Op(final int precedence, final OpAssoc type, final String name,
+             final String[] multiNames) {
     super(name, Quotation.NONE);
 
     assertOpValidOpName(name);
@@ -372,15 +370,18 @@ public final class Op extends PrologTerm {
 
                 switch (this.opAssoc) {
                   case XFX: {
-                    result = elementLeft.getPrecedence() < getPrecedence() && elementRight.getPrecedence() < getPrecedence();
+                    result = elementLeft.getPrecedence() < getPrecedence() &&
+                        elementRight.getPrecedence() < getPrecedence();
                   }
                   break;
                   case YFX: {
-                    result = elementLeft.getPrecedence() <= getPrecedence() && elementRight.getPrecedence() < getPrecedence();
+                    result = elementLeft.getPrecedence() <= getPrecedence() &&
+                        elementRight.getPrecedence() < getPrecedence();
                   }
                   break;
                   case XFY: {
-                    result = elementLeft.getPrecedence() < getPrecedence() && elementRight.getPrecedence() <= getPrecedence();
+                    result = elementLeft.getPrecedence() < getPrecedence() &&
+                        elementRight.getPrecedence() <= getPrecedence();
                   }
                   break;
                   default: {
@@ -450,9 +451,12 @@ public final class Op extends PrologTerm {
   @Override
   public String toString() {
     if (isMultiName()) {
-      return String.format("op(%d, %s, [%s]).", getPrecedence(), getAssoc().toString().toLowerCase(Locale.ENGLISH), of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
+      return String.format("op(%d, %s, [%s]).", getPrecedence(),
+          getAssoc().toString().toLowerCase(Locale.ENGLISH),
+          of(this.multiNames).map(x -> '\'' + x + '\'').collect(Collectors.joining(",")));
     } else {
-      return String.format("op(%d, %s, '%s').", getPrecedence(), getAssoc().toString().toLowerCase(Locale.ENGLISH), getText());
+      return String.format("op(%d, %s, '%s').", getPrecedence(),
+          getAssoc().toString().toLowerCase(Locale.ENGLISH), getText());
     }
   }
 
