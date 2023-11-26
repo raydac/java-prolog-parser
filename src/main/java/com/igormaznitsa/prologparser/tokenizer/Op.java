@@ -49,7 +49,13 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public final class Op extends PrologTerm {
 
+  /**
+   * Highest allowed priority of operator
+   */
   public static final int PRECEDENCE_MAX = 0;
+  /**
+   * Lowest allowed priority of operator
+   */
   public static final int PRECEDENCE_MIN = 1200;
 
   public static final Op GNU_UNARY_PLUS = make(200, FY, "+");
@@ -80,6 +86,9 @@ public final class Op extends PrologTerm {
       "multifile",
       "initialization"
   );
+  /**
+   * Set of operators specific for Sictus Prolog.
+   */
   public static final List<Op> SICTUS_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
       MODIFIERS,
       make(1150, FX, "mode", "block", "meta_predicate"),
