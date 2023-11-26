@@ -29,6 +29,7 @@ import java.math.MathContext;
 /**
  * Representation for float numeric term.
  */
+@SuppressWarnings("unused")
 public final class PrologFloat extends PrologNumeric {
 
   public static final MathContext MATH_CONTEXT = MathContext.DECIMAL64;

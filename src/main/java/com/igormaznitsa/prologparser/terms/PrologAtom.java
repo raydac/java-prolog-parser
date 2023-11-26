@@ -24,6 +24,7 @@ package com.igormaznitsa.prologparser.terms;
 /**
  * Prolog atom.
  */
+@SuppressWarnings("unused")
 public final class PrologAtom extends PrologTerm {
 
   private static final long serialVersionUID = -1829006002358498466L;

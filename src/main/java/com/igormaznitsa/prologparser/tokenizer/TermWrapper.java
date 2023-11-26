@@ -29,6 +29,7 @@ import com.igormaznitsa.prologparser.terms.TermType;
 /**
  * Internal term wrapper to build AST.
  */
+@SuppressWarnings("unused")
 public final class TermWrapper extends InternalSpecialCompoundTerm {
 
   private static final long serialVersionUID = 9006607815982718325L;

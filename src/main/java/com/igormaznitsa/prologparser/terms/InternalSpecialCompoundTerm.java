@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 /**
  * Base class for special service terms for use on level of parser.
  */
+@SuppressWarnings("unused")
 public abstract class InternalSpecialCompoundTerm extends PrologCompound {
 
   private static final long serialVersionUID = 71286378126323213L;

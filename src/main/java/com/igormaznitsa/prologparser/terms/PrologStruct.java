@@ -39,7 +39,7 @@ import java.util.stream.StreamSupport;
 /**
  * Representation of prolog structure.
  */
-@SuppressWarnings("SameParameterValue")
+@SuppressWarnings({"SameParameterValue", "unused"})
 public class PrologStruct extends PrologCompound implements Iterable<PrologTerm> {
 
   public static final PrologAtom EMPTY_ATOM = new PrologAtom("", Quotation.SINGLE);

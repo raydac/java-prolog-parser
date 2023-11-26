@@ -24,6 +24,7 @@ package com.igormaznitsa.prologparser.terms;
 /**
  * Base class for all numeric terms.
  */
+@SuppressWarnings("unused")
 public abstract class PrologNumeric extends PrologTerm {
 
   private static final long serialVersionUID = -1815562758090770438L;

@@ -32,6 +32,7 @@ import java.util.stream.IntStream;
 /**
  * Representation of integer numeric term.
  */
+@SuppressWarnings("unused")
 public final class PrologInt extends PrologNumeric {
 
   private static final long serialVersionUID = 6955747225309951985L;

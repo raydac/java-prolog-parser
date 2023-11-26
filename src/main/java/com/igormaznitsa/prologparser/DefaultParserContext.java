@@ -38,6 +38,7 @@ import java.util.stream.Stream;
  * Default implementation of parser context.
  * <b>It is not thread safe one!</b>
  */
+@SuppressWarnings("unused")
 public class DefaultParserContext implements ParserContext {
 
   protected static final Op[] EMPTY = new Op[0];
