@@ -32,7 +32,7 @@ public abstract class PrologCompound extends PrologTerm {
   }
 
   /**
-   * Get element for its position
+   * Get element for its position.
    *
    * @param position zero-based element position
    * @return element in position

@@ -110,7 +110,7 @@ public final class PrologInt extends PrologNumeric {
   }
 
   /**
-   * Get the value as BigInteger
+   * Get the value as BigInteger.
    *
    * @return the value as BigInteger
    */

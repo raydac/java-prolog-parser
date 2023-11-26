@@ -70,15 +70,15 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       result = SINGLE;
     } else {
       char chr = atomText.charAt(0);
-      if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr) ||
-          Character.isISOControl(chr) || Character.isWhitespace(chr)) {
+      if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr)
+          || Character.isISOControl(chr) || Character.isWhitespace(chr)) {
         result = SINGLE;
       } else {
 
         for (int i = 1; i < atomText.length(); i++) {
           chr = atomText.charAt(i);
-          if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr)) ||
-              Character.isISOControl(chr)) {
+          if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr))
+              || Character.isISOControl(chr)) {
             result = SINGLE;
             break;
           }

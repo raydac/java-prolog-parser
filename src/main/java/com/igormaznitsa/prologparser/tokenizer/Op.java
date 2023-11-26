@@ -21,6 +21,7 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static com.igormaznitsa.prologparser.PrologParser.findBaseMetaOperator;
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FX;
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.FY;
 import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.XFX;
@@ -29,7 +30,6 @@ import static com.igormaznitsa.prologparser.tokenizer.OpAssoc.YFX;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Stream.of;
 
-import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
@@ -50,11 +50,11 @@ import java.util.stream.Stream;
 public final class Op extends PrologTerm {
 
   /**
-   * Highest allowed priority of operator
+   * Highest allowed priority of operator.
    */
   public static final int PRECEDENCE_MAX = 0;
   /**
-   * Lowest allowed priority of operator
+   * Lowest allowed priority of operator.
    */
   public static final int PRECEDENCE_MIN = 1200;
 
@@ -379,18 +379,18 @@ public final class Op extends PrologTerm {
 
                 switch (this.opAssoc) {
                   case XFX: {
-                    result = elementLeft.getPrecedence() < getPrecedence() &&
-                        elementRight.getPrecedence() < getPrecedence();
+                    result = elementLeft.getPrecedence() < getPrecedence()
+                        && elementRight.getPrecedence() < getPrecedence();
                   }
                   break;
                   case YFX: {
-                    result = elementLeft.getPrecedence() <= getPrecedence() &&
-                        elementRight.getPrecedence() < getPrecedence();
+                    result = elementLeft.getPrecedence() <= getPrecedence()
+                        && elementRight.getPrecedence() < getPrecedence();
                   }
                   break;
                   case XFY: {
-                    result = elementLeft.getPrecedence() < getPrecedence() &&
-                        elementRight.getPrecedence() <= getPrecedence();
+                    result = elementLeft.getPrecedence() < getPrecedence()
+                        && elementRight.getPrecedence() <= getPrecedence();
                   }
                   break;
                   default: {
@@ -470,7 +470,7 @@ public final class Op extends PrologTerm {
   }
 
   private Object readResolve() {
-    final Object result = GenericPrologParser.findBaseMetaOperator(this.text, this.opAssoc);
+    final Object result = findBaseMetaOperator(this.text, this.opAssoc);
     return result == null ? this : result;
   }
 }

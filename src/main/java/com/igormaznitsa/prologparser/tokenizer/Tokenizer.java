@@ -21,6 +21,9 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_CHARCODE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.OPERATOR;
@@ -79,13 +82,13 @@ public final class Tokenizer {
 
     final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE :
         parser.getContext().getMaxTokenizerBufferLength();
-    this.blockCommentsAllowed = parser.getContext() != null &&
-        ((parser.getContext().getFlags() & ParserContext.FLAG_BLOCK_COMMENTS) != 0);
-    this.zeroSingleQuotationAllowed = parser.getContext() != null &&
-        ((parser.getContext().getFlags() & ParserContext.FLAG_ZERO_QUOTATION_CHARCODE) != 0);
-    this.zeroQuotationAllowsWhitespaceChar = parser.getContext() != null &&
-        ((parser.getContext().getFlags() &
-            ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR) != 0);
+    this.blockCommentsAllowed = parser.getContext() != null
+        && ((parser.getContext().getFlags() & FLAG_BLOCK_COMMENTS) != 0);
+    this.zeroSingleQuotationAllowed = parser.getContext() != null
+        && ((parser.getContext().getFlags() & FLAG_ZERO_QUOTATION_CHARCODE) != 0);
+    this.zeroQuotationAllowsWhitespaceChar = parser.getContext() != null
+        && ((parser.getContext().getFlags()
+        & FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR) != 0);
 
     this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
     this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
@@ -413,14 +416,14 @@ public final class Tokenizer {
 
         final char chr = (char) readChar;
 
-        if (state != STRING && this.blockCommentsAllowed && chr == '*' &&
-            this.strBuf.isLastChar('/')) {
+        if (state != STRING && this.blockCommentsAllowed && chr == '*'
+            && this.strBuf.isLastChar('/')) {
           if (this.strBuf.isSingleChar('/')) {
             this.strBuf.pop();
             state = this.strBuf.isEmpty() ? LOOK_FOR : state;
           } else if (state == OPERATOR) {
-            throw new PrologParserException("Operator can be mixed with comment block: " +
-                this.strBuf + chr, getLastTokenLine(), getLastTokenPos());
+            throw new PrologParserException("Operator can be mixed with comment block: "
+                + this.strBuf + chr, getLastTokenLine(), getLastTokenPos());
           }
 
           skipUntilBlockCommentEnd();
@@ -695,8 +698,8 @@ public final class Tokenizer {
                     } else {
                       // it is a float
                       if (!Character.isDigit(strBuffer.getLastChar())) {
-                        throw new PrologParserException("Unexpected end of float: " +
-                            strBuffer, this.prevLine, this.prevPos);
+                        throw new PrologParserException("Unexpected end of float: "
+                            + strBuffer, this.prevLine, this.prevPos);
                       }
                       return new TokenizerResult(
                           makeTermFromString(strBuffer.toString(), radix, quoting, state),
@@ -716,8 +719,8 @@ public final class Tokenizer {
                 if (lastFoundFullOperator == null || letterOrDigitOnly) {
                   final String textInBuffer = strBuffer.toString();
 
-                  if (lastFoundFullOperator != null &&
-                      lastFoundFullOperator.getText().equals(textInBuffer)) {
+                  if (lastFoundFullOperator != null
+                      && lastFoundFullOperator.getText().equals(textInBuffer)) {
                     return new TokenizerResult(
                         lastFoundFullOperator,
                         state,
@@ -811,8 +814,8 @@ public final class Tokenizer {
                   final StringUtils.UnescapeResult result =
                       StringUtils.tryUnescapeCharacter(specCharBuffer);
                   if (result.isError()) {
-                    throw new PrologParserException("Detected wrong escape char: \\" +
-                        specCharBuffer, this.prevLine, this.prevPos);
+                    throw new PrologParserException("Detected wrong escape char: \\"
+                        + specCharBuffer, this.prevLine, this.prevPos);
                   } else if (!result.doesNeedMore()) {
                     specCharDetected = false;
                     if (charCodeAsInt) {

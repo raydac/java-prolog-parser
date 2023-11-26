@@ -70,7 +70,7 @@ public interface ParserContext {
   int FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR = 64;
 
   /**
-   * Check that the context contains an operator starts with some string
+   * Check that the context contains an operator starts with some string.
    *
    * @param source     source prolog parser making request, must not be null
    * @param namePrefix string to be used to look for operator starts with it, must not be null

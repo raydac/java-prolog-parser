@@ -87,30 +87,33 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
 
     switch (operator.getAssoc()) {
       case FX:
-      case FY:
+      case FY: {
         if (this.opFZ != null) {
           return false;
         }
         this.opFZ = operator;
         this.numberAtContainer++;
-        break;
+      }
+      break;
       case XF:
-      case YF:
+      case YF: {
         if (this.opZF != null) {
           return false;
         }
         this.opZF = operator;
         this.numberAtContainer++;
-        break;
+      }
+      break;
       case XFX:
       case XFY:
-      case YFX:
+      case YFX: {
         if (this.opZFZ != null) {
           return false;
         }
         this.opZFZ = operator;
         this.numberAtContainer++;
-        break;
+      }
+      break;
       default:
         throw new CriticalUnexpectedError();
     }

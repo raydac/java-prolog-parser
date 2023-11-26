@@ -592,8 +592,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
             }
           } else if (currentTreeItem.getPrecedence() > readAtomPrecedence) {
             // new has greater precedence
-            if (readAtomTreeItem.getType() != TermType.OPERATOR &&
-                currentTreeItem.getRightBranch() != null) {
+            if (readAtomTreeItem.getType() != TermType.OPERATOR
+                && currentTreeItem.getRightBranch() != null) {
               // it's a ground atom and its right branch is not empty
               throw new PrologParserException(
                   "There is no any operator before the atom",

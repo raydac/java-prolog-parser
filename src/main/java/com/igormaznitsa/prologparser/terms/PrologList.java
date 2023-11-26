@@ -138,7 +138,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   }
 
   /**
-   * Get the current tail element
+   * Get the current tail element.
    *
    * @return the current tail element, can be null
    */
@@ -147,7 +147,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   }
 
   /**
-   * Set the current tail element
+   * Set the current tail element.
    *
    * @param term the new tail element, can be null
    */

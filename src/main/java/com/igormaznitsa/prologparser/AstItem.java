@@ -167,26 +167,26 @@ final class AstItem {
       final Op wrappedOperator = (Op) ((TermWrapper) this.savedTerm).getWrappedTerm();
       switch (wrappedOperator.getAssoc()) {
         case FX:
-          return this.leftItem == null &&
-              (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
+          return this.leftItem == null
+              && (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
         case FY:
-          return this.leftItem == null &&
-              (this.rightItem != null && this.rightItem.getPrecedence() <= thisPrecedence);
+          return this.leftItem == null
+              && (this.rightItem != null && this.rightItem.getPrecedence() <= thisPrecedence);
         case YF:
-          return (this.leftItem != null && this.leftItem.getPrecedence() <= thisPrecedence) &&
-              this.rightItem == null;
+          return (this.leftItem != null && this.leftItem.getPrecedence() <= thisPrecedence)
+              && this.rightItem == null;
         case XF:
-          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence) &&
-              this.rightItem == null;
+          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence)
+              && this.rightItem == null;
         case XFX:
-          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence) &&
-              (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
+          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence)
+              && (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
         case XFY:
-          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence) &&
-              (this.rightItem != null && this.rightItem.getPrecedence() <= thisPrecedence);
+          return (this.leftItem != null && this.leftItem.getPrecedence() < thisPrecedence)
+              && (this.rightItem != null && this.rightItem.getPrecedence() <= thisPrecedence);
         case YFX:
-          return (this.leftItem != null && this.leftItem.getPrecedence() <= thisPrecedence) &&
-              (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
+          return (this.leftItem != null && this.leftItem.getPrecedence() <= thisPrecedence)
+              && (this.rightItem != null && this.rightItem.getPrecedence() < thisPrecedence);
         default:
           throw new CriticalUnexpectedError();
       }
@@ -228,9 +228,9 @@ final class AstItem {
         }
 
         if (this.leftItem == null) {
-          if (this.rightItem.getType() == TermType.STRUCT &&
-              this.rightItem.savedTerm.isAnyBlock() &&
-              !((PrologStruct) this.rightItem.savedTerm).isEmpty()) {
+          if (this.rightItem.getType() == TermType.STRUCT
+              && this.rightItem.savedTerm.isAnyBlock()
+              && !((PrologStruct) this.rightItem.savedTerm).isEmpty()) {
 
             final PrologTerm rightTerm = this.rightItem.convertToTermAndRelease(parser);
             Op operator = (Op) wrapper.getWrappedTerm();
@@ -299,8 +299,8 @@ final class AstItem {
         final PrologTerm right;
 
         if (!isPrecedenceOk()) {
-          if (this.rightItem != null && this.rightItem.isOperator() &&
-              this.rightItem.getOpAssoc().isPrefix()) {
+          if (this.rightItem != null && this.rightItem.isOperator()
+              && this.rightItem.getOpAssoc().isPrefix()) {
             left = this.leftItem == null ? null : this.leftItem.convertToTermAndRelease(parser);
             right = new PrologStruct(Op.VIRTUAL_OPERATOR_BLOCK,
                 new PrologTerm[] {this.rightItem.convertToTermAndRelease(parser)});
@@ -337,18 +337,18 @@ final class AstItem {
       break;
       case STRUCT: {
         final PrologStruct thisStruct = (PrologStruct) this.savedTerm;
-        if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK ||
-            thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
+        if ((thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
+            || thisStruct.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)
             && thisStruct.getArity() == 1) {
 
           final PrologTerm thatTerm = thisStruct.getTermAt(0);
 
-          if (thatTerm.getType() == TermType.STRUCT &&
-              (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK ||
-                  thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
+          if (thatTerm.getType() == TermType.STRUCT
+              && (thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_BLOCK
+              || thatTerm.getFunctor() == Op.VIRTUAL_OPERATOR_CURLY_BLOCK)) {
             // rolling normal blocks
-            result = thatTerm.isBlock() && this.isBlock() &&
-                (this.parentItem == null || this.parentItem.isBlock()) ? thatTerm : thisStruct;
+            result = thatTerm.isBlock() && this.isBlock()
+                && (this.parentItem == null || this.parentItem.isBlock()) ? thatTerm : thisStruct;
           } else {
             result = thisStruct;
           }

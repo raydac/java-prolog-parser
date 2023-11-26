@@ -55,14 +55,14 @@ public abstract class PrologNumeric extends PrologTerm {
   }
 
   /**
-   * Check that the number is negative one
+   * Check that the number is negative one.
    *
    * @return true if the number is negative one, false otherwise
    */
   public abstract boolean isNegative();
 
   /**
-   * Make negative representation of the numeric term
+   * Make negative representation of the numeric term.
    *
    * @return the negative variant of the numeric
    */

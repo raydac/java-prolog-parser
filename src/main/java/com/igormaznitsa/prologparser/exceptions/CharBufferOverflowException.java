@@ -22,7 +22,8 @@
 package com.igormaznitsa.prologparser.exceptions;
 
 /**
- * Specialized exception shows that allowed char buffer size of one buffers in a tokenizer is reached.
+ * Specialized exception shows that allowed char buffer size of one buffers
+ * in a tokenizer is reached.
  */
 public class CharBufferOverflowException extends PrologParserException {
 
@@ -33,7 +34,8 @@ public class CharBufferOverflowException extends PrologParserException {
   /**
    * Constructor.
    *
-   * @param bufferText current buffer content which is cause of the error, can be null but in the case it will be converted into empty string.
+   * @param bufferText current buffer content which is cause of the error, can be null but
+   *                   in the case it will be converted into empty string.
    */
   public CharBufferOverflowException(final String bufferText) {
     super("Char buffer limit is reached", -1, -1);
