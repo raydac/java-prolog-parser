@@ -1,9 +1,9 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TermWrapperTest {
 

@@ -1,17 +1,20 @@
 package com.igormaznitsa.prologparser.terms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
-import java.util.Objects;
-import org.junit.jupiter.api.Test;
-
 import java.io.StringReader;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Objects;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("DataFlowIssue")
 public class PrologStructureTest {
@@ -42,7 +45,10 @@ public class PrologStructureTest {
         new PrologAtom("first"), new PrologFloat(123d),
         new PrologList(), new PrologVar()}).toString());
 
-    final Map<String, OpContainer> contextOperators = ((DefaultParserContext) new GenericPrologParser(new StringReader(""), new DefaultParserContext(ParserContext.FLAG_NONE).addOps(Op.SWI)).getContext()).findAllOperators();
+    final Map<String, OpContainer> contextOperators =
+        ((DefaultParserContext) new GenericPrologParser(new StringReader(""),
+            new DefaultParserContext(ParserContext.FLAG_NONE).addOps(
+                Op.SWI)).getContext()).findAllOperators();
     assertEquals("hello :- world", new PrologStruct(
         Objects.requireNonNull(contextOperators.get(":-").findForType(OpAssoc.XFX)),
         new PrologTerm[] {new PrologAtom("hello"),
@@ -149,8 +155,10 @@ public class PrologStructureTest {
 
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, testterms));
     assertThrows(NullPointerException.class, () -> new PrologStruct(new PrologAtom("hello"), null));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d), testtermswithnull));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), testtermswithnull));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologFloat(0.0d), testtermswithnull));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologList(), testtermswithnull));
 
     final PrologAtom functoratom = new PrologAtom("functor");
     PrologStruct struct = new PrologStruct(functoratom, testterms);
@@ -177,10 +185,13 @@ public class PrologStructureTest {
         new PrologAtom("test1"), null, new PrologAtom("test3")};
 
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, testterms, 2, 1));
-    assertThrows(NullPointerException.class, () -> new PrologStruct(new PrologAtom("hello"), null, 2, 1));
+    assertThrows(NullPointerException.class,
+        () -> new PrologStruct(new PrologAtom("hello"), null, 2, 1));
 
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d), testtermswithnull, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), testtermswithnull, 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologFloat(0.0d), testtermswithnull, 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologList(), testtermswithnull, 2, 1));
 
     final PrologAtom functoratom = new PrologAtom("functor");
     PrologStruct struct = new PrologStruct(functoratom, testterms, 2, 1);
@@ -231,7 +242,8 @@ public class PrologStructureTest {
   public void testPrologStructureAbstractPrologTermIntInt() {
     final PrologAtom atom = new PrologAtom("atom1");
     assertThrows(NullPointerException.class, () -> new PrologStruct((PrologTerm) null, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(0.0d), 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologFloat(0.0d), 2, 1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 2, 1));
 
     final PrologStruct test = new PrologStruct(atom, 2, 1);
@@ -243,7 +255,8 @@ public class PrologStructureTest {
   @Test
   public void testPrologStructureAbstractPrologTermInt() {
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologAtom("test"), -1));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInt("5"), 10));
     assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10));
@@ -260,10 +273,14 @@ public class PrologStructureTest {
   @Test
   public void testPrologStructureAbstractPrologTermIntIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologStruct(null, 4, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologAtom("test"), -1, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologList(), 10, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologInt("5"), 10, 2, 1));
-    assertThrows(IllegalArgumentException.class, () -> new PrologStruct(new PrologFloat(5.0d), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologAtom("test"), -1, 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologList(), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologInt("5"), 10, 2, 1));
+    assertThrows(IllegalArgumentException.class,
+        () -> new PrologStruct(new PrologFloat(5.0d), 10, 2, 1));
 
     final PrologAtom testAtom = new PrologAtom("test");
 
@@ -319,8 +336,10 @@ public class PrologStructureTest {
       structure.setElementAt(li, terms[li]);
     }
 
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElementAt(-1, new PrologList()));
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> structure.setElementAt(terms.length, new PrologList()));
+    assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> structure.setElementAt(-1, new PrologList()));
+    assertThrows(ArrayIndexOutOfBoundsException.class,
+        () -> structure.setElementAt(terms.length, new PrologList()));
 
     for (int li = 0; li < terms.length; li++) {
       assertSame(terms[li], structure.getTermAt(li));

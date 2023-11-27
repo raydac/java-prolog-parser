@@ -1,8 +1,15 @@
 package com.igormaznitsa.prologparser.terms;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("DataFlowIssue")
 public class PrologListTest {
@@ -149,8 +156,10 @@ public class PrologListTest {
   @Test
   public void testPrologListAbstractPrologTermAbstractPrologTermIntInt() {
     assertThrows(NullPointerException.class, () -> new PrologList(null, null, 2, 1));
-    assertThrows(NullPointerException.class, () -> new PrologList(null, new PrologAtom("test"), 2, 1));
-    assertThrows(NullPointerException.class, () -> new PrologList(new PrologAtom("test"), null, 2, 1));
+    assertThrows(NullPointerException.class,
+        () -> new PrologList(null, new PrologAtom("test"), 2, 1));
+    assertThrows(NullPointerException.class,
+        () -> new PrologList(new PrologAtom("test"), null, 2, 1));
 
     final PrologAtom atom1 = new PrologAtom("test");
     final PrologAtom atom2 = new PrologAtom("test2");

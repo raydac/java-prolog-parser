@@ -1,15 +1,16 @@
 package com.igormaznitsa.prologparser;
 
-import com.igormaznitsa.prologparser.terms.PrologStruct;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
+import com.igormaznitsa.prologparser.terms.PrologStruct;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StringReader;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class SerializationTest {
   @Test
@@ -32,7 +33,8 @@ public class SerializationTest {
     objectStream.writeObject(second);
     objectStream.close();
 
-    final ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+    final ObjectInputStream inStream =
+        new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
 
     final PrologStruct firstClone = (PrologStruct) inStream.readObject();
     final PrologStruct secondClone = (PrologStruct) inStream.readObject();
@@ -56,7 +58,8 @@ public class SerializationTest {
     objectStream.writeObject(structure);
     objectStream.close();
 
-    final ObjectInputStream inStream = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+    final ObjectInputStream inStream =
+        new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
 
     final PrologStruct structureClone = (PrologStruct) inStream.readObject();
 

@@ -1,18 +1,22 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class TokenizerResultTest {
 
   @Test
   public void testTokenizerResult() {
-    assertThrows(NullPointerException.class, () -> new TokenizerResult(null, TokenizerState.ATOM, 2, 1));
-    assertThrows(NullPointerException.class, () -> new TokenizerResult(new PrologAtom("test"), null, 2, 1));
+    assertThrows(NullPointerException.class,
+        () -> new TokenizerResult(null, TokenizerState.ATOM, 2, 1));
+    assertThrows(NullPointerException.class,
+        () -> new TokenizerResult(new PrologAtom("test"), null, 2, 1));
 
     final PrologAtom testAtom = new PrologAtom("test");
     final TokenizerResult result = new TokenizerResult(testAtom,
@@ -51,13 +55,15 @@ public class TokenizerResultTest {
 
   @Test
   public void testGetStringPosition() {
-    final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOK_FOR, 2, 1);
+    final TokenizerResult result =
+        new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOK_FOR, 2, 1);
     assertEquals(1, result.getPos());
   }
 
   @Test
   public void testGetLineNumber() {
-    final TokenizerResult result = new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOK_FOR, 2, 1);
+    final TokenizerResult result =
+        new TokenizerResult(new PrologAtom("test"), TokenizerState.LOOK_FOR, 2, 1);
     assertEquals(2, result.getLine());
   }
 }

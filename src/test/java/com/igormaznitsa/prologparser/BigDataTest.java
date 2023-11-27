@@ -16,32 +16,35 @@
 
 package com.igormaznitsa.prologparser;
 
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologList;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import java.io.IOException;
-import org.junit.jupiter.api.Test;
-
 import java.io.InputStreamReader;
-
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
 class BigDataTest extends AbstractIntegrationTest {
 
   @Test
   public void testBigSource_ClausesSplitted() {
     final int CLAUSES = 1000;
-    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+    assertEquals(CLAUSES,
+        new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)),
+            DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
   }
 
   @Test
   public void testBigSource_ClausesNotSplitted() {
     final int CLAUSES = 1000;
-    assertEquals(CLAUSES, new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)), DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
+    assertEquals(CLAUSES, new GenericPrologParser(
+        new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)),
+        DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
   }
 
 
@@ -62,7 +65,7 @@ class BigDataTest extends AbstractIntegrationTest {
     }
     buffer.append(").");
 
-    try(final PrologParser parser = parseEd(buffer.toString())) {
+    try (final PrologParser parser = parseEd(buffer.toString())) {
       PrologStruct struct = (PrologStruct) parser.next();
       assertEquals(ELEMENTS, struct.getArity());
       assertEquals("test", struct.getFunctor().getText());

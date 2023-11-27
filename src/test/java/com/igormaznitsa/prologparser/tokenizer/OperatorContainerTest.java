@@ -21,13 +21,18 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.igormaznitsa.prologparser.terms.InternalSpecialCompoundTerm;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
-
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"DataFlowIssue", "ConstantValue"})
 class OperatorContainerTest {

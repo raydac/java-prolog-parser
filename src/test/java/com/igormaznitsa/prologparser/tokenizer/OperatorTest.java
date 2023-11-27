@@ -21,14 +21,18 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"AssertBetweenInconvertibleTypes", "EqualsWithItself"})
 class OperatorTest {
@@ -57,8 +61,10 @@ class OperatorTest {
   void testMakeOperators() {
     final String[] names = new String[] {"op1", "op2", "op3", "op4"};
 
-    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MAX - 1, OpAssoc.FX, names));
-    assertThrows(IllegalArgumentException.class, () -> Op.make(Op.PRECEDENCE_MIN + 1, OpAssoc.FX, names));
+    assertThrows(IllegalArgumentException.class,
+        () -> Op.make(Op.PRECEDENCE_MAX - 1, OpAssoc.FX, names));
+    assertThrows(IllegalArgumentException.class,
+        () -> Op.make(Op.PRECEDENCE_MIN + 1, OpAssoc.FX, names));
     assertThrows(NullPointerException.class, () -> Op.make(345, null, names));
     assertThrows(NullPointerException.class, () -> Op.make(345, OpAssoc.FX, (String[]) null));
 
@@ -134,7 +140,8 @@ class OperatorTest {
     assertTrue(opXF.isCompatibleWith(two));
 
     final PrologStruct nullElementStructure = Mockito.mock(PrologStruct.class);
-    Mockito.when(nullElementStructure.getArity()).thenReturn(1).thenReturn(1).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(1).thenReturn(1);
+    Mockito.when(nullElementStructure.getArity()).thenReturn(1).thenReturn(1).thenReturn(2)
+        .thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(2).thenReturn(1).thenReturn(1);
 
     assertFalse(opFX.isCompatibleWith(nullElementStructure));
     assertFalse(opFY.isCompatibleWith(nullElementStructure));

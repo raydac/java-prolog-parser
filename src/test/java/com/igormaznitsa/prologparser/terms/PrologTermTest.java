@@ -1,21 +1,21 @@
 package com.igormaznitsa.prologparser.terms;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
 import com.igormaznitsa.prologparser.PrologParser;
 import com.igormaznitsa.prologparser.tokenizer.Op;
-import org.junit.jupiter.api.Test;
-
 import java.io.StringReader;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
 public class PrologTermTest {
 
   private PrologParser parserFor(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(ParserContext.FLAG_NONE, Op.SWI));
+    return new GenericPrologParser(new StringReader(str),
+        DefaultParserContext.of(ParserContext.FLAG_NONE, Op.SWI));
   }
 
   @Test
@@ -45,7 +45,8 @@ public class PrologTermTest {
     assertEquals(new PrologList().toString(), "[]");
 
     final PrologList list = new PrologList(new PrologAtom("head"));
-    list.addAsNewListToEndOfListChain(new PrologInt("1006")).addAsNewListToEndOfListChain(new PrologVar("Var"));
+    list.addAsNewListToEndOfListChain(new PrologInt("1006"))
+        .addAsNewListToEndOfListChain(new PrologVar("Var"));
     assertEquals("[head, 1006, Var]", list.toString());
 
     final PrologList list2 = new PrologList(new PrologVar("X"));

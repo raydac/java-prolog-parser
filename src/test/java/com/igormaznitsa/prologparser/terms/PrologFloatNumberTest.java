@@ -1,11 +1,10 @@
 package com.igormaznitsa.prologparser.terms;
 
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.math.BigDecimal;
+import org.junit.jupiter.api.Test;
 
 public class PrologFloatNumberTest {
 
@@ -27,8 +26,10 @@ public class PrologFloatNumberTest {
 
   @Test
   public void testGetValue() {
-    final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
-    final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
+    final BigDecimal test1 = new BigDecimal(
+        "0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
+    final BigDecimal test2 = new BigDecimal(
+        "-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
 
     assertEquals(test1, new PrologFloat(test1).getFloatValue());
     assertEquals(test2, new PrologFloat(test2).getFloatValue());
@@ -70,16 +71,20 @@ public class PrologFloatNumberTest {
 
   @Test
   public void testPrologFloatNumberDouble() {
-    assertEquals(0.1234221d, new PrologFloat(0.1234221d).getNumber().doubleValue(), Double.MIN_NORMAL);
-    assertEquals(-0.00021234221d, new PrologFloat(-0.00021234221d).getNumber().doubleValue(), Double.MIN_NORMAL);
+    assertEquals(0.1234221d, new PrologFloat(0.1234221d).getNumber().doubleValue(),
+        Double.MIN_NORMAL);
+    assertEquals(-0.00021234221d, new PrologFloat(-0.00021234221d).getNumber().doubleValue(),
+        Double.MIN_NORMAL);
   }
 
   @Test
   public void testPrologFloatNumberBigDecimal() {
     assertThrows(NullPointerException.class, () -> new PrologFloat((BigDecimal) null));
 
-    final BigDecimal test1 = new BigDecimal("0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
-    final BigDecimal test2 = new BigDecimal("-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
+    final BigDecimal test1 = new BigDecimal(
+        "0.0000000000007623723674621836817263437862876430000234234234362487238426123213324321432432000234324123213");
+    final BigDecimal test2 = new BigDecimal(
+        "-8923749873294261283192830981284039284981273982173.893249827398213092183092498327948217039821038120302432094");
 
     assertEquals(test1, new PrologFloat(test1).getFloatValue());
     assertEquals(test2, new PrologFloat(test2).getFloatValue());

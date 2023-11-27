@@ -1,9 +1,9 @@
 package com.igormaznitsa.prologparser.terms;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("DataFlowIssue")
 public class PrologAtomTest {

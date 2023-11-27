@@ -258,16 +258,14 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
           result = this.opFZ;
         }
       }
-    } else {
-      if (hasRightArg) {
-        if (this.opFZ != null) {
-          result = this.opFZ;
-        } else {
-          result = this.opZF;
-        }
+    } else if (hasRightArg) {
+      if (this.opFZ != null) {
+        result = this.opFZ;
       } else {
-        result = null;
+        result = this.opZF;
       }
+    } else {
+      result = null;
     }
     return result;
   }
@@ -282,24 +280,27 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
     Op result = null;
     switch (type) {
       case FY:
-      case FX:
+      case FX: {
         if (this.opFZ != null) {
           result = this.opFZ;
         }
-        break;
+      }
+      break;
       case XF:
-      case YF:
+      case YF: {
         if (this.opZF != null) {
           result = this.opZF;
         }
-        break;
+      }
+      break;
       case XFX:
       case YFX:
-      case XFY:
+      case XFY: {
         if (this.opZFZ != null) {
           result = this.opZFZ;
         }
-        break;
+      }
+      break;
       default:
         throw new CriticalUnexpectedError();
     }

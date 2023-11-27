@@ -1,5 +1,21 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
+import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
+import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
+import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
 import com.igormaznitsa.prologparser.ParserContext;
@@ -16,18 +32,10 @@ import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
+import java.io.StringReader;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
-
-import java.io.StringReader;
-
-import static com.igormaznitsa.prologparser.terms.OpContainer.make;
-import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
-import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
-import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @SuppressWarnings({"DataFlowIssue", "SameParameterValue"})
 public class TokenizerTest {
@@ -45,14 +53,16 @@ public class TokenizerTest {
   private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
     ParserContext context = mock(ParserContext.class);
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(context.getFlags()).thenReturn(allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
+    when(context.getFlags()).thenReturn(
+        allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
     return this.tokenizeOf(str, context);
   }
 
   private Tokenizer tokenizeOf(final String str, final ParserContext context) {
     return new Tokenizer(
         new GenericPrologParser(new StringReader(str),
-            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).addOps(Op.SWI), context)),
+            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_BLOCK_COMMENTS |
+                ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).addOps(Op.SWI), context)),
         PrologParser.findMetaOps(),
         new StringReader(str));
   }
@@ -85,7 +95,8 @@ public class TokenizerTest {
     tokenizer = tokenizeOf("/* some text */12.345/*other*/.", true);
     result = tokenizer.readNextToken();
     assertEquals(TermType.ATOM, Objects.requireNonNull(result).getResult().getType());
-    assertEquals(12.345d, ((PrologNumeric) result.getResult()).getNumber().doubleValue(), Double.MIN_NORMAL);
+    assertEquals(12.345d, ((PrologNumeric) result.getResult()).getNumber().doubleValue(),
+        Double.MIN_NORMAL);
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
 
@@ -150,7 +161,8 @@ public class TokenizerTest {
 
   @Test
   public void testNextToken() {
-    Tokenizer tokenizer = tokenizeOf("     123 222.34 \n111.2e+4 'string' \n:- Variable _var _ :--");
+    Tokenizer tokenizer =
+        tokenizeOf("     123 222.34 \n111.2e+4 'string' \n:- Variable _var _ :--");
 
     TokenizerResult result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, Objects.requireNonNull(result).getTokenizerState());
@@ -214,7 +226,8 @@ public class TokenizerTest {
 
     result = tokenizer.readNextToken();
     assertEquals(TokenizerState.INTEGER, Objects.requireNonNull(result).getTokenizerState());
-    assertEquals(Long.MAX_VALUE, ((PrologInt) result.getResult()).getNumber().longValue(), "Negative intger will be splitted to two parts - minus and positive number part");
+    assertEquals(Long.MAX_VALUE, ((PrologInt) result.getResult()).getNumber().longValue(),
+        "Negative intger will be splitted to two parts - minus and positive number part");
   }
 
   private void assertParserExceptionAt(final int line, final int pos, final Executable executable) {
@@ -238,16 +251,22 @@ public class TokenizerTest {
 
   @Test
   public void testExceptionForReachBufferLimit() {
-    assertEquals("123456", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 5).readNextToken()).getBufferText());
-    assertEquals("1234", assertThrows(CharBufferOverflowException.class, () -> tokenizeOf("1234567890.", 3).readNextToken()).getBufferText());
+    assertEquals("123456", assertThrows(CharBufferOverflowException.class,
+        () -> tokenizeOf("1234567890.", 5).readNextToken()).getBufferText());
+    assertEquals("1234", assertThrows(CharBufferOverflowException.class,
+        () -> tokenizeOf("1234567890.", 3).readNextToken()).getBufferText());
   }
 
   @Test
   public void testQuoting() {
-    assertEquals(Quotation.NONE, Objects.requireNonNull(tokenizeOf("abc.").readNextToken()).getResult().getQuotation());
-    assertEquals(Quotation.SINGLE, Objects.requireNonNull(tokenizeOf("'abc'.").readNextToken()).getResult().getQuotation());
-    assertEquals(Quotation.DOUBLE, Objects.requireNonNull(tokenizeOf("\"abc\".").readNextToken()).getResult().getQuotation());
-    assertEquals(Quotation.BACK_TICK, Objects.requireNonNull(tokenizeOf("`abc`.").readNextToken()).getResult().getQuotation());
+    assertEquals(Quotation.NONE,
+        Objects.requireNonNull(tokenizeOf("abc.").readNextToken()).getResult().getQuotation());
+    assertEquals(Quotation.SINGLE,
+        Objects.requireNonNull(tokenizeOf("'abc'.").readNextToken()).getResult().getQuotation());
+    assertEquals(Quotation.DOUBLE,
+        Objects.requireNonNull(tokenizeOf("\"abc\".").readNextToken()).getResult().getQuotation());
+    assertEquals(Quotation.BACK_TICK,
+        Objects.requireNonNull(tokenizeOf("`abc`.").readNextToken()).getResult().getQuotation());
   }
 
   @Test
@@ -256,30 +275,44 @@ public class TokenizerTest {
         tokenizeOf("2'001_1000_1111_0000.").readNextToken()).getResult()).getNumber().intValue());
     assertEquals(6384, ((PrologInt) Objects.requireNonNull(
         tokenizeOf("0b001_1000_1111_0000.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("16'F_F.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("0xF_F.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("16'f_f.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("0xf_f.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(511, ((PrologInt) Objects.requireNonNull(tokenizeOf("8'77_7.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(511, ((PrologInt) Objects.requireNonNull(tokenizeOf("0o77_7.").readNextToken()).getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("16'F_F.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("0xF_F.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("16'f_f.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("0xf_f.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(511, ((PrologInt) Objects.requireNonNull(tokenizeOf("8'77_7.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(511, ((PrologInt) Objects.requireNonNull(tokenizeOf("0o77_7.").readNextToken())
+        .getResult()).getNumber().intValue());
 
-    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("12_345.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("12_34_5.").readNextToken()).getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("12_345.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("12_34_5.").readNextToken())
+        .getResult()).getNumber().intValue());
     assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("1_2_34_5.").readNextToken())
         .getResult()).getNumber().intValue());
 
     assertEquals(123.45f, ((PrologFloat) Objects.requireNonNull(
-        tokenizeOf("12_3.45.").readNextToken()).getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
+            tokenizeOf("12_3.45.").readNextToken()).getResult()).getNumber().floatValue(),
+        Float.MIN_NORMAL);
     assertEquals(123.45f, ((PrologFloat) Objects.requireNonNull(
-        tokenizeOf("12_3.4_5.").readNextToken()).getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
+            tokenizeOf("12_3.4_5.").readNextToken()).getResult()).getNumber().floatValue(),
+        Float.MIN_NORMAL);
     assertEquals(123.45f, ((PrologFloat) Objects.requireNonNull(
-        tokenizeOf("1_2_3.4_5.").readNextToken()).getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
+            tokenizeOf("1_2_3.4_5.").readNextToken()).getResult()).getNumber().floatValue(),
+        Float.MIN_NORMAL);
     assertEquals(123.45e+10f, ((PrologFloat) Objects.requireNonNull(
-        tokenizeOf("1_2_3.4_5e+10.").readNextToken()).getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
+            tokenizeOf("1_2_3.4_5e+10.").readNextToken()).getResult()).getNumber().floatValue(),
+        Float.MIN_NORMAL);
     assertEquals(123.45e-10f, ((PrologFloat) Objects.requireNonNull(
-        tokenizeOf("1_2_3.4_5e-1_0.").readNextToken()).getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
+            tokenizeOf("1_2_3.4_5e-1_0.").readNextToken()).getResult()).getNumber().floatValue(),
+        Float.MIN_NORMAL);
     assertEquals(123.45e-10f, ((PrologFloat) Objects.requireNonNull(
-        tokenizeOf("1_2_3.4_5E-1_0.").readNextToken()).getResult()).getNumber().floatValue(), Float.MIN_NORMAL);
+            tokenizeOf("1_2_3.4_5E-1_0.").readNextToken()).getResult()).getNumber().floatValue(),
+        Float.MIN_NORMAL);
   }
 
   @Test
@@ -291,13 +324,15 @@ public class TokenizerTest {
     assertSame(term.getClass(), PrologInt.class);
     assertEquals("792394382", term.getText());
 
-    term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), 10, NONE, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString(Long.toString(Long.MIN_VALUE), 10, NONE,
+        TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologInt.class);
     assertEquals(Long.toString(Long.MIN_VALUE), term.getText());
 
-    term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), 10, NONE, TokenizerState.INTEGER);
+    term = tokenizer.makeTermFromString(Long.toString(Long.MAX_VALUE), 10, NONE,
+        TokenizerState.INTEGER);
     assertNotNull(term);
     assertEquals(TermType.ATOM, term.getType());
     assertSame(term.getClass(), PrologInt.class);
@@ -345,9 +380,11 @@ public class TokenizerTest {
     final ParserContext context = mock(ParserContext.class);
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
     final Tokenizer tokenizer = tokenizeOf("", context);
-    assertFalse(tokenizer.hasOperatorStartsWith("<------------------------------------------------------->"));
+    assertFalse(tokenizer.hasOperatorStartsWith(
+        "<------------------------------------------------------->"));
 
-    when(context.hasOpStartsWith(any(GenericPrologParser.class), eq("start_with"))).thenReturn(true);
+    when(context.hasOpStartsWith(any(GenericPrologParser.class), eq("start_with"))).thenReturn(
+        true);
 
     assertTrue(tokenizer.hasOperatorStartsWith(":"));
     assertFalse(tokenizer.hasOperatorStartsWith("sstart_with"));
@@ -360,11 +397,13 @@ public class TokenizerTest {
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
     Tokenizer tokenizer = tokenizeOf("", context);
     assertThrows(NullPointerException.class, () -> tokenizer.findOperatorForName(null));
-    assertNull(tokenizer.findOperatorForName("<------------------------------------------------------->"));
+    assertNull(
+        tokenizer.findOperatorForName("<------------------------------------------------------->"));
 
     final OpContainer operatorContainer = make(Op.make(1000, OpAssoc.FX, "some_operator"));
 
-    when(context.findOpForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(operatorContainer);
+    when(context.findOpForName(any(GenericPrologParser.class), eq("some_operator"))).thenReturn(
+        operatorContainer);
 
     final OpContainer systemOne = tokenizer.findOperatorForName(":-");
     assertNotNull(systemOne);

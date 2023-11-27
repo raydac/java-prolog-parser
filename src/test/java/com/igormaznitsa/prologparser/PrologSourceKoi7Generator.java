@@ -22,7 +22,6 @@
 package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.terms.Quotation;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
@@ -49,7 +48,8 @@ public final class PrologSourceKoi7Generator extends InputStream {
     genNextClause();
   }
 
-  public PrologSourceKoi7Generator(final boolean splitClauses, final int numberOfChars, final boolean throwException) {
+  public PrologSourceKoi7Generator(final boolean splitClauses, final int numberOfChars,
+                                   final boolean throwException) {
     this.generatedClauseCounter = 0;
     this.splitClauses = splitClauses;
     this.maxChars = numberOfChars;

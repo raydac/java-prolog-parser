@@ -16,6 +16,20 @@
 
 package com.igormaznitsa.prologparser;
 
+import static com.igormaznitsa.prologparser.DefaultParserContext.of;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_CURLY_BRACKETS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_DOT2_AS_LIST;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_CHARCODE;
+import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
+import static java.util.Objects.requireNonNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologInt;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
@@ -23,7 +37,6 @@ import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.TermType;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -33,27 +46,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.igormaznitsa.prologparser.DefaultParserContext.of;
-import static com.igormaznitsa.prologparser.ParserContext.*;
-import static com.igormaznitsa.prologparser.terms.TermType.ATOM;
-import static java.util.Objects.requireNonNull;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 abstract class AbstractIntegrationTest {
   public PrologParser parseCpl(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI, Op.SWI_CPL));
+    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(
+        FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI,
+        Op.SWI_CPL));
   }
 
   public PrologParser parseIso(final String str) {
-    return new GenericPrologParser(new StringReader(str), DefaultParserContext.of(FLAG_ZERO_QUOTATION_CHARCODE | FLAG_DOT2_AS_LIST, Op.ISO));
+    return new GenericPrologParser(new StringReader(str),
+        DefaultParserContext.of(FLAG_ZERO_QUOTATION_CHARCODE | FLAG_DOT2_AS_LIST, Op.ISO));
   }
 
   public PrologParser parseEd(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
+    when(parserContext.getFlags()).thenReturn(
+        FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
     return parseEd(str, parserContext);
   }
 
@@ -70,20 +79,25 @@ abstract class AbstractIntegrationTest {
 
   public PrologParser parseEd(final Reader reader, final ParserContext context) {
     return new GenericPrologParser(reader, ParserContextChain.of(
-        DefaultParserContext.of(FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI), context));
+        DefaultParserContext.of(
+            FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS, Op.SWI),
+        context));
   }
 
   public PrologParser parseGen(final String str, final ParserContext context) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
-    return new GenericPrologParser(new StringReader(str), ParserContextChain.of(context, parserContext));
+    when(parserContext.getFlags()).thenReturn(
+        ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE | FLAG_CURLY_BRACKETS);
+    return new GenericPrologParser(new StringReader(str),
+        ParserContextChain.of(context, parserContext));
   }
 
   public GenericPrologParser parseGen(final String str) {
     final ParserContext parserContext = mock(ParserContext.class);
     when(parserContext.getMaxTokenizerBufferLength()).thenReturn(1024);
-    when(parserContext.getFlags()).thenReturn(ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE);
+    when(parserContext.getFlags()).thenReturn(
+        ParserContext.FLAG_BLOCK_COMMENTS | FLAG_ZERO_QUOTATION_CHARCODE);
     return new GenericPrologParser(new StringReader(str), parserContext);
   }
 
@@ -92,8 +106,11 @@ abstract class AbstractIntegrationTest {
   }
 
   public void assertReadTerms(final int expected, final String resource, final Op... ops) {
-    final ParserContext defaultContext = of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE | ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR, ops);
-    try (Reader reader = new InputStreamReader(requireNonNull(getClass().getResourceAsStream(resource)), StandardCharsets.UTF_8)) {
+    final ParserContext defaultContext =
+        of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_ZERO_QUOTATION_CHARCODE |
+            ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR, ops);
+    try (Reader reader = new InputStreamReader(
+        requireNonNull(getClass().getResourceAsStream(resource)), StandardCharsets.UTF_8)) {
       final PrologParser parser = parseEd(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
@@ -102,12 +119,15 @@ abstract class AbstractIntegrationTest {
   }
 
   public ParserContext makeSictusContext(final Op... ops) {
-    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS, Op.ISO, Op.SICTUS_SPECIFIC, Arrays.asList(ops));
+    return of(ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_CURLY_BRACKETS, Op.ISO,
+        Op.SICTUS_SPECIFIC, Arrays.asList(ops));
   }
 
   public void assertReadSictusTerms(final int expected, final String resource, final Op... ops) {
     final ParserContext defaultContext = makeSictusContext(ops);
-    try (Reader reader = new InputStreamReader(requireNonNull(getClass().getResourceAsStream("bench/" + resource)), StandardCharsets.UTF_8)) {
+    try (Reader reader = new InputStreamReader(
+        requireNonNull(getClass().getResourceAsStream("bench/" + resource)),
+        StandardCharsets.UTF_8)) {
       final PrologParser parser = new GenericPrologParser(reader, defaultContext);
       assertEquals(expected, parser.stream().count());
     } catch (IOException ex) {
@@ -115,7 +135,8 @@ abstract class AbstractIntegrationTest {
     }
   }
 
-  public void assertOperatorAsFunctor(final String goal, final String opText, final OpAssoc assoc, final int arity, final String expectedText) {
+  public void assertOperatorAsFunctor(final String goal, final String opText, final OpAssoc assoc,
+                                      final int arity, final String expectedText) {
     try (final PrologParser parser = parseEd(goal)) {
       assertTrue(parser.hasNext());
       final PrologTerm term = parser.next();

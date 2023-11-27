@@ -1,29 +1,32 @@
 package com.igormaznitsa.prologparser.utils;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.concurrent.atomic.AtomicReference;
-
 import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 
 public class StringUtilsTest {
 
   private void assertUnescaped(char expectedChar, String testString) {
-    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
+    final StringUtils.UnescapeResult result =
+        StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertFalse(result.isError());
     assertFalse(result.doesNeedMore());
     assertEquals(expectedChar, result.getDecoded());
   }
 
   private void assertErrorUnescaped(String testString) {
-    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
+    final StringUtils.UnescapeResult result =
+        StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertTrue(result.isError());
   }
 
   private void assertNotFullData(String testString) {
-    final StringUtils.UnescapeResult result = StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
+    final StringUtils.UnescapeResult result =
+        StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertFalse(result.isError());
     assertTrue(result.doesNeedMore());
   }
@@ -69,6 +72,7 @@ public class StringUtilsTest {
   public void testEscapeString() {
     final String test = "Hello\r'World'\nAnd Skolkovo`\f too\t\u0007\u001b\u000b";
 
-    assertEquals(StringUtils.escapeString(test, SINGLE), "Hello\\r\\'World\\'\\nAnd Skolkovo`\\f too\\t\\a\\e\\v");
+    assertEquals(StringUtils.escapeString(test, SINGLE),
+        "Hello\\r\\'World\\'\\nAnd Skolkovo`\\f too\\t\\a\\e\\v");
   }
 }
