@@ -238,7 +238,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
     PrologTerm rightPart = null;
 
     boolean hasSeparator = false;
-
     boolean continueReading = true;
 
     while (continueReading) {

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 class BigDataTest extends AbstractIntegrationTest {
 
   @Test
-  public void testBigSource_ClausesSplitted() {
+  void testBigSource_ClausesSplitted() {
     final int CLAUSES = 1000;
     assertEquals(CLAUSES,
         new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)),
@@ -40,7 +40,7 @@ class BigDataTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testBigSource_ClausesNotSplitted() {
+  void testBigSource_ClausesNotSplitted() {
     final int CLAUSES = 1000;
     assertEquals(CLAUSES, new GenericPrologParser(
         new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)),
