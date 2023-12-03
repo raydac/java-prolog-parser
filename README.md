@@ -1,5 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/java-prolog-parser/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.0.2|jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/java-prolog-parser/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.1.0|jar)
 [![Java 8.0+](https://img.shields.io/badge/java-8.0%2b-green.svg)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
@@ -24,9 +24,14 @@ The parser is a pure Java library without any 3-th side dependency, it is publis
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>java-prolog-parser</artifactId>
-  <version>2.0.2</version>
+    <version>2.1.0</version>
 </dependency>
 ```
+
+# How to build?
+
+Just use maven command `mvn install` to get result JAR. The JAR will be Java 1.8 compatible but it requires Java 11+ for
+build for involved maven plugins.
 
 # How to use?
 Parser implements stream which sequentially reads prolog terms provided by reader. By default, PrologParser is abstract class but there is pre-defined implementation GenericPrologParser for common cases.
