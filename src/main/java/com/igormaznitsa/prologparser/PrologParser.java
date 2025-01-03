@@ -44,7 +44,6 @@ import com.igormaznitsa.prologparser.tokenizer.OpAssoc;
 import com.igormaznitsa.prologparser.tokenizer.Tokenizer;
 import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
 import com.igormaznitsa.prologparser.utils.Koi7CharOpMap;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ import java.util.stream.StreamSupport;
  * Abstract base Prolog parser.
  */
 @SuppressWarnings({"GrazieInspection", "unused"})
-public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
+public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseable {
 
   public static final PrologTerm[] EMPTY_TERM_ARRAY = new PrologTerm[0];
   protected static final Koi7CharOpMap META_OP_MAP;
