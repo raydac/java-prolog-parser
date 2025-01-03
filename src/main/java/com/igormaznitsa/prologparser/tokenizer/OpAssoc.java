@@ -21,8 +21,8 @@
 
 package com.igormaznitsa.prologparser.tokenizer;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Associativity of Prolog operators.
@@ -59,8 +59,8 @@ public enum OpAssoc {
    */
   YFX("yfx", 2);
 
+  public static final List<OpAssoc> VALUES = List.of(OpAssoc.values());
   private final String text;
-
   private final int arity;
 
   OpAssoc(final String text, final int arity) {
@@ -69,7 +69,7 @@ public enum OpAssoc {
   }
 
   public static Optional<OpAssoc> findForName(final String str) {
-    return Stream.of(values()).filter(x -> x.text.equals(str)).findFirst();
+    return VALUES.stream().filter(x -> x.text.equals(str)).findFirst();
   }
 
   public boolean isPostfix() {

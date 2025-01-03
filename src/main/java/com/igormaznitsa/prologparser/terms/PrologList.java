@@ -287,7 +287,7 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     if (this.isEmpty()) {
       return Collections.emptyIterator();
     } else {
-      return new Iterator<PrologTerm>() {
+      return new Iterator<>() {
 
         private PrologTerm head = elements[0];
         private PrologTerm tail = elements[1];

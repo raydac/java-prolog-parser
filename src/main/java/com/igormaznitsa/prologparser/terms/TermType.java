@@ -21,6 +21,8 @@
 
 package com.igormaznitsa.prologparser.terms;
 
+import java.util.List;
+
 /**
  * Type of prolog term.
  */
@@ -44,5 +46,8 @@ public enum TermType {
   /**
    * Operator term.
    */
-  OPERATOR
+  OPERATOR;
+
+  public static final List<TermType> VALUES = List.of(TermType.values());
+
 }

@@ -634,7 +634,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, Closeable {
 
   @Override
   public Iterator<PrologTerm> iterator() {
-    return new Iterator<PrologTerm>() {
+    return new Iterator<>() {
       @Override
       public boolean hasNext() {
         return PrologParser.this.hasNext();

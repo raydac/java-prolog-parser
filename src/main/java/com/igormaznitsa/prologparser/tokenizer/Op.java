@@ -89,52 +89,28 @@ public final class Op extends PrologTerm {
   /**
    * Set of operators specific for Sictus Prolog.
    */
-  public static final List<Op> SICTUS_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      MODIFIERS,
-      make(1150, FX, "mode", "block", "meta_predicate"),
-      make(1100, XFY, "do"),
-      make(900, FY, "spy", "nospy"),
-      make(550, XFY, ":"),
-      make(500, YFX, "\\"),
-      GNU_UNARY_PLUS
-  ));
+  public static final List<Op> SICTUS_SPECIFIC =
+      List.of(MODIFIERS, make(1150, FX, "mode", "block", "meta_predicate"), make(1100, XFY, "do"),
+          make(900, FY, "spy", "nospy"), make(550, XFY, ":"), make(500, YFX, "\\"), GNU_UNARY_PLUS);
   public static final Op GNU_DIV_RDIV = make(400, OpAssoc.YFX, "div", "rdiv");
   public static final Op ISO_OR = make(1100, OpAssoc.XFY, ";");
   public static final Op ISO_THEN = make(1050, OpAssoc.XFY, "->");
   /**
    * Set of operators for ISO Prolog standard.
    */
-  public static final List<Op> ISO = Collections.unmodifiableList(Arrays.asList(
-      ISO_CLAUSES,
-      ISO_DIRECTIVES,
-      ISO_OR,
-      ISO_THEN,
-      ISO_NEGATE,
-      ISO_UNIFICATION,
-      ISO_ORDER_ARITH,
-      ISO_ORDER_TERM,
-      ISO_ARITH_PLUS_MINUS,
-      ISO_BITWISE_AND_OR,
-      ISO_ARITH_MUL_DIV,
-      ISO_BITWISE_SHIFT,
-      ISO_ARITH_DIVIDE,
-      ISO_ARITH_POWER,
-      make(200, OpAssoc.XFY, "^"),
-      ISO_UNARY_MINUS,
-      ISO_BITWISE_NEGATION,
-      make(100, OpAssoc.XFX, "@")
-  ));
+  public static final List<Op> ISO =
+      List.of(ISO_CLAUSES, ISO_DIRECTIVES, ISO_OR, ISO_THEN, ISO_NEGATE, ISO_UNIFICATION,
+          ISO_ORDER_ARITH, ISO_ORDER_TERM, ISO_ARITH_PLUS_MINUS, ISO_BITWISE_AND_OR,
+          ISO_ARITH_MUL_DIV, ISO_BITWISE_SHIFT, ISO_ARITH_DIVIDE, ISO_ARITH_POWER,
+          make(200, OpAssoc.XFY, "^"), ISO_UNARY_MINUS, ISO_BITWISE_NEGATION,
+          make(100, OpAssoc.XFX, "@"));
   public static final Op GNU_STAR_THEN = make(1050, OpAssoc.XFY, "*->");
   public static final Op GNU_DOUBLE_DOT = make(600, OpAssoc.XFY, ":");
   /**
    * Set of operators is specific for GNU Prolog use.
    */
-  public static final List<Op> GNU_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      GNU_STAR_THEN,
-      GNU_DOUBLE_DOT,
-      GNU_DIV_RDIV,
-      GNU_UNARY_PLUS
-  ));
+  public static final List<Op> GNU_SPECIFIC =
+      List.of(GNU_STAR_THEN, GNU_DOUBLE_DOT, GNU_DIV_RDIV, GNU_UNARY_PLUS);
   /**
    * Set of operators for GNU Prolog.
    */
@@ -142,20 +118,12 @@ public final class Op extends PrologTerm {
   /**
    * Set of operators is specific for SWI Prolog use.
    */
-  public static final List<Op> SWI_SPECIFIC = Collections.unmodifiableList(Arrays.asList(
-      MODIFIERS,
+  public static final List<Op> SWI_SPECIFIC = List.of(MODIFIERS,
       make(1150, OpAssoc.FX, "meta_predicate", "module_transparent", "thread_local",
-          "thread_initialization"),
-      GNU_STAR_THEN,
-      make(990, OpAssoc.FY, ":="),
-      make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"),
-      GNU_DOUBLE_DOT,
-      make(500, OpAssoc.YFX, "xor"),
-      make(500, OpAssoc.FX, "?"),
-      GNU_DIV_RDIV,
-      GNU_UNARY_PLUS,
-      make(1, OpAssoc.FX, "$")
-  ));
+          "thread_initialization"), GNU_STAR_THEN, make(990, OpAssoc.FY, ":="),
+      make(700, OpAssoc.XFX, "=@=", "\\=@=", "as", ">:<", ":<"), GNU_DOUBLE_DOT,
+      make(500, OpAssoc.YFX, "xor"), make(500, OpAssoc.FX, "?"), GNU_DIV_RDIV, GNU_UNARY_PLUS,
+      make(1, OpAssoc.FX, "$"));
   /**
    * Set of operators for SWI Prolog.
    */
@@ -163,32 +131,22 @@ public final class Op extends PrologTerm {
   /**
    * Set of Finite Domain operators for GNU Prolog.
    */
-  public static final List<Op> GNU_FD = Collections.unmodifiableList(Arrays.asList(
-      make(750, XFY, "#<=>", "#\\<=>"),
-      make(740, XFY, "#==>", "#\\==>"),
-      make(730, XFY, "##"),
-      make(730, YFX, "#\\/", "#\\\\/"),
-      make(720, YFX, "#/\\", "#\\/\\"),
-      make(710, FY, "#\\"),
-      make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#", "#>#",
-          "#>=#")
-  ));
+  public static final List<Op> GNU_FD =
+      List.of(make(750, XFY, "#<=>", "#\\<=>"), make(740, XFY, "#==>", "#\\==>"),
+          make(730, XFY, "##"), make(730, YFX, "#\\/", "#\\\\/"), make(720, YFX, "#/\\", "#\\/\\"),
+          make(710, FY, "#\\"),
+          make(700, XFX, "#=", "#\\=", "#<", "#=<", "#>", "#>=", "#=#", "#\\=#", "#<#", "#=<#",
+              "#>#",
+              "#>=#"));
   /**
    * Set of Constraint Logic Programming operators for SWI Prolog.
    */
-  public static final List<Op> SWI_CPL = Collections.unmodifiableList(Arrays.asList(
-      make(300, FY, "~"),
-      make(500, YFX, "#"),
-      make(760, YFX, "#<==>"),
-      make(750, XFY, "#==>"),
-      make(750, YFX, "#<=="),
-      make(740, YFX, "#\\/"),
-      make(730, YFX, "#\\"),
-      make(720, YFX, "#/\\"),
-      make(710, FY, "#\\"),
-      make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
-      make(450, XFX, "..")
-  ));
+  public static final List<Op> SWI_CPL =
+      List.of(make(300, FY, "~"), make(500, YFX, "#"), make(760, YFX, "#<==>"),
+          make(750, XFY, "#==>"), make(750, YFX, "#<=="), make(740, YFX, "#\\/"),
+          make(730, YFX, "#\\"), make(720, YFX, "#/\\"), make(710, FY, "#\\"),
+          make(700, XFX, "#>", "#<", "#>=", "#=<", "#=", "#\\=", "in", "ins"),
+          make(450, XFX, ".."));
 
   public static final Op VIRTUAL_OPERATOR_BLOCK = makeSystem(-1, OpAssoc.FX, "()");
   public static final Op VIRTUAL_OPERATOR_CURLY_BLOCK = makeSystem(-1, OpAssoc.FX, "{}");

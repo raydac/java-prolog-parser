@@ -23,6 +23,8 @@ package com.igormaznitsa.prologparser.terms;
 
 import static com.igormaznitsa.prologparser.utils.StringUtils.escapeString;
 
+import java.util.List;
+
 /**
  * Type of quotation for prolog term.
  */
@@ -48,6 +50,7 @@ public enum Quotation {
   BACK_TICK("`");
 
   private final String quotationMark;
+  public static final List<Quotation> VALUES = List.of(Quotation.values());
 
   Quotation(final String quotationMark) {
     this.quotationMark = quotationMark;
