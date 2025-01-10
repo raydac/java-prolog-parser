@@ -250,8 +250,8 @@ public final class Tokenizer {
   public TokenizerResult peek() {
     TokenizerResult result;
     if (this.lastPushedTerm == null) {
-      result = readNextToken();
-      push(result);
+      result = this.readNextToken();
+      this.push(result);
     } else {
       result = this.lastPushedTerm;
     }
@@ -332,7 +332,7 @@ public final class Tokenizer {
   public TokenizerResult readNextToken() {
 
     if (this.lastPushedTerm != null) {
-      return pop();
+      return this.pop();
     }
 
     Quotation quoting = Quotation.NONE;

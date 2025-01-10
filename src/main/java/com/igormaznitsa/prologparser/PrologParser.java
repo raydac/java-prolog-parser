@@ -187,44 +187,71 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     return context;
   }
 
-  public boolean hasNext() {
-    return this.tokenizer.peek() != null;
+  private PrologTermReadResult deferredReadTerm;
+
+  private static boolean isComment(final TokenizerResult tokenizerResult) {
+    return tokenizerResult != null
+        && tokenizerResult.getResult().getType() == TermType.ATOM
+        && (tokenizerResult.getResult().getQuotation() == Quotation.COMMENT_LINE
+        || tokenizerResult.getResult().getQuotation() == Quotation.COMMENT_BLOCK);
   }
 
-  private TokenizerResult readNextTokenCommentAware() {
+  private void notifyCommentTokenListeners(final TokenizerResult commentToken) {
+    for (final TokenizedCommentListener listener : this.commentTokenListeners) {
+      listener.onCommentToken(this, commentToken);
+    }
+  }
+
+  private TokenizerResult extractNextTokenCommentAware() {
     TokenizerResult result;
-    if (this.commentsAsAtoms) {
-      while (true) {
-        result = this.tokenizer.readNextToken();
-        if (result != null
-            && (result.getResult().getQuotation() == Quotation.COMMENT_BLOCK ||
-            result.getResult().getQuotation() == Quotation.COMMENT_LINE)) {
-          for (final TokenizedCommentListener listener : this.commentTokenListeners) {
-            listener.onCommentToken(this, result);
-          }
-        } else {
-          break;
-        }
-      }
-    } else {
+    while (true) {
       result = this.tokenizer.readNextToken();
+      if (isComment(result)) {
+        this.notifyCommentTokenListeners(result);
+      } else {
+        break;
+      }
     }
     return result;
   }
 
-  public PrologTerm next() {
-    final PrologTerm found = readBlock(OPERATORS_PHRASE);
-    if (found == null) {
-      throw new NoSuchElementException("No terms in source");
-    } else {
-      final TokenizerResult endAtom = this.readNextTokenCommentAware();
-      if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
-        throw new PrologParserException("End operator is not found",
-            this.tokenizer.getLine(),
-            this.tokenizer.getPos());
+  private PrologTermReadResult extractNextBlockAndWrapError() {
+    try {
+      final PrologTerm found = this.readBlock(OPERATORS_PHRASE);
+      if (found == null) {
+        throw new NoSuchElementException("No terms in source");
+      } else {
+        final TokenizerResult endAtom = this.extractNextTokenCommentAware();
+        if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
+          throw new PrologParserException("End operator is not found",
+              this.tokenizer.getLine(),
+              this.tokenizer.getPos());
+        }
       }
+      return new PrologTermReadResult(found, null);
+    } catch (RuntimeException ex) {
+      return new PrologTermReadResult(null, ex);
     }
-    return found;
+  }
+
+  public boolean hasNext() {
+    if (this.deferredReadTerm == null) {
+      this.deferredReadTerm = this.extractNextBlockAndWrapError();
+    }
+    return this.deferredReadTerm.isPresented();
+  }
+
+  public PrologTerm next() {
+    if (this.deferredReadTerm == null) {
+      this.deferredReadTerm = this.extractNextBlockAndWrapError();
+    }
+    final PrologTerm result;
+    try {
+      result = this.deferredReadTerm.getResult();
+    } finally {
+      this.deferredReadTerm = null;
+    }
+    return result;
   }
 
   private PrologStruct readStruct(final PrologTerm functor) {
@@ -232,13 +259,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     PrologStruct result;
     boolean active = true;
     while (active) {
-      final PrologTerm block = readBlock(OPERATORS_INSIDE_STRUCT);
-
+      final PrologTerm block = this.readBlock(OPERATORS_INSIDE_STRUCT);
       if (block == null) {
         return null;
       }
 
-      final TokenizerResult nextAtom = this.readNextTokenCommentAware();
+      final TokenizerResult nextAtom = this.extractNextTokenCommentAware();
       if (nextAtom == null) {
         throw new PrologParserException("Can't read next token in block", this.tokenizer.getLine(),
             this.tokenizer.getPos());
@@ -277,7 +303,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     while (continueReading) {
       final PrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-      final TokenizerResult nextAtom = this.readNextTokenCommentAware();
+      final TokenizerResult nextAtom = this.extractNextTokenCommentAware();
       if (nextAtom == null) {
         throw new PrologParserException("Can't read next token in list", this.tokenizer.getLine(),
             this.tokenizer.getPos());
@@ -316,7 +342,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                 tokenizer.getLastTokenPos(), null);
           }
 
-          final TokenizerResult nextAtomTwo = this.readNextTokenCommentAware();
+          final TokenizerResult nextAtomTwo = this.extractNextTokenCommentAware();
           if (nextAtomTwo == null) {
             throw new PrologParserException("Can't find expected token in list",
                 this.tokenizer.getLine(), this.tokenizer.getPos());
@@ -374,13 +400,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     return leftPartFirst;
   }
 
-  private void checkForNull(final Object obj, final String message,
-                            final TokenizerResult startTerm) {
-    if (obj == null) {
-      throw new PrologParserException(message, startTerm.getLine(), startTerm.getPos());
-    }
-  }
-
   private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
     // the variable will contain last processed tree item contains either
     // atom or operator
@@ -388,7 +407,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
 
     while (true) {
       // read next atom from tokenizer
-      TokenizerResult readAtomContainer = this.readNextTokenCommentAware();
+      TokenizerResult readAtomContainer = this.extractNextTokenCommentAware();
 
       if (readAtomContainer == null) {
         if (currentTreeItem == null) {
@@ -505,7 +524,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                         readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
 
-                  final TokenizerResult token = this.readNextTokenCommentAware();
+                  final TokenizerResult token = this.extractNextTokenCommentAware();
 
                   final PrologTerm closingAtom;
                   if (token == null) {
@@ -534,7 +553,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
         }
       } else {
         if (readAtom.getType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
-          TokenizerResult nextToken = this.readNextTokenCommentAware();
+          TokenizerResult nextToken = this.extractNextTokenCommentAware();
 
           if (nextToken == null) {
             throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(),
@@ -666,6 +685,19 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     }
   }
 
+  private void checkForNull(final Object obj, final String message,
+                            final TokenizerResult startTerm) {
+    if (obj == null) {
+      throw new PrologParserException(message, startTerm.getLine(), startTerm.getPos());
+    }
+  }
+
+  @Override
+  public void close() throws IOException {
+    this.deferredReadTerm = null;
+    this.tokenizer.close(this.autoCloseReaderFlag);
+  }
+
   @Override
   public Iterator<PrologTerm> iterator() {
     return new Iterator<>() {
@@ -690,9 +722,26 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     );
   }
 
-  @Override
-  public void close() throws IOException {
-    this.tokenizer.close(this.autoCloseReaderFlag);
+  private static final class PrologTermReadResult {
+    private final PrologTerm result;
+    private final RuntimeException exception;
+
+    private PrologTermReadResult(final PrologTerm result, final RuntimeException error) {
+      this.result = result;
+      this.exception = error;
+    }
+
+    boolean isPresented() {
+      return this.exception == null || !(this.exception instanceof NoSuchElementException);
+    }
+
+    PrologTerm getResult() {
+      if (this.exception == null) {
+        return this.result;
+      } else {
+        throw this.exception;
+      }
+    }
   }
 
 }

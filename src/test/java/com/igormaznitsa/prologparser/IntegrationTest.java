@@ -73,13 +73,13 @@ class IntegrationTest extends AbstractIntegrationTest {
       assertEquals("lsome(a)", term1.toString());
       assertTrue(parser.hasNext());
       final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
-      assertEquals("alone", Objects.requireNonNull(token1).getResult().toString());
+      assertEquals("next", Objects.requireNonNull(token1).getResult().toString());
       assertTrue(parser.hasNext());
       final TokenizerResult token2 = parser.getInternalTokenizer().readNextToken();
-      assertEquals(".", Objects.requireNonNull(token2).getResult().getText());
+      assertEquals("(", Objects.requireNonNull(token2).getResult().getText());
       assertTrue(parser.hasNext());
       final PrologTerm term2 = parser.next();
-      assertEquals("next(b)", term2.toString());
+      assertEquals("alone", term2.toString());
       assertTrue(parser.hasNext());
       assertThrows(PrologParserException.class, parser::next);
     }
