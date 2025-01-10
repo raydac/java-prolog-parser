@@ -22,6 +22,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AS_ATOMS;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_CHARCODE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
@@ -58,6 +59,7 @@ public final class Tokenizer {
   private final StringBuilderEx specCharBuf;
   private final StringBuilderEx insideCharBuffer;
   private final boolean blockCommentsAllowed;
+  private final boolean returnCommentsAsToken;
   private final boolean zeroSingleQuotationAllowed;
   private final boolean zeroQuotationAllowsWhitespaceChar;
   private final Reader reader;
@@ -82,6 +84,8 @@ public final class Tokenizer {
 
     final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE :
         parser.getContext().getMaxTokenizerBufferLength();
+    this.returnCommentsAsToken = parser.getContext() != null
+        && ((parser.getContext().getFlags() & FLAG_COMMENTS_AS_ATOMS) != 0);
     this.blockCommentsAllowed = parser.getContext() != null
         && ((parser.getContext().getFlags() & FLAG_BLOCK_COMMENTS) != 0);
     this.zeroSingleQuotationAllowed = parser.getContext() != null
@@ -269,25 +273,47 @@ public final class Tokenizer {
     this.lastTokenPos = this.pos - 1;
   }
 
-  private void skipUntilBlockCommentEnd() throws IOException {
+  private String skipTillBlockCommentEnd(final boolean accumulateText) throws IOException {
+    final StringBuilder result = accumulateText ? new StringBuilder() : null;
     boolean starCharDetected = false;
     while (true) {
       final int readChar = this.doReadChar();
-      if (readChar < 0 || (readChar == '/' && starCharDetected)) {
+      if (readChar < 0) {
         break;
+      } else if (readChar == '/') {
+        if (starCharDetected) {
+          if (accumulateText) {
+            result.setLength(result.length() - 1);
+          }
+          break;
+        } else {
+          if (accumulateText) {
+            result.append((char) readChar);
+          }
+        }
       } else {
         starCharDetected = readChar == '*';
+        if (accumulateText) {
+          result.append((char) readChar);
+        }
       }
     }
+    return accumulateText ? result.toString() : null;
   }
 
-  private void skipUntilNextString() throws IOException {
+  private String skipTillNextLine(final boolean accumulateText) throws IOException {
+    final StringBuilder result = accumulateText ? new StringBuilder() : null;
+
     while (true) {
       final int readChar = this.doReadChar();
       if (readChar < 0 || readChar == '\n') {
         break;
       }
+      if (accumulateText) {
+        result.append((char) readChar);
+      }
     }
+    return accumulateText ? result.toString() : null;
   }
 
   public TokenizerResult pop() {
@@ -324,10 +350,10 @@ public final class Tokenizer {
     final StringBuilderEx strBuffer = this.strBuf;
     final StringBuilderEx specCharBuffer = this.specCharBuf;
 
+    final boolean commentsAsAtoms = this.returnCommentsAsToken;
+
     OpContainer lastFoundFullOperator = null;
-
     boolean letterOrDigitOnly = false;
-
     boolean foundUnderscoreInNumber = false;
 
     try {
@@ -416,18 +442,30 @@ public final class Tokenizer {
 
         final char chr = (char) readChar;
 
-        if (state != STRING && this.blockCommentsAllowed && chr == '*'
-            && this.strBuf.isLastChar('/')) {
+        if (state != STRING
+            && this.blockCommentsAllowed
+            && chr == '*'
+            && this.strBuf.isLastChar('/')
+        ) {
           if (this.strBuf.isSingleChar('/')) {
             this.strBuf.pop();
             state = this.strBuf.isEmpty() ? LOOK_FOR : state;
           } else if (state == OPERATOR) {
             throw new PrologParserException("Operator can be mixed with comment block: "
-                + this.strBuf + chr, getLastTokenLine(), getLastTokenPos());
+                + this.strBuf + chr, this.getLastTokenLine(), this.getLastTokenPos());
           }
 
-          skipUntilBlockCommentEnd();
-
+          if (commentsAsAtoms) {
+            final String commentText = this.skipTillBlockCommentEnd(true);
+            return new TokenizerResult(
+                new PrologAtom(commentText, Quotation.COMMENT_BLOCK),
+                state,
+                this.getLastTokenLine(),
+                this.getLastTokenPos()
+            );
+          } else {
+            this.skipTillBlockCommentEnd(false);
+          }
         } else {
           switch (state) {
             case LOOK_FOR: {
@@ -437,7 +475,16 @@ public final class Tokenizer {
 
               switch (chr) {
                 case '%': {
-                  skipUntilNextString();
+                  this.fixPosition();
+                  final String text = skipTillNextLine(commentsAsAtoms);
+                  if (commentsAsAtoms) {
+                    return new TokenizerResult(
+                        new PrologAtom(text, Quotation.COMMENT_LINE),
+                        state,
+                        this.getLastTokenLine(),
+                        this.getLastTokenPos()
+                    );
+                  }
                 }
                 break;
                 case '_': {

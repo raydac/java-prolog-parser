@@ -68,6 +68,12 @@ public interface ParserContext {
    * @since 2.0.2
    */
   int FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR = 64;
+  /**
+   * Return commentaries as atoms.
+   *
+   * @since 2.2.0
+   */
+  int FLAG_COMMENTS_AS_ATOMS = 128;
 
   /**
    * Check that the context contains an operator starts with some string.

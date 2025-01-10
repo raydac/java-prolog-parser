@@ -27,7 +27,8 @@ import java.io.Reader;
  * Generic version of prolog parser.
  */
 public class GenericPrologParser extends PrologParser {
-  public GenericPrologParser(final Reader reader, final ParserContext context) {
-    super(reader, context);
+  public GenericPrologParser(final Reader reader, final ParserContext context,
+                             final TokenizedCommentListener... tokenizedCommentListeners) {
+    super(reader, context, tokenizedCommentListeners);
   }
 }

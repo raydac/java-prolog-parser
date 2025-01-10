@@ -47,7 +47,19 @@ public enum Quotation {
    * Term is back tick quotation
    * example: `hello`
    */
-  BACK_TICK("`");
+  BACK_TICK("`"),
+  /**
+   * Special variant shows that content is line comment
+   *
+   * @since 2.2.0
+   */
+  COMMENT_LINE("%"),
+  /**
+   * Special variant shows that content is block comment
+   *
+   * @since 2.2.0
+   */
+  COMMENT_BLOCK("/*");
 
   private final String quotationMark;
   public static final List<Quotation> VALUES = List.of(Quotation.values());
@@ -72,6 +84,13 @@ public enum Quotation {
    * @return quoted string
    */
   public String quoteString(final String str) {
-    return this.quotationMark + escapeString(str == null ? "" : str, this) + this.quotationMark;
+    switch (this) {
+      case COMMENT_LINE:
+        return COMMENT_LINE.quotationMark + str;
+      case COMMENT_BLOCK:
+        return COMMENT_BLOCK.quotationMark + str + "*/";
+      default:
+        return this.quotationMark + escapeString(str == null ? "" : str, this) + this.quotationMark;
+    }
   }
 }

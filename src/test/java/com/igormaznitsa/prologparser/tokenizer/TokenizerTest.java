@@ -1,9 +1,11 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.Quotation.COMMENT_LINE;
 import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
 import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +35,6 @@ import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
 import java.io.StringReader;
-import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -50,11 +51,14 @@ public class TokenizerTest {
     return this.tokenizeOf(str, context);
   }
 
-  private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment) {
+  private Tokenizer tokenizeOf(final String str, final boolean allowBlockComment,
+                               final boolean commentsAsAtoms) {
     ParserContext context = mock(ParserContext.class);
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
     when(context.getFlags()).thenReturn(
-        allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE);
+        (allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE)
+            | (commentsAsAtoms ? ParserContext.FLAG_COMMENTS_AS_ATOMS : ParserContext.FLAG_NONE)
+    );
     return this.tokenizeOf(str, context);
   }
 
@@ -77,45 +81,103 @@ public class TokenizerTest {
   }
 
   @Test
-  public void testBlockComment_TermBetweenComments() {
-    Tokenizer tokenizer = tokenizeOf("/* some text */hryam/*other*/.", true);
+  public void testBlockComment_TermBetweenBlockComments() {
+    Tokenizer tokenizer = tokenizeOf("/* some text */hryam/*other*/.", true, false);
     TokenizerResult result = tokenizer.readNextToken();
-    assertEquals(TermType.ATOM, Objects.requireNonNull(result).getResult().getType());
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
     assertEquals("hryam", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
 
-    tokenizer = tokenizeOf("/* some text */ 12345/*other*/.", true);
+    tokenizer = tokenizeOf("/* some text */ 12345/*other*/.", true, false);
     result = tokenizer.readNextToken();
-    assertEquals(TermType.ATOM, Objects.requireNonNull(result).getResult().getType());
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
     assertEquals(12345, ((PrologNumeric) result.getResult()).getNumber().intValue());
     assertEquals(1, result.getLine());
     assertEquals(17, result.getPos());
 
-    tokenizer = tokenizeOf("/* some text */12.345/*other*/.", true);
+    tokenizer = tokenizeOf("/* some text */12.345/*other*/.", true, false);
     result = tokenizer.readNextToken();
-    assertEquals(TermType.ATOM, Objects.requireNonNull(result).getResult().getType());
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
     assertEquals(12.345d, ((PrologNumeric) result.getResult()).getNumber().doubleValue(),
         Double.MIN_NORMAL);
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
 
-    tokenizer = tokenizeOf("/* some text */[]/*other*/.", true);
+    tokenizer = tokenizeOf("/* some text */[]/*other*/.", true, false);
     result = tokenizer.readNextToken();
-    assertTrue(Objects.requireNonNull(result).getResult() instanceof InternalSpecialCompoundTerm);
+    assertTrue(requireNonNull(result).getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals("[", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(16, result.getPos());
     result = tokenizer.readNextToken();
-    assertTrue(Objects.requireNonNull(result).getResult() instanceof InternalSpecialCompoundTerm);
+    assertTrue(requireNonNull(result).getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals("]", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(17, result.getPos());
     result = tokenizer.readNextToken();
-    assertTrue(Objects.requireNonNull(result).getResult() instanceof InternalSpecialCompoundTerm);
+    assertTrue(requireNonNull(result).getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals(".", result.getResult().getText());
     assertEquals(1, result.getLine());
     assertEquals(27, result.getPos());
+  }
+
+  @Test
+  public void testLineCommentAsAtoms() {
+    Tokenizer tokenizer = tokenizeOf("% Hello\nhello % 333\n     % End", false, true);
+
+    TokenizerResult result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals(COMMENT_LINE, result.getResult().getQuotation());
+    assertEquals(" Hello", result.getResult().getText());
+    assertEquals(1, result.getLine());
+    assertEquals(1, result.getPos());
+
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals(NONE, result.getResult().getQuotation());
+    assertEquals("hello", result.getResult().getText());
+    assertEquals(2, result.getLine());
+    assertEquals(1, result.getPos());
+
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals(COMMENT_LINE, result.getResult().getQuotation());
+    assertEquals(" 333", result.getResult().getText());
+    assertEquals(2, result.getLine());
+    assertEquals(7, result.getPos());
+
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals(COMMENT_LINE, result.getResult().getQuotation());
+    assertEquals(" End", result.getResult().getText());
+    assertEquals(3, result.getLine());
+    assertEquals(6, result.getPos());
+  }
+
+  @Test
+  public void testBlockComment_TermBetweenBlockComments_CommentsAsAtoms() {
+    Tokenizer tokenizer = tokenizeOf("/* some text */hryam/*other*/.", true, true);
+
+    TokenizerResult result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals(Quotation.COMMENT_BLOCK, result.getResult().getQuotation());
+    assertEquals(" some text ", result.getResult().getText());
+    assertEquals(1, result.getLine());
+    assertEquals(1, result.getPos());
+
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals("hryam", result.getResult().getText());
+    assertEquals(1, result.getLine());
+    assertEquals(16, result.getPos());
+
+    result = tokenizer.readNextToken();
+    assertEquals(TermType.ATOM, requireNonNull(result).getResult().getType());
+    assertEquals(Quotation.COMMENT_BLOCK, result.getResult().getQuotation());
+    assertEquals("other", result.getResult().getText());
+    assertEquals(1, result.getLine());
+    assertEquals(21, result.getPos());
   }
 
   @Test
@@ -129,8 +191,8 @@ public class TokenizerTest {
     assertEquals("hello", tokenizer.peek().getResult().getText());
     assertEquals("hello", tokenizer.peek().getResult().getText());
 
-    assertEquals("hello", Objects.requireNonNull(tokenizer.readNextToken()).getResult().getText());
-    assertEquals("world", Objects.requireNonNull(tokenizer.readNextToken()).getResult().getText());
+    assertEquals("hello", requireNonNull(tokenizer.readNextToken()).getResult().getText());
+    assertEquals("world", requireNonNull(tokenizer.readNextToken()).getResult().getText());
 
     assertNull(tokenizer.readNextToken());
   }
@@ -165,52 +227,52 @@ public class TokenizerTest {
         tokenizeOf("     123 222.34 \n111.2e+4 'string' \n:- Variable _var _ :--");
 
     TokenizerResult result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.INTEGER, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.INTEGER, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("123", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.FLOAT, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.FLOAT, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("222.34", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.FLOAT, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.FLOAT, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("1.112E+6", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.STRING, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.STRING, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.ATOM, result.getResult().getType());
     assertEquals("string", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.OPERATOR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.OPERATOR, requireNonNull(result).getTokenizerState());
     assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.VAR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.VAR, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.VAR, result.getResult().getType());
     assertEquals("Variable", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.VAR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.VAR, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.VAR, result.getResult().getType());
     assertEquals("_var", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.VAR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.VAR, requireNonNull(result).getTokenizerState());
     assertEquals(TermType.VAR, result.getResult().getType());
     assertEquals("_", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.OPERATOR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.OPERATOR, requireNonNull(result).getTokenizerState());
     assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals(":-", result.getResult().getText());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.OPERATOR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.OPERATOR, requireNonNull(result).getTokenizerState());
     assertTrue(result.getResult() instanceof InternalSpecialCompoundTerm);
     assertEquals("-", result.getResult().getText());
 
@@ -219,13 +281,13 @@ public class TokenizerTest {
     tokenizer = tokenizeOf(Long.toString(Long.MIN_VALUE + 1) + ' ' + Long.MAX_VALUE);
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.OPERATOR, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.OPERATOR, requireNonNull(result).getTokenizerState());
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.INTEGER, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.INTEGER, requireNonNull(result).getTokenizerState());
     assertEquals(Long.MAX_VALUE, ((PrologInt) result.getResult()).getNumber().longValue());
 
     result = tokenizer.readNextToken();
-    assertEquals(TokenizerState.INTEGER, Objects.requireNonNull(result).getTokenizerState());
+    assertEquals(TokenizerState.INTEGER, requireNonNull(result).getTokenizerState());
     assertEquals(Long.MAX_VALUE, ((PrologInt) result.getResult()).getNumber().longValue(),
         "Negative intger will be splitted to two parts - minus and positive number part");
   }
@@ -260,57 +322,57 @@ public class TokenizerTest {
   @Test
   public void testQuoting() {
     assertEquals(Quotation.NONE,
-        Objects.requireNonNull(tokenizeOf("abc.").readNextToken()).getResult().getQuotation());
+        requireNonNull(tokenizeOf("abc.").readNextToken()).getResult().getQuotation());
     assertEquals(Quotation.SINGLE,
-        Objects.requireNonNull(tokenizeOf("'abc'.").readNextToken()).getResult().getQuotation());
+        requireNonNull(tokenizeOf("'abc'.").readNextToken()).getResult().getQuotation());
     assertEquals(Quotation.DOUBLE,
-        Objects.requireNonNull(tokenizeOf("\"abc\".").readNextToken()).getResult().getQuotation());
+        requireNonNull(tokenizeOf("\"abc\".").readNextToken()).getResult().getQuotation());
     assertEquals(Quotation.BACK_TICK,
-        Objects.requireNonNull(tokenizeOf("`abc`.").readNextToken()).getResult().getQuotation());
+        requireNonNull(tokenizeOf("`abc`.").readNextToken()).getResult().getQuotation());
   }
 
   @Test
   public void testUnderscoreInNumbers_Normal() {
-    assertEquals(6384, ((PrologInt) Objects.requireNonNull(
+    assertEquals(6384, ((PrologInt) requireNonNull(
         tokenizeOf("2'001_1000_1111_0000.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(6384, ((PrologInt) Objects.requireNonNull(
+    assertEquals(6384, ((PrologInt) requireNonNull(
         tokenizeOf("0b001_1000_1111_0000.").readNextToken()).getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("16'F_F.").readNextToken())
+    assertEquals(255, ((PrologInt) requireNonNull(tokenizeOf("16'F_F.").readNextToken())
         .getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("0xF_F.").readNextToken())
+    assertEquals(255, ((PrologInt) requireNonNull(tokenizeOf("0xF_F.").readNextToken())
         .getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("16'f_f.").readNextToken())
+    assertEquals(255, ((PrologInt) requireNonNull(tokenizeOf("16'f_f.").readNextToken())
         .getResult()).getNumber().intValue());
-    assertEquals(255, ((PrologInt) Objects.requireNonNull(tokenizeOf("0xf_f.").readNextToken())
+    assertEquals(255, ((PrologInt) requireNonNull(tokenizeOf("0xf_f.").readNextToken())
         .getResult()).getNumber().intValue());
-    assertEquals(511, ((PrologInt) Objects.requireNonNull(tokenizeOf("8'77_7.").readNextToken())
+    assertEquals(511, ((PrologInt) requireNonNull(tokenizeOf("8'77_7.").readNextToken())
         .getResult()).getNumber().intValue());
-    assertEquals(511, ((PrologInt) Objects.requireNonNull(tokenizeOf("0o77_7.").readNextToken())
-        .getResult()).getNumber().intValue());
-
-    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("12_345.").readNextToken())
-        .getResult()).getNumber().intValue());
-    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("12_34_5.").readNextToken())
-        .getResult()).getNumber().intValue());
-    assertEquals(12345, ((PrologInt) Objects.requireNonNull(tokenizeOf("1_2_34_5.").readNextToken())
+    assertEquals(511, ((PrologInt) requireNonNull(tokenizeOf("0o77_7.").readNextToken())
         .getResult()).getNumber().intValue());
 
-    assertEquals(123.45f, ((PrologFloat) Objects.requireNonNull(
+    assertEquals(12345, ((PrologInt) requireNonNull(tokenizeOf("12_345.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) requireNonNull(tokenizeOf("12_34_5.").readNextToken())
+        .getResult()).getNumber().intValue());
+    assertEquals(12345, ((PrologInt) requireNonNull(tokenizeOf("1_2_34_5.").readNextToken())
+        .getResult()).getNumber().intValue());
+
+    assertEquals(123.45f, ((PrologFloat) requireNonNull(
             tokenizeOf("12_3.45.").readNextToken()).getResult()).getNumber().floatValue(),
         Float.MIN_NORMAL);
-    assertEquals(123.45f, ((PrologFloat) Objects.requireNonNull(
+    assertEquals(123.45f, ((PrologFloat) requireNonNull(
             tokenizeOf("12_3.4_5.").readNextToken()).getResult()).getNumber().floatValue(),
         Float.MIN_NORMAL);
-    assertEquals(123.45f, ((PrologFloat) Objects.requireNonNull(
+    assertEquals(123.45f, ((PrologFloat) requireNonNull(
             tokenizeOf("1_2_3.4_5.").readNextToken()).getResult()).getNumber().floatValue(),
         Float.MIN_NORMAL);
-    assertEquals(123.45e+10f, ((PrologFloat) Objects.requireNonNull(
+    assertEquals(123.45e+10f, ((PrologFloat) requireNonNull(
             tokenizeOf("1_2_3.4_5e+10.").readNextToken()).getResult()).getNumber().floatValue(),
         Float.MIN_NORMAL);
-    assertEquals(123.45e-10f, ((PrologFloat) Objects.requireNonNull(
+    assertEquals(123.45e-10f, ((PrologFloat) requireNonNull(
             tokenizeOf("1_2_3.4_5e-1_0.").readNextToken()).getResult()).getNumber().floatValue(),
         Float.MIN_NORMAL);
-    assertEquals(123.45e-10f, ((PrologFloat) Objects.requireNonNull(
+    assertEquals(123.45e-10f, ((PrologFloat) requireNonNull(
             tokenizeOf("1_2_3.4_5E-1_0.").readNextToken()).getResult()).getNumber().floatValue(),
         Float.MIN_NORMAL);
   }

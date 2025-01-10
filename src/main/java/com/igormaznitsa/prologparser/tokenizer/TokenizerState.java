@@ -32,5 +32,7 @@ public enum TokenizerState {
   OPERATOR,
   VAR,
   INTEGER,
-  FLOAT
+  FLOAT,
+  LINE_COMMENT,
+  BLOCK_COMMENT
 }

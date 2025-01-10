@@ -21,6 +21,7 @@
 
 package com.igormaznitsa.prologparser;
 
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AS_ATOMS;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_DOT2_AS_LIST;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
@@ -102,13 +103,25 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
 
   protected final ParserContext context;
   protected final int parserFlags;
+  private final boolean commentsAsAtoms;
   private final Tokenizer tokenizer;
   private boolean autoCloseReaderFlag;
+  private final List<TokenizedCommentListener> commentTokenListeners;
 
-  protected PrologParser(final Reader source, final ParserContext context) {
+  protected PrologParser(
+      final Reader source,
+      final ParserContext context,
+      final TokenizedCommentListener... tokenizedCommentListeners
+  ) {
     this.context = context == null ? DefaultParserContext.of(ParserContext.FLAG_NONE) : context;
     this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
+    this.commentsAsAtoms = (this.parserFlags & FLAG_COMMENTS_AS_ATOMS) != 0;
     this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
+    if (tokenizedCommentListeners.length == 0) {
+      this.commentTokenListeners = List.of();
+    } else {
+      this.commentTokenListeners = List.of(tokenizedCommentListeners);
+    }
   }
 
   public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
@@ -178,14 +191,36 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     return this.tokenizer.peek() != null;
   }
 
+  private TokenizerResult readNextTokenCommentAware() {
+    TokenizerResult result;
+    if (this.commentsAsAtoms) {
+      while (true) {
+        result = this.tokenizer.readNextToken();
+        if (result != null
+            && (result.getResult().getQuotation() == Quotation.COMMENT_BLOCK ||
+            result.getResult().getQuotation() == Quotation.COMMENT_LINE)) {
+          for (final TokenizedCommentListener listener : this.commentTokenListeners) {
+            listener.onCommentToken(this, result);
+          }
+        } else {
+          break;
+        }
+      }
+    } else {
+      result = this.tokenizer.readNextToken();
+    }
+    return result;
+  }
+
   public PrologTerm next() {
     final PrologTerm found = readBlock(OPERATORS_PHRASE);
     if (found == null) {
       throw new NoSuchElementException("No terms in source");
     } else {
-      final TokenizerResult endAtom = this.tokenizer.readNextToken();
+      final TokenizerResult endAtom = this.readNextTokenCommentAware();
       if (endAtom == null || !endAtom.getResult().getText().equals(OPERATOR_DOT.getText())) {
-        throw new PrologParserException("End operator is not found", this.tokenizer.getLine(),
+        throw new PrologParserException("End operator is not found",
+            this.tokenizer.getLine(),
             this.tokenizer.getPos());
       }
     }
@@ -203,7 +238,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
         return null;
       }
 
-      final TokenizerResult nextAtom = this.tokenizer.readNextToken();
+      final TokenizerResult nextAtom = this.readNextTokenCommentAware();
       if (nextAtom == null) {
         throw new PrologParserException("Can't read next token in block", this.tokenizer.getLine(),
             this.tokenizer.getPos());
@@ -242,7 +277,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     while (continueReading) {
       final PrologTerm block = readBlock(OPERATORS_INSIDE_LIST);
 
-      final TokenizerResult nextAtom = this.tokenizer.readNextToken();
+      final TokenizerResult nextAtom = this.readNextTokenCommentAware();
       if (nextAtom == null) {
         throw new PrologParserException("Can't read next token in list", this.tokenizer.getLine(),
             this.tokenizer.getPos());
@@ -281,7 +316,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                 tokenizer.getLastTokenPos(), null);
           }
 
-          final TokenizerResult nextAtomTwo = tokenizer.readNextToken();
+          final TokenizerResult nextAtomTwo = this.readNextTokenCommentAware();
           if (nextAtomTwo == null) {
             throw new PrologParserException("Can't find expected token in list",
                 this.tokenizer.getLine(), this.tokenizer.getPos());
@@ -353,7 +388,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
 
     while (true) {
       // read next atom from tokenizer
-      TokenizerResult readAtomContainer = this.tokenizer.readNextToken();
+      TokenizerResult readAtomContainer = this.readNextTokenCommentAware();
 
       if (readAtomContainer == null) {
         if (currentTreeItem == null) {
@@ -470,7 +505,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                         readAtomContainer.getLine(), readAtomContainer.getPos());
                   }
 
-                  final TokenizerResult token = this.tokenizer.readNextToken();
+                  final TokenizerResult token = this.readNextTokenCommentAware();
 
                   final PrologTerm closingAtom;
                   if (token == null) {
@@ -499,7 +534,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
         }
       } else {
         if (readAtom.getType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
-          TokenizerResult nextToken = this.tokenizer.readNextToken();
+          TokenizerResult nextToken = this.readNextTokenCommentAware();
 
           if (nextToken == null) {
             throw new PrologParserException("Non-closed clause", this.tokenizer.getLastTokenLine(),
