@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.clearInvocations;
@@ -51,8 +52,10 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -64,6 +67,35 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"varargs", "UnnecessaryUnicodeEscape", "OptionalGetWithoutIsPresent",
     "resource"})
 class IntegrationTest extends AbstractIntegrationTest {
+
+  @Test
+  void testIteration_Empty() throws Exception {
+    final List<PrologTerm> termList = new ArrayList<>();
+    try (final PrologParser parser = parseEd("")) {
+      while (parser.hasNext()) {
+        termList.add(parser.next());
+      }
+    }
+    assertTrue(termList.isEmpty());
+  }
+
+  @Test
+  void testIteration_Empty_NoSuchElementException() throws Exception {
+    try (final PrologParser parser = parseEd("")) {
+      assertThrowsExactly(NoSuchElementException.class, parser::next);
+    }
+  }
+
+  @Test
+  void testIteration_Presented() throws Exception {
+    final List<PrologTerm> termList = new ArrayList<>();
+    try (final PrologParser parser = parseEd("one(1). two(2). three(3).")) {
+      while (parser.hasNext()) {
+        termList.add(parser.next());
+      }
+    }
+    assertEquals(3, termList.size());
+  }
 
   @Test
   void testReadingClausesTokensAndCharsFromSameParser() throws Exception {
