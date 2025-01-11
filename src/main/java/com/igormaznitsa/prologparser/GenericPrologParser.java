@@ -22,13 +22,19 @@
 package com.igormaznitsa.prologparser;
 
 import java.io.Reader;
+import java.util.List;
 
 /**
  * Generic version of prolog parser.
  */
 public class GenericPrologParser extends PrologParser {
+
+  public GenericPrologParser(final Reader reader, final ParserContext context) {
+    this(reader, context, List.of());
+  }
+
   public GenericPrologParser(final Reader reader, final ParserContext context,
-                             final TokenizedCommentListener... tokenizedCommentListeners) {
+                             final List<TokenizedCommentListener> tokenizedCommentListeners) {
     super(reader, context, tokenizedCommentListeners);
   }
 }

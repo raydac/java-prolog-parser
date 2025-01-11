@@ -57,7 +57,7 @@ public class TokenizerTest {
     when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
     when(context.getFlags()).thenReturn(
         (allowBlockComment ? ParserContext.FLAG_BLOCK_COMMENTS : ParserContext.FLAG_NONE)
-            | (commentsAsAtoms ? ParserContext.FLAG_COMMENTS_AS_ATOMS : ParserContext.FLAG_NONE)
+            | (commentsAsAtoms ? ParserContext.FLAG_COMMENTS_AWARENESS : ParserContext.FLAG_NONE)
     );
     return this.tokenizeOf(str, context);
   }

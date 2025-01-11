@@ -69,11 +69,12 @@ public interface ParserContext {
    */
   int FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR = 64;
   /**
-   * Return commentaries as atoms.
+   * Make notifications about parsed commentaries and provide them as atoms.
    *
+   * @see TokenizedCommentListener
    * @since 2.2.0
    */
-  int FLAG_COMMENTS_AS_ATOMS = 128;
+  int FLAG_COMMENTS_AWARENESS = 128;
 
   /**
    * Check that the context contains an operator starts with some string.

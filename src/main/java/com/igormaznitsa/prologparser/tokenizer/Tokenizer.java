@@ -22,7 +22,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AS_ATOMS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AWARENESS;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_CHARCODE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
@@ -85,7 +85,7 @@ public final class Tokenizer {
     final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE :
         parser.getContext().getMaxTokenizerBufferLength();
     this.returnCommentsAsToken = parser.getContext() != null
-        && ((parser.getContext().getFlags() & FLAG_COMMENTS_AS_ATOMS) != 0);
+        && ((parser.getContext().getFlags() & FLAG_COMMENTS_AWARENESS) != 0);
     this.blockCommentsAllowed = parser.getContext() != null
         && ((parser.getContext().getFlags() & FLAG_BLOCK_COMMENTS) != 0);
     this.zeroSingleQuotationAllowed = parser.getContext() != null

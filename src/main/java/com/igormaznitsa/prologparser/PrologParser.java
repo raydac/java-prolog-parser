@@ -21,7 +21,6 @@
 
 package com.igormaznitsa.prologparser;
 
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AS_ATOMS;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_DOT2_AS_LIST;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
@@ -103,7 +102,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
 
   protected final ParserContext context;
   protected final int parserFlags;
-  private final boolean commentsAsAtoms;
   private final Tokenizer tokenizer;
   private boolean autoCloseReaderFlag;
   private final List<TokenizedCommentListener> commentTokenListeners;
@@ -111,17 +109,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   protected PrologParser(
       final Reader source,
       final ParserContext context,
-      final TokenizedCommentListener... tokenizedCommentListeners
+      final List<TokenizedCommentListener> tokenizedCommentListeners
   ) {
     this.context = context == null ? DefaultParserContext.of(ParserContext.FLAG_NONE) : context;
     this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
-    this.commentsAsAtoms = (this.parserFlags & FLAG_COMMENTS_AS_ATOMS) != 0;
     this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
-    if (tokenizedCommentListeners.length == 0) {
-      this.commentTokenListeners = List.of();
-    } else {
-      this.commentTokenListeners = List.of(tokenizedCommentListeners);
-    }
+    this.commentTokenListeners = List.copyOf(tokenizedCommentListeners);
   }
 
   public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
