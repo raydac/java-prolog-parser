@@ -5,7 +5,7 @@ import com.igormaznitsa.prologparser.tokenizer.TokenizerResult;
 /**
  * Listener gets notifications from parser for met parsed comments if detection flag is on
  *
- * @see ParserContext#FLAG_COMMENTS_AWARENESS
+ * @see ParserContext#FLAG_COMMENTS_AS_ATOMS
  * @since 2.2.0
  */
 @FunctionalInterface

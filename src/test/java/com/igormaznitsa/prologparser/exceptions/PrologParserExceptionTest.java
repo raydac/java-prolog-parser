@@ -91,7 +91,7 @@ public class PrologParserExceptionTest {
     try (final PrologParser parser = new GenericPrologParser(
         new StringReader("% Line1\nhello(/*HHH*/world/*End*/).% Ending comment\n[1,2,3]."),
         DefaultParserContext.of(
-            ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_COMMENTS_AWARENESS, Op.ISO),
+            ParserContext.FLAG_BLOCK_COMMENTS | ParserContext.FLAG_COMMENTS_AS_ATOMS, Op.ISO),
         List.of((parser1, comment) -> foundComments.add(comment))
     )) {
       parser.forEach(foundTerms::add);

@@ -74,7 +74,7 @@ public interface ParserContext {
    * @see TokenizedCommentListener
    * @since 2.2.0
    */
-  int FLAG_COMMENTS_AWARENESS = 128;
+  int FLAG_COMMENTS_AS_ATOMS = 128;
 
   /**
    * Check that the context contains an operator starts with some string.
@@ -106,13 +106,16 @@ public interface ParserContext {
   /**
    * get parser flags for the parser context.
    *
-   * @return flags as bit field
-   * @see ParserContext#FLAG_NONE
-   * @see ParserContext#FLAG_VAR_AS_FUNCTOR
-   * @see ParserContext#FLAG_BLOCK_COMMENTS
-   * @see ParserContext#FLAG_CURLY_BRACKETS
-   * @see ParserContext#FLAG_ZERO_QUOTATION_CHARCODE
-   * @see ParserContext#FLAG_ZERO_STRUCT
+   * @return flags as bit field combining flag options
+   * @see #FLAG_NONE
+   * @see #FLAG_BLOCK_COMMENTS
+   * @see #FLAG_CURLY_BRACKETS
+   * @see #FLAG_VAR_AS_FUNCTOR
+   * @see #FLAG_ZERO_STRUCT
+   * @see #FLAG_ZERO_QUOTATION_CHARCODE
+   * @see #FLAG_COMMENTS_AS_ATOMS
+   * @see #FLAG_DOT2_AS_LIST
+   * @see #FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR
    */
   int getFlags();
 }

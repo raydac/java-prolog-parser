@@ -103,8 +103,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   protected final ParserContext context;
   protected final int parserFlags;
   private final Tokenizer tokenizer;
-  private boolean autoCloseReaderFlag;
   private final List<TokenizedCommentListener> commentTokenListeners;
+  private PrologTermReadResult deferredReadTerm;
 
   protected PrologParser(
       final Reader source,
@@ -149,17 +149,18 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     return Koi7CharOpMap.copyOf(META_OP_MAP);
   }
 
-  /**
-   * Set flag to close provided reader automatically during close.
-   *
-   * @return the parser instance
-   * @see PrologParser#close()
-   */
-  public PrologParser autoCloseReader() {
-    this.autoCloseReaderFlag = true;
-    return this;
+  private static boolean isComment(final TokenizerResult tokenizerResult) {
+    return tokenizerResult != null
+        && tokenizerResult.getResult().getType() == TermType.ATOM
+        && (tokenizerResult.getResult().getQuotation() == Quotation.COMMENT_LINE
+        || tokenizerResult.getResult().getQuotation() == Quotation.COMMENT_BLOCK);
   }
 
+  /**
+   * Access to the internal tokenizer, it is mainly for test purposes because parser makes reading into internal buffers.
+   *
+   * @return the internal tokenizer in use by the parser
+   */
   public Tokenizer getInternalTokenizer() {
     return this.tokenizer;
   }
@@ -178,15 +179,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
 
   public ParserContext getContext() {
     return context;
-  }
-
-  private PrologTermReadResult deferredReadTerm;
-
-  private static boolean isComment(final TokenizerResult tokenizerResult) {
-    return tokenizerResult != null
-        && tokenizerResult.getResult().getType() == TermType.ATOM
-        && (tokenizerResult.getResult().getQuotation() == Quotation.COMMENT_LINE
-        || tokenizerResult.getResult().getQuotation() == Quotation.COMMENT_BLOCK);
   }
 
   private void notifyCommentTokenListeners(final TokenizerResult commentToken) {
@@ -688,7 +680,18 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   @Override
   public void close() throws IOException {
     this.deferredReadTerm = null;
-    this.tokenizer.close(this.autoCloseReaderFlag);
+    this.tokenizer.close(this.isCloseReader());
+  }
+
+  /**
+   * Returns flag to close the base reader. By default the reader will be closed.
+   *
+   * @return true if close base reader during its close, false to not close reader
+   * @see PrologParser#close()
+   * @since 2.2.0
+   */
+  protected boolean isCloseReader() {
+    return true;
   }
 
   @Override

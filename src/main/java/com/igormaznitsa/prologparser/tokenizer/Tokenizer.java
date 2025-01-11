@@ -22,7 +22,7 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_BLOCK_COMMENTS;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AWARENESS;
+import static com.igormaznitsa.prologparser.ParserContext.FLAG_COMMENTS_AS_ATOMS;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_QUOTATION_CHARCODE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
@@ -53,10 +53,10 @@ import java.math.BigInteger;
 /**
  * Internal tokenizer to extract next token from reader.
  */
-public final class Tokenizer {
+public final class Tokenizer implements AutoCloseable {
 
-  private final StringBuilderEx strBuf;
-  private final StringBuilderEx specCharBuf;
+  private final StringBuilderEx internalStringBuffer;
+  private final StringBuilderEx specialCharBuffer;
   private final StringBuilderEx insideCharBuffer;
   private final boolean blockCommentsAllowed;
   private final boolean returnCommentsAsToken;
@@ -75,8 +75,11 @@ public final class Tokenizer {
   private int pos;
   private int line;
 
-  public Tokenizer(final PrologParser parser, final Koi7CharOpMap metaOperators,
-                   final Reader reader) {
+  public Tokenizer(
+      final PrologParser parser,
+      final Koi7CharOpMap metaOperators,
+      final Reader reader
+  ) {
     super();
     this.metaOperators = metaOperators;
     this.reader = reader;
@@ -85,7 +88,7 @@ public final class Tokenizer {
     final int maxAllowedCharBufferSize = parser.getContext() == null ? Integer.MAX_VALUE :
         parser.getContext().getMaxTokenizerBufferLength();
     this.returnCommentsAsToken = parser.getContext() != null
-        && ((parser.getContext().getFlags() & FLAG_COMMENTS_AWARENESS) != 0);
+        && ((parser.getContext().getFlags() & FLAG_COMMENTS_AS_ATOMS) != 0);
     this.blockCommentsAllowed = parser.getContext() != null
         && ((parser.getContext().getFlags() & FLAG_BLOCK_COMMENTS) != 0);
     this.zeroSingleQuotationAllowed = parser.getContext() != null
@@ -94,8 +97,8 @@ public final class Tokenizer {
         && ((parser.getContext().getFlags()
         & FLAG_ZERO_QUOTATION_ALLOWS_WHITESPACE_CHAR) != 0);
 
-    this.strBuf = new StringBuilderEx(32, maxAllowedCharBufferSize);
-    this.specCharBuf = new StringBuilderEx(8, maxAllowedCharBufferSize);
+    this.internalStringBuffer = new StringBuilderEx(32, maxAllowedCharBufferSize);
+    this.specialCharBuffer = new StringBuilderEx(8, maxAllowedCharBufferSize);
     this.insideCharBuffer = new StringBuilderEx(8, maxAllowedCharBufferSize);
 
     this.pos = 1;
@@ -184,17 +187,29 @@ public final class Tokenizer {
     }
   }
 
+  @Override
+  public void close() throws IOException {
+    this.close(true);
+  }
+
+  /**
+   * Close the tokenizer and clear internal buffers,
+   *
+   * @param closeReader true if underlying reader also should be closed, false otherwise
+   * @throws IOException if any transport error during close
+   */
   public void close(final boolean closeReader) throws IOException {
-    this.lastPushedTerm = null;
     try {
       if (this.reader instanceof PushbackReader) {
-        final PushbackReader pbReader = (PushbackReader) this.reader;
-        while (!this.strBuf.isEmpty()) {
-          pbReader.unread(this.strBuf.pop());
+        final PushbackReader pushBackReader = (PushbackReader) this.reader;
+        while (!this.internalStringBuffer.isEmpty()) {
+          pushBackReader.unread(this.internalStringBuffer.pop());
         }
       }
     } finally {
-      this.strBuf.clear();
+      this.lastPushedTerm = null;
+      this.internalStringBuffer.clear();
+
       if (closeReader) {
         this.reader.close();
       }
@@ -335,20 +350,20 @@ public final class Tokenizer {
       return this.pop();
     }
 
-    Quotation quoting = Quotation.NONE;
+    Quotation currentQuoting = Quotation.NONE;
 
-    int radix = 10;
+    int currentRadix = 10;
     char detectedRadixChar = ' ';
 
     TokenizerState state = LOOK_FOR;
     boolean specCharDetected = false;
     boolean charCodeAsInt = false;
 
-    this.strBuf.clear();
-    this.specCharBuf.clear();
+    this.internalStringBuffer.clear();
+    this.specialCharBuffer.clear();
 
-    final StringBuilderEx strBuffer = this.strBuf;
-    final StringBuilderEx specCharBuffer = this.specCharBuf;
+    final StringBuilderEx locInternalStringBuffer = this.internalStringBuffer;
+    final StringBuilderEx locSpecialCharBuffer = this.specialCharBuffer;
 
     final boolean commentsAsAtoms = this.returnCommentsAsToken;
 
@@ -368,16 +383,18 @@ public final class Tokenizer {
             case INTEGER:
             case ATOM: {
               if (foundUnderscoreInNumber) {
-                throw new PrologParserException("Contains unexpected underscore: " + strBuffer,
+                throw new PrologParserException(
+                    "Contains unexpected underscore: " + locInternalStringBuffer,
                     this.prevLine, this.prevPos);
               }
 
-              if (state == TokenizerState.FLOAT && strBuffer.isLastChar('.')) {
+              if (state == TokenizerState.FLOAT && locInternalStringBuffer.isLastChar('.')) {
                 // non-ended float then it is an integer number ended by the '.' operator
                 push('.');
                 // it is Integer
                 return new TokenizerResult(
-                    makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting,
+                    makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
+                        currentRadix, currentQuoting,
                         TokenizerState.INTEGER),
                     TokenizerState.INTEGER,
                     getLastTokenLine(),
@@ -385,9 +402,9 @@ public final class Tokenizer {
                 );
               } else {
                 // it is just integer number or an atom
-                final String text = strBuffer.toString();
+                final String text = locInternalStringBuffer.toString();
                 return new TokenizerResult(
-                    makeTermFromString(text, radix, PrologTerm.findQuotation(text), state),
+                    makeTermFromString(text, currentRadix, PrologTerm.findQuotation(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -395,7 +412,7 @@ public final class Tokenizer {
               }
             }
             case VAR: {
-              if (strBuffer.isSingleChar('_')) {
+              if (locInternalStringBuffer.isSingleChar('_')) {
                 return new TokenizerResult(
                     new PrologVar(),
                     state,
@@ -404,7 +421,7 @@ public final class Tokenizer {
                 );
               } else {
                 return new TokenizerResult(
-                    new PrologVar(strBuffer.toString()),
+                    new PrologVar(locInternalStringBuffer.toString()),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
@@ -412,19 +429,20 @@ public final class Tokenizer {
               }
             }
             case STRING: {
-              throw new PrologParserException("Non-completed string: " + strBuffer,
+              throw new PrologParserException("Non-completed string: " + locInternalStringBuffer,
                   this.lastTokenLine, this.lastTokenPos);
             }
             case OPERATOR: {
               if (lastFoundFullOperator == null) {
                 return new TokenizerResult(
-                    makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                    makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                        currentQuoting, state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
               } else {
-                calcDiffAndPushResultBack(lastFoundFullOperator.getText(), strBuffer);
+                calcDiffAndPushResultBack(lastFoundFullOperator.getText(), locInternalStringBuffer);
                 return new TokenizerResult(
                     lastFoundFullOperator,
                     state,
@@ -434,7 +452,8 @@ public final class Tokenizer {
               }
             }
             default: {
-              throw new PrologParserException("Non-completed term (" + state + "): " + strBuffer,
+              throw new PrologParserException(
+                  "Non-completed term (" + state + "): " + locInternalStringBuffer,
                   this.prevLine, this.prevPos);
             }
           }
@@ -445,14 +464,14 @@ public final class Tokenizer {
         if (state != STRING
             && this.blockCommentsAllowed
             && chr == '*'
-            && this.strBuf.isLastChar('/')
+            && this.internalStringBuffer.isLastChar('/')
         ) {
-          if (this.strBuf.isSingleChar('/')) {
-            this.strBuf.pop();
-            state = this.strBuf.isEmpty() ? LOOK_FOR : state;
+          if (this.internalStringBuffer.isSingleChar('/')) {
+            this.internalStringBuffer.pop();
+            state = this.internalStringBuffer.isEmpty() ? LOOK_FOR : state;
           } else if (state == OPERATOR) {
             throw new PrologParserException("Operator can be mixed with comment block: "
-                + this.strBuf + chr, this.getLastTokenLine(), this.getLastTokenPos());
+                + this.internalStringBuffer + chr, this.getLastTokenLine(), this.getLastTokenPos());
           }
 
           if (commentsAsAtoms) {
@@ -489,25 +508,25 @@ public final class Tokenizer {
                 break;
                 case '_': {
                   fixPosition();
-                  strBuffer.append(chr);
+                  locInternalStringBuffer.append(chr);
                   state = TokenizerState.VAR;
                 }
                 break;
                 case '\'': {
                   fixPosition();
-                  quoting = Quotation.SINGLE;
+                  currentQuoting = Quotation.SINGLE;
                   state = TokenizerState.STRING;
                 }
                 break;
                 case '\"': {
                   fixPosition();
-                  quoting = Quotation.DOUBLE;
+                  currentQuoting = Quotation.DOUBLE;
                   state = TokenizerState.STRING;
                 }
                 break;
                 case '`': {
                   fixPosition();
-                  quoting = Quotation.BACK_TICK;
+                  currentQuoting = Quotation.BACK_TICK;
                   state = TokenizerState.STRING;
                 }
                 break;
@@ -515,7 +534,7 @@ public final class Tokenizer {
                 default: {
                   fixPosition();
 
-                  strBuffer.append(chr);
+                  locInternalStringBuffer.append(chr);
 
                   if (Character.isUpperCase(chr)) {
                     state = TokenizerState.VAR;
@@ -541,11 +560,11 @@ public final class Tokenizer {
             break;
             case ATOM: {
               if (chr == '_') {
-                strBuffer.append(chr);
+                locInternalStringBuffer.append(chr);
               } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-                final String text = strBuffer.toString();
+                final String text = locInternalStringBuffer.toString();
 
-                if (quoting == Quotation.NONE) {
+                if (currentQuoting == Quotation.NONE) {
                   final OpContainer operator = findOperatorForName(text);
                   if (operator != null) {
                     return new TokenizerResult(
@@ -557,7 +576,7 @@ public final class Tokenizer {
                 }
 
                 return new TokenizerResult(
-                    makeTermFromString(text, radix, PrologTerm.findQuotation(text), state),
+                    makeTermFromString(text, currentRadix, PrologTerm.findQuotation(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
@@ -565,9 +584,9 @@ public final class Tokenizer {
                   || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
                   || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
                 push(chr);
-                final String text = strBuffer.toString();
+                final String text = locInternalStringBuffer.toString();
 
-                if (quoting == Quotation.NONE) {
+                if (currentQuoting == Quotation.NONE) {
                   final OpContainer operator = findOperatorForName(text);
                   if (operator != null) {
                     return new TokenizerResult(
@@ -578,20 +597,20 @@ public final class Tokenizer {
                   }
                 }
                 return new TokenizerResult(
-                    makeTermFromString(text, radix, PrologTerm.findQuotation(text), state),
+                    makeTermFromString(text, currentRadix, PrologTerm.findQuotation(text), state),
                     state,
                     getLastTokenLine(),
                     getLastTokenPos());
 
               } else {
-                strBuffer.append(chr);
+                locInternalStringBuffer.append(chr);
               }
             }
             break;
             case INTEGER: {
-              if (isCharAllowedForRadix(chr, radix)) {
+              if (isCharAllowedForRadix(chr, currentRadix)) {
                 foundUnderscoreInNumber = false;
-                strBuffer.append(chr);
+                locInternalStringBuffer.append(chr);
               } else if (chr == '_') {
                 if (foundUnderscoreInNumber) {
                   throw new PrologParserException("Duplicated underscore char in integer",
@@ -606,7 +625,7 @@ public final class Tokenizer {
                         this.prevLine, this.prevPos);
                   }
 
-                  strBuffer.append(chr);
+                  locInternalStringBuffer.append(chr);
                   state = TokenizerState.FLOAT;
                 } else {
                   if (foundUnderscoreInNumber) {
@@ -615,49 +634,50 @@ public final class Tokenizer {
                   }
 
                   if (chr == '\'') {
-                    if (strBuffer.isSingleChar('0')) {
+                    if (locInternalStringBuffer.isSingleChar('0')) {
                       if (this.zeroSingleQuotationAllowed) {
                         state = STRING;
                         charCodeAsInt = true;
-                        strBuffer.clear();
+                        locInternalStringBuffer.clear();
                       } else {
                         push(chr);
                         return new TokenizerResult(
-                            makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                            makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                                currentQuoting, state),
                             TokenizerState.INTEGER,
                             getLastTokenLine(),
                             getLastTokenPos());
                       }
                     } else {
-                      radix = Integer.parseInt(strBuffer.toString());
-                      if (radix < 2 || radix > 36) {
-                        throw new PrologParserException("Radix must be 2..36: " + radix,
+                      currentRadix = Integer.parseInt(locInternalStringBuffer.toString());
+                      if (currentRadix < 2 || currentRadix > 36) {
+                        throw new PrologParserException("Radix must be 2..36: " + currentRadix,
                             getLastTokenLine(),
                             getLastTokenPos());
                       }
-                      strBuffer.clear();
+                      locInternalStringBuffer.clear();
                     }
                   } else {
                     boolean radixCharFound = false;
-                    if (radix == 10 && strBuffer.isSingleChar('0')) {
+                    if (currentRadix == 10 && locInternalStringBuffer.isSingleChar('0')) {
                       switch (chr) {
                         case 'x':
                           radixCharFound = true;
-                          radix = 16;
+                          currentRadix = 16;
                           detectedRadixChar = chr;
-                          strBuffer.clear();
+                          locInternalStringBuffer.clear();
                           break;
                         case 'o':
                           radixCharFound = true;
-                          radix = 8;
+                          currentRadix = 8;
                           detectedRadixChar = chr;
-                          strBuffer.clear();
+                          locInternalStringBuffer.clear();
                           break;
                         case 'b':
                           radixCharFound = true;
-                          radix = 2;
+                          currentRadix = 2;
                           detectedRadixChar = chr;
-                          strBuffer.clear();
+                          locInternalStringBuffer.clear();
                           break;
                         default:
                           break;
@@ -665,12 +685,13 @@ public final class Tokenizer {
                     }
                     if (!radixCharFound) {
                       push(chr);
-                      if (strBuffer.isEmpty() && detectedRadixChar != ' ') {
+                      if (locInternalStringBuffer.isEmpty() && detectedRadixChar != ' ') {
                         push(detectedRadixChar);
-                        strBuffer.append('0');
+                        locInternalStringBuffer.append('0');
                       }
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                          makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                              currentQuoting, state),
                           TokenizerState.INTEGER,
                           getLastTokenLine(),
                           getLastTokenPos());
@@ -683,10 +704,11 @@ public final class Tokenizer {
             case FLOAT: {
               if (Character.isDigit(chr)) {
                 foundUnderscoreInNumber = false;
-                strBuffer.append(chr);
+                locInternalStringBuffer.append(chr);
               } else if (chr == '_') {
-                if (foundUnderscoreInNumber || strBuffer.isLastChar('.')) {
-                  throw new PrologParserException("Underscore after dot in number: " + strBuffer,
+                if (foundUnderscoreInNumber || locInternalStringBuffer.isLastChar('.')) {
+                  throw new PrologParserException(
+                      "Underscore after dot in number: " + locInternalStringBuffer,
                       this.prevLine, this.prevPos);
                 } else {
                   foundUnderscoreInNumber = true;
@@ -695,12 +717,13 @@ public final class Tokenizer {
                 switch (chr) {
                   case '-':
                   case '+':
-                    if (strBuffer.isLastChar('e')) {
-                      strBuffer.append(chr);
+                    if (locInternalStringBuffer.isLastChar('e')) {
+                      locInternalStringBuffer.append(chr);
                     } else {
                       push(chr);
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toString(), radix, quoting,
+                          makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                              currentQuoting,
                               TokenizerState.FLOAT),
                           TokenizerState.FLOAT,
                           getLastTokenLine(),
@@ -713,12 +736,13 @@ public final class Tokenizer {
                       throw new PrologParserException("Underscore is not allowed before E",
                           this.prevLine, this.prevPos);
                     }
-                    if (strBuffer.lastIndexOf('e') < 0) {
-                      strBuffer.append('e');
+                    if (locInternalStringBuffer.lastIndexOf('e') < 0) {
+                      locInternalStringBuffer.append('e');
                     } else {
                       push(chr);
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting,
+                          makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
+                              currentRadix, currentQuoting,
                               TokenizerState.FLOAT),
                           TokenizerState.FLOAT,
                           getLastTokenLine(),
@@ -733,23 +757,25 @@ public final class Tokenizer {
                           this.prevPos);
                     }
 
-                    if (strBuffer.isLastChar('.')) {
+                    if (locInternalStringBuffer.isLastChar('.')) {
                       // it was an integer
                       push('.');
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toStringExcludeLastChar(), radix, quoting,
+                          makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
+                              currentRadix, currentQuoting,
                               TokenizerState.INTEGER),
                           TokenizerState.INTEGER,
                           getLastTokenLine(),
                           getLastTokenPos());
                     } else {
                       // it is a float
-                      if (!Character.isDigit(strBuffer.getLastChar())) {
+                      if (!Character.isDigit(locInternalStringBuffer.getLastChar())) {
                         throw new PrologParserException("Unexpected end of float: "
-                            + strBuffer, this.prevLine, this.prevPos);
+                            + locInternalStringBuffer, this.prevLine, this.prevPos);
                       }
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                          makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                              currentQuoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -764,7 +790,7 @@ public final class Tokenizer {
                 push(chr);
 
                 if (lastFoundFullOperator == null || letterOrDigitOnly) {
-                  final String textInBuffer = strBuffer.toString();
+                  final String textInBuffer = locInternalStringBuffer.toString();
 
                   if (lastFoundFullOperator != null
                       && lastFoundFullOperator.getText().equals(textInBuffer)) {
@@ -776,7 +802,7 @@ public final class Tokenizer {
                     );
                   } else {
                     return new TokenizerResult(
-                        makeTermFromString(textInBuffer, radix, quoting, ATOM),
+                        makeTermFromString(textInBuffer, currentRadix, currentQuoting, ATOM),
                         ATOM,
                         getLastTokenLine(),
                         getLastTokenPos()
@@ -784,7 +810,7 @@ public final class Tokenizer {
                   }
                 } else {
                   calcDiffAndPushResultBack(
-                      lastFoundFullOperator.getText(), strBuffer);
+                      lastFoundFullOperator.getText(), locInternalStringBuffer);
                   return new TokenizerResult(
                       lastFoundFullOperator,
                       state,
@@ -795,8 +821,8 @@ public final class Tokenizer {
               } else {
                 final OpContainer previouslyDetectedOperator = lastFoundFullOperator;
 
-                strBuffer.append(chr);
-                final String operator = strBuffer.toString();
+                locInternalStringBuffer.append(chr);
+                final String operator = locInternalStringBuffer.toString();
                 lastFoundFullOperator = findOperatorForName(operator);
 
                 if (previouslyDetectedOperator == null) {
@@ -805,7 +831,7 @@ public final class Tokenizer {
                       // next char can be the start char of an
                       // operator, so we need get back it into the
                       // buffer
-                      strBuffer.pop();
+                      locInternalStringBuffer.pop();
                       push(chr);
                     }
                     state = TokenizerState.ATOM;
@@ -819,7 +845,7 @@ public final class Tokenizer {
                         state = TokenizerState.ATOM;
                       } else {
                         calcDiffAndPushResultBack(
-                            previouslyDetectedOperator.getText(), strBuffer);
+                            previouslyDetectedOperator.getText(), locInternalStringBuffer);
                         return new TokenizerResult(
                             previouslyDetectedOperator,
                             state, getLastTokenLine(),
@@ -830,7 +856,7 @@ public final class Tokenizer {
                   } else {
                     if (!hasOperatorStartsWith(operator)) {
                       calcDiffAndPushResultBack(
-                          previouslyDetectedOperator.getText(), strBuffer);
+                          previouslyDetectedOperator.getText(), locInternalStringBuffer);
                       return new TokenizerResult(
                           previouslyDetectedOperator,
                           state,
@@ -844,25 +870,26 @@ public final class Tokenizer {
             break;
             case STRING: {
               if (specCharDetected) {
-                if (specCharBuffer.isEmpty() && chr == '\n') {
+                if (locSpecialCharBuffer.isEmpty() && chr == '\n') {
                   specCharDetected = false;
 
-                  strBuffer.append('\n');
+                  locInternalStringBuffer.append('\n');
                   if (charCodeAsInt) {
                     return new TokenizerResult(
-                        makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                        makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                            currentQuoting, state),
                         state,
                         getLastTokenLine(),
                         getLastTokenPos()
                     );
                   }
                 } else if (!Character.isISOControl(chr)) {
-                  specCharBuffer.append(chr);
+                  locSpecialCharBuffer.append(chr);
                   final StringUtils.UnescapeResult result =
-                      StringUtils.tryUnescapeCharacter(specCharBuffer);
+                      StringUtils.tryUnescapeCharacter(locSpecialCharBuffer);
                   if (result.isError()) {
                     throw new PrologParserException("Detected wrong escape char: \\"
-                        + specCharBuffer, this.prevLine, this.prevPos);
+                        + locSpecialCharBuffer, this.prevLine, this.prevPos);
                   } else if (!result.doesNeedMore()) {
                     specCharDetected = false;
                     if (charCodeAsInt) {
@@ -873,11 +900,11 @@ public final class Tokenizer {
                           getLastTokenPos()
                       );
                     } else {
-                      strBuffer.append(result.getDecoded());
+                      locInternalStringBuffer.append(result.getDecoded());
                     }
                   }
                 } else {
-                  if (!(chr == '\r' && specCharBuffer.isEmpty())) {
+                  if (!(chr == '\r' && locSpecialCharBuffer.isEmpty())) {
                     throw new PrologParserException(
                         "Unexpected char: 0x" + Integer.toHexString(chr), this.prevLine,
                         this.prevPos);
@@ -886,9 +913,10 @@ public final class Tokenizer {
               } else {
                 switch (chr) {
                   case '\'':
-                    if (quoting == Quotation.SINGLE) {
+                    if (currentQuoting == Quotation.SINGLE) {
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                          makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                              currentQuoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -898,14 +926,15 @@ public final class Tokenizer {
                         throw new PrologParserException("Char ''' must be escaped in such case",
                             this.prevLine, this.prevPos);
                       } else {
-                        strBuffer.append(chr);
+                        locInternalStringBuffer.append(chr);
                       }
                     }
                     break;
                   case '`':
-                    if (quoting == Quotation.BACK_TICK) {
+                    if (currentQuoting == Quotation.BACK_TICK) {
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                          makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                              currentQuoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -919,14 +948,15 @@ public final class Tokenizer {
                             getLastTokenPos()
                         );
                       } else {
-                        strBuffer.append(chr);
+                        locInternalStringBuffer.append(chr);
                       }
                     }
                     break;
                   case '\"':
-                    if (quoting == Quotation.DOUBLE) {
+                    if (currentQuoting == Quotation.DOUBLE) {
                       return new TokenizerResult(
-                          makeTermFromString(strBuffer.toString(), radix, quoting, state),
+                          makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
+                              currentQuoting, state),
                           state,
                           getLastTokenLine(),
                           getLastTokenPos()
@@ -940,13 +970,13 @@ public final class Tokenizer {
                             getLastTokenPos()
                         );
                       } else {
-                        strBuffer.append(chr);
+                        locInternalStringBuffer.append(chr);
                       }
                     }
                     break;
                   case '\\':
                     specCharDetected = true;
-                    specCharBuffer.clear();
+                    locSpecialCharBuffer.clear();
                     break;
                   default:
                     final char theChar;
@@ -972,7 +1002,7 @@ public final class Tokenizer {
                         );
                       }
                     } else {
-                      strBuffer.append(theChar);
+                      locInternalStringBuffer.append(theChar);
                     }
                     break;
                 }
@@ -982,14 +1012,14 @@ public final class Tokenizer {
             case VAR: {
               if (!isCharAllowedForUnquotedAtom(chr)) {
                 push(chr);
-                if (strBuffer.isSingleChar('_')) {
+                if (locInternalStringBuffer.isSingleChar('_')) {
                   return new TokenizerResult(new PrologVar(), state, getLastTokenLine(),
                       getLastTokenPos());
                 }
-                return new TokenizerResult(new PrologVar(strBuffer.toString()), state,
+                return new TokenizerResult(new PrologVar(locInternalStringBuffer.toString()), state,
                     getLastTokenLine(), getLastTokenPos());
               } else {
-                strBuffer.append(chr);
+                locInternalStringBuffer.append(chr);
               }
             }
             break;
