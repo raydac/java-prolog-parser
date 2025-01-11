@@ -24,6 +24,7 @@ package com.igormaznitsa.prologparser;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Random;
 
 @SuppressWarnings("unused")
@@ -34,32 +35,52 @@ public final class PrologSourceKoi7Generator extends InputStream {
   private final boolean throwException;
   private final int maxClauses;
   private final boolean splitClauses;
+  private final boolean everyElementOnNewLine;
   private int charCounter;
   private int generatedClauseCounter;
   private String clauseBuffer;
   private int clausePos;
 
-  public PrologSourceKoi7Generator(final int maxClauses, final boolean splitClauses) {
-    this.generatedClauseCounter = 0;
-    this.splitClauses = splitClauses;
-    this.maxChars = Integer.MAX_VALUE;
-    this.throwException = false;
-    this.maxClauses = maxClauses;
-    genNextClause();
+  public PrologSourceKoi7Generator(
+      final int maxClauses,
+      final boolean splitClauses,
+      final boolean everyElementOnNewLine
+  ) {
+    this(splitClauses, Integer.MAX_VALUE, maxClauses, everyElementOnNewLine, false);
   }
 
-  public PrologSourceKoi7Generator(final boolean splitClauses, final int numberOfChars,
+  public PrologSourceKoi7Generator(final boolean splitClauses,
+                                   final int maxChars,
+                                   final int maxClauses,
+                                   final boolean everyElementOnNewLine,
                                    final boolean throwException) {
     this.generatedClauseCounter = 0;
     this.splitClauses = splitClauses;
-    this.maxChars = numberOfChars;
+    this.maxChars = maxChars;
     this.throwException = throwException;
-    this.maxClauses = Integer.MAX_VALUE;
+    this.maxClauses = maxClauses;
+    this.everyElementOnNewLine = everyElementOnNewLine;
     genNextClause();
   }
 
+  public String asString() {
+    final StringBuilder buffer = new StringBuilder();
+    try (final InputStreamReader reader = new InputStreamReader(this)) {
+      while (true) {
+        final int next = reader.read();
+        if (next < 0) {
+          break;
+        }
+        buffer.append((char) next);
+      }
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    return buffer.toString();
+  }
+
   private void genNextClause() {
-    this.clauseBuffer = generateClause();
+    this.clauseBuffer = this.generateClause();
     this.clausePos = 0;
     this.generatedClauseCounter++;
   }
@@ -67,7 +88,7 @@ public final class PrologSourceKoi7Generator extends InputStream {
   private String generateClause() {
     final StringBuilder builder = new StringBuilder();
 
-    builder.append(generateOperator(this.rnd.nextInt(10) + 2));
+    builder.append(this.generateOperator(this.rnd.nextInt(10) + 2));
     if (Character.isDigit(builder.charAt(builder.length() - 1))) {
       builder.append(". ");
     } else {
@@ -88,54 +109,65 @@ public final class PrologSourceKoi7Generator extends InputStream {
     return builder.toString();
   }
 
-  private String makeRndTerm(int recusionLevel) {
+  private String makeRndTerm(int recursionLevel) {
+    final String result;
     switch (this.rnd.nextInt(8)) {
       case 0:
-        return generateNumber();
+        result = generateNumber();
+        break;
       case 1:
-        return generateString();
+        result = generateString();
+        break;
       case 2:
-        return generateAtom();
+        result = generateAtom();
+        break;
       case 3:
-        return generateVar();
+        result = generateVar();
+        break;
       case 4:
-        return generateList(recusionLevel - 1);
+        result = generateList(recursionLevel - 1);
+        break;
       case 5:
-        return generateOperator(recusionLevel - 1);
+        result = generateOperator(recursionLevel - 1);
+        break;
       default: {
-        return generateStruct(recusionLevel - 1);
+        result = generateStruct(recursionLevel - 1);
       }
+      break;
     }
+    return this.everyElementOnNewLine ? '\n' + result : result;
   }
 
-  private String generateOperator(int recusionLevel) {
+  private String generateOperator(int recursionLevel) {
     switch (this.rnd.nextInt(10)) {
       case 0: {
-        return makeRndTerm(recusionLevel - 1) + ',' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + ',' + this.makeRndTerm(recursionLevel - 1);
       }
       case 1: {
-        return makeRndTerm(recusionLevel - 1) + ';' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + ';' + this.makeRndTerm(recursionLevel - 1);
       }
       case 2: {
-        return makeRndTerm(recusionLevel - 1) + '/' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + '/' + this.makeRndTerm(recursionLevel - 1);
       }
       case 3: {
-        return makeRndTerm(recusionLevel - 1) + '+' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + '+' + this.makeRndTerm(recursionLevel - 1);
       }
       case 4: {
-        return makeRndTerm(recusionLevel - 1) + '-' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + '-' + this.makeRndTerm(recursionLevel - 1);
       }
       case 5: {
-        return makeRndTerm(recusionLevel - 1) + '^' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + '^' + this.makeRndTerm(recursionLevel - 1);
       }
       case 6: {
-        return makeRndTerm(recusionLevel - 1) + ':' + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + ':' + this.makeRndTerm(recursionLevel - 1);
       }
       case 7: {
-        return makeRndTerm(recusionLevel - 1) + " mod " + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + " mod " +
+            this.makeRndTerm(recursionLevel - 1);
       }
       default: {
-        return makeRndTerm(recusionLevel - 1) + " rem " + makeRndTerm(recusionLevel - 1);
+        return this.makeRndTerm(recursionLevel - 1) + " rem " +
+            this.makeRndTerm(recursionLevel - 1);
       }
     }
   }
@@ -207,23 +239,23 @@ public final class PrologSourceKoi7Generator extends InputStream {
   }
 
   private String generateString() {
-    final Quotation type;
+    final Quotation selectedQuotation;
     switch (this.rnd.nextInt(3)) {
       case 0:
-        type = Quotation.SINGLE;
+        selectedQuotation = Quotation.SINGLE;
         break;
       case 1:
-        type = Quotation.BACK_TICK;
+        selectedQuotation = Quotation.BACK_TICK;
         break;
       default:
-        type = Quotation.DOUBLE;
+        selectedQuotation = Quotation.DOUBLE;
         break;
     }
 
-    final int len = this.rnd.nextInt(32) + 1;
-    final StringBuilder buffer = new StringBuilder(type.getQuotationMark());
+    final StringBuilder buffer = new StringBuilder();
 
-    for (int i = 0; i < len; i++) {
+    final int generatedLength = this.rnd.nextInt(32) + 1;
+    for (int i = 0; i < generatedLength; i++) {
       if (i == 0) {
         buffer.append((char) ('a' + this.rnd.nextInt('z' - 'a')));
       } else {
@@ -289,9 +321,8 @@ public final class PrologSourceKoi7Generator extends InputStream {
       }
     }
 
-    buffer.append(type.getQuotationMark());
-
-    return buffer.toString();
+    final String text = buffer.toString();
+    return selectedQuotation.formatString(text);
   }
 
   private String generateAtom() {

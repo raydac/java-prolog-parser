@@ -21,8 +21,7 @@
 
 package com.igormaznitsa.prologparser.terms;
 
-import static com.igormaznitsa.prologparser.utils.StringUtils.escapeString;
-
+import com.igormaznitsa.prologparser.utils.StringUtils;
 import java.util.List;
 
 /**
@@ -32,49 +31,62 @@ public enum Quotation {
   /**
    * Term doesn't have any quotation.
    */
-  NONE(""),
+  NONE("%s", true),
   /**
    * Term is single quotation
    * example: 'hello'
    */
-  SINGLE("'"),
+  SINGLE("'%s'", true),
   /**
    * Term is double quotation
    * example: "hello"
    */
-  DOUBLE("\""),
+  DOUBLE("\"%s\"", true),
   /**
    * Term is back tick quotation
    * example: `hello`
    */
-  BACK_TICK("`"),
+  BACK_TICK("`%s`", true),
   /**
    * Special variant shows that content is line comment
    *
    * @since 2.2.0
    */
-  COMMENT_LINE("%"),
+  COMMENT_LINE("%%%s", false),
   /**
    * Special variant shows that content is block comment
    *
    * @since 2.2.0
    */
-  COMMENT_BLOCK("/*");
+  COMMENT_BLOCK("/*%s*/", false);
 
-  private final String quotationMark;
+  private final String formatPattern;
+  private final boolean escapeString;
   public static final List<Quotation> VALUES = List.of(Quotation.values());
 
-  Quotation(final String quotationMark) {
-    this.quotationMark = quotationMark;
+  Quotation(final String formatPattern, final boolean escapeString) {
+    this.formatPattern = formatPattern;
+    this.escapeString = escapeString;
+  }
+
+  /**
+   * Check that string should be escaped.
+   *
+   * @return true if escape string required, false otherwise
+   * @since 2.2.0
+   */
+  public boolean isEscapeString() {
+    return this.escapeString;
   }
 
   /**
    * Get quotation mark.
    *
    * @return the quotation mark as string
+   * @since 2.2.0
    */
-  public String getQuotationMark() {
-    return this.quotationMark;
+  public String getFormatPattern() {
+    return this.formatPattern;
   }
 
   /**
@@ -83,14 +95,9 @@ public enum Quotation {
    * @param str string to be quoted, can be null
    * @return quoted string
    */
-  public String quoteString(final String str) {
-    switch (this) {
-      case COMMENT_LINE:
-        return COMMENT_LINE.quotationMark + str;
-      case COMMENT_BLOCK:
-        return COMMENT_BLOCK.quotationMark + str + "*/";
-      default:
-        return this.quotationMark + escapeString(str == null ? "" : str, this) + this.quotationMark;
-    }
+  public String formatString(String str) {
+    final String nonNullStr = str == null ? "" : str;
+    return String.format(this.formatPattern,
+        this.escapeString ? StringUtils.escapeString(nonNullStr, this) : nonNullStr);
   }
 }

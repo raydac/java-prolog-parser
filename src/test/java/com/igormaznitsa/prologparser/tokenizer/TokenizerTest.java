@@ -1,7 +1,9 @@
 package com.igormaznitsa.prologparser.tokenizer;
 
 import static com.igormaznitsa.prologparser.terms.OpContainer.make;
+import static com.igormaznitsa.prologparser.terms.Quotation.BACK_TICK;
 import static com.igormaznitsa.prologparser.terms.Quotation.COMMENT_LINE;
+import static com.igormaznitsa.prologparser.terms.Quotation.DOUBLE;
 import static com.igormaznitsa.prologparser.terms.Quotation.NONE;
 import static com.igormaznitsa.prologparser.terms.Quotation.SINGLE;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
@@ -319,16 +321,22 @@ public class TokenizerTest {
         () -> tokenizeOf("1234567890.", 3).readNextToken()).getBufferText());
   }
 
+  private void assertQuotation(final String expectedText, final Quotation expectedQuotation,
+                               final String text) {
+    final Tokenizer tokenizer = this.tokenizeOf(text);
+    final TokenizerResult term = tokenizer.readNextToken();
+    assertNull(tokenizer.readNextToken(), text);
+    assertEquals(expectedText, term.getResult().getText());
+    assertEquals(expectedQuotation, term.getResult().getQuotation());
+  }
+
   @Test
   public void testQuoting() {
-    assertEquals(Quotation.NONE,
-        requireNonNull(tokenizeOf("abc.").readNextToken()).getResult().getQuotation());
-    assertEquals(Quotation.SINGLE,
-        requireNonNull(tokenizeOf("'abc'.").readNextToken()).getResult().getQuotation());
-    assertEquals(Quotation.DOUBLE,
-        requireNonNull(tokenizeOf("\"abc\".").readNextToken()).getResult().getQuotation());
-    assertEquals(Quotation.BACK_TICK,
-        requireNonNull(tokenizeOf("`abc`.").readNextToken()).getResult().getQuotation());
+    assertQuotation("abc", NONE, "abc");
+    assertQuotation("abc", SINGLE, "'abc'");
+    assertQuotation("a'-m-c-- |y|q\b`. P`\r - .\"LALA", DOUBLE,
+        "\"a\\'-m-c-- |y|q\\b\\`. P\\`\\r - .\\\"LALA\"");
+    assertQuotation("abc", BACK_TICK, "`abc`");
   }
 
   @Test

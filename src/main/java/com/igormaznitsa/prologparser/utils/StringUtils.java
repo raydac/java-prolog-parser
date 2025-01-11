@@ -167,69 +167,80 @@ public final class StringUtils {
     return (chr < '0' || chr > '9') && (chr < 'a' || chr > 'f') && (chr < 'A' || chr > 'F');
   }
 
-  public static String escapeString(final String str, final Quotation quotingType) {
-    final StringBuilder result = new StringBuilder(str.length() << 1);
+  public static String escapeString(final String str, final Quotation quotation) {
+    final StringBuilder buffer = new StringBuilder(str.length() << 1);
 
     final int strLen = str.length();
     for (int i = 0; i < strLen; i++) {
       final char chr = str.charAt(i);
       switch (chr) {
         case 7:
-          result.append("\\a");
+          buffer.append("\\a");
           break;
         case 8:
-          result.append("\\b");
+          buffer.append("\\b");
           break;
         case '\f':
-          result.append("\\f");
+          buffer.append("\\f");
+          break;
+        case '\\':
+          buffer.append("\\\\");
           break;
         case '\n':
-          result.append("\\n");
+          buffer.append("\\n");
           break;
         case '\r':
-          result.append("\\r");
+          buffer.append("\\r");
           break;
         case '`':
-          if (quotingType == Quotation.BACK_TICK) {
-            result.append("\\`");
+          if (quotation == Quotation.BACK_TICK) {
+            buffer.append("\\`");
           } else {
-            result.append('`');
+            buffer.append('`');
           }
           break;
         case 27:
-          result.append("\\e");
+          buffer.append("\\e");
           break;
         case '\t':
-          result.append("\\t");
+          buffer.append("\\t");
           break;
         case '\"':
-          if (quotingType == Quotation.DOUBLE) {
-            result.append("\\\"");
+          if (quotation == Quotation.DOUBLE) {
+            buffer.append("\\\"");
           } else {
-            result.append('\"');
+            buffer.append('\"');
           }
           break;
         case '\'':
-          if (quotingType == Quotation.SINGLE) {
-            result.append("\\'");
+          if (quotation == Quotation.SINGLE) {
+            buffer.append("\\'");
           } else {
-            result.append('\'');
+            buffer.append('\'');
           }
           break;
         case 11:
-          result.append("\\v");
+          buffer.append("\\v");
           break;
         default:
-          if (Character.isISOControl(chr)) {
-            result.append('\\').append(Integer.toOctalString(chr)).append('\\');
-          } else {
-            result.append(chr);
+          switch (quotation) {
+            case COMMENT_LINE:
+            case COMMENT_BLOCK:
+              buffer.append(chr);
+              break;
+            default: {
+              if (Character.isISOControl(chr)) {
+                buffer.append('\\').append(Integer.toOctalString(chr)).append('\\');
+              } else {
+                buffer.append(chr);
+              }
+            }
+            break;
           }
-          break;
       }
     }
 
-    return result.toString();
+    return buffer.toString();
   }
 
   /**

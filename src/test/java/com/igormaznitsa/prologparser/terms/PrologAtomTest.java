@@ -17,7 +17,7 @@ public class PrologAtomTest {
   public void testToString() {
     assertEquals("'Hello World'", new PrologAtom("Hello World").toString());
     assertEquals("'Hello\\nWorld'", new PrologAtom("Hello\nWorld").toString());
-    assertEquals("'Hello\\\\nWorld'", new PrologAtom("Hello\\\nWorld").toString());
+    assertEquals("'Hello\\\\\\nWorld'", new PrologAtom("Hello\\\nWorld").toString());
     assertEquals("'Hello\\tWorld'", new PrologAtom("Hello\tWorld").toString());
     assertEquals("'!'", new PrologAtom("!").toString());
   }

@@ -27,23 +27,25 @@ import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.tokenizer.Op;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 
 class BigDataTest extends AbstractIntegrationTest {
 
   @Test
-  void testBigSource_ClausesSplitted() {
-    final int CLAUSES = 1000;
-    assertEquals(CLAUSES,
-        new GenericPrologParser(new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, true)),
+  void testBigSource_ClausesSplitted() throws Exception {
+    final int expectedClauses = 1000;
+    final String text = new PrologSourceKoi7Generator(expectedClauses, true, false).asString();
+    assertEquals(expectedClauses,
+        new GenericPrologParser(new StringReader(text),
             DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
   }
 
   @Test
   void testBigSource_ClausesNotSplitted() {
-    final int CLAUSES = 1000;
-    assertEquals(CLAUSES, new GenericPrologParser(
-        new InputStreamReader(new PrologSourceKoi7Generator(CLAUSES, false)),
+    final int maxClauses = 1000;
+    assertEquals(maxClauses, new GenericPrologParser(
+        new InputStreamReader(new PrologSourceKoi7Generator(maxClauses, false, false)),
         DefaultParserContext.of(FLAG_NONE, Op.SWI)).stream().count());
   }
 

@@ -1098,18 +1098,19 @@ class IntegrationTest extends AbstractIntegrationTest {
   @Test
   void testUnexpectedlyEndedReadStream() {
     final Random rnd = new Random(12345);
-
     final AtomicInteger completedClauseCounter = new AtomicInteger();
+    final int maxAttempts = 100;
 
-    final int ATTEMPTS = 100;
-
-    for (int i = 0; i < ATTEMPTS; i++) {
-      final int numChars = rnd.nextInt(5) + i * 3;
+    for (int i = 0; i < maxAttempts; i++) {
+      final int maxChars = rnd.nextInt(5) + i * 3;
       assertThrows(PrologParserException.class, () -> {
         final PrologParser parser = parseEd(
             new InputStreamReader(
-                new PrologSourceKoi7Generator(rnd.nextBoolean(),
-                    numChars,
+                new PrologSourceKoi7Generator(
+                    rnd.nextBoolean(),
+                    maxChars,
+                    Integer.MAX_VALUE,
+                    false,
                     false), StandardCharsets.UTF_8), new DefaultParserContext(FLAG_BLOCK_COMMENTS));
 
         while (parser.hasNext()) {
@@ -1120,7 +1121,7 @@ class IntegrationTest extends AbstractIntegrationTest {
       });
     }
 
-    assertTrue(completedClauseCounter.get() < Math.round(0.1 * ATTEMPTS));
+    assertTrue(completedClauseCounter.get() < Math.round(0.1 * maxAttempts));
   }
 
   @Test
@@ -1290,7 +1291,8 @@ class IntegrationTest extends AbstractIntegrationTest {
     assertEquals("writeq('\\n')", parseEd("writeq('\\\n'). % \"\\\\\\n\" ").next().toString());
     assertEquals("* = *", parseEd("* = * .").next().toString());
     assertEquals("[:- - c] = [(:- - c)]", parseEd("[:- -c] = [(:- -c)].").next().toString());
-    assertEquals("X = '\\'", parseEd("X = '\\\\' .").next().toString());
+    assertEquals("X = \\", parseEd("X = \\.").next().toString());
+    assertEquals("X = '\\\\'", parseEd("X = '\\\\' .").next().toString());
     assertEquals("X = `a`", parseEd("X = `a`.").next().toString());
     assertEquals("writeq(- (a * b))", parseEd("writeq(- (a*b)).").next().toString());
     assertEquals("writeq(\\ (a * b))", parseEd("writeq(\\ (a*b)).").next().toString());
