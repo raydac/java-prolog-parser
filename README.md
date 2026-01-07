@@ -24,7 +24,7 @@ The parser is a pure Java library without any 3-th side dependency, it is publis
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>java-prolog-parser</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 </dependency>
 ```
 
