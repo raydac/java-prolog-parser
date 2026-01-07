@@ -4,7 +4,7 @@
 
     <groupId>com.igormaznitsa</groupId>
     <artifactId>java-prolog-parser</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
     <packaging>jar</packaging>
 
     <name>Edinburgh Prolog parser</name>
@@ -65,19 +65,19 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.11.4</version>
+            <version>5.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.11.4</version>
+            <version>5.14.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.15.2</version>
+            <version>5.21.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -91,24 +91,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>3.7.1</version>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/assemble/distribution.xml</descriptor>
-                            </descriptors>
-                        </configuration>
                         <executions>
-                            <execution>
-                                <id>make-distributive</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/assemble/distribution.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                            </execution>
                             <execution>
                                 <id>make-bundle</id>
                                 <phase>install</phase>
@@ -141,7 +124,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.8.0</version>
+                        <version>3.12.0</version>
                         <configuration>
                             <failOnError>true</failOnError>
                             <show>protected</show>
@@ -161,7 +144,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.7</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -169,6 +152,34 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.nicoulaj.maven.plugins</groupId>
+                        <artifactId>checksum-maven-plugin</artifactId>
+                        <version>1.11</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>files</goal>
+                                </goals>
+                                <configuration>
+                                    <fileSets>
+                                        <fileSet>
+                                            <directory>${project.build.directory}</directory>
+                                            <includes>
+                                                <include>*.jar</include>
+                                                <include>*.pom</include>
+                                            </includes>
+                                        </fileSet>
+                                    </fileSets>
+                                    <algorithms>
+                                        <algorithm>SHA-1</algorithm>
+                                        <algorithm>MD5</algorithm>
+                                    </algorithms>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -186,7 +197,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <id>enforcer-verify</id>
@@ -215,14 +226,14 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.9.0</version>
+                        <version>1.11.0</version>
                     </dependency>
                 </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.1</version>
                 <configuration>
                     <compilerArgument>-Xlint:all</compilerArgument>
                     <source>11</source>
@@ -235,25 +246,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.4.2</version>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>igormaznitsa.prolog.parser</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
                 </configuration>
             </plugin>
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.4</version>
             </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.24</version>
+                <version>1.26</version>
                 <executions>
                     <execution>
                         <id>ensure-android-api-compatibility</id>
@@ -265,7 +271,7 @@
                             <signature>
                                 <groupId>com.toasttab.android</groupId>
                                 <artifactId>gummy-bears-api-32</artifactId>
-                                <version>0.10.0</version>
+                                <version>0.12.0</version>
                             </signature>
                             <ignores>
                                 <ignore>java.lang.invoke.*</ignore>
