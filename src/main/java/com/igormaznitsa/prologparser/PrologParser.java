@@ -22,7 +22,6 @@
 package com.igormaznitsa.prologparser;
 
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_DOT2_AS_LIST;
-import static com.igormaznitsa.prologparser.ParserContext.FLAG_NONE;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_VAR_AS_FUNCTOR;
 import static com.igormaznitsa.prologparser.ParserContext.FLAG_ZERO_STRUCT;
 import static com.igormaznitsa.prologparser.tokenizer.Op.METAOPERATOR_COMMA;
@@ -101,7 +100,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   }
 
   protected final ParserContext context;
-  protected final int parserFlags;
   private final Tokenizer tokenizer;
   private final List<TokenizedCommentListener> commentTokenListeners;
   private PrologTermReadResult deferredReadTerm;
@@ -112,7 +110,6 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
       final List<TokenizedCommentListener> tokenizedCommentListeners
   ) {
     this.context = context == null ? DefaultParserContext.of(ParserContext.FLAG_NONE) : context;
-    this.parserFlags = context == null ? FLAG_NONE : context.getFlags();
     this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
     this.commentTokenListeners = List.copyOf(tokenizedCommentListeners);
   }
@@ -386,6 +383,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   }
 
   private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
+    final int parserFlags = this.context.getFlags();
+
     // the variable will contain last processed tree item contains either
     // atom or operator
     AstItem currentTreeItem = null;
@@ -483,7 +482,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                 if (onlyCharCode == '(') {
                   readAtom = readBlock(OPERATORS_SUBBLOCK);
                 } else {
-                  if ((this.parserFlags & ParserContext.FLAG_CURLY_BRACKETS) == 0) {
+                  if ((parserFlags & ParserContext.FLAG_CURLY_BRACKETS) == 0) {
                     readAtomPrecedence = readOperator.getPrecedence();
                     processReadAtom = false;
                   } else {
@@ -537,7 +536,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
           }
         }
       } else {
-        if (readAtom.getType() != TermType.VAR || (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
+        if (readAtom.getType() != TermType.VAR || (parserFlags & FLAG_VAR_AS_FUNCTOR) != 0) {
           TokenizerResult nextToken = this.extractNextTokenCommentAware();
 
           if (nextToken == null) {
@@ -552,13 +551,13 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
             // it is a structure
             if (readAtom.getType() == TermType.ATOM
                 || (readAtom.getType() == TermType.VAR
-                && (this.parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)) {
+                && (parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)) {
 
               final PrologTerm prev = readAtom;
               readAtom = readStruct(readAtom);
               if (readAtom == null) {
                 // we have met the empty brackets
-                if ((this.parserFlags & FLAG_ZERO_STRUCT) == 0) {
+                if ((parserFlags & FLAG_ZERO_STRUCT) == 0) {
                   throw new PrologParserException("Empty structure is not allowed",
                       nextTokenLineNumber, nextTokenStrPosition);
                 } else {
@@ -659,7 +658,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
       return null;
     } else {
       PrologTerm result = currentTreeItem.findRoot().convertToTermAndRelease(this);
-      if ((this.parserFlags & FLAG_DOT2_AS_LIST) != 0
+      if ((parserFlags & FLAG_DOT2_AS_LIST) != 0
           && result.getType() == TermType.STRUCT
           && result.getText().equals(".")
           && result.getArity() == 2) {
