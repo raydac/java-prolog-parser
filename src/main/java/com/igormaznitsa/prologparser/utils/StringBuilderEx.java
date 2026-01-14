@@ -57,6 +57,11 @@ public final class StringBuilderEx {
     return this;
   }
 
+  public void trim() {
+    this.stringBuilder.setLength(0);
+    this.stringBuilder.trimToSize();
+  }
+
   public int length() {
     return this.stringBuilder.length();
   }
@@ -148,5 +153,15 @@ public final class StringBuilderEx {
 
   public boolean isFirstCharDigit() {
     return this.stringBuilder.length() > 0 && Character.isDigit(this.stringBuilder.charAt(0));
+  }
+
+  public void removeLastChar() {
+    if (this.stringBuilder.length() > 0) {
+      this.stringBuilder.setLength(this.stringBuilder.length() - 1);
+    }
+  }
+
+  public void removeLastChars(final int chars) {
+    this.stringBuilder.setLength(this.stringBuilder.length() - chars);
   }
 }

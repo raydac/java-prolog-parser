@@ -56,6 +56,7 @@ import java.math.BigInteger;
 public final class Tokenizer implements AutoCloseable {
 
   private final StringBuilderEx internalStringBuffer;
+  private final StringBuilderEx rawStringBuffer;
   private final StringBuilderEx specialCharBuffer;
   private final StringBuilderEx insideCharBuffer;
   private final boolean blockCommentsAllowed;
@@ -100,6 +101,7 @@ public final class Tokenizer implements AutoCloseable {
     this.internalStringBuffer = new StringBuilderEx(32, maxAllowedCharBufferSize);
     this.specialCharBuffer = new StringBuilderEx(8, maxAllowedCharBufferSize);
     this.insideCharBuffer = new StringBuilderEx(8, maxAllowedCharBufferSize);
+    this.rawStringBuffer = new StringBuilderEx(8, Integer.MAX_VALUE);
 
     this.pos = 1;
     this.line = 1;
@@ -149,8 +151,9 @@ public final class Tokenizer implements AutoCloseable {
     return ch;
   }
 
-  public void calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
+  public int calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
     int chars = buffer.length() - etalon.length();
+    final int result = chars;
     int bufferPosition = buffer.length() - 1;
 
     int locPos = this.pos;
@@ -175,6 +178,8 @@ public final class Tokenizer implements AutoCloseable {
     this.prevPos = locPosPrev;
     this.line = locLine;
     this.prevLine = locLinePrev;
+
+    return result;
   }
 
   public void push(final char ch) {
@@ -208,7 +213,8 @@ public final class Tokenizer implements AutoCloseable {
       }
     } finally {
       this.lastPushedTerm = null;
-      this.internalStringBuffer.clear();
+      this.internalStringBuffer.trim();
+      this.rawStringBuffer.trim();
 
       if (closeReader) {
         this.reader.close();
@@ -288,42 +294,54 @@ public final class Tokenizer implements AutoCloseable {
     this.lastTokenPos = this.pos - 1;
   }
 
-  private String skipTillBlockCommentEnd(final boolean accumulateText) throws IOException {
+  private String skipTillBlockCommentEnd(final boolean accumulateText,
+                                         final StringBuilderEx rawStringBuffer) throws IOException {
     final StringBuilder result = accumulateText ? new StringBuilder() : null;
     boolean starCharDetected = false;
     while (true) {
       final int readChar = this.doReadChar();
       if (readChar < 0) {
         break;
-      } else if (readChar == '/') {
-        if (starCharDetected) {
-          if (accumulateText) {
-            result.setLength(result.length() - 1);
+      } else {
+        rawStringBuffer.append((char) readChar);
+        if (readChar == '/') {
+          if (starCharDetected) {
+            if (accumulateText) {
+              result.setLength(result.length() - 1);
+            }
+            break;
+          } else {
+            if (accumulateText) {
+              result.append((char) readChar);
+            }
           }
-          break;
         } else {
+          starCharDetected = readChar == '*';
           if (accumulateText) {
             result.append((char) readChar);
           }
-        }
-      } else {
-        starCharDetected = readChar == '*';
-        if (accumulateText) {
-          result.append((char) readChar);
         }
       }
     }
     return accumulateText ? result.toString() : null;
   }
 
-  private String skipTillNextLine(final boolean accumulateText) throws IOException {
+  private String skipTillNextLine(final boolean accumulateText,
+                                  final StringBuilderEx rawStringBuffer) throws IOException {
     final StringBuilder result = accumulateText ? new StringBuilder() : null;
 
     while (true) {
       final int readChar = this.doReadChar();
-      if (readChar < 0 || readChar == '\n') {
+      if (readChar < 0) {
         break;
       }
+
+      rawStringBuffer.append((char) readChar);
+
+      if (readChar == '\n') {
+        break;
+      }
+
       if (accumulateText) {
         result.append((char) readChar);
       }
@@ -364,6 +382,7 @@ public final class Tokenizer implements AutoCloseable {
 
     final StringBuilderEx locInternalStringBuffer = this.internalStringBuffer;
     final StringBuilderEx locSpecialCharBuffer = this.specialCharBuffer;
+    final StringBuilderEx locRawStringBuffer = this.rawStringBuffer;
 
     final boolean commentsAsAtoms = this.returnCommentsAsToken;
 
@@ -371,6 +390,7 @@ public final class Tokenizer implements AutoCloseable {
     boolean letterOrDigitOnly = false;
     boolean foundUnderscoreInNumber = false;
 
+    locRawStringBuffer.clear();
     try {
       while (true) {
         final int readChar = this.doReadChar();
@@ -390,13 +410,15 @@ public final class Tokenizer implements AutoCloseable {
 
               if (state == TokenizerState.FLOAT && locInternalStringBuffer.isLastChar('.')) {
                 // non-ended float then it is an integer number ended by the '.' operator
-                push('.');
+                this.push('.');
+                locRawStringBuffer.removeLastChar();
                 // it is Integer
                 return new TokenizerResult(
-                    makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
+                    this.makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
                         currentRadix, currentQuoting,
                         TokenizerState.INTEGER),
                     TokenizerState.INTEGER,
+                    locRawStringBuffer.toString(),
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
@@ -406,6 +428,7 @@ public final class Tokenizer implements AutoCloseable {
                 return new TokenizerResult(
                     makeTermFromString(text, currentRadix, PrologTerm.findQuotation(text), state),
                     state,
+                    locRawStringBuffer.toString(),
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
@@ -416,6 +439,7 @@ public final class Tokenizer implements AutoCloseable {
                 return new TokenizerResult(
                     new PrologVar(),
                     state,
+                    locRawStringBuffer.toString(),
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
@@ -423,6 +447,7 @@ public final class Tokenizer implements AutoCloseable {
                 return new TokenizerResult(
                     new PrologVar(locInternalStringBuffer.toString()),
                     state,
+                    locRawStringBuffer.toString(),
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
@@ -438,14 +463,18 @@ public final class Tokenizer implements AutoCloseable {
                     makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                         currentQuoting, state),
                     state,
+                    locRawStringBuffer.toString(),
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
               } else {
-                calcDiffAndPushResultBack(lastFoundFullOperator.getText(), locInternalStringBuffer);
+                locRawStringBuffer.removeLastChars(
+                    this.calcDiffAndPushResultBack(lastFoundFullOperator.getText(),
+                        locInternalStringBuffer));
                 return new TokenizerResult(
                     lastFoundFullOperator,
                     state,
+                    locRawStringBuffer.toString(),
                     getLastTokenLine(),
                     getLastTokenPos()
                 );
@@ -460,6 +489,7 @@ public final class Tokenizer implements AutoCloseable {
         }
 
         final char chr = (char) readChar;
+        locRawStringBuffer.append(chr);
 
         if (state != STRING
             && this.blockCommentsAllowed
@@ -475,15 +505,16 @@ public final class Tokenizer implements AutoCloseable {
           }
 
           if (commentsAsAtoms) {
-            final String commentText = this.skipTillBlockCommentEnd(true);
+            final String commentText = this.skipTillBlockCommentEnd(true, locRawStringBuffer);
             return new TokenizerResult(
                 new PrologAtom(commentText, Quotation.COMMENT_BLOCK),
                 state,
+                locRawStringBuffer.toString(),
                 this.getLastTokenLine(),
                 this.getLastTokenPos()
             );
           } else {
-            this.skipTillBlockCommentEnd(false);
+            this.skipTillBlockCommentEnd(false, locRawStringBuffer);
           }
         } else {
           switch (state) {
@@ -495,11 +526,12 @@ public final class Tokenizer implements AutoCloseable {
               switch (chr) {
                 case '%': {
                   this.fixPosition();
-                  final String text = skipTillNextLine(commentsAsAtoms);
+                  final String text = this.skipTillNextLine(commentsAsAtoms, locRawStringBuffer);
                   if (commentsAsAtoms) {
                     return new TokenizerResult(
                         new PrologAtom(text, Quotation.COMMENT_LINE),
                         state,
+                        locRawStringBuffer.toString(),
                         this.getLastTokenLine(),
                         this.getLastTokenPos()
                     );
@@ -570,6 +602,7 @@ public final class Tokenizer implements AutoCloseable {
                     return new TokenizerResult(
                         operator,
                         TokenizerState.OPERATOR,
+                        locRawStringBuffer.toString(),
                         getLastTokenLine(),
                         getLastTokenPos());
                   }
@@ -578,12 +611,14 @@ public final class Tokenizer implements AutoCloseable {
                 return new TokenizerResult(
                     makeTermFromString(text, currentRadix, PrologTerm.findQuotation(text), state),
                     state,
-                    getLastTokenLine(),
-                    getLastTokenPos());
+                    locRawStringBuffer.toString(),
+                    this.getLastTokenLine(),
+                    this.getLastTokenPos());
               } else if ((chr == '\'' || chr == '\"' || chr == '`')
                   || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
                   || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
-                push(chr);
+                this.push(chr);
+                locRawStringBuffer.removeLastChar();
                 final String text = locInternalStringBuffer.toString();
 
                 if (currentQuoting == Quotation.NONE) {
@@ -592,15 +627,17 @@ public final class Tokenizer implements AutoCloseable {
                     return new TokenizerResult(
                         operator,
                         TokenizerState.OPERATOR,
-                        getLastTokenLine(),
-                        getLastTokenPos());
+                        locRawStringBuffer.toString(),
+                        this.getLastTokenLine(),
+                        this.getLastTokenPos());
                   }
                 }
                 return new TokenizerResult(
                     makeTermFromString(text, currentRadix, PrologTerm.findQuotation(text), state),
                     state,
-                    getLastTokenLine(),
-                    getLastTokenPos());
+                    locRawStringBuffer.toString(),
+                    this.getLastTokenLine(),
+                    this.getLastTokenPos());
 
               } else {
                 locInternalStringBuffer.append(chr);
@@ -640,13 +677,15 @@ public final class Tokenizer implements AutoCloseable {
                         charCodeAsInt = true;
                         locInternalStringBuffer.clear();
                       } else {
-                        push(chr);
+                        this.push(chr);
+                        locRawStringBuffer.removeLastChar();
                         return new TokenizerResult(
                             makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                                 currentQuoting, state),
                             TokenizerState.INTEGER,
-                            getLastTokenLine(),
-                            getLastTokenPos());
+                            locRawStringBuffer.toString(),
+                            this.getLastTokenLine(),
+                            this.getLastTokenPos());
                       }
                     } else {
                       currentRadix = Integer.parseInt(locInternalStringBuffer.toString());
@@ -684,17 +723,20 @@ public final class Tokenizer implements AutoCloseable {
                       }
                     }
                     if (!radixCharFound) {
-                      push(chr);
+                      this.push(chr);
+                      locRawStringBuffer.removeLastChar();
                       if (locInternalStringBuffer.isEmpty() && detectedRadixChar != ' ') {
-                        push(detectedRadixChar);
+                        this.push(detectedRadixChar);
+                        locRawStringBuffer.removeLastChar();
                         locInternalStringBuffer.append('0');
                       }
                       return new TokenizerResult(
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting, state),
                           TokenizerState.INTEGER,
-                          getLastTokenLine(),
-                          getLastTokenPos());
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos());
                     }
                   }
                 }
@@ -720,14 +762,16 @@ public final class Tokenizer implements AutoCloseable {
                     if (locInternalStringBuffer.isLastChar('e')) {
                       locInternalStringBuffer.append(chr);
                     } else {
-                      push(chr);
+                      this.push(chr);
+                      locRawStringBuffer.removeLastChar();
                       return new TokenizerResult(
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting,
                               TokenizerState.FLOAT),
                           TokenizerState.FLOAT,
-                          getLastTokenLine(),
-                          getLastTokenPos());
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos());
                     }
                     break;
                   case 'e':
@@ -739,18 +783,21 @@ public final class Tokenizer implements AutoCloseable {
                     if (locInternalStringBuffer.lastIndexOf('e') < 0) {
                       locInternalStringBuffer.append('e');
                     } else {
-                      push(chr);
+                      this.push(chr);
+                      locRawStringBuffer.removeLastChar();
                       return new TokenizerResult(
                           makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
                               currentRadix, currentQuoting,
                               TokenizerState.FLOAT),
                           TokenizerState.FLOAT,
-                          getLastTokenLine(),
-                          getLastTokenPos());
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos());
                     }
                     break;
                   default:
-                    push(chr);
+                    this.push(chr);
+                    locRawStringBuffer.removeLastChar();
 
                     if (foundUnderscoreInNumber) {
                       throw new PrologParserException("Unexpected underscore", this.prevLine,
@@ -759,14 +806,16 @@ public final class Tokenizer implements AutoCloseable {
 
                     if (locInternalStringBuffer.isLastChar('.')) {
                       // it was an integer
-                      push('.');
+                      this.push('.');
+                      locRawStringBuffer.removeLastChar();
                       return new TokenizerResult(
                           makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
                               currentRadix, currentQuoting,
                               TokenizerState.INTEGER),
                           TokenizerState.INTEGER,
-                          getLastTokenLine(),
-                          getLastTokenPos());
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos());
                     } else {
                       // it is a float
                       if (!Character.isDigit(locInternalStringBuffer.getLastChar())) {
@@ -777,8 +826,9 @@ public final class Tokenizer implements AutoCloseable {
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting, state),
                           state,
-                          getLastTokenLine(),
-                          getLastTokenPos()
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos()
                       );
                     }
                 }
@@ -787,7 +837,8 @@ public final class Tokenizer implements AutoCloseable {
             break;
             case OPERATOR: {
               if (chr != '_' && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
-                push(chr);
+                this.push(chr);
+                locRawStringBuffer.removeLastChar();
 
                 if (lastFoundFullOperator == null || letterOrDigitOnly) {
                   final String textInBuffer = locInternalStringBuffer.toString();
@@ -797,25 +848,28 @@ public final class Tokenizer implements AutoCloseable {
                     return new TokenizerResult(
                         lastFoundFullOperator,
                         state,
-                        getLastTokenLine(),
-                        getLastTokenPos()
+                        locRawStringBuffer.toString(),
+                        this.getLastTokenLine(),
+                        this.getLastTokenPos()
                     );
                   } else {
                     return new TokenizerResult(
                         makeTermFromString(textInBuffer, currentRadix, currentQuoting, ATOM),
                         ATOM,
-                        getLastTokenLine(),
-                        getLastTokenPos()
+                        locRawStringBuffer.toString(),
+                        this.getLastTokenLine(),
+                        this.getLastTokenPos()
                     );
                   }
                 } else {
-                  calcDiffAndPushResultBack(
-                      lastFoundFullOperator.getText(), locInternalStringBuffer);
+                  locRawStringBuffer.removeLastChars(this.calcDiffAndPushResultBack(
+                      lastFoundFullOperator.getText(), locInternalStringBuffer));
                   return new TokenizerResult(
                       lastFoundFullOperator,
                       state,
-                      getLastTokenLine(),
-                      getLastTokenPos()
+                      locRawStringBuffer.toString(),
+                      this.getLastTokenLine(),
+                      this.getLastTokenPos()
                   );
                 }
               } else {
@@ -832,7 +886,8 @@ public final class Tokenizer implements AutoCloseable {
                       // operator, so we need get back it into the
                       // buffer
                       locInternalStringBuffer.pop();
-                      push(chr);
+                      this.push(chr);
+                      locRawStringBuffer.removeLastChar();
                     }
                     state = TokenizerState.ATOM;
                   }
@@ -844,24 +899,27 @@ public final class Tokenizer implements AutoCloseable {
                       if (letterOrDigitOnly) {
                         state = TokenizerState.ATOM;
                       } else {
-                        calcDiffAndPushResultBack(
-                            previouslyDetectedOperator.getText(), locInternalStringBuffer);
+                        locRawStringBuffer.removeLastChars(this.calcDiffAndPushResultBack(
+                            previouslyDetectedOperator.getText(), locInternalStringBuffer));
                         return new TokenizerResult(
                             previouslyDetectedOperator,
-                            state, getLastTokenLine(),
-                            getLastTokenPos()
+                            state,
+                            locRawStringBuffer.toString(),
+                            this.getLastTokenLine(),
+                            this.getLastTokenPos()
                         );
                       }
                     }
                   } else {
                     if (!hasOperatorStartsWith(operator)) {
-                      calcDiffAndPushResultBack(
-                          previouslyDetectedOperator.getText(), locInternalStringBuffer);
+                      locRawStringBuffer.removeLastChars(this.calcDiffAndPushResultBack(
+                          previouslyDetectedOperator.getText(), locInternalStringBuffer));
                       return new TokenizerResult(
                           previouslyDetectedOperator,
                           state,
-                          getLastTokenLine(),
-                          getLastTokenPos());
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos());
                     }
                   }
                 }
@@ -879,8 +937,9 @@ public final class Tokenizer implements AutoCloseable {
                         makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                             currentQuoting, state),
                         state,
-                        getLastTokenLine(),
-                        getLastTokenPos()
+                        locRawStringBuffer.toString(),
+                        this.getLastTokenLine(),
+                        this.getLastTokenPos()
                     );
                   }
                 } else if (!Character.isISOControl(chr)) {
@@ -896,8 +955,9 @@ public final class Tokenizer implements AutoCloseable {
                       return new TokenizerResult(
                           new PrologInt(result.getDecoded()),
                           state,
-                          getLastTokenLine(),
-                          getLastTokenPos()
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos()
                       );
                     } else {
                       locInternalStringBuffer.append(result.getDecoded());
@@ -918,8 +978,9 @@ public final class Tokenizer implements AutoCloseable {
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting, state),
                           state,
-                          getLastTokenLine(),
-                          getLastTokenPos()
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos()
                       );
                     } else {
                       if (charCodeAsInt) {
@@ -936,16 +997,18 @@ public final class Tokenizer implements AutoCloseable {
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting, state),
                           state,
-                          getLastTokenLine(),
-                          getLastTokenPos()
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos()
                       );
                     } else {
                       if (charCodeAsInt) {
                         return new TokenizerResult(
                             new PrologInt(chr),
                             state,
-                            getLastTokenLine(),
-                            getLastTokenPos()
+                            locRawStringBuffer.toString(),
+                            this.getLastTokenLine(),
+                            this.getLastTokenPos()
                         );
                       } else {
                         locInternalStringBuffer.append(chr);
@@ -958,16 +1021,18 @@ public final class Tokenizer implements AutoCloseable {
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting, state),
                           state,
-                          getLastTokenLine(),
-                          getLastTokenPos()
+                          locRawStringBuffer.toString(),
+                          this.getLastTokenLine(),
+                          this.getLastTokenPos()
                       );
                     } else {
                       if (charCodeAsInt) {
                         return new TokenizerResult(
                             new PrologInt(chr),
                             state,
-                            getLastTokenLine(),
-                            getLastTokenPos()
+                            locRawStringBuffer.toString(),
+                            this.getLastTokenLine(),
+                            this.getLastTokenPos()
                         );
                       } else {
                         locInternalStringBuffer.append(chr);
@@ -997,8 +1062,9 @@ public final class Tokenizer implements AutoCloseable {
                         return new TokenizerResult(
                             new PrologInt(theChar),
                             state,
-                            getLastTokenLine(),
-                            getLastTokenPos()
+                            locRawStringBuffer.toString(),
+                            this.getLastTokenLine(),
+                            this.getLastTokenPos()
                         );
                       }
                     } else {
@@ -1011,13 +1077,17 @@ public final class Tokenizer implements AutoCloseable {
             break;
             case VAR: {
               if (!isCharAllowedForUnquotedAtom(chr)) {
-                push(chr);
+                this.push(chr);
+                locRawStringBuffer.removeLastChar();
                 if (locInternalStringBuffer.isSingleChar('_')) {
-                  return new TokenizerResult(new PrologVar(), state, getLastTokenLine(),
-                      getLastTokenPos());
+                  return new TokenizerResult(new PrologVar(), state,
+                      locRawStringBuffer.toString(),
+                      this.getLastTokenLine(),
+                      this.getLastTokenPos());
                 }
                 return new TokenizerResult(new PrologVar(locInternalStringBuffer.toString()), state,
-                    getLastTokenLine(), getLastTokenPos());
+                    locRawStringBuffer.toString(),
+                    this.getLastTokenLine(), this.getLastTokenPos());
               } else {
                 locInternalStringBuffer.append(chr);
               }

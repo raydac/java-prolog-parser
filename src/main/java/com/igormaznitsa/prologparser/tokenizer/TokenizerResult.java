@@ -32,19 +32,26 @@ public final class TokenizerResult {
 
   private final TokenizerState parserState;
   private final PrologTerm resultTerm;
+  private final String rawString;
   private final int pos;
   private final int line;
 
   TokenizerResult(
       final PrologTerm term,
       final TokenizerState parserState,
+      final String rawString,
       final int line,
       final int pos
   ) {
     this.resultTerm = requireNonNull(term);
     this.parserState = requireNonNull(parserState);
+    this.rawString = rawString;
     this.pos = pos;
     this.line = line;
+  }
+
+  public String getRawString() {
+    return this.rawString;
   }
 
   public TokenizerState getTokenizerState() {
