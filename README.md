@@ -31,8 +31,7 @@ The parser is a pure Java library without any 3-th side dependency, it is publis
 
 # How to build?
 
-Just use maven command `mvn install` to get result JAR. The JAR will be Java 1.8 compatible but it requires Java 11+ for
-build for involved maven plugins.
+Just use maven command `mvn install` to get result JAR. It required Maven 3.8+ and JDK 11+ for build and work.
 
 # How to use?
 Parser implements stream which sequentially reads prolog terms provided by reader. By default, PrologParser is abstract class but there is pre-defined implementation GenericPrologParser for common cases.
