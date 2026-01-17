@@ -1,5 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/java-prolog-parser/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.2.1|jar)
+[![Maven central](https://maven-badges.herokuapp.com/maven-central/com.igormaznitsa/java-prolog-parser/badge.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.2.2|jar)
 [![Java 11.0+](https://img.shields.io/badge/java-8.0%2b-green.svg)](https://bell-sw.com/pages/downloads/#jdk-21-lts)
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
@@ -16,6 +16,7 @@ It supports
  - line and block commentaries
  - underline split numbers
  - curly blocks
+- get a list of tokens read during a Prolog term extraction
 
 # Maven dependency
 
@@ -24,7 +25,7 @@ The parser is a pure Java library without any 3-th side dependency, it is publis
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>java-prolog-parser</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
 </dependency>
 ```
 
