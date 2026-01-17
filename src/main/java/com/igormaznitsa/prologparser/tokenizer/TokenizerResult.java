@@ -50,6 +50,27 @@ public final class TokenizerResult {
     this.line = line;
   }
 
+  @Override
+  public int hashCode() {
+    return this.rawString.hashCode();
+  }
+
+  public boolean equals(final Object that) {
+    if (that == null) {
+      return false;
+    }
+    if (that == this) {
+      return true;
+    }
+    if (that instanceof TokenizerResult) {
+      final TokenizerResult thatTokenizerResult = (TokenizerResult) that;
+      return this.pos == thatTokenizerResult.pos && this.line == thatTokenizerResult.line
+          && this.parserState == thatTokenizerResult.parserState
+          && this.rawString.equals(((TokenizerResult) that).rawString);
+    }
+    return false;
+  }
+
   public String getRawString() {
     return this.rawString;
   }

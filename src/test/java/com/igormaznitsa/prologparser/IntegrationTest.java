@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"varargs", "UnnecessaryUnicodeEscape", "OptionalGetWithoutIsPresent",
@@ -89,12 +90,28 @@ class IntegrationTest extends AbstractIntegrationTest {
   @Test
   void testIteration_Presented() throws Exception {
     final List<PrologTerm> termList = new ArrayList<>();
+    final List<List<TokenizerResult>> tokenizerResults = new ArrayList<>();
     try (final PrologParser parser = parseEd("one(1). two(2). three(3).")) {
+      assertTrue(parser.getLastTokens().isEmpty());
       while (parser.hasNext()) {
-        termList.add(parser.next());
+        final PrologTerm nextTerm = parser.next();
+        assertFalse(parser.getLastTokens().isEmpty(), () -> "Term: " + nextTerm);
+        termList.add(nextTerm);
+        tokenizerResults.add(parser.getLastTokens());
       }
     }
     assertEquals(3, termList.size());
+    assertEquals(3, tokenizerResults.size());
+
+    assertEquals(5, tokenizerResults.get(0).size());
+    assertEquals("one(1).", tokenizerResults.get(0).stream().map(TokenizerResult::getRawString)
+        .collect(Collectors.joining()));
+    assertEquals(5, tokenizerResults.get(1).size());
+    assertEquals(" two(2).", tokenizerResults.get(1).stream().map(TokenizerResult::getRawString)
+        .collect(Collectors.joining()));
+    assertEquals(5, tokenizerResults.get(2).size());
+    assertEquals(" three(3).", tokenizerResults.get(2).stream().map(TokenizerResult::getRawString)
+        .collect(Collectors.joining()));
   }
 
   @Test
@@ -104,10 +121,10 @@ class IntegrationTest extends AbstractIntegrationTest {
       final PrologTerm term1 = parser.next();
       assertEquals("lsome(a)", term1.toString());
       assertTrue(parser.hasNext());
-      final TokenizerResult token1 = parser.getInternalTokenizer().readNextToken();
+      final TokenizerResult token1 = parser.getTokenizer().readNextToken();
       assertEquals("next", Objects.requireNonNull(token1).getResult().toString());
       assertTrue(parser.hasNext());
-      final TokenizerResult token2 = parser.getInternalTokenizer().readNextToken();
+      final TokenizerResult token2 = parser.getTokenizer().readNextToken();
       assertEquals("(", Objects.requireNonNull(token2).getResult().getText());
       assertTrue(parser.hasNext());
       final PrologTerm term2 = parser.next();

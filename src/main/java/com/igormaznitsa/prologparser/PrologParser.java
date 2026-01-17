@@ -103,6 +103,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   private final Tokenizer tokenizer;
   private final List<TokenizedCommentListener> commentTokenListeners;
   private PrologTermReadResult deferredReadTerm;
+  private final List<TokenizerResult> lastTokens = new ArrayList<>();
+  private List<TokenizerResult> publishedLastTokens = List.of();
 
   protected PrologParser(
       final Reader source,
@@ -112,6 +114,16 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     this.context = context == null ? DefaultParserContext.of(ParserContext.FLAG_NONE) : context;
     this.tokenizer = new Tokenizer(this, META_OP_MAP, requireNonNull(source));
     this.commentTokenListeners = List.copyOf(tokenizedCommentListeners);
+  }
+
+  /**
+   * Get list of tokens read and accumulated during last prolog term read.
+   *
+   * @return unmodifable list of read tokens, must not be null
+   * @since 2.2.2
+   */
+  public List<TokenizerResult> getLastTokens() {
+    return this.publishedLastTokens;
   }
 
   public static Op findBaseMetaOperator(final String text, final OpAssoc type) {
@@ -158,7 +170,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
    *
    * @return the internal tokenizer in use by the parser
    */
-  public Tokenizer getInternalTokenizer() {
+  public Tokenizer getTokenizer() {
     return this.tokenizer;
   }
 
@@ -184,10 +196,18 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     }
   }
 
+  private TokenizerResult readNextToken() {
+    final TokenizerResult result = this.tokenizer.readNextToken();
+    if (result != null) {
+      this.lastTokens.add(result);
+    }
+    return result;
+  }
+
   private TokenizerResult extractNextTokenCommentAware() {
     TokenizerResult result;
     while (true) {
-      result = this.tokenizer.readNextToken();
+      result = this.readNextToken();
       if (isComment(result)) {
         this.notifyCommentTokenListeners(result);
       } else {
@@ -198,6 +218,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   }
 
   private PrologTermReadResult extractNextBlockAndWrapError() {
+    this.lastTokens.clear();
     try {
       final PrologTerm found = this.readBlock(OPERATORS_PHRASE);
       if (found == null) {
@@ -233,6 +254,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     } finally {
       this.deferredReadTerm = null;
     }
+    this.publishedLastTokens = List.copyOf(this.lastTokens);
+    this.lastTokens.clear();
     return result;
   }
 
@@ -382,6 +405,16 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     return leftPartFirst;
   }
 
+  private void pushBackTokenizerResult(final TokenizerResult result) {
+    this.tokenizer.push(result);
+    final int last = this.lastTokens.size() - 1;
+    if (this.lastTokens.get(last) == result) {
+      this.lastTokens.remove(last);
+    } else {
+      this.lastTokens.remove(result);
+    }
+  }
+
   private PrologTerm readBlock(final Koi7CharOpMap endOperators) {
     final int parserFlags = this.context.getFlags();
 
@@ -409,7 +442,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
       // check the atom to be the end atom
       if (isEndOperator(readAtom, endOperators)) {
         // it's an end atom so we push it back and end the cycle
-        this.tokenizer.push(readAtomContainer);
+        this.pushBackTokenizerResult(readAtomContainer);
         break;
       }
 
@@ -570,13 +603,13 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                 }
               }
             } else {
-              tokenizer.push(nextToken);
+              this.pushBackTokenizerResult(nextToken);
               throw new PrologParserException("You must have an atom as the structure functor",
                   nextTokenLineNumber, nextTokenStrPosition);
             }
           } else {
             // push back the next atom
-            tokenizer.push(nextToken);
+            this.pushBackTokenizerResult(nextToken);
           }
         }
       }
@@ -679,6 +712,8 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
   @Override
   public void close() throws IOException {
     this.deferredReadTerm = null;
+    this.publishedLastTokens = List.of();
+    this.lastTokens.clear();
     this.tokenizer.close(this.isCloseReader());
   }
 
