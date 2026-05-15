@@ -1,6 +1,6 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Maven central](https://img.shields.io/badge/maven%20central-2.2.3-green.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.2.3|jar)
-[![Java 11.0+](https://img.shields.io/badge/java-8.0%2b-green.svg)](https://bell-sw.com/pages/downloads/#jdk-21-lts)
+[![Java 11.0+](https://img.shields.io/badge/java-11.0%2b-green.svg)](https://bell-sw.com/pages/downloads/#jdk-21-lts)
 
 [![Arthur's acres sanctuary donation](arthur_sanctuary_banner.png)](https://www.arthursacresanimalsanctuary.org/donate)
 
