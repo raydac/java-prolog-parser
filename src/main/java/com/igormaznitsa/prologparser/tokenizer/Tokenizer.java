@@ -66,6 +66,7 @@ public final class Tokenizer implements AutoCloseable {
   private final Reader reader;
   private final PrologParser parser;
   private final Koi7CharOpMap metaOperators;
+  private boolean hasPushedTerm;
   private TokenizerResult lastPushedTerm;
   private int prevTokenLine;
   private int prevTokenPos;
@@ -127,7 +128,7 @@ public final class Tokenizer implements AutoCloseable {
   }
 
   TokenizerResult getLastPushed() {
-    return this.lastPushedTerm;
+    return this.hasPushedTerm ? this.lastPushedTerm : null;
   }
 
   private synchronized int doReadChar() throws IOException {
@@ -212,6 +213,7 @@ public final class Tokenizer implements AutoCloseable {
         }
       }
     } finally {
+      this.hasPushedTerm = false;
       this.lastPushedTerm = null;
       this.internalStringBuffer.trim();
       this.rawStringBuffer.trim();
@@ -262,29 +264,26 @@ public final class Tokenizer implements AutoCloseable {
   }
 
   public void push(final TokenizerResult object) {
-    if (this.lastPushedTerm != null) {
+    if (this.hasPushedTerm) {
       throw new IllegalStateException("There is already pushed term");
     }
+    this.hasPushedTerm = true;
     this.lastPushedTerm = object;
   }
 
   public TokenizerResult peek() {
-    TokenizerResult result;
-    if (this.lastPushedTerm == null) {
-      result = this.readNextToken();
-      this.push(result);
-    } else {
-      result = this.lastPushedTerm;
+    if (!this.hasPushedTerm) {
+      this.push(this.readNextToken());
     }
-    return result;
+    return this.lastPushedTerm;
   }
 
   public int getLastTokenPos() {
-    return this.lastPushedTerm == null ? this.lastTokenPos : this.prevTokenPos;
+    return this.hasPushedTerm ? this.prevTokenPos : this.lastTokenPos;
   }
 
   public int getLastTokenLine() {
-    return this.lastPushedTerm == null ? this.lastTokenLine : this.prevTokenLine;
+    return this.hasPushedTerm ? this.prevTokenLine : this.lastTokenLine;
   }
 
   public void fixPosition() {
@@ -301,7 +300,7 @@ public final class Tokenizer implements AutoCloseable {
     while (true) {
       final int readChar = this.doReadChar();
       if (readChar < 0) {
-        break;
+        throw new PrologParserException("Unclosed block comment", this.prevLine, this.prevPos);
       } else {
         rawStringBuffer.append((char) readChar);
         if (readChar == '/') {
@@ -353,6 +352,7 @@ public final class Tokenizer implements AutoCloseable {
     try {
       return this.lastPushedTerm;
     } finally {
+      this.hasPushedTerm = false;
       this.lastPushedTerm = null;
     }
   }
@@ -364,7 +364,7 @@ public final class Tokenizer implements AutoCloseable {
    */
   public TokenizerResult readNextToken() {
 
-    if (this.lastPushedTerm != null) {
+    if (this.hasPushedTerm) {
       return this.pop();
     }
 
@@ -1106,36 +1106,32 @@ public final class Tokenizer implements AutoCloseable {
 
   public PrologTerm makeTermFromString(final String str, final int radix,
                                        final Quotation quotingType, final TokenizerState state) {
-    PrologTerm result;
-
     switch (state) {
       case INTEGER: {
         try {
-          result = radix == 10 ? new PrologInt(str) : new PrologInt(new BigInteger(str, radix));
+          return radix == 10 ? new PrologInt(str) : new PrologInt(new BigInteger(str, radix));
         } catch (NumberFormatException ex) {
-          result = null;
+          throw new PrologParserException(
+              "Invalid integer: " + str,
+              this.getLastTokenLine(),
+              this.getLastTokenPos(),
+              ex);
         }
       }
-      break;
       case FLOAT: {
         try {
-          result = new PrologFloat(str);
+          return new PrologFloat(str);
         } catch (NumberFormatException ex) {
-          result = null;
+          throw new PrologParserException(
+              "Invalid float: " + str,
+              this.getLastTokenLine(),
+              this.getLastTokenPos(),
+              ex);
         }
       }
-      break;
-      default: {
-        result = null;
-      }
-      break;
+      default:
+        return new PrologAtom(str, quotingType);
     }
-
-    if (result == null) {
-      result = new PrologAtom(str, quotingType);
-    }
-
-    return result;
   }
 
   public int getLine() {

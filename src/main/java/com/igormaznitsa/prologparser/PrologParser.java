@@ -131,11 +131,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
       return null;
     }
 
-    OpContainer container = META_OP_MAP.get(text);
-
-    if (container == null) {
-      container = META_OP_MAP.get(text);
-    }
+    final OpContainer container = META_OP_MAP.get(text);
 
     Op result = null;
 
@@ -237,6 +233,10 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     }
   }
 
+  /**
+   * Returns true if another term may be read, or if remaining input is malformed and
+   * {@link #next()} will throw {@link PrologParserException}. Returns false only at end of input.
+   */
   public boolean hasNext() {
     if (this.deferredReadTerm == null) {
       this.deferredReadTerm = this.extractNextBlockAndWrapError();
@@ -364,9 +364,11 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
           checkForNull(block, "List element not found", nextAtom);
         }
         break;
-        default: {
-          throw new CriticalUnexpectedError();
-        }
+        default:
+          throw new PrologParserException(
+              "Unexpected term in list: " + text,
+              nextAtom.getLine(),
+              nextAtom.getPos());
       }
 
       if (leftPartFirst.isEmpty()) {
@@ -747,7 +749,7 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     return StreamSupport.stream(
         Spliterators.spliteratorUnknownSize(
             this.iterator(),
-            Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL),
+            Spliterator.ORDERED | Spliterator.IMMUTABLE),
         false
     );
   }

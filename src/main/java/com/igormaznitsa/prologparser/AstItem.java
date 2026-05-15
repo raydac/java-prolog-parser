@@ -23,6 +23,7 @@ package com.igormaznitsa.prologparser;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.exceptions.PrologParserException;
+import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
@@ -243,9 +244,10 @@ final class AstItem {
               if (operator.getArity() == terms.length) {
                 return new PrologStruct(operator, terms, wrapper.getLine(), wrapper.getPos());
               } else {
-                final Op appropriateOperator =
-                    parser.getContext().findOpForName(parser, operator.getText())
-                        .findForArity(terms.length);
+                final OpContainer operatorContainer =
+                    parser.getContext().findOpForName(parser, operator.getText());
+                final Op appropriateOperator = operatorContainer == null ? null
+                    : operatorContainer.findForArity(terms.length);
 
                 if (appropriateOperator == null) {
                   if (operator.getArity() == 1) {
@@ -271,8 +273,10 @@ final class AstItem {
                   return new PrologStruct(operator, new PrologTerm[] {blockContent},
                       wrapper.getLine(), wrapper.getPos());
                 } else {
-                  operator =
-                      parser.getContext().findOpForName(parser, operator.getText()).findForArity(1);
+                  final OpContainer operatorContainer =
+                      parser.getContext().findOpForName(parser, operator.getText());
+                  operator = operatorContainer == null ? null
+                      : operatorContainer.findForArity(1);
                   return operator == null ? new PrologStruct(
                       new PrologAtom(wrapper.getText(), Quotation.SINGLE, wrapper.getLine(),
                           wrapper.getPos()), new PrologTerm[] {blockContent}, wrapper.getLine(),

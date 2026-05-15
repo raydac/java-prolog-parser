@@ -40,8 +40,6 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
   public static final PrologTerm LIST_FUNCTOR = new PrologAtom(".", Quotation.SINGLE);
   private static final long serialVersionUID = -3781631438477816869L;
 
-  private static final PrologVar EMPTY_ANONYMOUS_VAR = new PrologVar("_");
-
   public PrologList() {
     super(LIST_FUNCTOR, 2);
     this.elements[0] = null;
@@ -103,12 +101,6 @@ public final class PrologList extends PrologStruct implements Iterable<PrologTer
     }
 
     return result;
-  }
-
-  @Override
-  public PrologTerm getTermAt(final int index) {
-    final PrologTerm result = super.getTermAt(index);
-    return result == null ? EMPTY_ANONYMOUS_VAR : result;
   }
 
   @Override

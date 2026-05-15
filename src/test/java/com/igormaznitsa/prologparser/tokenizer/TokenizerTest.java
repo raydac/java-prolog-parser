@@ -214,6 +214,21 @@ public class TokenizerTest {
   }
 
   @Test
+  public void testPeekAtEndOfStream() {
+    final Tokenizer tokenizer = tokenizeOf("x");
+    assertEquals("x", requireNonNull(tokenizer.readNextToken()).getResult().getText());
+    assertNull(tokenizer.peek());
+    assertNull(tokenizer.peek());
+    assertNull(tokenizer.readNextToken());
+  }
+
+  @Test
+  public void testUnclosedBlockComment() {
+    final Tokenizer tokenizer = tokenizeOf("/* no end", true, false);
+    assertThrows(PrologParserException.class, tokenizer::readNextToken);
+  }
+
+  @Test
   public void testGetLastTokenStr() {
     Tokenizer tokenizer = tokenizeOf(
         "aaa%it's a comment string nd we must skip it until the next string char \n     123 'hello'");
@@ -438,17 +453,11 @@ public class TokenizerTest {
     assertSame(term.getClass(), PrologFloat.class);
     assertEquals("0.003422", term.getText());
 
-    term = tokenizer.makeTermFromString("a0.003422b", 10, NONE, TokenizerState.FLOAT);
-    assertNotNull(term);
-    assertEquals(TermType.ATOM, term.getType());
-    assertSame(term.getClass(), PrologAtom.class);
-    assertEquals("a0.003422b", term.getText());
+    assertThrows(PrologParserException.class,
+        () -> tokenizer.makeTermFromString("a0.003422b", 10, NONE, TokenizerState.FLOAT));
 
-    term = tokenizer.makeTermFromString("a12345b", 10, NONE, TokenizerState.INTEGER);
-    assertNotNull(term);
-    assertEquals(TermType.ATOM, term.getType());
-    assertSame(term.getClass(), PrologAtom.class);
-    assertEquals("a12345b", term.getText());
+    assertThrows(PrologParserException.class,
+        () -> tokenizer.makeTermFromString("a12345b", 10, NONE, TokenizerState.INTEGER));
 
     term = tokenizer.makeTermFromString("123", 10, SINGLE, ATOM);
     assertNotNull(term);

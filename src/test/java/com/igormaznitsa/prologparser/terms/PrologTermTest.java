@@ -1,6 +1,7 @@
 package com.igormaznitsa.prologparser.terms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.igormaznitsa.prologparser.DefaultParserContext;
 import com.igormaznitsa.prologparser.GenericPrologParser;
@@ -67,6 +68,12 @@ public class PrologTermTest {
     final PrologList list5 = new PrologList(new PrologVar("A"));
     list5.setTail(new PrologList(new PrologVar("B")));
     assertEquals("[A, B]", list5.toString());
+  }
+
+  @Test
+  public void testOperatorCompareTo() {
+    assertEquals(0, Op.ISO_UNARY_MINUS.compareTo(Op.ISO_UNARY_MINUS));
+    assertTrue(Op.ISO_UNARY_MINUS.compareTo(Op.ISO_ARITH_PLUS_MINUS) < 0);
   }
 
   @Test

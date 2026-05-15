@@ -27,6 +27,7 @@ import static com.igormaznitsa.prologparser.terms.TermType.VAR;
 import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
+import com.igormaznitsa.prologparser.tokenizer.Op;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -242,44 +243,57 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
       }
       break;
       case ATOM: {
-        if (null == that.getType()) {
-          result = -1;
-        } else {
-          switch (that.getType()) {
-            case ATOM:
-              if (this instanceof PrologNumeric) {
-                if (that instanceof PrologNumeric) {
-                  if (this instanceof PrologInt) {
-                    if (that instanceof PrologInt) {
-                      result = ((PrologInt) this).getIntValue()
-                          .compareTo(((PrologInt) that).getIntValue());
-                    } else {
-                      result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(
-                          ((PrologFloat) that).getFloatValue());
-                    }
-                  } else if (that instanceof PrologInt) {
-                    result = ((PrologFloat) this).getFloatValue()
-                        .compareTo((new BigDecimal(((PrologInt) that).getIntValue())));
+        switch (that.getType()) {
+          case ATOM:
+            if (this instanceof PrologNumeric) {
+              if (that instanceof PrologNumeric) {
+                if (this instanceof PrologInt) {
+                  if (that instanceof PrologInt) {
+                    result = ((PrologInt) this).getIntValue()
+                        .compareTo(((PrologInt) that).getIntValue());
                   } else {
-                    result = ((PrologFloat) this).getFloatValue()
-                        .compareTo(((PrologFloat) that).getFloatValue());
+                    result = new BigDecimal(((PrologInt) this).getIntValue()).compareTo(
+                        ((PrologFloat) that).getFloatValue());
                   }
+                } else if (that instanceof PrologInt) {
+                  result = ((PrologFloat) this).getFloatValue()
+                      .compareTo(new BigDecimal(((PrologInt) that).getIntValue()));
                 } else {
-                  result = -1;
+                  result = ((PrologFloat) this).getFloatValue()
+                      .compareTo(((PrologFloat) that).getFloatValue());
                 }
-              } else if (that instanceof PrologNumeric) {
-                result = 1;
               } else {
-                result = this.getText().compareTo(that.getText());
+                result = -1;
               }
-              break;
-            case VAR:
+            } else if (that instanceof PrologNumeric) {
               result = 1;
-              break;
-            default:
-              result = -1;
-              break;
+            } else {
+              result = this.getText().compareTo(that.getText());
+            }
+            break;
+          case VAR:
+            result = 1;
+            break;
+          default:
+            result = -1;
+            break;
+        }
+      }
+      break;
+      case OPERATOR: {
+        if (that.getType() != TermType.OPERATOR) {
+          result = that.getType() == TermType.VAR ? 1 : -1;
+        } else {
+          final Op thisOp = (Op) this;
+          final Op thatOp = (Op) that;
+          int operatorOrder = Integer.compare(thisOp.getPrecedence(), thatOp.getPrecedence());
+          if (operatorOrder == 0) {
+            operatorOrder = thisOp.getText().compareTo(thatOp.getText());
           }
+          if (operatorOrder == 0) {
+            operatorOrder = thisOp.getAssoc().compareTo(thatOp.getAssoc());
+          }
+          result = operatorOrder;
         }
       }
       break;

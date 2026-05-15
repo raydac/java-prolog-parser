@@ -1443,6 +1443,8 @@ class IntegrationTest extends AbstractIntegrationTest {
     assertThrows(PrologParserException.class, () -> parseEd("- = - .").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(//*.*/).").next());
     assertThrows(PrologParserException.class, () -> parseEd("writeq(//*).").next());
+    assertThrows(PrologParserException.class,
+        () -> parseEd("/* unclosed", FLAG_BLOCK_COMMENTS).next());
     assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\. .").next());
     assertThrows(PrologParserException.class, () -> parseEd("X = 0'\\.").next());
     assertThrows(PrologParserException.class, () -> parseEd("'\\\n''.").next());
