@@ -1485,6 +1485,107 @@ class IntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void testSignedCapitalExponent() {
+    this.assertFloatTerm("1E+6.", "1E+6");
+    this.assertFloatTerm("1E-2.", "0.01");
+    this.assertFloatTerm("1e+6.", "1E+6");
+    this.assertFloatTerm("1.0E+6.", "1000000");
+    this.assertFloatTerm("1E6.", "1E+6");
+    this.assertFloatTerm("2.5E-1.", "0.25");
+    this.assertFloatTerm("1_0E+2.", "1000");
+
+    this.assertParseMessage("1E+.", "Unexpected end of float: 1e+");
+    this.assertParseMessage("1E.", "Unexpected end of float: 1e");
+    this.assertParseMessage("1E++2.", "Invalid float: 1e+");
+    this.assertParseMessage("1_E+2.", "Underscore is not allowed before E or dot");
+  }
+
+  @Test
+  void testTrailingCommaInList() {
+    assertEquals("[]", parseEd("[].").next().toString());
+    assertEquals("[]", parseEd("[ ].").next().toString());
+    assertEquals("[a]", parseEd("[a].").next().toString());
+    assertEquals("[a, b]", parseEd("[a,b].").next().toString());
+    assertEquals("[a, b|T]", parseEd("[a,b|T].").next().toString());
+
+    this.assertParseMessage("[a,].", "List element not found", 1, 4);
+    this.assertParseMessage("[a,b,].", "List element not found", 1, 6);
+    this.assertParseMessage("[,].", "List element not found", 1, 2);
+    this.assertParseMessage("[a|].", "There is not any term as the tail at the list");
+  }
+
+  @Test
+  void testMissingStructureArgument() {
+    assertEquals("f(a)", parseEd("f(a).").next().toString());
+    assertEquals("f(a, b)", parseEd("f(a,b).").next().toString());
+    this.assertParseMessage("f().", "Empty structure is not allowed");
+    this.assertParseMessage("f(a,).", "Structure argument not found", 1, 5);
+    this.assertParseMessage("f(a,b,).", "Structure argument not found", 1, 7);
+    this.assertParseMessage("f(,a).", "Structure argument not found", 1, 3);
+
+    final PrologStruct empty = (PrologStruct) new GenericPrologParser(new StringReader("f()."),
+        DefaultParserContext.of(FLAG_ZERO_STRUCT)).next();
+    assertEquals("f()", empty.toString());
+    assertEquals(0, empty.getArity());
+
+    this.assertStructureMessage(FLAG_ZERO_STRUCT, "f(a,).", "Structure argument not found", 1, 5);
+    this.assertStructureMessage(FLAG_ZERO_STRUCT, "f(a,b,).", "Structure argument not found", 1, 7);
+    this.assertStructureMessage(FLAG_ZERO_STRUCT, "f(,a).", "Structure argument not found", 1, 3);
+    this.assertStructureMessage(FLAG_ZERO_STRUCT | FLAG_BLOCK_COMMENTS, "f(/*x*/,).",
+        "Structure argument not found");
+  }
+
+  @Test
+  void testNumberCannotBeFunctor() {
+    this.assertParseMessage("1(a).", "Functor can't be number: 1", 1, 2);
+    this.assertParseMessage("1().", "Functor can't be number: 1", 1, 2);
+    this.assertParseMessage("2.5(a).", "Functor can't be number: 2.5");
+    this.assertStructureMessage(FLAG_ZERO_STRUCT, "1().", "Functor can't be number: 1", 1, 2);
+    this.assertStructureMessage(FLAG_ZERO_STRUCT, "1(a).", "Functor can't be number: 1", 1, 2);
+    assertEquals("n(1)", parseEd("n(1).").next().toString());
+  }
+
+  private void assertFloatTerm(final String source, final String expected) {
+    final PrologTerm term = parseEd(source).next();
+    assertEquals(PrologFloat.class, term.getClass());
+    assertEquals(0, new BigDecimal(expected).compareTo(((PrologFloat) term).getFloatValue()));
+  }
+
+  private void assertParseMessage(final String source, final String message) {
+    final PrologParserException error = assertThrows(PrologParserException.class,
+        () -> parseEd(source).next());
+    assertEquals(message, error.getMessage());
+    assertTrue(error.hasValidPosition());
+  }
+
+  private void assertParseMessage(final String source, final String message, final int line,
+                                  final int pos) {
+    final PrologParserException error = assertThrows(PrologParserException.class,
+        () -> parseEd(source).next());
+    assertEquals(message, error.getMessage());
+    assertEquals(line, error.getLine());
+    assertEquals(pos, error.getPos());
+  }
+
+  private void assertStructureMessage(final int flags, final String source, final String message) {
+    final PrologParserException error = assertThrows(PrologParserException.class,
+        () -> new GenericPrologParser(new StringReader(source),
+            DefaultParserContext.of(flags)).next());
+    assertEquals(message, error.getMessage());
+    assertTrue(error.hasValidPosition());
+  }
+
+  private void assertStructureMessage(final int flags, final String source, final String message,
+                                      final int line, final int pos) {
+    final PrologParserException error = assertThrows(PrologParserException.class,
+        () -> new GenericPrologParser(new StringReader(source),
+            DefaultParserContext.of(flags)).next());
+    assertEquals(message, error.getMessage());
+    assertEquals(line, error.getLine());
+    assertEquals(pos, error.getPos());
+  }
+
+  @Test
   void testWhiteSpaceInZeroQuotation() {
     assertThrows(PrologParserException.class,
         () -> parseEd("0' .", ParserContext.FLAG_ZERO_QUOTATION_CHARCODE).next());

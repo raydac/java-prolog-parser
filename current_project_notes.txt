@@ -1,0 +1,39 @@
+## 1. Implementation Progress
+- Fixed signed capital exponents, trailing list commas, missing structure arguments, numeric functors, `OpContainer.removeForType` size, tokenizer close rewind, and newline pushback column.
+- Full `mvn22 test` passed after the fixes.
+
+## 2. Architecture & Technical Discoveries
+- Tokenizer is a per-character state machine. Operator scan uses `String` prefix lookups on every extension.
+- `doReadChar()` is `synchronized` and calls `Reader.read()` one char at a time.
+- Numbers are `BigInteger` / `BigDecimal`. `PrologNumeric.getType()` returns `TermType.ATOM`.
+- Phrase parser builds an `AstItem` tree, then `convertToTermAndRelease`.
+- Integer-to-float transition now stores `E` as `e`. A second exponent marker ends the number and is pushed back.
+- `readStruct` returns null only for a real `f()`. A missing argument throws `PrologParserException`.
+- `Tokenizer.close` on a `PushbackReader` unreads `insideCharBuffer` only.
+
+## 3. Technical Debt & Refactoring
+- Operator matching should be a trie (or first-char bitmap plus trie) so atoms do not allocate a `String` per character.
+- Read chars from an internal buffer filled by `Reader.read(char[])`.
+- ASCII class table for whitespace / letter / digit / upper.
+- Parse integers through `long` and allocate `BigInteger` only on overflow.
+- Copy `lastTokens` only when `getLastTokens()` is called.
+- `calcDiffAndPushResultBack` still resets the column to 1 when a pushed operator fragment contains a newline. Operator text does not contain newlines today.
+
+## 4. Current Work In Progress
+- None. Fixes and tests are in the working tree, not committed.
+
+## 5. Known Issues & Limitations
+- `'don''t'` is rejected (backslash escapes only). Lone `.` is end-of-input by tests.
+- Speed items in section 3 are not implemented.
+
+## 6. Open Questions & Pending Decisions
+- Whether float parsing may switch from `BigDecimal` to `double`.
+- Whether ISO doubled-quote escapes should be accepted.
+
+## 7. Useful References
+- Hot path: `tokenizer/Tokenizer.java` (`readNextToken`, `doReadChar`), `PrologParser.readBlock` / `readStruct` / `readList`.
+- Coverage: `TokenizerTest`, `IntegrationTest`, `OperatorContainerTest`.
+- `mvn22 test`
+
+## 8. User Advice and Recommendations
+- For every change and fix, add unit tests that cover the corrected behavior, the error paths, and the corner cases around them.

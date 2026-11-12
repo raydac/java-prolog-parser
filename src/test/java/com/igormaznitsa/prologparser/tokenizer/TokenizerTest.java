@@ -36,7 +36,11 @@ import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
 import com.igormaznitsa.prologparser.terms.TermType;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -514,5 +518,116 @@ public class TokenizerTest {
 
     assertNull(tokenizer.findOperatorForName("%%%%%%%<unsupported_operator>%%%%%%"));
     assertSame(tokenizer.findOperatorForName("some_operator"), operatorContainer);
+  }
+
+  @Test
+  public void testCapitalExponentSign() {
+    this.assertFloatToken("1E+6", "1E+6");
+    this.assertFloatToken("1E-2", "0.01");
+    this.assertFloatToken("1e+6", "1E+6");
+    this.assertFloatToken("1.0E+6", "1000000");
+    this.assertFloatToken("1E6", "1E+6");
+    this.assertFloatToken("2.5E-1", "0.25");
+    this.assertFloatToken("10E+2", "1000");
+    this.assertFloatToken("1_0E+2", "1000");
+
+    this.assertFloatFails("1E+", "Invalid float: 1e+");
+    this.assertFloatFails("1E.", "Unexpected end of float: 1e");
+    this.assertFloatFails("1E++2", "Invalid float: 1e+");
+    this.assertFloatFails("1_E+2", "Underscore is not allowed before E or dot");
+  }
+
+  @Test
+  public void testSecondExponentMarkerEndsNumber() {
+    final Tokenizer tokenizer = this.tokenizeOf("1e2e3");
+    final TokenizerResult number = tokenizer.readNextToken();
+    assertEquals(0, new BigDecimal("1e2").compareTo(this.floatValue(number)));
+
+    final TokenizerResult tail = tokenizer.readNextToken();
+    assertEquals("e3", requireNonNull(tail).getResult().getText());
+    assertEquals(TermType.ATOM, tail.getResult().getType());
+    assertNull(tokenizer.readNextToken());
+
+    final Tokenizer scientific = this.tokenizeOf("1.0e10e");
+    assertEquals(0, new BigDecimal("1.0e10").compareTo(
+        this.floatValue(scientific.readNextToken())));
+    assertEquals("e", requireNonNull(scientific.readNextToken()).getResult().getText());
+
+    final PrologParserException broken = assertThrows(PrologParserException.class,
+        () -> this.tokenizeOf("1ee").readNextToken());
+    assertEquals("Invalid float: 1e", broken.getMessage());
+    assertTrue(broken.hasValidPosition());
+  }
+
+  @Test
+  public void testNewlineAfterDotKeepsDotColumn() {
+    final Tokenizer tokenizer = this.tokenizeOf("12.\nX");
+    final TokenizerResult number = tokenizer.readNextToken();
+    assertEquals("12", requireNonNull(number).getResult().getText());
+    assertEquals(1, number.getLine());
+    assertEquals(1, number.getPos());
+
+    final TokenizerResult dot = tokenizer.readNextToken();
+    assertEquals(".", requireNonNull(dot).getResult().getText());
+    assertEquals(1, dot.getLine());
+    assertEquals(3, dot.getPos());
+
+    final TokenizerResult variable = tokenizer.readNextToken();
+    assertEquals("X", requireNonNull(variable).getResult().getText());
+    assertEquals(2, variable.getLine());
+    assertEquals(1, variable.getPos());
+  }
+
+  @Test
+  public void testCloseRestoresPushedCharOnly() throws IOException {
+    final PushbackReader reader = new PushbackReader(new StringReader("ab+c"), 8);
+    final Tokenizer tokenizer = this.tokenizeReader(reader);
+    assertEquals("ab", requireNonNull(tokenizer.readNextToken()).getResult().getText());
+    tokenizer.close(false);
+
+    assertEquals('+', reader.read());
+    assertEquals('c', reader.read());
+    assertEquals(-1, reader.read());
+  }
+
+  @Test
+  public void testCloseDoesNotRewindCompletedToken() throws IOException {
+    final PushbackReader reader = new PushbackReader(new StringReader("ab c"), 8);
+    final Tokenizer tokenizer = this.tokenizeReader(reader);
+    assertEquals("ab", requireNonNull(tokenizer.readNextToken()).getResult().getText());
+    tokenizer.close(false);
+
+    assertEquals('c', reader.read());
+    assertEquals(-1, reader.read());
+  }
+
+  private Tokenizer tokenizeReader(final Reader reader) {
+    final ParserContext context = mock(ParserContext.class);
+    when(context.getMaxTokenizerBufferLength()).thenReturn(1024);
+    return new Tokenizer(
+        new GenericPrologParser(new StringReader(""),
+            new ParserContextChain(new DefaultParserContext(ParserContext.FLAG_NONE), context)),
+        PrologParser.findMetaOps(),
+        reader);
+  }
+
+  private void assertFloatToken(final String source, final String expected) {
+    final Tokenizer tokenizer = this.tokenizeOf(source);
+    final TokenizerResult token = tokenizer.readNextToken();
+    assertEquals(TokenizerState.FLOAT, requireNonNull(token).getTokenizerState());
+    assertEquals(0, new BigDecimal(expected).compareTo(this.floatValue(token)));
+    assertNull(tokenizer.readNextToken());
+  }
+
+  private void assertFloatFails(final String source, final String message) {
+    final PrologParserException error = assertThrows(PrologParserException.class,
+        () -> this.tokenizeOf(source).readNextToken());
+    assertEquals(message, error.getMessage());
+    assertTrue(error.hasValidPosition());
+  }
+
+  private BigDecimal floatValue(final TokenizerResult token) {
+    assertEquals(PrologFloat.class, requireNonNull(token).getResult().getClass());
+    return ((PrologFloat) token.getResult()).getFloatValue();
   }
 }

@@ -186,11 +186,19 @@ public final class Tokenizer implements AutoCloseable {
   public void push(final char ch) {
     this.insideCharBuffer.push(ch);
     if (ch == '\n') {
-      this.pos = 1;
-      this.line = Math.max(1, this.line - 1);
+      this.pos = this.prevPos;
+      this.line = Math.max(1, this.prevLine);
     } else {
       this.pos = Math.max(1, this.pos - 1);
     }
+  }
+
+  private void unreadPushedChars(final PushbackReader reader) throws IOException {
+    final int length = this.insideCharBuffer.length();
+    for (int index = 0; index < length; index++) {
+      reader.unread(this.insideCharBuffer.charAt(index));
+    }
+    this.insideCharBuffer.clear();
   }
 
   @Override
@@ -207,10 +215,7 @@ public final class Tokenizer implements AutoCloseable {
   public void close(final boolean closeReader) throws IOException {
     try {
       if (this.reader instanceof PushbackReader) {
-        final PushbackReader pushBackReader = (PushbackReader) this.reader;
-        while (!this.internalStringBuffer.isEmpty()) {
-          pushBackReader.unread(this.internalStringBuffer.pop());
-        }
+        this.unreadPushedChars((PushbackReader) this.reader);
       }
     } finally {
       this.hasPushedTerm = false;
@@ -662,7 +667,7 @@ public final class Tokenizer implements AutoCloseable {
                         this.prevLine, this.prevPos);
                   }
 
-                  locInternalStringBuffer.append(chr);
+                  locInternalStringBuffer.append(chr == 'E' ? 'e' : chr);
                   state = TokenizerState.FLOAT;
                 } else {
                   if (foundUnderscoreInNumber) {
@@ -786,7 +791,7 @@ public final class Tokenizer implements AutoCloseable {
                       this.push(chr);
                       locRawStringBuffer.removeLastChar();
                       return new TokenizerResult(
-                          makeTermFromString(locInternalStringBuffer.toStringExcludeLastChar(),
+                          makeTermFromString(locInternalStringBuffer.toString(),
                               currentRadix, currentQuoting,
                               TokenizerState.FLOAT),
                           TokenizerState.FLOAT,

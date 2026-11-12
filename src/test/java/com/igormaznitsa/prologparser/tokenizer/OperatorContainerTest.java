@@ -294,6 +294,47 @@ class OperatorContainerTest {
   }
 
   @Test
+  void testRemoveForTypeUpdatesSizeAndSingleOperator() {
+    final Op operatorFX = Op.make(100, OpAssoc.FX, "<>");
+    final Op operatorFY = Op.make(100, OpAssoc.FY, "<>");
+    final Op operatorXFX = Op.make(400, OpAssoc.XFX, "<>");
+    final Op operatorYF = Op.make(300, OpAssoc.YF, "<>");
+
+    final OpContainer container = make(operatorFX);
+    container.add(operatorXFX);
+    container.add(operatorYF);
+    assertEquals(3, container.size());
+    assertNull(container.getIfSingle());
+
+    assertTrue(container.removeForType(OpAssoc.FX));
+    assertEquals(2, container.size());
+    assertNull(container.getIfSingle());
+    assertNull(container.findForType(OpAssoc.FX));
+    assertSame(operatorXFX, container.findForType(OpAssoc.XFX));
+
+    assertFalse(container.removeForType(OpAssoc.FX));
+    assertEquals(2, container.size());
+
+    assertTrue(container.removeForType(OpAssoc.XFX));
+    assertEquals(1, container.size());
+    assertSame(operatorYF, container.getIfSingle());
+
+    assertTrue(container.removeForType(OpAssoc.YF));
+    assertEquals(0, container.size());
+    assertNull(container.getIfSingle());
+    assertFalse(container.removeForType(OpAssoc.YF));
+    assertEquals(0, container.size());
+
+    final OpContainer prefixOnly = make(operatorFY);
+    assertFalse(prefixOnly.removeForType(OpAssoc.FX));
+    assertEquals(1, prefixOnly.size());
+    assertSame(operatorFY, prefixOnly.getIfSingle());
+    assertTrue(prefixOnly.removeForType(OpAssoc.FY));
+    assertEquals(0, prefixOnly.size());
+    assertNull(prefixOnly.getIfSingle());
+  }
+
+  @Test
   void testGetText() {
     assertEquals("<>", make(Op.make(1000,
         OpAssoc.FX, "<>")).getText());

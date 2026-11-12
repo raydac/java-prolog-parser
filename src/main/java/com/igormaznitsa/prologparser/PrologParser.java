@@ -34,6 +34,7 @@ import com.igormaznitsa.prologparser.exceptions.PrologParserException;
 import com.igormaznitsa.prologparser.terms.OpContainer;
 import com.igormaznitsa.prologparser.terms.PrologAtom;
 import com.igormaznitsa.prologparser.terms.PrologList;
+import com.igormaznitsa.prologparser.terms.PrologNumeric;
 import com.igormaznitsa.prologparser.terms.PrologStruct;
 import com.igormaznitsa.prologparser.terms.PrologTerm;
 import com.igormaznitsa.prologparser.terms.Quotation;
@@ -266,7 +267,16 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
     while (active) {
       final PrologTerm block = this.readBlock(OPERATORS_INSIDE_STRUCT);
       if (block == null) {
-        return null;
+        final TokenizerResult closing = this.tokenizer.peek();
+        if (listOfAtoms.isEmpty()
+            && closing != null
+            && closing.getResult() == OPERATOR_RIGHTBRACKET) {
+          return null;
+        }
+        throw new PrologParserException(
+            "Structure argument not found",
+            closing == null ? this.tokenizer.getLine() : closing.getLine(),
+            closing == null ? this.tokenizer.getPos() : closing.getPos());
       }
 
       final TokenizerResult nextAtom = this.extractNextTokenCommentAware();
@@ -320,6 +330,10 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
         case ']': {
           continueReading = false;
           if (block == null) {
+            if (!leftPartFirst.isEmpty()) {
+              throw new PrologParserException(
+                  "List element not found", nextAtom.getLine(), nextAtom.getPos());
+            }
             continue;
           }
         }
@@ -584,6 +598,12 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
             final int nextTokenStrPosition = nextToken.getPos();
 
             // it is a structure
+            if (readAtom instanceof PrologNumeric) {
+              throw new PrologParserException(
+                  "Functor can't be number: " + readAtom.getText(),
+                  nextTokenLineNumber, nextTokenStrPosition);
+            }
+
             if (readAtom.getType() == TermType.ATOM
                 || (readAtom.getType() == TermType.VAR
                 && (parserFlags & FLAG_VAR_AS_FUNCTOR) != 0)) {

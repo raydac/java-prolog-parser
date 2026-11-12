@@ -350,6 +350,7 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
       case FY:
         if (this.opFZ != null && this.opFZ.getAssoc() == type) {
           this.opFZ = null;
+          this.numberAtContainer--;
           result = true;
         }
         break;
@@ -357,6 +358,7 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
       case YF:
         if (this.opZF != null && this.opZF.getAssoc() == type) {
           this.opZF = null;
+          this.numberAtContainer--;
           result = true;
         }
         break;
@@ -364,7 +366,8 @@ public final class OpContainer extends InternalSpecialCompoundTerm {
       case YFX:
       case XFY:
         if (this.opZFZ != null && this.opZFZ.getAssoc() == type) {
-          opZFZ = null;
+          this.opZFZ = null;
+          this.numberAtContainer--;
           result = true;
         }
         break;
