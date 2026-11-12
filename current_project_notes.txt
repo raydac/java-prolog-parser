@@ -2,6 +2,7 @@
 - Fixed signed capital exponents, trailing list commas, missing structure arguments, numeric functors, `OpContainer.removeForType` size, tokenizer close rewind, and newline pushback column.
 - Full `mvn22 test` passed after the fixes.
 - SpotBugs: `Tokenizer.doReadChar` is no longer synchronized. Constructor-throw and live-term exposure stay in `src/spotbugs/exclude.xml`.
+- README rewritten as a full user guide (install, term model, operators, flags, numbers, quotes, comments, positions, errors, limits). Every snippet output was checked against `target/classes` with throwaway single-file Java programs.
 
 ## 2. Architecture & Technical Discoveries
 - Tokenizer is a per-character state machine. Operator scan uses `String` prefix lookups on every extension.
@@ -28,6 +29,10 @@
 
 ## 5. Known Issues & Limitations
 - `'don''t'` is rejected (backslash escapes only). Lone `.` is end-of-input by tests.
+- `PrologFloat.toString()` appends `.0` after `toEngineeringString()`, so `1.5e10` prints as `15E+9.0` (not valid Prolog). README avoids such floats.
+- Unquoted symbolic atoms that are not operators are split by the tokenizer (`op(700, xfx, ===>)` fails; `'===>'` works).
+- `FLAG_DOT2_AS_LIST` applies only to a whole `readBlock` result (clause, struct argument, list element), not to operator operands (`L = '.'(1, [])` stays a struct).
+- No recovery after a syntax error: the rest of the input is consumed and `hasNext()` returns false.
 - Speed items in section 3 are not implemented.
 
 ## 6. Open Questions & Pending Decisions
