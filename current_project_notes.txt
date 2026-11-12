@@ -1,10 +1,11 @@
 ## 1. Implementation Progress
 - Fixed signed capital exponents, trailing list commas, missing structure arguments, numeric functors, `OpContainer.removeForType` size, tokenizer close rewind, and newline pushback column.
 - Full `mvn22 test` passed after the fixes.
+- SpotBugs: `Tokenizer.doReadChar` is no longer synchronized. Constructor-throw and live-term exposure stay in `src/spotbugs/exclude.xml`.
 
 ## 2. Architecture & Technical Discoveries
 - Tokenizer is a per-character state machine. Operator scan uses `String` prefix lookups on every extension.
-- `doReadChar()` is `synchronized` and calls `Reader.read()` one char at a time.
+- `doReadChar()` calls `Reader.read()` one char at a time. It is not synchronized; the tokenizer is single-threaded. A lock on that method alone made SpotBugs treat position fields as cross-thread state.
 - Numbers are `BigInteger` / `BigDecimal`. `PrologNumeric.getType()` returns `TermType.ATOM`.
 - Phrase parser builds an `AstItem` tree, then `convertToTermAndRelease`.
 - Integer-to-float transition now stores `E` as `e`. A second exponent marker ends the number and is pushed back.
@@ -12,11 +13,14 @@
 - `Tokenizer.close` on a `PushbackReader` unreads `insideCharBuffer` only.
 
 ## 3. Technical Debt & Refactoring
-- Operator matching should be a trie (or first-char bitmap plus trie) so atoms do not allocate a `String` per character.
-- Read chars from an internal buffer filled by `Reader.read(char[])`.
-- ASCII class table for whitespace / letter / digit / upper.
-- Parse integers through `long` and allocate `BigInteger` only on overflow.
-- Copy `lastTokens` only when `getLastTokens()` is called.
+- Operator matching should be a trie (or first-char bitmap plus trie) so atoms do not allocate a `String` per character. `String.valueOf(chr)` on the first operator char has the same cost.
+- Read chars from an internal buffer filled by `Reader.read(char[])`. `doReadChar()` is single-threaded.
+- ASCII class table for whitespace / letter / digit / upper. `findQuotation` scans the finished atom a second time with `Character.*`.
+- Parse integers through `long` and allocate `BigInteger` only on overflow. `PrologInt.getText()` calls `BigInteger.toString()` on every read.
+- Copy `lastTokens` only when `getLastTokens()` is called. `TokenizerResult` always materializes `rawString`, including leading whitespace.
+- Phrase parse builds an `AstItem` plus a `TermWrapper` per operator, then `convertToTermAndRelease` throws that tree away. `PrologStruct` clones the argument array.
+- Atom text cannot be interned while `line`/`pos` stay mutable on the term.
+- Floats are `BigDecimal`. Switching to `double` is an open semantic choice, not a silent optimization.
 - `calcDiffAndPushResultBack` still resets the column to 1 when a pushed operator fragment contains a newline. Operator text does not contain newlines today.
 
 ## 4. Current Work In Progress
@@ -34,6 +38,7 @@
 - Hot path: `tokenizer/Tokenizer.java` (`readNextToken`, `doReadChar`), `PrologParser.readBlock` / `readStruct` / `readList`.
 - Coverage: `TokenizerTest`, `IntegrationTest`, `OperatorContainerTest`.
 - `mvn22 test`
+- `mvn22 verify` includes SpotBugs. Accepted findings are listed in `src/spotbugs/exclude.xml`.
 
 ## 8. User Advice and Recommendations
 - For every change and fix, add unit tests that cover the corrected behavior, the error paths, and the corner cases around them.

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="https://github.com/spotbugs/filter/3.0.0"
+        xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/master/spotbugs/etc/findbugsfilter.xsd">
+
+    <!--
+      Constructors validate and throw. The types stay open for extension, and a final
+      finalize() would register every term for finalization. Finalizer attacks are not
+      a realistic threat for this library.
+    -->
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.PrologParser"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.terms.PrologTerm"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.terms.PrologStruct"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+
+    <!--
+      These accessors return the live object. Callers compare operators and functors
+      with == and update source position on the returned term.
+    -->
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.PrologParser"/>
+        <Method name="getTokenizer"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.terms.PrologStruct"/>
+        <Method name="getFunctor"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.terms.OpContainer"/>
+        <Method name="add"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.tokenizer.TermWrapper"/>
+        <Method name="getWrappedTerm"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.tokenizer.TermWrapper"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.tokenizer.Tokenizer"/>
+        <Method name="&lt;init&gt;"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="com.igormaznitsa.prologparser.tokenizer.TokenizerResult"/>
+        <Method name="getResult"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+</FindBugsFilter>

@@ -144,7 +144,7 @@ public class PrologStruct extends PrologCompound implements Iterable<PrologTerm>
 
   @Override
   public PrologTerm getFunctor() {
-    return functor;
+    return this.functor;
   }
 
   @Override

@@ -131,7 +131,7 @@ public final class Tokenizer implements AutoCloseable {
     return this.hasPushedTerm ? this.lastPushedTerm : null;
   }
 
-  private synchronized int doReadChar() throws IOException {
+  private int doReadChar() throws IOException {
     int ch;
     if (this.insideCharBuffer.isEmpty()) {
       ch = this.reader.read();
