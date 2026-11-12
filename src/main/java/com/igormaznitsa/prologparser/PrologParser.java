@@ -575,6 +575,17 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
                 }
               }
               break;
+              case ')':
+              case ']': {
+                throw this.makeUnexpectedClosingBracketError(readAtomContainer);
+              }
+              case '}': {
+                if ((parserFlags & ParserContext.FLAG_CURLY_BRACKETS) != 0) {
+                  throw this.makeUnexpectedClosingBracketError(readAtomContainer);
+                }
+                readAtomPrecedence = readOperator.getPrecedence();
+              }
+              break;
               default: {
                 readAtomPrecedence = readOperator.getPrecedence();
               }
@@ -722,6 +733,13 @@ public abstract class PrologParser implements Iterable<PrologTerm>, AutoCloseabl
       }
       return result;
     }
+  }
+
+  private PrologParserException makeUnexpectedClosingBracketError(
+      final TokenizerResult bracket) {
+    return new PrologParserException(
+        "Unexpected closing bracket: " + bracket.getResult().getText(),
+        bracket.getLine(), bracket.getPos());
   }
 
   private void checkForNull(final Object obj, final String message,

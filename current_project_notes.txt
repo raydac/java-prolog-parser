@@ -1,6 +1,8 @@
 ## 1. Implementation Progress
 - Fixed signed capital exponents, trailing list commas, missing structure arguments, numeric functors, `OpContainer.removeForType` size, tokenizer close rewind, and newline pushback column.
 - Full `mvn22 test` passed after the fixes.
+- Stray `)` / `]` (and `}` when `FLAG_CURLY_BRACKETS` is on) in operand position now throw "Unexpected closing bracket: X" instead of becoming atoms (`foo :- bar, ).` was accepted before). Fix is in `PrologParser.readBlock` single-char op switch.
+- Added `CornerCaseTest` (39 tests): stray brackets, `- 1` vs infix minus, big/radix ints, associativity shape, xfx chains, special atoms, punctuation errors, end-dot placement, CRLF/tab positions, Unicode, escapes, deep nesting, print/reparse stability, buffer limit, comment listener. Full suite: 276 tests green.
 - SpotBugs: `Tokenizer.doReadChar` is no longer synchronized. Constructor-throw and live-term exposure stay in `src/spotbugs/exclude.xml`.
 - README rewritten as a full user guide (install, term model, operators, flags, numbers, quotes, comments, positions, errors, limits). Every snippet output was checked against `target/classes` with throwaway single-file Java programs.
 
@@ -12,6 +14,7 @@
 - Integer-to-float transition now stores `E` as `e`. A second exponent marker ends the number and is pushed back.
 - `readStruct` returns null only for a real `f()`. A missing argument throws `PrologParserException`.
 - `Tokenizer.close` on a `PushbackReader` unreads `insideCharBuffer` only.
+- JPMS: `open module igormaznitsa.prolog.parser` exports all 5 packages, requires only `java.base` (jdeps-confirmed). Jar classes are Java 11 bytecode (55). `utils` must stay exported: `PrologParser.findMetaOps()` returns `Koi7CharOpMap`. Verified with a consumer module run from `--module-path`.
 
 ## 3. Technical Debt & Refactoring
 - Operator matching should be a trie (or first-char bitmap plus trie) so atoms do not allocate a `String` per character. `String.valueOf(chr)` on the first operator char has the same cost.
@@ -22,6 +25,7 @@
 - Phrase parse builds an `AstItem` plus a `TermWrapper` per operator, then `convertToTermAndRelease` throws that tree away. `PrologStruct` clones the argument array.
 - Atom text cannot be interned while `line`/`pos` stay mutable on the term.
 - Floats are `BigDecimal`. Switching to `double` is an open semantic choice, not a silent optimization.
+- `AstItem.convertToTermAndRelease` and `PrologStruct.toString` are recursive. Default stack: parse overflows at ~2000 operands of a yfx chain (`a+a+...`), ~10000 for `,`; `toString` overflows at ~500 conjuncts. Make both iterative (explicit stack).
 - `calcDiffAndPushResultBack` still resets the column to 1 when a pushed operator fragment contains a newline. Operator text does not contain newlines today.
 
 ## 4. Current Work In Progress
@@ -32,6 +36,10 @@
 - `PrologFloat.toString()` appends `.0` after `toEngineeringString()`, so `1.5e10` prints as `15E+9.0` (not valid Prolog). README avoids such floats.
 - Unquoted symbolic atoms that are not operators are split by the tokenizer (`op(700, xfx, ===>)` fails; `'===>'` works).
 - `FLAG_DOT2_AS_LIST` applies only to a whole `readBlock` result (clause, struct argument, list element), not to operator operands (`L = '.'(1, [])` stays a struct).
+- `-(1)` prints as `- 1`, which reads back as integer `-1` (not round-trip safe). Conformity tests lock the `- 1` output.
+- Redundant parentheses collapse to at most two block wrappers: `((((a))))` prints as `((a))`.
+- `-0.0` loses its sign (`BigDecimal`). `1.e5` reads as a float because the end dot does not require layout.
+- Non-ISO leniency: `f(a:-b)` (arg priority > 999) and `X = \+a` are accepted.
 - No recovery after a syntax error: the rest of the input is consumed and `hasNext()` returns false.
 - Speed items in section 3 are not implemented.
 
@@ -41,7 +49,8 @@
 
 ## 7. Useful References
 - Hot path: `tokenizer/Tokenizer.java` (`readNextToken`, `doReadChar`), `PrologParser.readBlock` / `readStruct` / `readList`.
-- Coverage: `TokenizerTest`, `IntegrationTest`, `OperatorContainerTest`.
+- Coverage: `TokenizerTest`, `IntegrationTest`, `OperatorContainerTest`, `CornerCaseTest`.
+- Probe parser behavior quickly: throwaway single-file Java against `target/classes` (`javac -cp target/classes`), before writing assertions.
 - `mvn22 test`
 - `mvn22 verify` includes SpotBugs. Accepted findings are listed in `src/spotbugs/exclude.xml`.
 
