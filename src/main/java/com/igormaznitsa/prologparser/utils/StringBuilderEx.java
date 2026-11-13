@@ -57,6 +57,12 @@ public final class StringBuilderEx {
     return this;
   }
 
+  public StringBuilderEx appendCodePoint(final int codePoint) {
+    this.stringBuilder.appendCodePoint(codePoint);
+    this.assertBufferLimit();
+    return this;
+  }
+
   public void trim() {
     this.stringBuilder.setLength(0);
     this.stringBuilder.trimToSize();

@@ -29,6 +29,7 @@ import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.ATOM;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.LOOK_FOR;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.OPERATOR;
 import static com.igormaznitsa.prologparser.tokenizer.TokenizerState.STRING;
+import static com.igormaznitsa.prologparser.utils.StringUtils.isAlphanumeric;
 import static com.igormaznitsa.prologparser.utils.StringUtils.isCharAllowedForUnquotedAtom;
 
 import com.igormaznitsa.prologparser.ParserContext;
@@ -110,7 +111,7 @@ public final class Tokenizer implements AutoCloseable {
     this.prevLine = 1;
   }
 
-  public static boolean isCharAllowedForRadix(final char chr, final int radix) {
+  public static boolean isCharAllowedForRadix(final int chr, final int radix) {
     if (radix == 10) {
       return Character.isDigit(chr);
     } else if (radix < 10) {
@@ -150,6 +151,32 @@ public final class Tokenizer implements AutoCloseable {
       }
     }
     return ch;
+  }
+
+  private int readCodePoint() throws IOException {
+    final int first = this.doReadChar();
+    if (first < 0 || !Character.isHighSurrogate((char) first)) {
+      return first;
+    }
+
+    final int highSurrogatePos = this.prevPos;
+    final int second = this.doReadChar();
+    final boolean pairComplete = second >= 0 && Character.isLowSurrogate((char) second);
+    if (second >= 0 && !pairComplete) {
+      this.push((char) second);
+    }
+    this.prevPos = highSurrogatePos;
+    return pairComplete ? Character.toCodePoint((char) first, (char) second) : first;
+  }
+
+  private void unread(final int codePoint, final StringBuilderEx rawStringBuffer) {
+    if (Character.isSupplementaryCodePoint(codePoint)) {
+      this.push(Character.lowSurrogate(codePoint));
+      this.push(Character.highSurrogate(codePoint));
+    } else {
+      this.push((char) codePoint);
+    }
+    rawStringBuffer.removeLastChars(Character.charCount(codePoint));
   }
 
   public int calcDiffAndPushResultBack(final String etalon, final StringBuilderEx buffer) {
@@ -260,12 +287,10 @@ public final class Tokenizer implements AutoCloseable {
     return result;
   }
 
-  public OpContainer findOperatorForSingleChar(final char c) {
-    OpContainer result = this.metaOperators.get(c);
-    if (result == null) {
-      return findOperatorForName(String.valueOf(c));
-    }
-    return result;
+  public OpContainer findOperatorForSingleChar(final int codePoint) {
+    final OpContainer result =
+        Character.isBmpCodePoint(codePoint) ? this.metaOperators.get((char) codePoint) : null;
+    return result == null ? this.findOperatorForName(Character.toString(codePoint)) : result;
   }
 
   public void push(final TokenizerResult object) {
@@ -295,7 +320,7 @@ public final class Tokenizer implements AutoCloseable {
     this.prevTokenLine = this.lastTokenLine;
     this.prevTokenPos = this.lastTokenPos;
     this.lastTokenLine = this.line;
-    this.lastTokenPos = this.pos - 1;
+    this.lastTokenPos = this.prevPos;
   }
 
   private String skipTillBlockCommentEnd(final boolean accumulateText,
@@ -398,7 +423,7 @@ public final class Tokenizer implements AutoCloseable {
     locRawStringBuffer.clear();
     try {
       while (true) {
-        final int readChar = this.doReadChar();
+        final int readChar = this.readCodePoint();
 
         if (readChar < 0) {
           switch (state) {
@@ -493,8 +518,8 @@ public final class Tokenizer implements AutoCloseable {
           }
         }
 
-        final char chr = (char) readChar;
-        locRawStringBuffer.append(chr);
+        final int chr = readChar;
+        locRawStringBuffer.appendCodePoint(chr);
 
         if (state != STRING
             && this.blockCommentsAllowed
@@ -545,7 +570,7 @@ public final class Tokenizer implements AutoCloseable {
                 break;
                 case '_': {
                   fixPosition();
-                  locInternalStringBuffer.append(chr);
+                  locInternalStringBuffer.append('_');
                   state = TokenizerState.VAR;
                 }
                 break;
@@ -571,13 +596,13 @@ public final class Tokenizer implements AutoCloseable {
                 default: {
                   fixPosition();
 
-                  locInternalStringBuffer.append(chr);
+                  locInternalStringBuffer.appendCodePoint(chr);
 
                   if (Character.isUpperCase(chr)) {
                     state = TokenizerState.VAR;
                   } else {
-                    letterOrDigitOnly = Character.isLetterOrDigit(chr);
-                    final String operator = String.valueOf(chr);
+                    letterOrDigitOnly = isAlphanumeric(chr);
+                    final String operator = Character.toString(chr);
 
                     if (hasOperatorStartsWith(operator)) {
                       lastFoundFullOperator = findOperatorForName(operator);
@@ -597,7 +622,7 @@ public final class Tokenizer implements AutoCloseable {
             break;
             case ATOM: {
               if (chr == '_') {
-                locInternalStringBuffer.append(chr);
+                locInternalStringBuffer.append('_');
               } else if (Character.isISOControl(chr) || Character.isWhitespace(chr)) {
                 final String text = locInternalStringBuffer.toString();
 
@@ -620,10 +645,9 @@ public final class Tokenizer implements AutoCloseable {
                     this.getLastTokenLine(),
                     this.getLastTokenPos());
               } else if ((chr == '\'' || chr == '\"' || chr == '`')
-                  || (letterOrDigitOnly != Character.isLetterOrDigit(chr))
+                  || (letterOrDigitOnly != isAlphanumeric(chr))
                   || (!Character.isLetter(chr) && findOperatorForSingleChar(chr) != null)) {
-                this.push(chr);
-                locRawStringBuffer.removeLastChar();
+                this.unread(chr, locRawStringBuffer);
                 final String text = locInternalStringBuffer.toString();
 
                 if (currentQuoting == Quotation.NONE) {
@@ -645,14 +669,14 @@ public final class Tokenizer implements AutoCloseable {
                     this.getLastTokenPos());
 
               } else {
-                locInternalStringBuffer.append(chr);
+                locInternalStringBuffer.appendCodePoint(chr);
               }
             }
             break;
             case INTEGER: {
               if (isCharAllowedForRadix(chr, currentRadix)) {
                 foundUnderscoreInNumber = false;
-                locInternalStringBuffer.append(chr);
+                locInternalStringBuffer.appendCodePoint(chr);
               } else if (chr == '_') {
                 if (foundUnderscoreInNumber) {
                   throw new PrologParserException("Duplicated underscore char in integer",
@@ -667,7 +691,7 @@ public final class Tokenizer implements AutoCloseable {
                         this.prevLine, this.prevPos);
                   }
 
-                  locInternalStringBuffer.append(chr == 'E' ? 'e' : chr);
+                  locInternalStringBuffer.append(chr == '.' ? '.' : 'e');
                   state = TokenizerState.FLOAT;
                 } else {
                   if (foundUnderscoreInNumber) {
@@ -682,8 +706,7 @@ public final class Tokenizer implements AutoCloseable {
                         charCodeAsInt = true;
                         locInternalStringBuffer.clear();
                       } else {
-                        this.push(chr);
-                        locRawStringBuffer.removeLastChar();
+                        this.unread(chr, locRawStringBuffer);
                         return new TokenizerResult(
                             makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                                 currentQuoting, state),
@@ -708,19 +731,19 @@ public final class Tokenizer implements AutoCloseable {
                         case 'x':
                           radixCharFound = true;
                           currentRadix = 16;
-                          detectedRadixChar = chr;
+                          detectedRadixChar = 'x';
                           locInternalStringBuffer.clear();
                           break;
                         case 'o':
                           radixCharFound = true;
                           currentRadix = 8;
-                          detectedRadixChar = chr;
+                          detectedRadixChar = 'o';
                           locInternalStringBuffer.clear();
                           break;
                         case 'b':
                           radixCharFound = true;
                           currentRadix = 2;
-                          detectedRadixChar = chr;
+                          detectedRadixChar = 'b';
                           locInternalStringBuffer.clear();
                           break;
                         default:
@@ -728,8 +751,7 @@ public final class Tokenizer implements AutoCloseable {
                       }
                     }
                     if (!radixCharFound) {
-                      this.push(chr);
-                      locRawStringBuffer.removeLastChar();
+                      this.unread(chr, locRawStringBuffer);
                       if (locInternalStringBuffer.isEmpty() && detectedRadixChar != ' ') {
                         this.push(detectedRadixChar);
                         locRawStringBuffer.removeLastChar();
@@ -751,7 +773,7 @@ public final class Tokenizer implements AutoCloseable {
             case FLOAT: {
               if (Character.isDigit(chr)) {
                 foundUnderscoreInNumber = false;
-                locInternalStringBuffer.append(chr);
+                locInternalStringBuffer.appendCodePoint(chr);
               } else if (chr == '_') {
                 if (foundUnderscoreInNumber || locInternalStringBuffer.isLastChar('.')) {
                   throw new PrologParserException(
@@ -765,10 +787,9 @@ public final class Tokenizer implements AutoCloseable {
                   case '-':
                   case '+':
                     if (locInternalStringBuffer.isLastChar('e')) {
-                      locInternalStringBuffer.append(chr);
+                      locInternalStringBuffer.appendCodePoint(chr);
                     } else {
-                      this.push(chr);
-                      locRawStringBuffer.removeLastChar();
+                      this.unread(chr, locRawStringBuffer);
                       return new TokenizerResult(
                           makeTermFromString(locInternalStringBuffer.toString(), currentRadix,
                               currentQuoting,
@@ -788,8 +809,7 @@ public final class Tokenizer implements AutoCloseable {
                     if (locInternalStringBuffer.lastIndexOf('e') < 0) {
                       locInternalStringBuffer.append('e');
                     } else {
-                      this.push(chr);
-                      locRawStringBuffer.removeLastChar();
+                      this.unread(chr, locRawStringBuffer);
                       return new TokenizerResult(
                           makeTermFromString(locInternalStringBuffer.toString(),
                               currentRadix, currentQuoting,
@@ -801,8 +821,7 @@ public final class Tokenizer implements AutoCloseable {
                     }
                     break;
                   default:
-                    this.push(chr);
-                    locRawStringBuffer.removeLastChar();
+                    this.unread(chr, locRawStringBuffer);
 
                     if (foundUnderscoreInNumber) {
                       throw new PrologParserException("Unexpected underscore", this.prevLine,
@@ -841,9 +860,8 @@ public final class Tokenizer implements AutoCloseable {
             }
             break;
             case OPERATOR: {
-              if (chr != '_' && letterOrDigitOnly != Character.isLetterOrDigit(chr)) {
-                this.push(chr);
-                locRawStringBuffer.removeLastChar();
+              if (chr != '_' && letterOrDigitOnly != isAlphanumeric(chr)) {
+                this.unread(chr, locRawStringBuffer);
 
                 if (lastFoundFullOperator == null || letterOrDigitOnly) {
                   final String textInBuffer = locInternalStringBuffer.toString();
@@ -880,19 +898,18 @@ public final class Tokenizer implements AutoCloseable {
               } else {
                 final OpContainer previouslyDetectedOperator = lastFoundFullOperator;
 
-                locInternalStringBuffer.append(chr);
+                locInternalStringBuffer.appendCodePoint(chr);
                 final String operator = locInternalStringBuffer.toString();
                 lastFoundFullOperator = findOperatorForName(operator);
 
                 if (previouslyDetectedOperator == null) {
                   if (!hasOperatorStartsWith(operator)) {
-                    if (hasOperatorStartsWith(String.valueOf(chr))) {
+                    if (hasOperatorStartsWith(Character.toString(chr))) {
                       // next char can be the start char of an
                       // operator, so we need get back it into the
                       // buffer
-                      locInternalStringBuffer.pop();
-                      this.push(chr);
-                      locRawStringBuffer.removeLastChar();
+                      locInternalStringBuffer.removeLastChars(Character.charCount(chr));
+                      this.unread(chr, locRawStringBuffer);
                     }
                     state = TokenizerState.ATOM;
                   }
@@ -948,7 +965,7 @@ public final class Tokenizer implements AutoCloseable {
                     );
                   }
                 } else if (!Character.isISOControl(chr)) {
-                  locSpecialCharBuffer.append(chr);
+                  locSpecialCharBuffer.appendCodePoint(chr);
                   final StringUtils.UnescapeResult result =
                       StringUtils.tryUnescapeCharacter(locSpecialCharBuffer);
                   if (result.isError()) {
@@ -965,7 +982,7 @@ public final class Tokenizer implements AutoCloseable {
                           this.getLastTokenPos()
                       );
                     } else {
-                      locInternalStringBuffer.append(result.getDecoded());
+                      locInternalStringBuffer.appendCodePoint(result.getDecoded());
                     }
                   }
                 } else {
@@ -992,7 +1009,7 @@ public final class Tokenizer implements AutoCloseable {
                         throw new PrologParserException("Char ''' must be escaped in such case",
                             this.prevLine, this.prevPos);
                       } else {
-                        locInternalStringBuffer.append(chr);
+                        locInternalStringBuffer.append('\'');
                       }
                     }
                     break;
@@ -1016,7 +1033,7 @@ public final class Tokenizer implements AutoCloseable {
                             this.getLastTokenPos()
                         );
                       } else {
-                        locInternalStringBuffer.append(chr);
+                        locInternalStringBuffer.append('`');
                       }
                     }
                     break;
@@ -1040,7 +1057,7 @@ public final class Tokenizer implements AutoCloseable {
                             this.getLastTokenPos()
                         );
                       } else {
-                        locInternalStringBuffer.append(chr);
+                        locInternalStringBuffer.append('\"');
                       }
                     }
                     break;
@@ -1049,14 +1066,10 @@ public final class Tokenizer implements AutoCloseable {
                     locSpecialCharBuffer.clear();
                     break;
                   default:
-                    final char theChar;
-
                     if (Character.isISOControl(chr)) {
                       throw new PrologParserException(
                           "Unexpected control char: 0x" + Integer.toHexString(chr), this.prevLine,
                           this.prevPos);
-                    } else {
-                      theChar = chr;
                     }
                     if (charCodeAsInt) {
                       if (Character.isWhitespace(chr) && !this.zeroQuotationAllowsWhitespaceChar) {
@@ -1065,7 +1078,7 @@ public final class Tokenizer implements AutoCloseable {
                             this.prevLine, this.prevPos);
                       } else {
                         return new TokenizerResult(
-                            new PrologInt(theChar),
+                            new PrologInt(chr),
                             state,
                             locRawStringBuffer.toString(),
                             this.getLastTokenLine(),
@@ -1073,7 +1086,7 @@ public final class Tokenizer implements AutoCloseable {
                         );
                       }
                     } else {
-                      locInternalStringBuffer.append(theChar);
+                      locInternalStringBuffer.appendCodePoint(chr);
                     }
                     break;
                 }
@@ -1082,8 +1095,7 @@ public final class Tokenizer implements AutoCloseable {
             break;
             case VAR: {
               if (!isCharAllowedForUnquotedAtom(chr)) {
-                this.push(chr);
-                locRawStringBuffer.removeLastChar();
+                this.unread(chr, locRawStringBuffer);
                 if (locInternalStringBuffer.isSingleChar('_')) {
                   return new TokenizerResult(new PrologVar(), state,
                       locRawStringBuffer.toString(),
@@ -1094,7 +1106,7 @@ public final class Tokenizer implements AutoCloseable {
                     locRawStringBuffer.toString(),
                     this.getLastTokenLine(), this.getLastTokenPos());
               } else {
-                locInternalStringBuffer.append(chr);
+                locInternalStringBuffer.appendCodePoint(chr);
               }
             }
             break;

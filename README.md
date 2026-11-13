@@ -586,7 +586,8 @@ before
 | back ticks    | `` `text` ``    | `BACK_TICK`       |
 
 All three quoted forms produce a `PrologAtom`. `getText()` returns the unescaped content, while `toString()` returns the
-quoted, escaped form. Backslash escapes such as `\n`, `\t`, `\\`, `\'`, and `\uXXXX` are supported.
+quoted, escaped form. Backslash escapes such as `\n`, `\t`, `\\`, `\'`, `\uXXXX`, `\UXXXXXXXX`, and `\xHEX\` are
+supported. Escapes may produce any Unicode code point, including ones above U+FFFF; values beyond U+10FFFF are rejected.
 
 ```java
 final PrologTerm atom = parser.next(); // 'Hello\nWorld'.

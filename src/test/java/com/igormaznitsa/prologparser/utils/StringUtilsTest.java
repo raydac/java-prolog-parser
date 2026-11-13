@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 
 public class StringUtilsTest {
 
-  private void assertUnescaped(char expectedChar, String testString) {
+  private void assertUnescaped(int expectedCodePoint, String testString) {
     final StringUtils.UnescapeResult result =
         StringUtils.tryUnescapeCharacter(new StringBuilderEx(testString));
     assertFalse(result.isError());
     assertFalse(result.doesNeedMore());
-    assertEquals(expectedChar, result.getDecoded());
+    assertEquals(expectedCodePoint, result.getDecoded());
   }
 
   private void assertErrorUnescaped(String testString) {
@@ -65,7 +65,45 @@ public class StringUtilsTest {
     assertErrorUnescaped("ufF0AC2");
     assertErrorUnescaped("uFF0z");
     assertErrorUnescaped("uFF0z");
-    assertErrorUnescaped("Ubbbb");
+  }
+
+  @Test
+  public void testUnescapeCodePointAboveBasicPlane() {
+    assertUnescaped(0x20000, "x20000\\");
+    assertUnescaped(0x10FFFF, "x10FFFF\\");
+    assertUnescaped(0x20000, "400000\\");
+    assertUnescaped(0x1F600, "U0001F600");
+    assertUnescaped(0x4E2D, "U00004e2d");
+
+    assertNotFullData("U");
+    assertNotFullData("Ubbbb");
+    assertNotFullData("U0001F60");
+
+    assertErrorUnescaped("x110000\\");
+    assertErrorUnescaped("4200000\\");
+    assertErrorUnescaped("U00110000");
+    assertErrorUnescaped("UFFFFFFFF");
+    assertErrorUnescaped("U0001F600F");
+    assertErrorUnescaped("U0001F6z");
+  }
+
+  @Test
+  public void testAlphanumericIncludesCombiningMarks() {
+    assertTrue(StringUtils.isAlphanumeric('a'));
+    assertTrue(StringUtils.isAlphanumeric('7'));
+    assertTrue(StringUtils.isAlphanumeric('中'));
+    assertTrue(StringUtils.isAlphanumeric(0x20000));
+    assertTrue(StringUtils.isAlphanumeric(0x0301));
+    assertTrue(StringUtils.isAlphanumeric(0x093F));
+    assertTrue(StringUtils.isAlphanumeric(0x20DD));
+
+    assertFalse(StringUtils.isAlphanumeric('_'));
+    assertFalse(StringUtils.isAlphanumeric('+'));
+    assertFalse(StringUtils.isAlphanumeric(0x1F600));
+    assertFalse(StringUtils.isAlphanumeric(0x3000));
+
+    assertTrue(StringUtils.isCharAllowedForUnquotedAtom('_'));
+    assertFalse(StringUtils.isCharAllowedForUnquotedAtom('-'));
   }
 
   @Test

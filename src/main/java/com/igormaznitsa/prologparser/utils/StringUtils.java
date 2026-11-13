@@ -88,6 +88,7 @@ public final class StringUtils {
           result = '`';
           break;
         case 'u':
+        case 'U':
         case 'x':
           return new UnescapeResult(stringAfterEscMarker.charAt(0), true, false);
         default: {
@@ -101,37 +102,14 @@ public final class StringUtils {
       return new UnescapeResult(result, false, false);
     } else {
       switch (stringAfterEscMarker.charAt(0)) {
-        case 'u': {
-          if (len == 5) {
-            final int decoded;
-            try {
-              decoded = Integer.parseInt(stringAfterEscMarker.substring(1), 16);
-            } catch (NumberFormatException ex) {
-              return new UnescapeResult('u', false, true);
-            }
-            return new UnescapeResult((char) decoded, false, false);
-          } else {
-            if (len > 5) {
-              return new UnescapeResult('u', false, true);
-            } else {
-              if (stringAfterEscMarker.hasSeveralChars()
-                  && isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
-                return new UnescapeResult('u', false, true);
-              }
-              return new UnescapeResult('u', true, false);
-            }
-          }
-        }
+        case 'u':
+          return decodeFixedLengthHex(stringAfterEscMarker, 4);
+        case 'U':
+          return decodeFixedLengthHex(stringAfterEscMarker, 8);
         case 'x': {
           if (stringAfterEscMarker.isLastChar('\\')) {
-            final int decoded;
-            try {
-              decoded = Integer.parseInt(
-                  stringAfterEscMarker.substring(1, stringAfterEscMarker.length() - 1), 16);
-            } catch (NumberFormatException ex) {
-              return new UnescapeResult('x', false, true);
-            }
-            return new UnescapeResult((char) decoded, false, false);
+            return decodeCodePoint(
+                stringAfterEscMarker.substring(1, stringAfterEscMarker.length() - 1), 16, 'x');
           } else {
             if (stringAfterEscMarker.hasSeveralChars()
                 && isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar())) {
@@ -143,12 +121,7 @@ public final class StringUtils {
         default: {
           if (stringAfterEscMarker.isFirstCharDigit()) {
             if (stringAfterEscMarker.isLastChar('\\')) {
-              final String charOctCode = stringAfterEscMarker.toStringExcludeLastChar();
-              try {
-                return new UnescapeResult((char) Integer.parseInt(charOctCode, 8), false, false);
-              } catch (NumberFormatException ex) {
-                return new UnescapeResult('/', false, true);
-              }
+              return decodeCodePoint(stringAfterEscMarker.toStringExcludeLastChar(), 8, '/');
             } else {
               return new UnescapeResult('/', true, false);
             }
@@ -159,8 +132,44 @@ public final class StringUtils {
     }
   }
 
-  public static boolean isCharAllowedForUnquotedAtom(final char chr) {
-    return Character.isLetterOrDigit(chr) || chr == '_';
+  private static UnescapeResult decodeFixedLengthHex(final StringBuilderEx stringAfterEscMarker,
+                                                     final int hexDigits) {
+    final char escapeKind = stringAfterEscMarker.charAt(0);
+    final int length = stringAfterEscMarker.length();
+
+    if (length == hexDigits + 1) {
+      return decodeCodePoint(stringAfterEscMarker.substring(1), 16, escapeKind);
+    }
+    final boolean malformed = length > hexDigits + 1
+        || isCharNotAppropriateForHexNum(stringAfterEscMarker.getLastChar());
+    return new UnescapeResult(escapeKind, !malformed, malformed);
+  }
+
+  private static UnescapeResult decodeCodePoint(final String digits, final int radix,
+                                                final char escapeKind) {
+    try {
+      final int codePoint = Integer.parseInt(digits, radix);
+      return Character.isValidCodePoint(codePoint)
+          ? new UnescapeResult(codePoint, false, false)
+          : new UnescapeResult(escapeKind, false, true);
+    } catch (NumberFormatException ex) {
+      return new UnescapeResult(escapeKind, false, true);
+    }
+  }
+
+  public static boolean isAlphanumeric(final int codePoint) {
+    return Character.isLetterOrDigit(codePoint) || isCombiningMark(codePoint);
+  }
+
+  private static boolean isCombiningMark(final int codePoint) {
+    final int type = Character.getType(codePoint);
+    return type == Character.NON_SPACING_MARK
+        || type == Character.COMBINING_SPACING_MARK
+        || type == Character.ENCLOSING_MARK;
+  }
+
+  public static boolean isCharAllowedForUnquotedAtom(final int codePoint) {
+    return isAlphanumeric(codePoint) || codePoint == '_';
   }
 
   public static boolean isCharNotAppropriateForHexNum(final char chr) {
@@ -250,9 +259,9 @@ public final class StringUtils {
 
     private final boolean needsMore;
     private final boolean error;
-    private final char decoded;
+    private final int decoded;
 
-    private UnescapeResult(final char decoded, final boolean needsMore, final boolean error) {
+    private UnescapeResult(final int decoded, final boolean needsMore, final boolean error) {
       this.decoded = decoded;
       this.needsMore = needsMore;
       this.error = error;
@@ -266,7 +275,7 @@ public final class StringUtils {
       return this.error;
     }
 
-    public char getDecoded() {
+    public int getDecoded() {
       return this.decoded;
     }
   }

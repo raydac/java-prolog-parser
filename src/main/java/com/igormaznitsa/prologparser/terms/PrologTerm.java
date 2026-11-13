@@ -28,6 +28,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.prologparser.exceptions.CriticalUnexpectedError;
 import com.igormaznitsa.prologparser.tokenizer.Op;
+import com.igormaznitsa.prologparser.utils.StringUtils;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,28 +66,17 @@ public abstract class PrologTerm implements Serializable, Comparable<PrologTerm>
    * @return founded quotation
    */
   public static Quotation findQuotation(final String atomText) {
-    Quotation result = NONE;
+    return isUnquotedAtomText(atomText) ? NONE : SINGLE;
+  }
 
+  private static boolean isUnquotedAtomText(final String atomText) {
     if (atomText.isEmpty()) {
-      result = SINGLE;
-    } else {
-      char chr = atomText.charAt(0);
-      if (!Character.isLetter(chr) || Character.isDigit(chr) || Character.isUpperCase(chr)
-          || Character.isISOControl(chr) || Character.isWhitespace(chr)) {
-        result = SINGLE;
-      } else {
-
-        for (int i = 1; i < atomText.length(); i++) {
-          chr = atomText.charAt(i);
-          if (Character.isWhitespace(chr) || (chr != '_' && !Character.isLetterOrDigit(chr))
-              || Character.isISOControl(chr)) {
-            result = SINGLE;
-            break;
-          }
-        }
-      }
+      return false;
     }
-    return result;
+    final int firstCodePoint = atomText.codePointAt(0);
+    return Character.isLetter(firstCodePoint)
+        && !Character.isUpperCase(firstCodePoint)
+        && atomText.codePoints().skip(1).allMatch(StringUtils::isCharAllowedForUnquotedAtom);
   }
 
   protected static String assertNonEmptyString(final String str) {
