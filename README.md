@@ -26,6 +26,7 @@ faster and more robust.
 - [Parser flags](#parser-flags)
 - [Numbers](#numbers)
 - [Quoted atoms and strings](#quoted-atoms-and-strings)
+- [Unicode sources](#unicode-sources)
 - [Comments](#comments)
 - [Source positions and tokens](#source-positions-and-tokens)
 - [Error handling](#error-handling)
@@ -45,6 +46,7 @@ faster and more robust.
 - Arbitrary-precision numbers (`BigInteger` / `BigDecimal`), including `0x`, `0o`, `0b`, `0'c` character codes, and
   `1_000_000` digit groups.
 - Single-quoted, double-quoted, and back-tick quoted atoms with escape sequences.
+- Full Unicode names: Chinese and other scripts, characters above U+FFFF, and combining marks.
 - Line `%` and block `/* */` comments, optionally delivered to your code as tokens.
 - Curly-bracket blocks `{a, b}`, zero-arity structures `f()`, variables as functors `Call(x)`, and `'.'(H, T)` lists,
   all
@@ -178,7 +180,8 @@ try (PrologParser parser = new GenericPrologParser(new StringReader(facts),
 
 ### Parse a file
 
-Always set the charset explicitly. Non-ASCII atoms and variables are supported.
+Always set the charset explicitly. Non-ASCII atoms and variables are supported
+(see [Unicode sources](#unicode-sources)).
 
 ```java
 final Path file = Path.of("program.pl");
@@ -598,6 +601,46 @@ atom.toString();     // 'Hello\nWorld'
 ```
 
 The ISO doubled-quote form `'don''t'` is not supported; write `'don\'t'` instead.
+
+## Unicode sources
+
+Names may use any script, including Chinese, Japanese, Korean, Cyrillic, Arabic, and Devanagari. The tokenizer reads
+whole Unicode code points, so rare characters above U+FFFF (for example CJK Extension B `𠀀`) and combining marks (as in
+`नमस्ते`) stay inside one name.
+
+```java
+final String source = String.join("\n",
+    "父亲(张三, 李四).",
+    "祖父(X, Z) :- 父亲(X, Y), 父亲(Y, Z).",
+    "名字(𠀀先生, नमस्ते, Имя, \"你好，世界\").",
+    "码(0'中, 0'😀, '\\U0001F600', '\\x4E2D\\').");
+
+try (PrologParser parser = new GenericPrologParser(new StringReader(source),
+    DefaultParserContext.of(ParserContext.FLAG_ZERO_QUOTATION_CHARCODE, Op.SWI))) {
+  parser.forEach(System.out::println);
+}
+```
+
+Output:
+
+```text
+父亲(张三, 李四)
+祖父(X, Z) :- 父亲(X, Y) , 父亲(Y, Z)
+名字(𠀀先生, नमस्ते, Имя, "你好，世界")
+码(20013, 128512, '😀', '中')
+```
+
+Rules worth knowing:
+
+- A name is a variable only if it starts with an uppercase letter or `_`. Chinese, Japanese, and Korean characters have
+  no case, so `名字` is an atom and `Имя` is a variable. Write `X名字` or `_名字` for a variable.
+- Letters, digits, `_`, and combining marks can be mixed in one name: `abc中文_1` is a single atom.
+- Fullwidth punctuation is text, not syntax. `，` does not separate arguments and `。` does not end a clause; use ASCII
+  `,` and `.`. The ideographic space U+3000 counts as whitespace.
+- Emoji and other symbols are not letters. `😀` alone is an atom printed as `'😀'`, but `a😀` is a syntax error unless
+  `😀` is declared as an operator.
+- Columns count UTF-16 code units, the same as Java `String` indexes, so a character above U+FFFF takes two columns.
+- Non-ASCII decimal digits are read as numbers: `１２３` and `١٢٣` both become the integer `123`.
 
 ## Comments
 

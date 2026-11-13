@@ -6,6 +6,7 @@
 - Added `UnicodeSourceTest` (37 tests) plus resource `chinese_family.pl`. Covers Chinese facts and rules, mixed-script atoms and variables, all quote kinds, escapes, `0'中`, comments and the comment listener, U+3000 layout, lists and curly blocks, Chinese operators, positions, fullwidth punctuation errors, and UTF-8 file input. Locks the lenient cases: non-ASCII digits, NBSP, titlecase.
 - Unicode fixes: the tokenizer reads code points, so supplementary letters (`a𠀀`, `X𠀀`) and `0'😀` work. Combining marks (Mn/Mc/Me) are alphanumeric (`हिन्दी`, `e\u0301`). `\x..\` and octal escapes produce real code points, and values above U+10FFFF are errors (previously silent `(char)` truncation). Added `\UXXXXXXXX`. Full suite: 315 tests, 0 skipped. SpotBugs clean.
 - SpotBugs: `Tokenizer.doReadChar` is no longer synchronized. Constructor-throw and live-term exposure stay in `src/spotbugs/exclude.xml`.
+- README has a "Unicode sources" section (Chinese clauses, `𠀀`, combining marks, `0'😀`, `\U` / `\x` escapes, naming rules). Its sample output was checked against `target/classes`.
 - README rewritten as a full user guide (install, term model, operators, flags, numbers, quotes, comments, positions, errors, limits). Every snippet output was checked against `target/classes` with throwaway single-file Java programs.
 
 ## 2. Architecture & Technical Discoveries
