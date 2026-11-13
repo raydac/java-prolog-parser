@@ -1,5 +1,5 @@
 [![License Apache 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Maven central](https://img.shields.io/badge/maven%20central-2.2.3-green.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.2.3|jar)
+[![Maven central](https://img.shields.io/badge/maven%20central-2.3.0-green.svg)](http://search.maven.org/#artifactdetails|com.igormaznitsa|java-prolog-parser|2.3.0|jar)
 [![Java 11.0+](https://img.shields.io/badge/java-11.0%2b-green.svg)](https://bell-sw.com/pages/downloads/#jdk-21-lts)
 
 [![Arthur's acres sanctuary donation](arthur_sanctuary_banner.png)](https://www.arthursacresanimalsanctuary.org/donate)
@@ -64,20 +64,20 @@ The latest release is published to Maven Central.
 <dependency>
   <groupId>com.igormaznitsa</groupId>
   <artifactId>java-prolog-parser</artifactId>
-  <version>2.2.3</version>
+  <version>2.3.0</version>
 </dependency>
 ```
 
 **Gradle (Kotlin DSL)**
 
 ```kotlin
-implementation("com.igormaznitsa:java-prolog-parser:2.2.3")
+implementation("com.igormaznitsa:java-prolog-parser:2.3.0")
 ```
 
 **Gradle (Groovy DSL)**
 
 ```groovy
-implementation 'com.igormaznitsa:java-prolog-parser:2.2.3'
+implementation 'com.igormaznitsa:java-prolog-parser:2.3.0'
 ```
 
 **Java Platform Module System**

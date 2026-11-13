@@ -18,7 +18,7 @@
 - `readStruct` returns null only for a real `f()`. A missing argument throws `PrologParserException`.
 - `Tokenizer.close` on a `PushbackReader` unreads `insideCharBuffer` only.
 - Unicode: `Tokenizer.readCodePoint()` joins surrogate pairs. `unread(codePoint, raw)` pushes both halves back and trims the raw buffer. Columns still count UTF-16 units; `fixPosition` uses `prevPos`, which `readCodePoint` sets to the pair's first unit. Letter checks go through `StringUtils.isAlphanumeric` / `isCharAllowedForUnquotedAtom(int)`; `PrologTerm.findQuotation` uses the same rule, so printing and tokenizing agree.
-- Version bumped to `2.3.0-SNAPSHOT` (was `2.2.4-SNAPSHOT`) for the API changes below and the new Unicode features. `jprol/engine/jprol-core/pom.xml` depends on the same version; bump both together. README still advertises the released `2.2.3`.
+- Release prep: pom and README (badge plus Maven/Gradle snippets) are at `2.3.0` (minor bump for the API changes below and the Unicode features). `jprol/engine/jprol-core/pom.xml` depends on `2.3.0`; bump both together. `mvn22 clean install` is green (315 tests, SpotBugs 0, animal-sniffer OK). No git tag yet; existing tags use the bare version (`2.2.3`). There is no changelog file.
 - API changes (source-compatible, binary-incompatible): `UnescapeResult.getDecoded()` returns `int`; `isCharAllowedForUnquotedAtom`, `Tokenizer.isCharAllowedForRadix` and `findOperatorForSingleChar` take `int`.
 - JPMS: `open module igormaznitsa.prolog.parser` exports all 5 packages, requires only `java.base` (jdeps-confirmed). Jar classes are Java 11 bytecode (55). `utils` must stay exported: `PrologParser.findMetaOps()` returns `Koi7CharOpMap`. Verified with a consumer module run from `--module-path`.
 
@@ -35,7 +35,7 @@
 - `calcDiffAndPushResultBack` still resets the column to 1 when a pushed operator fragment contains a newline. Operator text does not contain newlines today.
 
 ## 4. Current Work In Progress
-- Unicode fixes and tests are uncommitted.
+- Release 2.3.0 is prepared (version bump uncommitted). After publishing: tag `2.3.0`, then move the pom to `2.3.1-SNAPSHOT`.
 
 ## 5. Known Issues & Limitations
 - `'don''t'` is rejected (backslash escapes only). Lone `.` is end-of-input by tests.
